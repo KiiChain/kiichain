@@ -5,7 +5,7 @@ SKIP_BUILD=${SKIP_BUILD:-""}
 # Set up env
 export GOPATH=$HOME/go
 export GOBIN=$GOPATH/bin
-export BUILD_PATH=/sei-protocol/sei-chain/build
+export BUILD_PATH=/kiichain/kiichain3/build
 export PATH=$GOBIN:$PATH:/usr/local/go/bin:$BUILD_PATH
 echo "export GOPATH=$HOME/go" >> /root/.bashrc
 echo "GOBIN=$GOPATH/bin" >> /root/.bashrc
@@ -18,7 +18,7 @@ if [ -z "$SKIP_BUILD" ]
 then
   /usr/bin/build.sh
 fi
-cp build/seid "$GOBIN"/
+cp build/kiichaind "$GOBIN"/
 
 # Run init to set up state sync configurations
 /usr/bin/configure_init.sh

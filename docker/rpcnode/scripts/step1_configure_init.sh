@@ -4,17 +4,17 @@
 echo "Configure and initialize environment"
 
 # Testing whether seid works or not
-seid version # Uncomment the below line if there are any dependency issues
+kiichaind version # Uncomment the below line if there are any dependency issues
 # ldd build/seid
 
 # Initialize validator node
-MONIKER="sei-rpc-node"
-seid init --chain-id sei "$MONIKER"
+MONIKER="kiichain-rpc-node"
+kiichaind init --chain-id kiichain3 "$MONIKER"
 
 # Copy configs
-cp docker/rpcnode/config/app.toml ~/.sei/config/app.toml
-cp docker/rpcnode/config/config.toml ~/.sei/config/config.toml
-cp build/generated/genesis.json ~/.sei/config/genesis.json
+cp docker/rpcnode/config/app.toml ~/.kiichain3/config/app.toml
+cp docker/rpcnode/config/config.toml ~/.kiichain3/config/config.toml
+cp build/generated/genesis.json ~/.kiichain3/config/genesis.json
 
 # Override state sync configs
 STATE_SYNC_RPC="192.168.10.10:26657"

@@ -7,15 +7,15 @@ echo "Preparing genesis file"
 
 ACCOUNT_NAME="admin"
 echo "Adding account $ACCOUNT_NAME"
-printf "12345678\n12345678\ny\n" | seid keys add $ACCOUNT_NAME >/dev/null 2>&1
+printf "12345678\n12345678\ny\n" | kiichaind keys add $ACCOUNT_NAME >/dev/null 2>&1
 
 override_genesis() {
-  cat ~/.sei/config/genesis.json | jq "$1" > ~/.sei/config/tmp_genesis.json && mv ~/.sei/config/tmp_genesis.json ~/.sei/config/genesis.json;
+  cat ~/.kiichain3/config/genesis.json | jq "$1" > ~/.kiichain3/config/tmp_genesis.json && mv ~/.kiichain3/config/tmp_genesis.json ~/.kiichain3/config/genesis.json;
 }
 
-override_genesis '.app_state["crisis"]["constant_fee"]["denom"]="usei"'
-override_genesis '.app_state["mint"]["params"]["mint_denom"]="usei"'
-override_genesis '.app_state["staking"]["params"]["bond_denom"]="usei"'
+override_genesis '.app_state["crisis"]["constant_fee"]["denom"]="ukii"'
+override_genesis '.app_state["mint"]["params"]["mint_denom"]="ukii"'
+override_genesis '.app_state["staking"]["params"]["bond_denom"]="ukii"'
 override_genesis '.app_state["oracle"]["params"]["vote_period"]="2"'
 override_genesis '.app_state["slashing"]["params"]["signed_blocks_window"]="10000"'
 override_genesis '.app_state["slashing"]["params"]["min_signed_per_window"]="0.050000000000000000"'
@@ -36,8 +36,8 @@ override_genesis '.app_state["genutil"]["gen_txs"]=[]'
 override_genesis '.app_state["bank"]["denom_metadata"]=[{"denom_units":[{"denom":"UATOM","exponent":6,"aliases":["UATOM"]}],"base":"uatom","display":"uatom","name":"UATOM","symbol":"UATOM"}]'
 
 # gov parameters
-override_genesis '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="usei"'
-override_genesis '.app_state["gov"]["deposit_params"]["min_expedited_deposit"][0]["denom"]="usei"'
+override_genesis '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="ukii"'
+override_genesis '.app_state["gov"]["deposit_params"]["min_expedited_deposit"][0]["denom"]="ukii"'
 override_genesis '.app_state["gov"]["deposit_params"]["max_deposit_period"]="100s"'
 override_genesis '.app_state["gov"]["voting_params"]["voting_period"]="30s"'
 override_genesis '.app_state["gov"]["voting_params"]["expedited_voting_period"]="15s"'
@@ -49,14 +49,14 @@ override_genesis '.app_state["gov"]["tally_params"]["expedited_threshold"]="0.9"
 # add genesis accounts for each node
 while read account; do
   echo "Adding: $account"
-  seid add-genesis-account "$account" 1000000000000000000000usei,1000000000000000000000uusdc,1000000000000000000000uatom
+  kiichaind add-genesis-account "$account" 1000000000000000000000ukii,1000000000000000000000uusdc,1000000000000000000000uatom
 done <build/generated/genesis_accounts.txt
 
 # add funds to admin account
-printf "12345678\n" | seid add-genesis-account admin 1000000000000000000000usei,1000000000000000000000uusdc,1000000000000000000000uatom
+printf "12345678\n" | kiichaind add-genesis-account admin 1000000000000000000000ukii,1000000000000000000000uusdc,1000000000000000000000uatom
 
 mkdir -p ~/exported_keys
-cp -r build/generated/gentx/* ~/.sei/config/gentx
+cp -r build/generated/gentx/* ~/.kiichain3/config/gentx
 cp -r build/generated/exported_keys ~/exported_keys
 
 # add validators to genesis
@@ -64,7 +64,7 @@ cp -r build/generated/exported_keys ~/exported_keys
 
 # collect gentxs
 echo "Collecting all gentx"
-seid collect-gentxs >/dev/null 2>&1
+kiichaind collect-gentxs >/dev/null 2>&1
 
-cp ~/.sei/config/genesis.json build/generated/genesis.json
+cp ~/.kiichain3/config/genesis.json build/generated/genesis.json
 echo "Genesis file has been created successfully"

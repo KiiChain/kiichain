@@ -2,9 +2,9 @@ package app
 
 const (
 	// Prefix of bech32 encoded address
-	AccountAddressPrefix = "sei"
+	AccountAddressPrefix = "kii"
 	// Application name
-	AppName = "sei"
+	AppName = "kiichain3"
 
 	OptimisticProcessingTimeoutInSeconds = 5
 )

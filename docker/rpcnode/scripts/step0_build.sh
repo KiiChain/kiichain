@@ -5,7 +5,7 @@ ARCH=$(uname -m)
 
 # Build seid
 echo "Building seid from local branch"
-git config --global --add safe.directory /sei-protocol/sei-chain
+git config --global --add safe.directory /kiichain/kiichain3
 LEDGER_ENABLED=false
 make install
 mkdir -p build/generated

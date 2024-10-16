@@ -1,5 +1,5 @@
 gas_adjustment = 1.5
-gas_prices = "0.00125usei"
+gas_prices = "0.00125ukii"
 enable_server = true
 enable_voter = true
 
@@ -35,13 +35,13 @@ quote = "USD"
 
 [account]
 address = "address"
-chain_id = "sei"
+chain_id = "kiichain3"
 validator = "validator"
-prefix = "sei"
+prefix = "kii"
 
 [keyring]
 backend = "os"
-dir = "/root/.sei"
+dir = "/root/.kiichain3"
 
 [rpc]
 grpc_endpoint = "localhost:9090"
@@ -53,7 +53,7 @@ enable_hostname = true
 enable_hostname_label = true
 enable_service_label = true
 enabled = true
-global_labels = [["chain-id", "sei-chain"]]
+global_labels = [["chain-id", "kiichain3"]]
 service_name = "price-feeder"
 type = "prometheus"
 

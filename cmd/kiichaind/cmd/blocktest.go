@@ -1,8 +1,9 @@
 package cmd
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -14,37 +15,39 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	aclkeeper "github.com/cosmos/cosmos-sdk/x/accesscontrol/keeper"
+	ethtests "github.com/ethereum/go-ethereum/tests"
 	"github.com/sei-protocol/sei-chain/app"
+	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
 	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
 
-	"net/http"
 	//nolint:gosec,G108
 	_ "net/http/pprof"
 )
 
 //nolint:gosec
-func ReplayCmd(defaultNodeHome string) *cobra.Command {
+func BlocktestCmd(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "ethreplay",
-		Short: "replay EVM transactions",
-		Long:  "replay EVM transactions",
+		Use:   "blocktest",
+		Short: "run EF blocktest",
+		Long:  "run EF blocktest",
 		RunE: func(cmd *cobra.Command, _ []string) error {
+			blockTestFileName, err := cmd.Flags().GetString("block-test")
+			if err != nil {
+				panic(fmt.Sprintf("Error with retrieving block test path: %v", err.Error()))
+			}
+			testName, err := cmd.Flags().GetString("test-name")
+			if err != nil {
+				panic(fmt.Sprintf("Error with retrieving test name: %v", err.Error()))
+			}
+			if blockTestFileName == "" || testName == "" {
+				panic("block test file name or test name not set")
+			}
 
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			if err := serverCtx.Viper.BindPFlags(cmd.Flags()); err != nil {
 				return err
 			}
-			go func() {
-				serverCtx.Logger.Info("Listening for profiling at http://localhost:6060/debug/pprof/")
-				err := http.ListenAndServe(":6060", nil)
-				if err != nil {
-					serverCtx.Logger.Error("Error from profiling server", "error", err)
-				}
-			}()
-
 			home := serverCtx.Viper.GetString(flags.FlagHome)
 			db, err := openDB(home)
 			if err != nil {
@@ -55,6 +58,8 @@ func ReplayCmd(defaultNodeHome string) *cobra.Command {
 			cache := store.NewCommitKVStoreCacheManager()
 			wasmGasRegisterConfig := wasmkeeper.DefaultGasRegisterConfig()
 			wasmGasRegisterConfig.GasMultiplier = 21_000_000
+			// turn on Cancun for block test
+			evmtypes.CancunTime = 0
 			a := app.New(
 				logger,
 				db,
@@ -82,18 +87,36 @@ func ReplayCmd(defaultNodeHome string) *cobra.Command {
 				baseapp.SetMinRetainBlocks(cast.ToUint64(serverCtx.Viper.Get(server.FlagMinRetainBlocks))),
 				baseapp.SetInterBlockCache(cache),
 			)
-			app.Replay(a)
+			bt := testIngester(blockTestFileName, testName)
+			app.BlockTest(a, bt)
 			return nil
 		},
 	}
 
 	cmd.Flags().String(flags.FlagHome, defaultNodeHome, "The database home directory")
-	cmd.Flags().String(flags.FlagChainID, "sei-chain", "chain ID")
+	cmd.Flags().String(flags.FlagChainID, "kiichain3", "chain ID")
+	cmd.Flags().String("block-test", "", "path to a block test json file")
+	cmd.Flags().String("test-name", "", "individual test name")
 
 	return cmd
 }
 
-func openDB(rootDir string) (dbm.DB, error) {
-	dataDir := filepath.Join(rootDir, "data")
-	return sdk.NewLevelDB("application", dataDir)
+func testIngester(testFilePath string, testName string) *ethtests.BlockTest {
+	file, err := os.Open(testFilePath)
+	if err != nil {
+		panic(err)
+	}
+	var tests map[string]ethtests.BlockTest
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&tests)
+	if err != nil {
+		panic(err)
+	}
+
+	res, ok := tests[testName]
+	if !ok {
+		panic(fmt.Sprintf("Unable to find test name %v at test file path %v", testName, testFilePath))
+	}
+
+	return &res
 }

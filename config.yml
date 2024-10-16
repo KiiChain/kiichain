@@ -1,5 +1,5 @@
 build:
-  main: './cmd/seid'
+  main: './cmd/kiichaind'
 accounts:
   - name: alice
     coins: ['20000token', '200000000stake']

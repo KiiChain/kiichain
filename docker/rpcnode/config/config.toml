@@ -7,7 +7,7 @@
 proxy-app = "tcp://127.0.0.1:26658"
 
 # A custom human readable name for this node
-moniker = "sei-rpc-node"
+moniker = "kiichain-rpc-node"
 
 # Mode of Node: full | validator | seed
 # * validator node
