@@ -8,7 +8,7 @@ RUN mkdir -p /root/go/pkg/mod && \
     chmod -R a+rwX /root
 SHELL ["/bin/bash", "-c"]
 
-WORKDIR /sei-protocol/sei-chain
+WORKDIR /kiichain/kiichain3
 
 EXPOSE 26656 26657 26658 9090 9091
 
@@ -19,4 +19,4 @@ STOPSIGNAL SIGTERM
 COPY scripts/deploy.sh /usr/bin/deploy.sh
 COPY scripts/step0_build.sh /usr/bin/build.sh
 COPY scripts/step1_configure_init.sh /usr/bin/configure_init.sh
-COPY scripts/step2_start_sei.sh /usr/bin/start_sei.sh
+COPY scripts/step2_start_kiichain.sh /usr/bin/start_kiichain.sh
