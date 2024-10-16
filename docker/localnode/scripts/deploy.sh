@@ -56,7 +56,7 @@ done
 /usr/bin/config_override.sh
 
 # Step 5: Start the chain
-/usr/bin/start_sei.sh
+/usr/bin/start_kiichain.sh
 
 # Wait until the chain started
 while [ $(cat build/generated/launch.complete |wc -l) -lt "$CLUSTER_SIZE" ]

@@ -17,7 +17,7 @@ make run-local-node # this is to run a local node
 docker ps
 
 # retrieve the container id
-docker exec <container id> -it sh
+docker exec -it <container id> sh
 
 # you will then shell into the container
 
