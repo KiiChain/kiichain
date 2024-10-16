@@ -3,8 +3,8 @@
 LOG_DIR="build/generated/logs"
 mkdir -p $LOG_DIR
 
-# Starting sei chain
+# Starting kiichain chain
 echo "RPC Node is starting now, check logs under $LOG_DIR"
 
-seid start --chain-id sei > "$LOG_DIR/rpc-node.log" 2>&1 &
+kiichaind start --chain-id kiichain > "$LOG_DIR/rpc-node.log" 2>&1 &
 echo "Done" >> build/generated/rpc-launch.complete

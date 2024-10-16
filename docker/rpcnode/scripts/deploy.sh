@@ -13,7 +13,7 @@ echo "export PATH=$GOBIN:$PATH:/usr/local/go/bin:$BUILD_PATH" >> /root/.bashrc
 /bin/bash -c "source /root/.bashrc"
 mkdir -p $GOBIN
 
-# Step 1 build seid
+# Step 1 build kiichaind
 if [ -z "$SKIP_BUILD" ]
 then
   /usr/bin/build.sh
@@ -24,6 +24,6 @@ cp build/kiichaind "$GOBIN"/
 /usr/bin/configure_init.sh
 
 # Start the chain
-/usr/bin/start_sei.sh
+/usr/bin/start_kiichain.sh
 
 tail -f /dev/null
