@@ -1,7 +1,7 @@
 services:
   node0:
     platform: linux/amd64
-    container_name: sei-node-0
+    container_name: kiichain-node-0
     image: "kiichain3/localnode"
     user: "${USERID}:${GROUPID}"
     ports:
@@ -17,10 +17,10 @@ services:
       - UPGRADE_VERSION_LIST
     volumes:
       - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
-      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/sei-tendermint:Z"
-      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/sei-cosmos:Z"
-      - "${PROJECT_HOME}/../sei-db:/kiichain/sei-db:Z"
-      - "${PROJECT_HOME}/../go-ethereum:/kiichain/go-ethereum:Z"
+      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/sei-tendermint:Z"
+      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/sei-cosmos:Z"
+      - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
+      - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
       - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
       - "${GOCACHE}:/root/.cache/go-build:Z"
     networks:
@@ -29,7 +29,7 @@ services:
 
   node1:
     platform: linux/amd64
-    container_name: sei-node-1
+    container_name: kiichain-node-1
     image: "kiichain3/localnode"
     user: "${USERID}:${GROUPID}"
     ports:
@@ -44,10 +44,10 @@ services:
       - UPGRADE_VERSION_LIST
     volumes:
       - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
-      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/sei-tendermint:Z"
-      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/sei-cosmos:Z"
-      - "${PROJECT_HOME}/../sei-db:/kiichain/sei-db:Z"
-      - "${PROJECT_HOME}/../go-ethereum:/kiichain/go-ethereum:Z"
+      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/sei-tendermint:Z"
+      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/sei-cosmos:Z"
+      - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
+      - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
       - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
       - "${GOCACHE}:/root/.cache/go-build:Z"
     networks:
@@ -56,7 +56,7 @@ services:
 
   node2:
     platform: linux/amd64
-    container_name: sei-node-2
+    container_name: kiichain-node-2
     image: "kiichain3/localnode"
     user: "${USERID}:${GROUPID}"
     environment:
@@ -71,10 +71,10 @@ services:
       - "9094-9095:9090-9091"
     volumes:
       - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
-      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/sei-tendermint:Z"
-      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/sei-cosmos:Z"
-      - "${PROJECT_HOME}/../sei-db:/kiichain/sei-db:Z"
-      - "${PROJECT_HOME}/../go-ethereum:/kiichain/go-ethereum:Z"
+      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/sei-tendermint:Z"
+      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/sei-cosmos:Z"
+      - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
+      - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
       - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
       - "${GOCACHE}:/root/.cache/go-build:Z"
     networks:
@@ -83,7 +83,7 @@ services:
 
   node3:
     platform: linux/amd64
-    container_name: sei-node-3
+    container_name: kiichain-node-3
     image: "kiichain3/localnode"
     user: "${USERID}:${GROUPID}"
     environment:
@@ -98,10 +98,10 @@ services:
       - "9096-9097:9090-9091"
     volumes:
       - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
-      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/sei-tendermint:Z"
-      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/sei-cosmos:Z"
-      - "${PROJECT_HOME}/../sei-db:/kiichain/sei-db:Z"
-      - "${PROJECT_HOME}/../go-ethereum:/kiichain/go-ethereum:Z"
+      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/sei-tendermint:Z"
+      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/sei-cosmos:Z"
+      - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
+      - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
       - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
       - "${GOCACHE}:/root/.cache/go-build:Z"
     networks:
