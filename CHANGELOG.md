@@ -29,33 +29,33 @@ Ref: https://keepachangelog.com/en/1.0.0/
 # Changelog
 ## v5.9.0
 sei-chain
-* [#1867](https://github.com/sei-protocol/sei-chain/pull/1867) Add synthetic events in separate sei endpoints
-* [#1861](https://github.com/sei-protocol/sei-chain/pull/1861) Revert showing wasm txs in EVM RPCs
-* [#1857](https://github.com/sei-protocol/sei-chain/pull/1857) Fix events in 2-hop scenarios
-* [#1856](https://github.com/sei-protocol/sei-chain/pull/1856) Add delegatecall flag to properly detect delegatecalls
-* [#1850](https://github.com/sei-protocol/sei-chain/pull/1853) Fix websocket from_height
-* [#1849](https://github.com/sei-protocol/sei-chain/pull/1849) Reduce block bloom storage
-* [#1844](https://github.com/sei-protocol/sei-chain/pull/1844) Allowlist for token extensions
+* [#1867](https://github.com/kiichain/kiichain3/pull/1867) Add synthetic events in separate sei endpoints
+* [#1861](https://github.com/kiichain/kiichain3/pull/1861) Revert showing wasm txs in EVM RPCs
+* [#1857](https://github.com/kiichain/kiichain3/pull/1857) Fix events in 2-hop scenarios
+* [#1856](https://github.com/kiichain/kiichain3/pull/1856) Add delegatecall flag to properly detect delegatecalls
+* [#1850](https://github.com/kiichain/kiichain3/pull/1853) Fix websocket from_height
+* [#1849](https://github.com/kiichain/kiichain3/pull/1849) Reduce block bloom storage
+* [#1844](https://github.com/kiichain/kiichain3/pull/1844) Allowlist for token extensions
 
 sei-iavl
 *[#41](https://github.com/sei-protocol/sei-iavl/pull/41) Fix tree versions causing slow restart and OOM
 ## v5.8.0
 sei-chain
-* [#1840](https://github.com/sei-protocol/sei-chain/pull/1840) Add migration for new params
-* [#1837](https://github.com/sei-protocol/sei-chain/pull/1837) Move token id from Data to Topic in ERC721 Event
-* [#1836](https://github.com/sei-protocol/sei-chain/pull/1836) Properly handle gas in pointer precompile
-* [#1835](https://github.com/sei-protocol/sei-chain/pull/1835) Check TX nonce before registering hook to bump nonce for failed tx
-* [#1832](https://github.com/sei-protocol/sei-chain/pull/1832) Show CW transactions that have synthetic EVM events in eth_getBlock response
-* [#1831](https://github.com/sei-protocol/sei-chain/pull/1831) Fork event manager when creating EVM snapshots
-* [#1830](https://github.com/sei-protocol/sei-chain/pull/1830) Add wasm contract query gas limit
-* [#1826](https://github.com/sei-protocol/sei-chain/pull/1826) limit MsgExec max nested level
-* [#1821](https://github.com/sei-protocol/sei-chain/pull/1821) Add antehandler for EVM to check gas exceed limit or not
-* [#1818](https://github.com/sei-protocol/sei-chain/pull/1818) Prevent ddos against associate msgs
-* [#1816](https://github.com/sei-protocol/sei-chain/pull/1816) Actually remove dex module
-* [#1813](https://github.com/sei-protocol/sei-chain/pull/1813) Tune Configs
-* [#1812](https://github.com/sei-protocol/sei-chain/pull/1812) Evidence Max Bytes Update
-* [#1785](https://github.com/sei-protocol/sei-chain/pull/1785) Allow CW->ERC pointers to be called through wasmd precompile
-* [#1778](https://github.com/sei-protocol/sei-chain/pull/1778) Bump nonce even if tx fails
+* [#1840](https://github.com/kiichain/kiichain3/pull/1840) Add migration for new params
+* [#1837](https://github.com/kiichain/kiichain3/pull/1837) Move token id from Data to Topic in ERC721 Event
+* [#1836](https://github.com/kiichain/kiichain3/pull/1836) Properly handle gas in pointer precompile
+* [#1835](https://github.com/kiichain/kiichain3/pull/1835) Check TX nonce before registering hook to bump nonce for failed tx
+* [#1832](https://github.com/kiichain/kiichain3/pull/1832) Show CW transactions that have synthetic EVM events in eth_getBlock response
+* [#1831](https://github.com/kiichain/kiichain3/pull/1831) Fork event manager when creating EVM snapshots
+* [#1830](https://github.com/kiichain/kiichain3/pull/1830) Add wasm contract query gas limit
+* [#1826](https://github.com/kiichain/kiichain3/pull/1826) limit MsgExec max nested level
+* [#1821](https://github.com/kiichain/kiichain3/pull/1821) Add antehandler for EVM to check gas exceed limit or not
+* [#1818](https://github.com/kiichain/kiichain3/pull/1818) Prevent ddos against associate msgs
+* [#1816](https://github.com/kiichain/kiichain3/pull/1816) Actually remove dex module
+* [#1813](https://github.com/kiichain/kiichain3/pull/1813) Tune Configs
+* [#1812](https://github.com/kiichain/kiichain3/pull/1812) Evidence Max Bytes Update
+* [#1785](https://github.com/kiichain/kiichain3/pull/1785) Allow CW->ERC pointers to be called through wasmd precompile
+* [#1778](https://github.com/kiichain/kiichain3/pull/1778) Bump nonce even if tx fails
 
 sei-cosmos
 * [#535](https://github.com/sei-protocol/sei-cosmos/pull/535) init app earliest version correctly after state sync
@@ -73,9 +73,9 @@ sei-tendermint
 
 ## v5.7.5
 sei-chain
-* [#1795](https://github.com/sei-protocol/sei-chain/pull/1795) Do not charge gas for feecollector address query
-* [#1782](https://github.com/sei-protocol/sei-chain/pull/1782) Update excessBlobGas and BlobBaseFee to fix simulate evmcontext
-* [#1741](https://github.com/sei-protocol/sei-chain/pull/1782) Update excessBlobGas and BlobBaseFee to fix simulate evmcontext
+* [#1795](https://github.com/kiichain/kiichain3/pull/1795) Do not charge gas for feecollector address query
+* [#1782](https://github.com/kiichain/kiichain3/pull/1782) Update excessBlobGas and BlobBaseFee to fix simulate evmcontext
+* [#1741](https://github.com/kiichain/kiichain3/pull/1782) Update excessBlobGas and BlobBaseFee to fix simulate evmcontext
 
 sei-cosmos
 * [#530](https://github.com/sei-protocol/sei-cosmos/pull/530) Add EVMEntryViaWasmdPrecompile flag
@@ -91,10 +91,10 @@ sei-tendermint
 
 ## v5.7.1 & v5.7.2
 sei-chain
-* [#1779](https://github.com/sei-protocol/sei-chain/pull/1779) Fix subscribe logs empty params crash
-* [#1783](https://github.com/sei-protocol/sei-chain/pull/1783) Add meaningful message for eth_call balance override overflow
-* [#1783](https://github.com/sei-protocol/sei-chain/pull/1784) Fix log index on synthetic receipt
-* [#1775](https://github.com/sei-protocol/sei-chain/pull/1775) Disallow sending to direct cast addr after association
+* [#1779](https://github.com/kiichain/kiichain3/pull/1779) Fix subscribe logs empty params crash
+* [#1783](https://github.com/kiichain/kiichain3/pull/1783) Add meaningful message for eth_call balance override overflow
+* [#1783](https://github.com/kiichain/kiichain3/pull/1784) Fix log index on synthetic receipt
+* [#1775](https://github.com/kiichain/kiichain3/pull/1775) Disallow sending to direct cast addr after association
 
 sei-wasmd
 * [60](https://github.com/sei-protocol/sei-wasmd/pull/60) Query penalty fixes
@@ -104,24 +104,24 @@ sei-tendermint
 
 ## v5.7.0
 sei-chain
-* [#1731](https://github.com/sei-protocol/sei-chain/pull/1731) Remove 1-hop limit
-* [#1663](https://github.com/sei-protocol/sei-chain/pull/1663) Retain pointer address on upgrade
+* [#1731](https://github.com/kiichain/kiichain3/pull/1731) Remove 1-hop limit
+* [#1663](https://github.com/kiichain/kiichain3/pull/1663) Retain pointer address on upgrade
 
 ## v5.6.0
 sei-chain
-* [#1690](https://github.com/sei-protocol/sei-chain/pull/1690) Use transient store for EVM deferred info
-* [#1742](https://github.com/sei-protocol/sei-chain/pull/1742) \[EVM\] Add transient receipts with eventual flush to store
-* [#1744](https://github.com/sei-protocol/sei-chain/pull/1744) Only emit cosmos events if no error in precompiles
-* [#1737](https://github.com/sei-protocol/sei-chain/pull/1737) Only send unlocked tokens upon address association
-* [#1740](https://github.com/sei-protocol/sei-chain/pull/1740) Update Random to Hash of Block Timestamp
-* [#1734](https://github.com/sei-protocol/sei-chain/pull/1734) Add migration to unwind dex state
-* [#1736](https://github.com/sei-protocol/sei-chain/pull/1736) Create account for sendNative receiver
-* [#1738](https://github.com/sei-protocol/sei-chain/pull/1738) Reduce Default TTL configs
-* [#1733](https://github.com/sei-protocol/sei-chain/pull/1733) Update getBlockReceipts to accept block hash
-* [#1732](https://github.com/sei-protocol/sei-chain/pull/1732) Show empty trace on insufficient funds error
-* [#1727](https://github.com/sei-protocol/sei-chain/pull/1727) \[EVM\] Add association error metric
-* [#1728](https://github.com/sei-protocol/sei-chain/pull/1728) Make occ caused evm panics less noisy
-* [#1719](https://github.com/sei-protocol/sei-chain/pull/1719) Fixes local network in /scripts/run-node.py
+* [#1690](https://github.com/kiichain/kiichain3/pull/1690) Use transient store for EVM deferred info
+* [#1742](https://github.com/kiichain/kiichain3/pull/1742) \[EVM\] Add transient receipts with eventual flush to store
+* [#1744](https://github.com/kiichain/kiichain3/pull/1744) Only emit cosmos events if no error in precompiles
+* [#1737](https://github.com/kiichain/kiichain3/pull/1737) Only send unlocked tokens upon address association
+* [#1740](https://github.com/kiichain/kiichain3/pull/1740) Update Random to Hash of Block Timestamp
+* [#1734](https://github.com/kiichain/kiichain3/pull/1734) Add migration to unwind dex state
+* [#1736](https://github.com/kiichain/kiichain3/pull/1736) Create account for sendNative receiver
+* [#1738](https://github.com/kiichain/kiichain3/pull/1738) Reduce Default TTL configs
+* [#1733](https://github.com/kiichain/kiichain3/pull/1733) Update getBlockReceipts to accept block hash
+* [#1732](https://github.com/kiichain/kiichain3/pull/1732) Show empty trace on insufficient funds error
+* [#1727](https://github.com/kiichain/kiichain3/pull/1727) \[EVM\] Add association error metric
+* [#1728](https://github.com/kiichain/kiichain3/pull/1728) Make occ caused evm panics less noisy
+* [#1719](https://github.com/kiichain/kiichain3/pull/1719) Fixes local network in /scripts/run-node.py
 
 
 sei-cosmos
@@ -142,10 +142,10 @@ sei-tendermint
 
 ## v5.5.5
 sei-chain
-* [#1726](https://github.com/sei-protocol/sei-chain/pull/1726) Handle VM error code properly
-* [#1713](https://github.com/sei-protocol/sei-chain/pull/1713) RPC Get Evm Hash
-* [#1711](https://github.com/sei-protocol/sei-chain/pull/1711) Add gov proposal v2 for native pointer
-* [#1694](https://github.com/sei-protocol/sei-chain/pull/1694) Add native associate tx type
+* [#1726](https://github.com/kiichain/kiichain3/pull/1726) Handle VM error code properly
+* [#1713](https://github.com/kiichain/kiichain3/pull/1713) RPC Get Evm Hash
+* [#1711](https://github.com/kiichain/kiichain3/pull/1711) Add gov proposal v2 for native pointer
+* [#1694](https://github.com/kiichain/kiichain3/pull/1694) Add native associate tx type
 
 
 sei-cosmos
@@ -154,16 +154,16 @@ sei-cosmos
 
 ## v5.5.2
 sei-chain
-* [#1685](https://github.com/sei-protocol/sei-chain/pull/1685) Add EVM support to v5.5.2
+* [#1685](https://github.com/kiichain/kiichain3/pull/1685) Add EVM support to v5.5.2
 
 ## v5.4.0
 sei-chain
-* [#1671](https://github.com/sei-protocol/sei-chain/pull/1671) Update and fixes to ERC721 contract
-* [#1672](https://github.com/sei-protocol/sei-chain/pull/1672) Add sei_getCosmosTx endpoint
-* [#1669](https://github.com/sei-protocol/sei-chain/pull/1669) Add ERC/CW 2981 in pointe
-* [#1668](https://github.com/sei-protocol/sei-chain/pull/1673) Bring CW721 pointer contract up to spec
-* [#1662](https://github.com/sei-protocol/sei-chain/pull/1662) Add memo support to ibc compiles
-* [#1661](https://github.com/sei-protocol/sei-chain/pull/1661) Do not modify original value passed in executeBatch call
+* [#1671](https://github.com/kiichain/kiichain3/pull/1671) Update and fixes to ERC721 contract
+* [#1672](https://github.com/kiichain/kiichain3/pull/1672) Add sei_getCosmosTx endpoint
+* [#1669](https://github.com/kiichain/kiichain3/pull/1669) Add ERC/CW 2981 in pointe
+* [#1668](https://github.com/kiichain/kiichain3/pull/1673) Bring CW721 pointer contract up to spec
+* [#1662](https://github.com/kiichain/kiichain3/pull/1662) Add memo support to ibc compiles
+* [#1661](https://github.com/kiichain/kiichain3/pull/1661) Do not modify original value passed in executeBatch call
 
 sei-cosmos
 *[#505](https://github.com/sei-protocol/sei-cosmos/pull/505) Fix export genesis for historical height
@@ -174,13 +174,13 @@ sei-wasmd
 
 ## v5.2.0
 sei-chain
-* [#1621](https://github.com/sei-protocol/sei-chain/pull/1621) Add websocket metrics
-* [#1619](https://github.com/sei-protocol/sei-chain/pull/1619) Limit number of subscriptions
-* [#1618](https://github.com/sei-protocol/sei-chain/pull/1618) Fix contract deploy receipts
-* [#1615](https://github.com/sei-protocol/sei-chain/pull/1615) Optimize websocket newHead by reusing tendermint subscription
-* [#1609](https://github.com/sei-protocol/sei-chain/pull/1609) Add association logic to simulate endpoints
-* [#1605](https://github.com/sei-protocol/sei-chain/pull/1605) Disallow sr25519 addresses for evm functions
-* [#1606](https://github.com/sei-protocol/sei-chain/pull/1606) SKip evm antehandler on sr25519 signatures
+* [#1621](https://github.com/kiichain/kiichain3/pull/1621) Add websocket metrics
+* [#1619](https://github.com/kiichain/kiichain3/pull/1619) Limit number of subscriptions
+* [#1618](https://github.com/kiichain/kiichain3/pull/1618) Fix contract deploy receipts
+* [#1615](https://github.com/kiichain/kiichain3/pull/1615) Optimize websocket newHead by reusing tendermint subscription
+* [#1609](https://github.com/kiichain/kiichain3/pull/1609) Add association logic to simulate endpoints
+* [#1605](https://github.com/kiichain/kiichain3/pull/1605) Disallow sr25519 addresses for evm functions
+* [#1606](https://github.com/kiichain/kiichain3/pull/1606) SKip evm antehandler on sr25519 signatures
 
 sei-cosmos:
 * [#495](https://github.com/sei-protocol/sei-cosmos/pull/495) Fix seid keys list by ignoring evm-addr for sr25519
@@ -194,11 +194,11 @@ sei-db:
 
 ## v5.0.1
 sei-chain
-[#1577](https://github.com/sei-protocol/sei-chain/pull/1577) Re-enable Cancun
+[#1577](https://github.com/kiichain/kiichain3/pull/1577) Re-enable Cancun
 
 ## v5.0.0
 sei-chain:
-[Compare v3.9.0...v5.0.0](https://github.com/sei-protocol/sei-chain/compare/v3.9.0...008ff68)
+[Compare v3.9.0...v5.0.0](https://github.com/kiichain/kiichain3/compare/v3.9.0...008ff68)
 
 sei-cosmos:
 [Compare v0.2.84...v0.3.1](https://github.com/sei-protocol/sei-cosmos/compare/v0.2.83...v0.3.1)
@@ -209,8 +209,8 @@ sei-tendermint:
 
 ## v3.9.0
 sei-chain:
-* [#1565](https://github.com/sei-protocol/sei-chain/pull/1565) Cosmos Gas Multiplier Params
-* [#1444](https://github.com/sei-protocol/sei-chain/pull/1444) Adding tokenfactory denom metadata endpoint
+* [#1565](https://github.com/kiichain/kiichain3/pull/1565) Cosmos Gas Multiplier Params
+* [#1444](https://github.com/kiichain/kiichain3/pull/1444) Adding tokenfactory denom metadata endpoint
 
 sei-cosmos:
 * [#489](https://github.com/sei-protocol/sei-cosmos/pull/489) Cosmos Gas Multiplier Params
@@ -238,8 +238,8 @@ sei-wasmd:
 
 ## v3.7.0
 sei-chain:
-* [#1283](https://github.com/sei-protocol/sei-chain/pull/1283) Update synchronous execution to set tx indices properly
-* [#1325](https://github.com/sei-protocol/sei-chain/pull/1325) Oracle price feeder ignore error for vote already exist
+* [#1283](https://github.com/kiichain/kiichain3/pull/1283) Update synchronous execution to set tx indices properly
+* [#1325](https://github.com/kiichain/kiichain3/pull/1325) Oracle price feeder ignore error for vote already exist
 
 sei-cosmos:
 * [#401](https://github.com/sei-protocol/sei-cosmos/pull/401) Ensure Panic Recovery in Prepare & Process Handlers
@@ -249,9 +249,9 @@ sei-cosmos:
 
 ## v3.6.1
 sei-chain:
-* [#1204](https://github.com/sei-protocol/sei-chain/pull/1204) Cleanup removed oracle feeds
-* [#1196](https://github.com/sei-protocol/sei-chain/pull/1196) Add panic handler in dex endblock
-* [#1170](https://github.com/sei-protocol/sei-chain/pull/1170) Integrate SeiDB into Sei Chain
+* [#1204](https://github.com/kiichain/kiichain3/pull/1204) Cleanup removed oracle feeds
+* [#1196](https://github.com/kiichain/kiichain3/pull/1196) Add panic handler in dex endblock
+* [#1170](https://github.com/kiichain/kiichain3/pull/1170) Integrate SeiDB into Sei Chain
 
 sei-cosmos:
 * [#391](https://github.com/sei-protocol/sei-cosmos/pull/391) Fix potential memory leak due to emitting events
@@ -264,11 +264,11 @@ sei-tendermint:
 
 ## v3.5.0
 sei-chain:
-* [#1164](https://github.com/sei-protocol/sei-chain/pull/1164) Bump wasmd
-* [#1163](https://github.com/sei-protocol/sei-chain/pull/1163) Update antehandler
-* [#1160](https://github.com/sei-protocol/sei-chain/pull/1160) Allow metrics script to query remote
-* [#1156](https://github.com/sei-protocol/sei-chain/pull/1156) Bump ledger version to support nano s
-* [#1155](https://github.com/sei-protocol/sei-chain/pull/1155) Allow loadtest client to take a list of grpc endpoints
+* [#1164](https://github.com/kiichain/kiichain3/pull/1164) Bump wasmd
+* [#1163](https://github.com/kiichain/kiichain3/pull/1163) Update antehandler
+* [#1160](https://github.com/kiichain/kiichain3/pull/1160) Allow metrics script to query remote
+* [#1156](https://github.com/kiichain/kiichain3/pull/1156) Bump ledger version to support nano s
+* [#1155](https://github.com/kiichain/kiichain3/pull/1155) Allow loadtest client to take a list of grpc endpoints
 
 sei-cosmos:
 * [#383](https://github.com/sei-protocol/sei-cosmos/pull/383) Refactor wasm dependency behavior
@@ -288,7 +288,7 @@ sei-ibc-go:
 
 ## v3.2.1
 sei-chain:
-* [#1073](https://github.com/sei-protocol/sei-chain/pull/1073) Add timestamp to oracle exchange rates
+* [#1073](https://github.com/kiichain/kiichain3/pull/1073) Add timestamp to oracle exchange rates
 
 sei-cosmos:
 * [#320](https://github.com/sei-protocol/sei-cosmos/pull/320) Allow minor relase upgrades prior to upgrade height
@@ -307,27 +307,27 @@ sei-ibc-go:
 
 ## 3.0.8
 sei-chain:
-* [#1018](https://github.com/sei-protocol/sei-chain/pull/1018) Reorder tx results into absolute order
+* [#1018](https://github.com/kiichain/kiichain3/pull/1018) Reorder tx results into absolute order
 ## 3.0.7
 sei-chain:
-* [#1002](https://github.com/sei-protocol/sei-chain/pull/1002) Tokenfactory Query Wasmbindings
-* [#989](https://github.com/sei-protocol/sei-chain/pull/989) Add CLI/wasmbinding to set tokenfactory metadata
-* [#963](https://github.com/sei-protocol/sei-chain/pull/963) Add SetMetadata to tokenfactory
+* [#1002](https://github.com/kiichain/kiichain3/pull/1002) Tokenfactory Query Wasmbindings
+* [#989](https://github.com/kiichain/kiichain3/pull/989) Add CLI/wasmbinding to set tokenfactory metadata
+* [#963](https://github.com/kiichain/kiichain3/pull/963) Add SetMetadata to tokenfactory
 
 sei-cosmos:
 * [#308](https://github.com/sei-protocol/sei-cosmos/pull/308) Add NoConsumptionInfiniteGasMeter
 
 ## 3.0.6
 sei-chain:
-* [#944](https://github.com/sei-protocol/sei-chain/pull/944) Add new configuration for snapshot directory
-* [#940](https://github.com/sei-protocol/sei-chain/pull/940) Use ImmutableAppend for v16 to v17 dex migration
+* [#944](https://github.com/kiichain/kiichain3/pull/944) Add new configuration for snapshot directory
+* [#940](https://github.com/kiichain/kiichain3/pull/940) Use ImmutableAppend for v16 to v17 dex migration
 
 sei-cosmos:
 * [#306](https://github.com/sei-protocol/sei-cosmos/pull/306) Fix dryRun for seid tx
 
 ## 3.0.5
 sei-chain:
-* [#878](https://github.com/sei-protocol/sei-chain/pull/878) Fix denom key collision
+* [#878](https://github.com/kiichain/kiichain3/pull/878) Fix denom key collision
 
 sei-tendermint:
 * [#149](https://github.com/sei-protocol/sei-tendermint/pull/149) Fix condition for tx key dissemination
@@ -337,9 +337,9 @@ sei-iavl:
 
 ## 3.0.4
 sei-chain:
-* [#874](https://github.com/sei-protocol/sei-chain/pull/874) Charge rent after failed Sudo call
-* [#869](https://github.com/sei-protocol/sei-chain/pull/869) Require fee per byte in order data
-* [#861](https://github.com/sei-protocol/sei-chain/pull/861) Fix tokenfactory metadata
+* [#874](https://github.com/kiichain/kiichain3/pull/874) Charge rent after failed Sudo call
+* [#869](https://github.com/kiichain/kiichain3/pull/869) Require fee per byte in order data
+* [#861](https://github.com/kiichain/kiichain3/pull/861) Fix tokenfactory metadata
 
 sei-cosmos:
 * [#287](https://github.com/sei-protocol/sei-cosmos/pull/287) Refactor deferred balance to use memkv
@@ -352,7 +352,7 @@ sei-tendermint:
 *
 ## 3.0.3
 sei-chain:
-* [#816](https://github.com/sei-protocol/sei-chain/pull/816) Reenable tx concurrency for non oracle/priority txs
+* [#816](https://github.com/kiichain/kiichain3/pull/816) Reenable tx concurrency for non oracle/priority txs
 
 sei-cosmos:
 * [#254](https://github.com/sei-protocol/sei-cosmos/pull/254) Use sequential searching instead of binary search for coins
@@ -363,20 +363,20 @@ sei-tendermint:
 
 ## 3.0.2
 sei-chain:
-* [#810](https://github.com/sei-protocol/sei-chain/pull/810) Disable FOK orders
-* [#809](https://github.com/sei-protocol/sei-chain/pull/809) Huckleberry patch
-* [#808](https://github.com/sei-protocol/sei-chain/pull/808) Add global min fees as a param
+* [#810](https://github.com/kiichain/kiichain3/pull/810) Disable FOK orders
+* [#809](https://github.com/kiichain/kiichain3/pull/809) Huckleberry patch
+* [#808](https://github.com/kiichain/kiichain3/pull/808) Add global min fees as a param
 
 ## 3.0.1
 sei-chain:
-* [#797](https://github.com/sei-protocol/sei-chain/pull/797) Don't charge gas for loading contract dependencies
-* [#792](https://github.com/sei-protocol/sei-chain/pull/792) Reset block gas meter if concurrent processing fails
-* [#791](https://github.com/sei-protocol/sei-chain/pull/791) Disable skipFastStorageUpgrade to make iavl dump faster
-* [#790](https://github.com/sei-protocol/sei-chain/pull/790) Disable non-prioritized tx concurrency
-* [#789](https://github.com/sei-protocol/sei-chain/pull/789) Adds appropriate READ access for dex contract in antehandler
-* [#788](https://github.com/sei-protocol/sei-chain/pull/788) Clear dex memstate cache when falling back to sequential processing
-* [#786](https://github.com/sei-protocol/sei-chain/pull/786) Add NoVersioning to seid command
-* [#781](https://github.com/sei-protocol/sei-chain/pull/781) Add order limit for price level and pair limit for contracts
+* [#797](https://github.com/kiichain/kiichain3/pull/797) Don't charge gas for loading contract dependencies
+* [#792](https://github.com/kiichain/kiichain3/pull/792) Reset block gas meter if concurrent processing fails
+* [#791](https://github.com/kiichain/kiichain3/pull/791) Disable skipFastStorageUpgrade to make iavl dump faster
+* [#790](https://github.com/kiichain/kiichain3/pull/790) Disable non-prioritized tx concurrency
+* [#789](https://github.com/kiichain/kiichain3/pull/789) Adds appropriate READ access for dex contract in antehandler
+* [#788](https://github.com/kiichain/kiichain3/pull/788) Clear dex memstate cache when falling back to sequential processing
+* [#786](https://github.com/kiichain/kiichain3/pull/786) Add NoVersioning to seid command
+* [#781](https://github.com/kiichain/kiichain3/pull/781) Add order limit for price level and pair limit for contracts
 
 tm-db:
 * [#2](https://github.com/sei-protocol/tm-db/pull/2) Load items eagerly to memdb_iterator to avoid deadlock
@@ -386,10 +386,10 @@ sei-tendermint:
 
 ## 3.0.0
 sei-chain:
-* [#777](https://github.com/sei-protocol/sei-chain/pull/777) Parallelize Sudo Deposit
-* [#771](https://github.com/sei-protocol/sei-chain/pull/771) Parallelize BeginBlock for x/dex
-* [#768](https://github.com/sei-protocol/sei-chain/pull/768) Add FOK back to order match result
-* [#763](https://github.com/sei-protocol/sei-chain/pull/763) Refactor dex EndBlock to optimize store access
+* [#777](https://github.com/kiichain/kiichain3/pull/777) Parallelize Sudo Deposit
+* [#771](https://github.com/kiichain/kiichain3/pull/771) Parallelize BeginBlock for x/dex
+* [#768](https://github.com/kiichain/kiichain3/pull/768) Add FOK back to order match result
+* [#763](https://github.com/kiichain/kiichain3/pull/763) Refactor dex EndBlock to optimize store access
 
 sei-cosmos
 * [#240](https://github.com/sei-protocol/sei-cosmos/pull/239) Add dex contract ACL type
@@ -401,9 +401,9 @@ sei-tendermint
 
 ## 2.0.48beta
 sei-chain:
-* [#743](https://github.com/sei-protocol/sei-chain/pull/743) Do not unregister contract if out of rent
-* [#742](https://github.com/sei-protocol/sei-chain/pull/742) Add more metrics to dex module
-* [#733](https://github.com/sei-protocol/sei-chain/pull/733) Remove liquidation logic from dex
+* [#743](https://github.com/kiichain/kiichain3/pull/743) Do not unregister contract if out of rent
+* [#742](https://github.com/kiichain/kiichain3/pull/742) Add more metrics to dex module
+* [#733](https://github.com/kiichain/kiichain3/pull/733) Remove liquidation logic from dex
 
 sei-cosmos
 * [#235](https://github.com/sei-protocol/sei-cosmos/pull/235) Fix x/simulation fee check
@@ -413,17 +413,17 @@ sei-tendermint
 * [#134](https://github.com/sei-protocol/sei-tendermint/pull/134) Fix nil peer address map
 ## 2.0.47beta
 sei-chain:
-* [#726](https://github.com/sei-protocol/sei-chain/pull/726) Fix of dex rent transfer issue
-* [#723](https://github.com/sei-protocol/sei-chain/pull/723) Security CW Patch Cherry
-* [#699](https://github.com/sei-protocol/sei-chain/pull/699) Loadtest update
-* [#716](https://github.com/sei-protocol/sei-chain/pull/716) Sei cluster init script update
-* [#725](https://github.com/sei-protocol/sei-chain/pull/725) DBSync config update
-* [#718](https://github.com/sei-protocol/sei-chain/pull/718) Update mint distriution to be daily
-* [#729](https://github.com/sei-protocol/sei-chain/pull/729) Add gov prop handler for updating current minter
-* [#730](https://github.com/sei-protocol/sei-chain/pull/730) Add README.md for epoch module
-* [#727](https://github.com/sei-protocol/sei-chain/pull/727) Bump max wasm file size to 2MB
-* [#731](https://github.com/sei-protocol/sei-chain/pull/731) Bump for module to module debug logs
-* [#732](https://github.com/sei-protocol/sei-chain/pull/732) Remove x/nitro from genesis version
+* [#726](https://github.com/kiichain/kiichain3/pull/726) Fix of dex rent transfer issue
+* [#723](https://github.com/kiichain/kiichain3/pull/723) Security CW Patch Cherry
+* [#699](https://github.com/kiichain/kiichain3/pull/699) Loadtest update
+* [#716](https://github.com/kiichain/kiichain3/pull/716) Sei cluster init script update
+* [#725](https://github.com/kiichain/kiichain3/pull/725) DBSync config update
+* [#718](https://github.com/kiichain/kiichain3/pull/718) Update mint distriution to be daily
+* [#729](https://github.com/kiichain/kiichain3/pull/729) Add gov prop handler for updating current minter
+* [#730](https://github.com/kiichain/kiichain3/pull/730) Add README.md for epoch module
+* [#727](https://github.com/kiichain/kiichain3/pull/727) Bump max wasm file size to 2MB
+* [#731](https://github.com/kiichain/kiichain3/pull/731) Bump for module to module debug logs
+* [#732](https://github.com/kiichain/kiichain3/pull/732) Remove x/nitro from genesis version
 
 sei-cosmos:
 * [#231](https://github.com/sei-protocol/sei-cosmos/pull/231) Typo for m2m debug message
@@ -436,8 +436,8 @@ sei-tendermint:
 
 ## 2.0.46beta
 sei-chain:
-* [#694](https://github.com/sei-protocol/sei-chain/pull/694) Register prune command
-* [#702](https://github.com/sei-protocol/sei-chain/pull/702) Change tick failure log to warning
+* [#694](https://github.com/kiichain/kiichain3/pull/694) Register prune command
+* [#702](https://github.com/kiichain/kiichain3/pull/702) Change tick failure log to warning
 
 sei-cosmos:
 * [#227](https://github.com/sei-protocol/sei-cosmos/pull/227) Add checkTxResponse log to RPCResponse
@@ -451,9 +451,9 @@ sei-tendermint:
 
 ## 2.0.45beta
 
-sei-chain: https://github.com/sei-protocol/sei-chain/compare/2.0.44beta...2.0.45beta-release
-* [#666](https://github.com/sei-protocol/sei-chain/pull/666) [DEX] remove BeginBlock/FinalizeBlock sudo hooks
-* [#674](https://github.com/sei-protocol/sei-chain/pull/674) Longterm fix for max gas enforcement
+sei-chain: https://github.com/kiichain/kiichain3/compare/2.0.44beta...2.0.45beta-release
+* [#666](https://github.com/kiichain/kiichain3/pull/666) [DEX] remove BeginBlock/FinalizeBlock sudo hooks
+* [#674](https://github.com/kiichain/kiichain3/pull/674) Longterm fix for max gas enforcement
 
 sei-cosmos: https://github.com/sei-protocol/sei-cosmos/releases/tag/v0.2.14
 * [#210](https://github.com/sei-protocol/sei-cosmos/pull/210) Add levelDB compaction goroutine
@@ -466,7 +466,7 @@ sei-tendermint: https://github.com/sei-protocol/sei-tendermint/releases/tag/v0.2
 ## 2.0.44beta
 
 sei-chain:
-* [#658](https://github.com/sei-protocol/sei-chain/pull/658) Revert EventAttribute fields to byte array
+* [#658](https://github.com/kiichain/kiichain3/pull/658) Revert EventAttribute fields to byte array
 
 sei-cosmos: https://github.com/sei-protocol/sei-cosmos/compare/sei-cosmos-2.0.42beta...v2.0.43beta-release
 * [#204](https://github.com/sei-protocol/sei-cosmos/pull/204) IBC Compatibility Fix
@@ -479,8 +479,8 @@ sei-tendermint: https://github.com/sei-protocol/sei-tendermint/compare/2.0.42bet
 ## 2.0.42beta
 
 sei-chain:
-* [#670](https://github.com/sei-protocol/sei-chain/pull/670) Add add-wasm-genesis-message to seid
-* [#654](https://github.com/sei-protocol/sei-chain/pull/654) Improve endblock performance and fix trace
+* [#670](https://github.com/kiichain/kiichain3/pull/670) Add add-wasm-genesis-message to seid
+* [#654](https://github.com/kiichain/kiichain3/pull/654) Improve endblock performance and fix trace
 
 sei-cosmos: https://github.com/sei-protocol/sei-cosmos/compare/v0.2.8...v0.2.12
 * improvements around monitoring for sei-cosmos
@@ -494,38 +494,38 @@ sei-tendermint:
 * log tunning for p2p
 
 ## 2.0.40beta - 2023-03-10
-* [#646](https://github.com/sei-protocol/sei-chain/pull/646) Optimizations for FinalizeBlock
-* [#644](https://github.com/sei-protocol/sei-chain/pull/644) [Oak Audit] Add check for non-existent transaction
-* [#647](https://github.com/sei-protocol/sei-chain/pull/647) Fixes to race conditions
-* [#638](https://github.com/sei-protocol/sei-chain/pull/638) Emit Version Related Metrics
-* [#636](https://github.com/sei-protocol/sei-chain/pull/636) Fix deadlock with upgrades
-* [#635](https://github.com/sei-protocol/sei-chain/pull/635) Add event to dex messages
+* [#646](https://github.com/kiichain/kiichain3/pull/646) Optimizations for FinalizeBlock
+* [#644](https://github.com/kiichain/kiichain3/pull/644) [Oak Audit] Add check for non-existent transaction
+* [#647](https://github.com/kiichain/kiichain3/pull/647) Fixes to race conditions
+* [#638](https://github.com/kiichain/kiichain3/pull/638) Emit Version Related Metrics
+* [#636](https://github.com/kiichain/kiichain3/pull/636) Fix deadlock with upgrades
+* [#635](https://github.com/kiichain/kiichain3/pull/635) Add event to dex messages
 
 ## 2.0.39beta - 2023-03-06
-* [#632](https://github.com/sei-protocol/sei-chain/pull/632) Bump Sei-tendermint to reduce log volume
-* [#631](https://github.com/sei-protocol/sei-chain/pull/631) Nondeterminism deadlock fixes
-* [#630](https://github.com/sei-protocol/sei-chain/pull/630) Mempool configs to avoid node slow down
+* [#632](https://github.com/kiichain/kiichain3/pull/632) Bump Sei-tendermint to reduce log volume
+* [#631](https://github.com/kiichain/kiichain3/pull/631) Nondeterminism deadlock fixes
+* [#630](https://github.com/kiichain/kiichain3/pull/630) Mempool configs to avoid node slow down
 
 ## 2.0.38beta - 2023-03-04
-* [#623](https://github.com/sei-protocol/sei-chain/pull/623) [epoch] Add new epoch events by @udpatil in #623
-* [#624](https://github.com/sei-protocol/sei-chain/pull/624) [dex][mint] Add long messages for dex and mint by @udpatil in #624
-* [#588](https://github.com/sei-protocol/sei-chain/pull/588) Send deposit funds in message server instead of EndBlock by @codchen in #588
-* [#627](https://github.com/sei-protocol/sei-chain/pull/627) [oracle] Add slash window progress query by @udpatil in #627
-[label](x/oracle/README.md)* [#625](https://github.com/sei-protocol/sei-chain/pull/625) Update contract rent deposit logic + add query endpoint by @LCyson in #625
+* [#623](https://github.com/kiichain/kiichain3/pull/623) [epoch] Add new epoch events by @udpatil in #623
+* [#624](https://github.com/kiichain/kiichain3/pull/624) [dex][mint] Add long messages for dex and mint by @udpatil in #624
+* [#588](https://github.com/kiichain/kiichain3/pull/588) Send deposit funds in message server instead of EndBlock by @codchen in #588
+* [#627](https://github.com/kiichain/kiichain3/pull/627) [oracle] Add slash window progress query by @udpatil in #627
+[label](x/oracle/README.md)* [#625](https://github.com/kiichain/kiichain3/pull/625) Update contract rent deposit logic + add query endpoint by @LCyson in #625
 
 ## 2.0.37beta - 2023-02-27
 ### Features
-* [#621](https://github.com/sei-protocol/sei-chain/pull/621) Add success count to the oracle query
-* [#600](https://github.com/sei-protocol/sei-chain/pull/600) Add params to guard Nitro fraud challenge
+* [#621](https://github.com/kiichain/kiichain3/pull/621) Add success count to the oracle query
+* [#600](https://github.com/kiichain/kiichain3/pull/600) Add params to guard Nitro fraud challenge
 * [sei-tendermint #73](https://github.com/sei-protocol/sei-tendermint/pull/73) reduce checktx log noise
 ### Bug Fixes
-* [#617](https://github.com/sei-protocol/sei-chain/pull/617) gracefully handle nil response for new provider
-* [#619](https://github.com/sei-protocol/sei-chain/pull/619) Move store operations outside of iterator
+* [#617](https://github.com/kiichain/kiichain3/pull/617) gracefully handle nil response for new provider
+* [#619](https://github.com/kiichain/kiichain3/pull/619) Move store operations outside of iterator
 
 ## 2.0.36beta - 2023-02-27
 ### Features
-* [#603](https://github.com/sei-protocol/sei-chain/pull/603) Set mempool ttl
+* [#603](https://github.com/kiichain/kiichain3/pull/603) Set mempool ttl
 ### Bug Fixes
-* [#612](https://github.com/sei-protocol/sei-chain/pull/612) Optimistic Processing should finish before main goroutine
-* [#613](https://github.com/sei-protocol/sei-chain/pull/613) Incorporate IAVL change that removes mutex locking
+* [#612](https://github.com/kiichain/kiichain3/pull/612) Optimistic Processing should finish before main goroutine
+* [#613](https://github.com/kiichain/kiichain3/pull/613) Incorporate IAVL change that removes mutex locking
 * Various audit fixes

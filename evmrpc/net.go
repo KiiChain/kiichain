@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/sei-protocol/sei-chain/x/evm/keeper"
+	"github.com/kiichain/kiichain3/x/evm/keeper"
 	"github.com/tendermint/tendermint/libs/time"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 )

@@ -10,9 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/sei-protocol/sei-chain/x/oracle/keeper"
-	"github.com/sei-protocol/sei-chain/x/oracle/types"
-	"github.com/sei-protocol/sei-chain/x/oracle/utils"
+	"github.com/kiichain/kiichain3/x/oracle/keeper"
+	"github.com/kiichain/kiichain3/x/oracle/types"
+	"github.com/kiichain/kiichain3/x/oracle/utils"
 )
 
 func TestOracleFilters(t *testing.T) {

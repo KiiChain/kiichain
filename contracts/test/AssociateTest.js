@@ -5,22 +5,22 @@ describe("Associate Balances", function () {
 
     const keys = {
         "test1": {
-            seiAddress: 'sei1nzdg7e6rvkrmvp5zzmp5tupuj0088nqsa4mze4',
+            seiAddress: 'kii14jekmh7yruasqx4k372mrktsd7hwz454snw0us',
             evmAddress: '0x90684e7F229f2d8E2336661f79caB693E4228Ff7'
         },
         "test2": {
-            seiAddress: 'sei1jqgph9jpdtvv64e3rzegxtssvgmh7lxnn8vmdq',
+            seiAddress: 'kii14jekmh7yruasqx4k372mrktsd7hwz454snw0us',
             evmAddress: '0x28b2B0621f76A2D08A9e04acb7F445E61ba5b7E7'
         },
         "test3": {
-            seiAddress: 'sei1qkawqt7dw09rkvn53lm2deamtfcpuq9v0h6zur',
+            seiAddress: 'kii14jekmh7yruasqx4k372mrktsd7hwz454snw0us',
             evmAddress: '0xCb2FB25A6a34Ca874171Ac0406d05A49BC45a1cF',
-            castAddress: 'sei1evhmykn2xn9gwst34szqd5z6fx7ytgw0l7g0vs',
+            castAddress: 'kii14jekmh7yruasqx4k372mrktsd7hwz454snw0us',
         }
     }
 
     const addresses = {
-        seiAddress: 'sei1nzdg7e6rvkrmvp5zzmp5tupuj0088nqsa4mze4',
+        seiAddress: 'kii14jekmh7yruasqx4k372mrktsd7hwz454snw0us',
         evmAddress: '0x90684e7F229f2d8E2336661f79caB693E4228Ff7'
     }
 

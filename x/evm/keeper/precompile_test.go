@@ -6,11 +6,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sei-protocol/sei-chain/precompiles/bank"
-	"github.com/sei-protocol/sei-chain/precompiles/gov"
-	"github.com/sei-protocol/sei-chain/precompiles/staking"
-	"github.com/sei-protocol/sei-chain/testutil/keeper"
-	evmkeeper "github.com/sei-protocol/sei-chain/x/evm/keeper"
+	"github.com/kiichain/kiichain3/precompiles/bank"
+	"github.com/kiichain/kiichain3/precompiles/gov"
+	"github.com/kiichain/kiichain3/precompiles/staking"
+	"github.com/kiichain/kiichain3/testutil/keeper"
+	evmkeeper "github.com/kiichain/kiichain3/x/evm/keeper"
 )
 
 func toAddr(addr string) *common.Address {

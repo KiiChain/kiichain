@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
+	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
 )
 
 // maxNestedMsgs defines a cap for the number of nested messages on a MsgExec message

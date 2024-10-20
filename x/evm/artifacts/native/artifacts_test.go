@@ -9,12 +9,12 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/ante"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/native"
-	"github.com/sei-protocol/sei-chain/x/evm/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
-	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
+	"github.com/kiichain/kiichain3/x/evm/ante"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/native"
+	"github.com/kiichain/kiichain3/x/evm/keeper"
+	"github.com/kiichain/kiichain3/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/types/ethtx"
 	"github.com/stretchr/testify/require"
 	tmtypes "github.com/tendermint/tendermint/proto/tendermint/types"
 )
@@ -74,7 +74,7 @@ func TestSimple(t *testing.T) {
 	require.NotNil(t, receipt)
 	require.Equal(t, uint32(ethtypes.ReceiptStatusSuccessful), receipt.Status)
 	k.SetERC20NativePointer(ctx, "test", common.HexToAddress(receipt.ContractAddress))
-	_, found := k.GetSeiAddress(ctx, common.HexToAddress(receipt.ContractAddress))
+	_, found := k.GetKiiAddress(ctx, common.HexToAddress(receipt.ContractAddress))
 	require.True(t, found)
 
 	// send transaction to the contract

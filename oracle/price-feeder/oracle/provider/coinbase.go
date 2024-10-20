@@ -14,8 +14,8 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog"
 
-	"github.com/sei-protocol/sei-chain/oracle/price-feeder/config"
-	"github.com/sei-protocol/sei-chain/oracle/price-feeder/oracle/types"
+	"github.com/kiichain/kiichain3/oracle/price-feeder/config"
+	"github.com/kiichain/kiichain3/oracle/price-feeder/oracle/types"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"

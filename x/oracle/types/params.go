@@ -5,7 +5,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/sei-protocol/sei-chain/x/oracle/utils"
+	"github.com/kiichain/kiichain3/x/oracle/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"

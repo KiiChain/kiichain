@@ -3,12 +3,13 @@ package keeper_test
 import (
 	"context"
 	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/sei-protocol/sei-chain/x/tokenfactory/keeper"
-	"github.com/sei-protocol/sei-chain/x/tokenfactory/types"
 	"reflect"
 	"testing"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/kiichain/kiichain3/x/tokenfactory/keeper"
+	"github.com/kiichain/kiichain3/x/tokenfactory/types"
 )
 
 func (suite *KeeperTestSuite) TestDenomMetadataRequest() {

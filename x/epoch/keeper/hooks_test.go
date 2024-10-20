@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/sei-protocol/sei-chain/x/epoch/types"
+	"github.com/kiichain/kiichain3/x/epoch/types"
 	"github.com/stretchr/testify/require"
 )
 

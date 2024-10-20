@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/tracing"
-	"github.com/sei-protocol/sei-chain/utils"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/utils"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 func (s *DBImpl) CreateAccount(acc common.Address) {
@@ -64,9 +64,9 @@ func (s *DBImpl) SetTransientState(addr common.Address, key, val common.Hash) {
 // still available even after self destruction in the same tx)
 func (s *DBImpl) SelfDestruct(acc common.Address) {
 	s.k.PrepareReplayedAddr(s.ctx, acc)
-	if seiAddr, ok := s.k.GetSeiAddress(s.ctx, acc); ok {
+	if kiiAddr, ok := s.k.GetKiiAddress(s.ctx, acc); ok {
 		// remove the association
-		s.k.DeleteAddressMapping(s.ctx, seiAddr, acc)
+		s.k.DeleteAddressMapping(s.ctx, kiiAddr, acc)
 	}
 
 	s.SubBalance(acc, s.GetBalance(acc), tracing.BalanceDecreaseSelfdestruct)

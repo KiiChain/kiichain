@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/sei-protocol/sei-chain/x/epoch/types"
+	"github.com/kiichain/kiichain3/x/epoch/types"
 )
 
 //nolint:unused,deadcode

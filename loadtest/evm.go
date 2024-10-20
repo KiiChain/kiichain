@@ -19,9 +19,9 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	"github.com/sei-protocol/sei-chain/loadtest/contracts/evm/bindings/erc20"
-	"github.com/sei-protocol/sei-chain/loadtest/contracts/evm/bindings/erc721"
-	"github.com/sei-protocol/sei-chain/loadtest/contracts/evm/bindings/univ2_swapper"
+	"github.com/kiichain/kiichain3/loadtest/contracts/evm/bindings/erc20"
+	"github.com/kiichain/kiichain3/loadtest/contracts/evm/bindings/erc721"
+	"github.com/kiichain/kiichain3/loadtest/contracts/evm/bindings/univ2_swapper"
 )
 
 var (

@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/sei-protocol/sei-chain/app/antedecorators"
-	"github.com/sei-protocol/sei-chain/utils"
+	"github.com/kiichain/kiichain3/app/antedecorators"
+	"github.com/kiichain/kiichain3/utils"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )

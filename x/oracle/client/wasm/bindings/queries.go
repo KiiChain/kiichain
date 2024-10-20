@@ -1,6 +1,6 @@
 package bindings
 
-import "github.com/sei-protocol/sei-chain/x/oracle/types"
+import "github.com/kiichain/kiichain3/x/oracle/types"
 
 type SeiOracleQuery struct {
 	// queries the oracle exchange rates

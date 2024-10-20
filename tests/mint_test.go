@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
-	"github.com/sei-protocol/sei-chain/testutil/processblock"
-	"github.com/sei-protocol/sei-chain/testutil/processblock/verify"
+	"github.com/kiichain/kiichain3/testutil/processblock"
+	"github.com/kiichain/kiichain3/testutil/processblock/verify"
 )
 
 func TestMint(t *testing.T) {

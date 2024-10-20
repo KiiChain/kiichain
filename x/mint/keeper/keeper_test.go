@@ -6,13 +6,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	epochTypes "github.com/sei-protocol/sei-chain/x/epoch/types"
-	"github.com/sei-protocol/sei-chain/x/mint/keeper"
-	mintKeeper "github.com/sei-protocol/sei-chain/x/mint/keeper"
-	"github.com/sei-protocol/sei-chain/x/mint/types"
-	mintTypes "github.com/sei-protocol/sei-chain/x/mint/types"
+	epochTypes "github.com/kiichain/kiichain3/x/epoch/types"
+	"github.com/kiichain/kiichain3/x/mint/keeper"
+	mintKeeper "github.com/kiichain/kiichain3/x/mint/keeper"
+	"github.com/kiichain/kiichain3/x/mint/types"
+	mintTypes "github.com/kiichain/kiichain3/x/mint/types"
 
-	minttypes "github.com/sei-protocol/sei-chain/x/mint/types"
+	minttypes "github.com/kiichain/kiichain3/x/mint/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -99,7 +99,7 @@ func TestGetNextScheduledTokenRelease(t *testing.T) {
 		secondMinter := mintTypes.NewMinter(
 			currentTime.AddDate(0, 0, 30).Format(minttypes.TokenReleaseDateFormat),
 			currentTime.AddDate(0, 2, 0).Format(minttypes.TokenReleaseDateFormat),
-			"usei",
+			"ukii",
 			200,
 		)
 		epoch.CurrentEpochStartTime = currentTime.AddDate(0, 5, 0)
@@ -154,7 +154,7 @@ func TestGetOrUpdateLatestMinter(t *testing.T) {
 		mintKeeper.SetMinter(ctx, mintTypes.NewMinter(
 			currentTime.Format(minttypes.TokenReleaseDateFormat),
 			currentTime.AddDate(1, 0, 0).Format(minttypes.TokenReleaseDateFormat),
-			"usei",
+			"ukii",
 			1000,
 		))
 		epoch.CurrentEpochStartTime = currentTime
@@ -178,7 +178,7 @@ func TestGetOrUpdateLatestMinter(t *testing.T) {
 		minter := types.Minter{
 			StartDate:           currentTime.Format(minttypes.TokenReleaseDateFormat),
 			EndDate:             currentTime.Format(minttypes.TokenReleaseDateFormat),
-			Denom:               "usei",
+			Denom:               "ukii",
 			TotalMintAmount:     100,
 			RemainingMintAmount: 0,
 			LastMintAmount:      100,

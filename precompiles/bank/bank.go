@@ -11,8 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	pcommon "github.com/sei-protocol/sei-chain/precompiles/common"
-	"github.com/sei-protocol/sei-chain/utils"
+	pcommon "github.com/kiichain/kiichain3/precompiles/common"
+	"github.com/kiichain/kiichain3/utils"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -141,16 +141,16 @@ func (p PrecompileExecutor) send(ctx sdk.Context, caller common.Address, method 
 		// short circuit
 		return method.Outputs.Pack(true)
 	}
-	senderSeiAddr, err := p.accAddressFromArg(ctx, args[0])
+	senderKiiAddr, err := p.accAddressFromArg(ctx, args[0])
 	if err != nil {
 		return nil, err
 	}
-	receiverSeiAddr, err := p.accAddressFromArg(ctx, args[1])
+	receiverKiiAddr, err := p.accAddressFromArg(ctx, args[1])
 	if err != nil {
 		return nil, err
 	}
 
-	if err := p.bankKeeper.SendCoins(ctx, senderSeiAddr, receiverSeiAddr, sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)))); err != nil {
+	if err := p.bankKeeper.SendCoins(ctx, senderKiiAddr, receiverKiiAddr, sdk.NewCoins(sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)))); err != nil {
 		return nil, err
 	}
 
@@ -171,7 +171,7 @@ func (p PrecompileExecutor) sendNative(ctx sdk.Context, method *abi.Method, args
 		return nil, errors.New("set `value` field to non-zero to send")
 	}
 
-	senderSeiAddr, ok := p.evmKeeper.GetSeiAddress(ctx, caller)
+	senderKiiAddr, ok := p.evmKeeper.GetKiiAddress(ctx, caller)
 	if !ok {
 		return nil, errors.New("invalid addr")
 	}
@@ -181,23 +181,23 @@ func (p PrecompileExecutor) sendNative(ctx sdk.Context, method *abi.Method, args
 		return nil, errors.New("invalid addr")
 	}
 
-	receiverSeiAddr, err := sdk.AccAddressFromBech32(receiverAddr)
+	receiverKiiAddr, err := sdk.AccAddressFromBech32(receiverAddr)
 	if err != nil {
 		return nil, err
 	}
 
-	usei, wei, err := pcommon.HandlePaymentUseiWei(ctx, p.evmKeeper.GetSeiAddressOrDefault(ctx, p.address), senderSeiAddr, value, p.bankKeeper)
+	ukii, wei, err := pcommon.HandlePaymentUkiiWei(ctx, p.evmKeeper.GetKiiAddressOrDefault(ctx, p.address), senderKiiAddr, value, p.bankKeeper)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := p.bankKeeper.SendCoinsAndWei(ctx, senderSeiAddr, receiverSeiAddr, usei, wei); err != nil {
+	if err := p.bankKeeper.SendCoinsAndWei(ctx, senderKiiAddr, receiverKiiAddr, ukii, wei); err != nil {
 		return nil, err
 	}
-	accExists := p.accountKeeper.HasAccount(ctx, receiverSeiAddr)
+	accExists := p.accountKeeper.HasAccount(ctx, receiverKiiAddr)
 	if !accExists {
 		defer telemetry.IncrCounter(1, "new", "account")
-		p.accountKeeper.SetAccount(ctx, p.accountKeeper.NewAccountWithAddress(ctx, receiverSeiAddr))
+		p.accountKeeper.SetAccount(ctx, p.accountKeeper.NewAccountWithAddress(ctx, receiverKiiAddr))
 	}
 
 	return method.Outputs.Pack(true)
@@ -292,7 +292,7 @@ func (p PrecompileExecutor) decimals(_ sdk.Context, method *abi.Method, _ []inte
 		return nil, err
 	}
 
-	// all native tokens are integer-based, returns decimals for microdenom (usei)
+	// all native tokens are integer-based, returns decimals for microdenom (ukii)
 	return method.Outputs.Pack(uint8(0))
 }
 
@@ -315,12 +315,12 @@ func (p PrecompileExecutor) accAddressFromArg(ctx sdk.Context, arg interface{}) 
 	if addr == (common.Address{}) {
 		return nil, errors.New("invalid addr")
 	}
-	seiAddr, found := p.evmKeeper.GetSeiAddress(ctx, addr)
+	kiiAddr, found := p.evmKeeper.GetKiiAddress(ctx, addr)
 	if !found {
 		// return the casted version instead
 		return sdk.AccAddress(addr[:]), nil
 	}
-	return seiAddr, nil
+	return kiiAddr, nil
 }
 
 func (PrecompileExecutor) IsTransaction(method string) bool {

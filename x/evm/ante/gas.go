@@ -2,8 +2,8 @@ package ante
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evmkeeper "github.com/sei-protocol/sei-chain/x/evm/keeper"
-	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
+	evmkeeper "github.com/kiichain/kiichain3/x/evm/keeper"
+	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
 )
 
 type GasLimitDecorator struct {

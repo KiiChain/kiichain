@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/sei-protocol/sei-chain/oracle/price-feeder/config"
+	"github.com/kiichain/kiichain3/oracle/price-feeder/config"
 
 	"github.com/stretchr/testify/require"
 )
@@ -46,7 +46,7 @@ func TestValidate(t *testing.T) {
 				PrometheusRetentionTime: 120,
 			},
 			GasAdjustment: 1.5,
-			GasPrices:     "0.00125usei",
+			GasPrices:     "0.00125ukii",
 			Healthchecks: []config.Healthchecks{
 				{URL: "https://hc-ping.com/HEALTHCHECK-UUID", Timeout: "200ms"},
 			},
@@ -142,7 +142,7 @@ func TestParseConfig_Valid(t *testing.T) {
 
 	content := []byte(`
 gas_adjustment = 1.5
-gas_prices = "0.00125usei"
+gas_prices = "0.00125ukii"
 
 [server]
 listen_addr = "0.0.0.0:99999"
@@ -162,7 +162,7 @@ providers = [
 
 [[currency_pairs]]
 base = "SEI"
-chain_denom = "usei"
+chain_denom = "ukii"
 quote = "USDT"
 providers = [
 	"kraken",
@@ -234,7 +234,7 @@ func TestParseConfig_Valid_NoTelemetry(t *testing.T) {
 
 	content := []byte(`
 gas_adjustment = 1.5
-gas_prices = "0.00125usei"
+gas_prices = "0.00125ukii"
 
 [server]
 listen_addr = "0.0.0.0:99999"
@@ -254,7 +254,7 @@ providers = [
 
 [[currency_pairs]]
 base = "SEI"
-chain_denom = "usei"
+chain_denom = "ukii"
 quote = "USDT"
 providers = [
 	"kraken",
@@ -381,7 +381,7 @@ func TestParseConfig_Valid_Deviations(t *testing.T) {
 
 	content := []byte(`
 gas_adjustment = 1.5
-gas_prices = "0.00125usei"
+gas_prices = "0.00125ukii"
 
 [server]
 listen_addr = "0.0.0.0:99999"
@@ -409,7 +409,7 @@ providers = [
 
 [[currency_pairs]]
 base = "sei"
-chain_denom = "usei"
+chain_denom = "ukii"
 quote = "USDT"
 providers = [
 	"kraken",

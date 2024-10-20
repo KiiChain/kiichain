@@ -12,8 +12,8 @@ import (
 	ethabi "github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	pcommon "github.com/sei-protocol/sei-chain/precompiles/common"
-	"github.com/sei-protocol/sei-chain/utils"
+	pcommon "github.com/kiichain/kiichain3/precompiles/common"
+	"github.com/kiichain/kiichain3/utils"
 )
 
 const (

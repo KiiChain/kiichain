@@ -11,9 +11,9 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/sei-protocol/sei-chain/utils"
-	evmkeeper "github.com/sei-protocol/sei-chain/x/evm/keeper"
-	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/utils"
+	evmkeeper "github.com/kiichain/kiichain3/x/evm/keeper"
+	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -32,10 +32,8 @@ type AllowanceResponse struct {
 	Expires   json.RawMessage `json:"expires"`
 }
 
-func (app *App) AddCosmosEventsToEVMReceiptIfApplicable(ctx sdk.Context, tx sdk.Tx, checksum [32]byte, response abci.ResponseDeliverTx) {
-	if response.Code > 0 {
-		return
-	}
+func (app *App) AddCosmosEventsToEVMReceiptIfApplicable(ctx sdk.Context, tx sdk.Tx, checksum [32]byte, response sdk.DeliverTxHookInput) {
+	// hooks will only be called if DeliverTx is successful
 	wasmEvents := GetEventsOfType(response, wasmtypes.WasmModuleEventType)
 	if len(wasmEvents) == 0 {
 		return
@@ -283,7 +281,7 @@ func (app *App) GetEvmAddressAttribute(ctx sdk.Context, event abci.Event, attrib
 	return EmptyHash
 }
 
-func GetEventsOfType(rdtx abci.ResponseDeliverTx, ty string) (res []abci.Event) {
+func GetEventsOfType(rdtx sdk.DeliverTxHookInput, ty string) (res []abci.Event) {
 	for _, event := range rdtx.Events {
 		if event.Type == ty {
 			res = append(res, event)

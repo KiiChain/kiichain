@@ -13,9 +13,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	aclutils "github.com/sei-protocol/sei-chain/aclmapping/utils"
-	utils "github.com/sei-protocol/sei-chain/aclmapping/utils"
-	oracletypes "github.com/sei-protocol/sei-chain/x/oracle/types"
+	aclutils "github.com/kiichain/kiichain3/aclmapping/utils"
+	utils "github.com/kiichain/kiichain3/aclmapping/utils"
+	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
@@ -118,7 +118,7 @@ func TestGeneratorInvalidMessageTypes(t *testing.T) {
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	oracleVote := oracletypes.MsgAggregateExchangeRateVote{
-		ExchangeRates: "1usei",
+		ExchangeRates: "1ukii",
 		Feeder:        "test",
 		Validator:     "validator",
 	}

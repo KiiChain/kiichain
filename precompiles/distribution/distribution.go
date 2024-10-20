@@ -13,8 +13,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	pcommon "github.com/sei-protocol/sei-chain/precompiles/common"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	pcommon "github.com/kiichain/kiichain3/precompiles/common"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 const (
@@ -117,7 +117,7 @@ func (p PrecompileExecutor) setWithdrawAddress(ctx sdk.Context, method *abi.Meth
 		rerr = err
 		return
 	}
-	delegator, found := p.evmKeeper.GetSeiAddress(ctx, caller)
+	delegator, found := p.evmKeeper.GetKiiAddress(ctx, caller)
 	if !found {
 		rerr = types.NewAssociationMissingErr(caller.Hex())
 		return
@@ -188,7 +188,7 @@ func (p PrecompileExecutor) withdraw(ctx sdk.Context, delegator sdk.AccAddress, 
 }
 
 func (p PrecompileExecutor) getDelegator(ctx sdk.Context, caller common.Address) (sdk.AccAddress, error) {
-	delegator, found := p.evmKeeper.GetSeiAddress(ctx, caller)
+	delegator, found := p.evmKeeper.GetKiiAddress(ctx, caller)
 	if !found {
 		return nil, types.NewAssociationMissingErr(caller.Hex())
 	}
@@ -235,11 +235,11 @@ func (p PrecompileExecutor) accAddressFromArg(ctx sdk.Context, arg interface{}) 
 	if addr == (common.Address{}) {
 		return nil, errors.New("invalid addr")
 	}
-	seiAddr, associated := p.evmKeeper.GetSeiAddress(ctx, addr)
+	kiiAddr, associated := p.evmKeeper.GetKiiAddress(ctx, addr)
 	if !associated {
 		return nil, errors.New("cannot use an unassociated address as withdraw address")
 	}
-	return seiAddr, nil
+	return kiiAddr, nil
 }
 
 type Coin struct {
@@ -273,14 +273,14 @@ func (p PrecompileExecutor) rewards(ctx sdk.Context, method *abi.Method, args []
 		return
 	}
 
-	seiDelegatorAddress, err := p.accAddressFromArg(ctx, args[0])
+	kiiDelegatorAddress, err := p.accAddressFromArg(ctx, args[0])
 	if err != nil {
 		rerr = err
 		return
 	}
 
 	req := &distrtypes.QueryDelegationTotalRewardsRequest{
-		DelegatorAddress: seiDelegatorAddress.String(),
+		DelegatorAddress: kiiDelegatorAddress.String(),
 	}
 
 	wrappedC := sdk.WrapSDKContext(ctx)

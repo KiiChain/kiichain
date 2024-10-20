@@ -19,11 +19,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/sei-protocol/sei-chain/x/oracle/client/cli"
-	"github.com/sei-protocol/sei-chain/x/oracle/client/rest"
-	"github.com/sei-protocol/sei-chain/x/oracle/keeper"
-	"github.com/sei-protocol/sei-chain/x/oracle/simulation"
-	"github.com/sei-protocol/sei-chain/x/oracle/types"
+	"github.com/kiichain/kiichain3/x/oracle/client/cli"
+	"github.com/kiichain/kiichain3/x/oracle/client/rest"
+	"github.com/kiichain/kiichain3/x/oracle/keeper"
+	"github.com/kiichain/kiichain3/x/oracle/simulation"
+	"github.com/kiichain/kiichain3/x/oracle/types"
 )
 
 var (

@@ -7,13 +7,13 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/sei-protocol/sei-chain/app"
-	epochTypes "github.com/sei-protocol/sei-chain/x/epoch/types"
-	"github.com/sei-protocol/sei-chain/x/mint/types"
+	"github.com/kiichain/kiichain3/app"
+	epochTypes "github.com/kiichain/kiichain3/x/epoch/types"
+	"github.com/kiichain/kiichain3/x/mint/types"
 	"github.com/stretchr/testify/require"
 )
 
-func TestParamsUsei(t *testing.T) {
+func TestParamsUkii(t *testing.T) {
 	params := types.DefaultParams()
 	err := params.Validate()
 	require.Nil(t, err)

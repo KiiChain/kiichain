@@ -5,7 +5,7 @@ import (
 
 	cosmostelemetry "github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/sei-protocol/sei-chain/x/oracle/types"
+	"github.com/kiichain/kiichain3/x/oracle/types"
 )
 
 // SlashAndResetCounters do slash any operator who over criteria & clear all operators miss counter to zero

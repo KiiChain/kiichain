@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/sei-protocol/sei-chain/wasmbinding/bindings"
-	tokenfactorywasm "github.com/sei-protocol/sei-chain/x/tokenfactory/client/wasm"
-	tokenfactorytypes "github.com/sei-protocol/sei-chain/x/tokenfactory/types"
+	"github.com/kiichain/kiichain3/wasmbinding/bindings"
+	tokenfactorywasm "github.com/kiichain/kiichain3/x/tokenfactory/client/wasm"
+	tokenfactorytypes "github.com/kiichain/kiichain3/x/tokenfactory/types"
 	"github.com/stretchr/testify/require"
 )
 

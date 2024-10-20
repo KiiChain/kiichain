@@ -16,7 +16,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	aclkeeper "github.com/cosmos/cosmos-sdk/x/accesscontrol/keeper"
-	"github.com/sei-protocol/sei-chain/app"
+	"github.com/kiichain/kiichain3/app"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 

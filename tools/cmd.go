@@ -1,8 +1,8 @@
 package tools
 
 import (
-	migration "github.com/sei-protocol/sei-chain/tools/migration/cmd"
-	scanner "github.com/sei-protocol/sei-chain/tools/tx-scanner/cmd"
+	migration "github.com/kiichain/kiichain3/tools/migration/cmd"
+	scanner "github.com/kiichain/kiichain3/tools/tx-scanner/cmd"
 	"github.com/spf13/cobra"
 )
 

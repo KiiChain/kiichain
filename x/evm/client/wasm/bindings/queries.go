@@ -85,7 +85,7 @@ func (q *SeiEVMQuery) GetQueryType() EVMQueryType {
 	if q.GetEvmAddress != nil {
 		return GetEvmAddressType
 	}
-	if q.GetSeiAddress != nil {
+	if q.GetKiiAddress != nil {
 		return GetSeiAddressType
 	}
 	if q.SupportsInterface != nil {
@@ -113,7 +113,7 @@ type SeiEVMQuery struct {
 	ERC721Uri                   *ERC721UriRequest                   `json:"erc721_uri,omitempty"`
 	ERC721RoyaltyInfo           *ERC721RoyaltyInfoRequest           `json:"erc721_royalty_info,omitempty"`
 	GetEvmAddress               *GetEvmAddressRequest               `json:"get_evm_address,omitempty"`
-	GetSeiAddress               *GetSeiAddressRequest               `json:"get_sei_address,omitempty"`
+	GetKiiAddress               *GetSeiAddressRequest               `json:"get_sei_address,omitempty"`
 	SupportsInterface           *SupportsInterfaceRequest           `json:"supports_interface,omitempty"`
 }
 

@@ -4,16 +4,17 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os"
+	"testing"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/grpc"
-	"os"
-	"testing"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
+	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

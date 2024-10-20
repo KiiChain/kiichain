@@ -15,7 +15,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	tokenfactorykeeper "github.com/sei-protocol/sei-chain/x/tokenfactory/keeper"
+	tokenfactorykeeper "github.com/kiichain/kiichain3/x/tokenfactory/keeper"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/config"
@@ -23,11 +23,11 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	minttypes "github.com/sei-protocol/sei-chain/x/mint/types"
+	minttypes "github.com/kiichain/kiichain3/x/mint/types"
 )
 
 const TestContract = "TEST"
-const TestUser = "sei1jdppe6fnj2q7hjsepty5crxtrryzhuqsjrj95y"
+const TestUser = "kii14jekmh7yruasqx4k372mrktsd7hwz454snw0us"
 
 type TestTx struct {
 	msgs []sdk.Msg

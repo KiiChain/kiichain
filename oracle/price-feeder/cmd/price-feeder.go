@@ -20,10 +20,10 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/sei-protocol/sei-chain/oracle/price-feeder/config"
-	"github.com/sei-protocol/sei-chain/oracle/price-feeder/oracle"
-	"github.com/sei-protocol/sei-chain/oracle/price-feeder/oracle/client"
-	v1 "github.com/sei-protocol/sei-chain/oracle/price-feeder/router/v1"
+	"github.com/kiichain/kiichain3/oracle/price-feeder/config"
+	"github.com/kiichain/kiichain3/oracle/price-feeder/oracle"
+	"github.com/kiichain/kiichain3/oracle/price-feeder/oracle/client"
+	v1 "github.com/kiichain/kiichain3/oracle/price-feeder/router/v1"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"

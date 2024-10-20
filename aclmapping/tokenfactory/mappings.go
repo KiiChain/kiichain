@@ -10,7 +10,7 @@ import (
 	acltypes "github.com/cosmos/cosmos-sdk/x/accesscontrol/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	tfktypes "github.com/sei-protocol/sei-chain/x/tokenfactory/types"
+	tfktypes "github.com/kiichain/kiichain3/x/tokenfactory/types"
 )
 
 var ErrInvalidMessageType = fmt.Errorf("invalid message received for TokenFactory Module")

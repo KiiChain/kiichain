@@ -10,7 +10,7 @@ import (
 	_ "github.com/ethereum/go-ethereum/eth/tracers/native" // run init()s to register native tracers
 	"github.com/ethereum/go-ethereum/lib/ethapi"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/sei-protocol/sei-chain/x/evm/keeper"
+	"github.com/kiichain/kiichain3/x/evm/keeper"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 )
 

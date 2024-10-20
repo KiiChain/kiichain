@@ -125,7 +125,7 @@ describe("CW20 to ERC20 Pointer", function () {
                 });
 
                 it("transfer to unassociated address should fail", async function() {
-                    const unassociatedSeiAddr = "sei1z7qugn2xy4ww0c9nsccftxw592n4xhxccmcf4q";
+                    const unassociatedSeiAddr = "kii14jekmh7yruasqx4k372mrktsd7hwz454snw0us";
                     const respBefore = await queryWasm(pointer, "balance", {address: accounts[1].seiAddress});
                     const balanceBefore = respBefore.data.balance;
 

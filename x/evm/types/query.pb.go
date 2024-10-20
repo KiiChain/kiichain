@@ -110,7 +110,7 @@ func (m *QuerySeiAddressByEVMAddressResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QuerySeiAddressByEVMAddressResponse proto.InternalMessageInfo
 
-func (m *QuerySeiAddressByEVMAddressResponse) GetSeiAddress() string {
+func (m *QuerySeiAddressByEVMAddressResponse) GetKiiAddress() string {
 	if m != nil {
 		return m.SeiAddress
 	}
@@ -161,7 +161,7 @@ func (m *QueryEVMAddressBySeiAddressRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryEVMAddressBySeiAddressRequest proto.InternalMessageInfo
 
-func (m *QueryEVMAddressBySeiAddressRequest) GetSeiAddress() string {
+func (m *QueryEVMAddressBySeiAddressRequest) GetKiiAddress() string {
 	if m != nil {
 		return m.SeiAddress
 	}

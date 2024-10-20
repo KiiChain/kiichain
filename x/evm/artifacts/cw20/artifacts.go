@@ -10,7 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
-	"github.com/sei-protocol/sei-chain/x/evm/config"
+	"github.com/kiichain/kiichain3/x/evm/config"
 )
 
 const currentVersion uint16 = 2

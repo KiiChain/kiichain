@@ -62,7 +62,7 @@ func (m *AddressAssociation) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_AddressAssociation proto.InternalMessageInfo
 
-func (m *AddressAssociation) GetSeiAddress() string {
+func (m *AddressAssociation) GetKiiAddress() string {
 	if m != nil {
 		return m.SeiAddress
 	}

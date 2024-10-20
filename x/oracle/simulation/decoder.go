@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
-	"github.com/sei-protocol/sei-chain/x/oracle/types"
+	"github.com/kiichain/kiichain3/x/oracle/types"
 )
 
 // NewDecodeStore returns a decoder function closure that unmarshals the KVPair's

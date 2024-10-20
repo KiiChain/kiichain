@@ -10,7 +10,7 @@
     - cmd: echo "{\"delegate\":{\"validator\":\"$VAL_ADDR\",\"amount\":\"300000\"}}"
       env: PARAMS
     # Execute delegation
-    - cmd: printf "12345678\n" | seid tx wasm execute $GRINGOTTS_ADDR " $PARAMS " -y --from=op --chain-id=sei --gas=5000000 --fees=1000000usei --broadcast-mode=block --output=json |jq -M -r .code
+    - cmd: printf "12345678\n" | seid tx wasm execute $GRINGOTTS_ADDR " $PARAMS " -y --from=op --chain-id=sei --gas=5000000 --fees=1000000ukii --broadcast-mode=block --output=json |jq -M -r .code
       env: RESULT
   verifiers:
     - type: eval
@@ -32,7 +32,7 @@
     - cmd: echo "{\"redelegate\":{\"src_validator\":\"$VAL_ADDR0\",\"dst_validator\":\"$VAL_ADDR2\", \"amount\":\"300000\"}}"
       env: PARAMS
     # Execute redelegation
-    - cmd: printf "12345678\n" | seid tx wasm execute $GRINGOTTS_ADDR " $PARAMS " -y --from=op --chain-id=sei --gas=5000000 --fees=1000000usei --broadcast-mode=block --output=json |jq -M -r .code
+    - cmd: printf "12345678\n" | seid tx wasm execute $GRINGOTTS_ADDR " $PARAMS " -y --from=op --chain-id=sei --gas=5000000 --fees=1000000ukii --broadcast-mode=block --output=json |jq -M -r .code
       env: RESULT
   verifiers:
     - type: eval
@@ -51,7 +51,7 @@
     - cmd: echo "{\"undelegate\":{\"validator\":\"$VAL_ADDR\",\"amount\":\"300000\"}}"
       env: PARAMS
     # Execute undelegation
-    - cmd: printf "12345678\n" | seid tx wasm execute $GRINGOTTS_ADDR " $PARAMS " -y --from=op --chain-id=sei --gas=5000000 --fees=1000000usei --broadcast-mode=block --output=json |jq -M -r .code
+    - cmd: printf "12345678\n" | seid tx wasm execute $GRINGOTTS_ADDR " $PARAMS " -y --from=op --chain-id=sei --gas=5000000 --fees=1000000ukii --broadcast-mode=block --output=json |jq -M -r .code
       env: RESULT
   verifiers:
     - type: eval

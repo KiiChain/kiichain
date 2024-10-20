@@ -21,11 +21,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	pcommon "github.com/sei-protocol/sei-chain/precompiles/common"
-	"github.com/sei-protocol/sei-chain/precompiles/wasmd"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
-	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
+	pcommon "github.com/kiichain/kiichain3/precompiles/common"
+	"github.com/kiichain/kiichain3/precompiles/wasmd"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
+	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/types/ethtx"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -50,7 +50,7 @@ func TestEvmEventsForCw20(t *testing.T) {
 	k.SetERC20CW20Pointer(ctx, contractAddr.String(), mockPointerAddr)
 
 	// calling CW contract directly
-	amt := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000000000)))
+	amt := sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000000000)))
 	k.BankKeeper().MintCoins(ctx, "evm", amt)
 	k.BankKeeper().SendCoinsFromModuleToAccount(ctx, "evm", creator, amt)
 	recipient, _ := testkeeper.MockAddressPair()
@@ -62,7 +62,7 @@ func TestEvmEventsForCw20(t *testing.T) {
 	}
 	txBuilder := testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx := signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err := testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -130,7 +130,7 @@ func TestEvmEventsForCw20(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -165,7 +165,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	k.SetERC721CW721Pointer(ctx, contractAddr.String(), mockPointerAddr)
 
 	// calling CW contract directly
-	amt := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000000000)))
+	amt := sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000000000)))
 	k.BankKeeper().MintCoins(ctx, "evm", amt)
 	k.BankKeeper().SendCoinsFromModuleToAccount(ctx, "evm", creator, amt)
 	recipient, _ := testkeeper.MockAddressPair()
@@ -177,7 +177,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder := testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx := signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err := testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -246,7 +246,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -275,7 +275,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -303,7 +303,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -329,7 +329,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -355,7 +355,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)

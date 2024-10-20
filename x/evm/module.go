@@ -23,13 +23,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/sei-protocol/sei-chain/utils"
-	"github.com/sei-protocol/sei-chain/utils/metrics"
-	"github.com/sei-protocol/sei-chain/x/evm/client/cli"
-	"github.com/sei-protocol/sei-chain/x/evm/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/migrations"
-	"github.com/sei-protocol/sei-chain/x/evm/state"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/utils"
+	"github.com/kiichain/kiichain3/utils/metrics"
+	"github.com/kiichain/kiichain3/x/evm/client/cli"
+	"github.com/kiichain/kiichain3/x/evm/keeper"
+	"github.com/kiichain/kiichain3/x/evm/migrations"
+	"github.com/kiichain/kiichain3/x/evm/state"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 var (
@@ -297,9 +297,9 @@ func (am AppModule) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) []abci.V
 		if err != nil {
 			panic(err)
 		}
-		coinbase = am.keeper.GetSeiAddressOrDefault(ctx, block.Header_.Coinbase)
+		coinbase = am.keeper.GetKiiAddressOrDefault(ctx, block.Header_.Coinbase)
 	} else if am.keeper.EthReplayConfig.Enabled {
-		coinbase = am.keeper.GetSeiAddressOrDefault(ctx, am.keeper.ReplayBlock.Header_.Coinbase)
+		coinbase = am.keeper.GetKiiAddressOrDefault(ctx, am.keeper.ReplayBlock.Header_.Coinbase)
 		am.keeper.SetReplayedHeight(ctx)
 	} else {
 		coinbase = am.keeper.AccountKeeper().GetModuleAddress(authtypes.FeeCollectorName)
@@ -324,16 +324,16 @@ func (am AppModule) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) []abci.V
 		weiBalance := am.keeper.BankKeeper().GetWeiBalance(ctx, coinbaseAddress)
 		if !balance.IsZero() || !weiBalance.IsZero() {
 			if err := am.keeper.BankKeeper().SendCoinsAndWei(ctx, coinbaseAddress, coinbase, balance, weiBalance); err != nil {
-				ctx.Logger().Error(fmt.Sprintf("failed to send usei surplus from %s to coinbase account due to %s", coinbaseAddress.String(), err))
+				ctx.Logger().Error(fmt.Sprintf("failed to send ukii surplus from %s to coinbase account due to %s", coinbaseAddress.String(), err))
 			}
 		}
 		surplus = surplus.Add(deferredInfo.Surplus)
 	}
 	if surplus.IsPositive() {
-		surplusUsei, surplusWei := state.SplitUseiWeiAmount(surplus.BigInt())
-		if surplusUsei.GT(sdk.ZeroInt()) {
-			if err := am.keeper.BankKeeper().AddCoins(ctx, am.keeper.AccountKeeper().GetModuleAddress(types.ModuleName), sdk.NewCoins(sdk.NewCoin(am.keeper.GetBaseDenom(ctx), surplusUsei)), true); err != nil {
-				ctx.Logger().Error("failed to send usei surplus of %s to EVM module account", surplusUsei)
+		surplusUkii, surplusWei := state.SplitUkiiWeiAmount(surplus.BigInt())
+		if surplusUkii.GT(sdk.ZeroInt()) {
+			if err := am.keeper.BankKeeper().AddCoins(ctx, am.keeper.AccountKeeper().GetModuleAddress(types.ModuleName), sdk.NewCoins(sdk.NewCoin(am.keeper.GetBaseDenom(ctx), surplusUkii)), true); err != nil {
+				ctx.Logger().Error("failed to send ukii surplus of %s to EVM module account", surplusUkii)
 			}
 		}
 		if surplusWei.GT(sdk.ZeroInt()) {

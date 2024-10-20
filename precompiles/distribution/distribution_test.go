@@ -23,17 +23,17 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/sei-protocol/sei-chain/app"
-	pcommon "github.com/sei-protocol/sei-chain/precompiles/common"
-	"github.com/sei-protocol/sei-chain/precompiles/distribution"
-	"github.com/sei-protocol/sei-chain/precompiles/staking"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/ante"
-	"github.com/sei-protocol/sei-chain/x/evm/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/state"
-	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
-	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
-	minttypes "github.com/sei-protocol/sei-chain/x/mint/types"
+	"github.com/kiichain/kiichain3/app"
+	pcommon "github.com/kiichain/kiichain3/precompiles/common"
+	"github.com/kiichain/kiichain3/precompiles/distribution"
+	"github.com/kiichain/kiichain3/precompiles/staking"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
+	"github.com/kiichain/kiichain3/x/evm/ante"
+	"github.com/kiichain/kiichain3/x/evm/keeper"
+	"github.com/kiichain/kiichain3/x/evm/state"
+	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/types/ethtx"
+	minttypes "github.com/kiichain/kiichain3/x/mint/types"
 	"github.com/stretchr/testify/require"
 	tmtypes "github.com/tendermint/tendermint/proto/tendermint/types"
 )
@@ -851,24 +851,24 @@ func (tk *TestDistributionKeeper) WithdrawDelegationRewards(ctx sdk.Context, del
 
 func (tk *TestDistributionKeeper) DelegationTotalRewards(ctx context.Context, req *distrtypes.QueryDelegationTotalRewardsRequest) (*distrtypes.QueryDelegationTotalRewardsResponse, error) {
 	uatomCoins := 1
-	val1useiCoins := 5
-	val2useiCoins := 7
+	val1ukiiCoins := 5
+	val2ukiiCoins := 7
 	rewards := []distrtypes.DelegationDelegatorReward{
 		{
 			ValidatorAddress: "seivaloper1wuj3xg3yrw4ryxn9vygwuz0necs4klj7j9nay6",
 			Reward: sdk.NewDecCoins(
 				sdk.NewDecCoin("uatom", sdk.NewInt(int64(uatomCoins))),
-				sdk.NewDecCoin("usei", sdk.NewInt(int64(val1useiCoins))),
+				sdk.NewDecCoin("ukii", sdk.NewInt(int64(val1ukiiCoins))),
 			),
 		},
 		{
 			ValidatorAddress: "seivaloper16znh8ktn33dwnxxc9q0jmxmjf6hsz4tl0s6vxh",
-			Reward:           sdk.NewDecCoins(sdk.NewDecCoin("usei", sdk.NewInt(int64(val2useiCoins)))),
+			Reward:           sdk.NewDecCoins(sdk.NewDecCoin("ukii", sdk.NewInt(int64(val2ukiiCoins)))),
 		},
 	}
 
 	allDecCoins := sdk.NewDecCoins(sdk.NewDecCoin("uatom", sdk.NewInt(int64(uatomCoins))),
-		sdk.NewDecCoin("usei", sdk.NewInt(int64(val1useiCoins+val2useiCoins))))
+		sdk.NewDecCoin("ukii", sdk.NewInt(int64(val1ukiiCoins+val2ukiiCoins))))
 
 	return &distrtypes.QueryDelegationTotalRewardsResponse{Rewards: rewards, Total: allDecCoins}, nil
 }
@@ -903,13 +903,13 @@ func TestPrecompile_RunAndCalculateGas_Rewards(t *testing.T) {
 	}
 	coin2 := distribution.Coin{
 		Amount:   big.NewInt(5_000_000_000_000_000_000),
-		Denom:    "usei",
+		Denom:    "ukii",
 		Decimals: big.NewInt(18),
 	}
 
 	coin3 := distribution.Coin{
 		Amount:   big.NewInt(7_000_000_000_000_000_000),
-		Denom:    "usei",
+		Denom:    "ukii",
 		Decimals: big.NewInt(18),
 	}
 	coinsVal1 := []distribution.Coin{coin1, coin2}
@@ -932,7 +932,7 @@ func TestPrecompile_RunAndCalculateGas_Rewards(t *testing.T) {
 		},
 		{
 			Amount:   coin2Amount,
-			Denom:    "usei",
+			Denom:    "ukii",
 			Decimals: big.NewInt(18),
 		},
 	}

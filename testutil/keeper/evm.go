@@ -12,9 +12,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/sei-protocol/sei-chain/app"
-	evmkeeper "github.com/sei-protocol/sei-chain/x/evm/keeper"
-	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/app"
+	evmkeeper "github.com/kiichain/kiichain3/x/evm/keeper"
+	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
 )
 
 var EVMTestApp = app.Setup(false, true)
@@ -37,11 +37,11 @@ func MockEVMKeeperWithPrecompiles() (*evmkeeper.Keeper, sdk.Context) {
 	if err != nil {
 		panic(err)
 	}
-	err = EVMTestApp.BankKeeper.MintCoins(ctx, "evm", sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(10))))
+	err = EVMTestApp.BankKeeper.MintCoins(ctx, "evm", sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10))))
 	if err != nil {
 		panic(err)
 	}
-	err = EVMTestApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", seiAddr, sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(10))))
+	err = EVMTestApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", seiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10))))
 	if err != nil {
 		panic(err)
 	}
@@ -61,11 +61,11 @@ func MockEVMKeeper() (*evmkeeper.Keeper, sdk.Context) {
 	if err != nil {
 		panic(err)
 	}
-	err = testApp.BankKeeper.MintCoins(ctx, "evm", sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(10))))
+	err = testApp.BankKeeper.MintCoins(ctx, "evm", sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10))))
 	if err != nil {
 		panic(err)
 	}
-	err = testApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", seiAddr, sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(10))))
+	err = testApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", seiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10))))
 	if err != nil {
 		panic(err)
 	}
@@ -101,6 +101,6 @@ func PrivateKeyToAddresses(privKey cryptotypes.PrivKey) (sdk.AccAddress, common.
 	return sdk.AccAddress(privKey.PubKey().Address()), crypto.PubkeyToAddress(*pubKey)
 }
 
-func UseiCoins(amount int64) sdk.Coins {
+func UkiiCoins(amount int64) sdk.Coins {
 	return sdk.NewCoins(sdk.NewCoin(sdk.MustGetBaseDenom(), sdk.NewInt(amount)))
 }

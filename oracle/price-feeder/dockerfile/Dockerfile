@@ -2,7 +2,7 @@ FROM golang:alpine AS oracle
 RUN apk add --no-cache git make gcc libc-dev
 WORKDIR /go/src/github.com/sei-protocol
 RUN git clone https://github.com/sei-protocol/sei-chain.git
-WORKDIR /go/src/github.com/sei-protocol/sei-chain/oracle/price-feeder
+WORKDIR /go/src/github.com/kiichain/kiichain3/oracle/price-feeder
 RUN wget -O /lib/libwasmvm_muslc.a https://github.com/CosmWasm/wasmvm/releases/download/v1.0.0/libwasmvm_muslc.x86_64.a
 ARG VERSION=main
 RUN git checkout ${VERSION}

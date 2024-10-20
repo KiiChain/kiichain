@@ -15,9 +15,9 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/lib/ethapi"
-	"github.com/sei-protocol/sei-chain/evmrpc"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/evmrpc"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
+	"github.com/kiichain/kiichain3/x/evm/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/rpc/coretypes"
@@ -233,7 +233,7 @@ func TestEncodeBankMsg(t *testing.T) {
 	fromSeiAddr, _ := testkeeper.MockAddressPair()
 	toSeiAddr, _ := testkeeper.MockAddressPair()
 	b := TxConfig.NewTxBuilder()
-	b.SetMsgs(banktypes.NewMsgSend(fromSeiAddr, toSeiAddr, sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(10)))))
+	b.SetMsgs(banktypes.NewMsgSend(fromSeiAddr, toSeiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10)))))
 	tx := b.GetTx()
 	resBlock := coretypes.ResultBlock{
 		BlockID: MockBlockID,
@@ -276,11 +276,11 @@ func TestEncodeWasmExecuteMsg(t *testing.T) {
 	k := &testkeeper.EVMTestApp.EvmKeeper
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx(nil)
 	fromSeiAddr, fromEvmAddr := testkeeper.MockAddressPair()
-	toSeiAddr, _ := testkeeper.MockAddressPair()
+	toKiiAddr, _ := testkeeper.MockAddressPair()
 	b := TxConfig.NewTxBuilder()
 	b.SetMsgs(&wasmtypes.MsgExecuteContract{
 		Sender:   fromSeiAddr.String(),
-		Contract: toSeiAddr.String(),
+		Contract: toKiiAddr.String(),
 		Msg:      []byte{1, 2, 3},
 	})
 	tx := b.GetTx()
@@ -320,7 +320,7 @@ func TestEncodeWasmExecuteMsg(t *testing.T) {
 	require.Equal(t, 1, len(txs))
 	ti := uint64(1)
 	bh := common.HexToHash(MockBlockID.Hash.String())
-	to := common.Address(toSeiAddr)
+	to := common.Address(toKiiAddr)
 	require.Equal(t, &ethapi.RPCTransaction{
 		BlockHash:        &bh,
 		BlockNumber:      (*hexutil.Big)(big.NewInt(MockHeight)),

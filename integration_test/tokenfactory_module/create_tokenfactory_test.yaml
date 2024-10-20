@@ -10,7 +10,7 @@
     - cmd: uuidgen
       env: TKF_UUID
     # Create denom
-    - cmd: printf "12345678\n" | seid tx tokenfactory create-denom $TKF_UUID --from admin --fees 2000usei -y -b block
+    - cmd: printf "12345678\n" | seid tx tokenfactory create-denom $TKF_UUID --from admin --fees 2000ukii -y -b block
     # Query various fields about denom
     - cmd: seid q bank denom-metadata --output json | jq .metadatas | jq ".[] | select (.base==\"factory/${ADMIN_ADDR}/${TKF_UUID}\")" | jq -r .base
       env: BASE
@@ -21,17 +21,17 @@
     - cmd: seid q bank denom-metadata --output json | jq .metadatas | jq ".[] | select (.base==\"factory/${ADMIN_ADDR}/${TKF_UUID}\")" | jq -r .display
       env: DISPLAY
     # mint some token
-    - cmd: printf "12345678\n" | seid tx tokenfactory mint 100$NAME --from admin -b block -y --fees 2000usei
+    - cmd: printf "12345678\n" | seid tx tokenfactory mint 100$NAME --from admin -b block -y --fees 2000ukii
     # query balance
     - cmd: seid q bank balances $ADMIN_ADDR --denom $NAME --output json | jq -r ".amount"
       env: MINTED_BALANCE
     # burn some token
-    - cmd: printf "12345678\n" | seid tx tokenfactory burn 60$NAME --from admin -b block -y --fees 2000usei
+    - cmd: printf "12345678\n" | seid tx tokenfactory burn 60$NAME --from admin -b block -y --fees 2000ukii
     # query balance after burn
     - cmd: seid q bank balances $ADMIN_ADDR --denom $NAME --output json | jq -r ".amount"
       env: BALANCE_AFTER_BURN
     # change admin
-    - cmd: printf "12345678\n" | seid tx tokenfactory change-admin $NAME $NEW_ADMIN_ADDR --from admin -b block -y --fees 2000usei
+    - cmd: printf "12345678\n" | seid tx tokenfactory change-admin $NAME $NEW_ADMIN_ADDR --from admin -b block -y --fees 2000ukii
     # query balance after burn
     - cmd: seid q tokenfactory denom-authority-metadata $NAME --output json | jq -r ".authority_metadata.admin"
       env: NEW_ADMIN

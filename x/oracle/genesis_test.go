@@ -5,9 +5,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/sei-protocol/sei-chain/x/oracle"
-	"github.com/sei-protocol/sei-chain/x/oracle/keeper"
-	"github.com/sei-protocol/sei-chain/x/oracle/types"
+	"github.com/kiichain/kiichain3/x/oracle"
+	"github.com/kiichain/kiichain3/x/oracle/keeper"
+	"github.com/kiichain/kiichain3/x/oracle/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -25,7 +25,7 @@ func TestExportInitGenesis(t *testing.T) {
 	input.OracleKeeper.AddPriceSnapshot(input.Ctx, types.NewPriceSnapshot(
 		types.PriceSnapshotItems{
 			{
-				Denom: "usei",
+				Denom: "ukii",
 				OracleExchangeRate: types.OracleExchangeRate{
 					ExchangeRate: sdk.NewDec(12),
 					LastUpdate:   sdk.NewInt(3600),
@@ -44,7 +44,7 @@ func TestExportInitGenesis(t *testing.T) {
 	input.OracleKeeper.AddPriceSnapshot(input.Ctx, types.NewPriceSnapshot(
 		types.PriceSnapshotItems{
 			{
-				Denom: "usei",
+				Denom: "ukii",
 				OracleExchangeRate: types.OracleExchangeRate{
 					ExchangeRate: sdk.NewDec(15),
 					LastUpdate:   sdk.NewInt(3700),

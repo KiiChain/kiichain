@@ -20,11 +20,11 @@
     - cmd: seid q mint minter --output --json | jq ".last_mint_height" -r
       env: LAST_MINT_HEIGHT
     # Compare the total supply and make sure that it increased
-    - cmd: seid q bank total --output json | jq -r -M ".supply[] | select(.denom==\"usei\").amount"
+    - cmd: seid q bank total --output json | jq -r -M ".supply[] | select(.denom==\"ukii\").amount"
       env: TOTAL_SUPPLY
   verifiers:
     - type: eval
-      expr: DENOM == "usei"
+      expr: DENOM == "ukii"
     # Start date should be equal to last mint date since there's only one mint on the first day
     - type: eval
       expr: START_DATE == LAST_MINT_DATE and END_DATE > START_DATE

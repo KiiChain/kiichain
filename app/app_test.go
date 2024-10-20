@@ -26,12 +26,12 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/k0kubun/pp/v3"
-	"github.com/sei-protocol/sei-chain/app"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/config"
-	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
-	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
-	oracletypes "github.com/sei-protocol/sei-chain/x/oracle/types"
+	"github.com/kiichain/kiichain3/app"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
+	"github.com/kiichain/kiichain3/x/evm/config"
+	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/types/ethtx"
+	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/proto/tendermint/types"
@@ -139,7 +139,7 @@ func TestPartitionPrioritizedTxs(t *testing.T) {
 	otherMsg := &stakingtypes.MsgDelegate{
 		DelegatorAddress: account,
 		ValidatorAddress: validator,
-		Amount:           sdk.NewCoin("usei", sdk.NewInt(1)),
+		Amount:           sdk.NewCoin("ukii", sdk.NewInt(1)),
 	}
 
 	txEncoder := app.MakeEncodingConfig().TxConfig.TxEncoder()
@@ -222,7 +222,7 @@ func TestProcessOracleAndOtherTxsSuccess(t *testing.T) {
 	otherMsg := &banktypes.MsgSend{
 		FromAddress: account,
 		ToAddress:   account2,
-		Amount:      sdk.NewCoins(sdk.NewInt64Coin("usei", 2)),
+		Amount:      sdk.NewCoins(sdk.NewInt64Coin("ukii", 2)),
 	}
 
 	oracleTxBuilder := app.MakeEncodingConfig().TxConfig.NewTxBuilder()
@@ -232,14 +232,14 @@ func TestProcessOracleAndOtherTxsSuccess(t *testing.T) {
 	err := oracleTxBuilder.SetMsgs(oracleMsg)
 	require.NoError(t, err)
 	oracleTxBuilder.SetGasLimit(200000)
-	oracleTxBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewInt64Coin("usei", 20000)))
+	oracleTxBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewInt64Coin("ukii", 20000)))
 	oracleTx, err := txEncoder(oracleTxBuilder.GetTx())
 	require.NoError(t, err)
 
 	err = otherTxBuilder.SetMsgs(otherMsg)
 	require.NoError(t, err)
 	otherTxBuilder.SetGasLimit(100000)
-	otherTxBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewInt64Coin("usei", 10000)))
+	otherTxBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewInt64Coin("ukii", 10000)))
 	otherTx, err := txEncoder(otherTxBuilder.GetTx())
 	require.NoError(t, err)
 
@@ -373,13 +373,13 @@ func TestDecodeTransactionsConcurrently(t *testing.T) {
 	bankMsg := &banktypes.MsgSend{
 		FromAddress: "",
 		ToAddress:   "",
-		Amount:      sdk.NewCoins(sdk.NewInt64Coin("usei", 2)),
+		Amount:      sdk.NewCoins(sdk.NewInt64Coin("ukii", 2)),
 	}
 
 	bankTxBuilder := testWrapper.App.GetTxConfig().NewTxBuilder()
 	bankTxBuilder.SetMsgs(bankMsg)
 	bankTxBuilder.SetGasLimit(200000)
-	bankTxBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewInt64Coin("usei", 20000)))
+	bankTxBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewInt64Coin("ukii", 20000)))
 	banktxbz, _ := testWrapper.App.GetTxConfig().TxEncoder()(bankTxBuilder.GetTx())
 
 	invalidbz := []byte("abc")

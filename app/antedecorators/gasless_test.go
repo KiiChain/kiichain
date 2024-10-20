@@ -7,10 +7,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/accesscontrol"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	"github.com/sei-protocol/sei-chain/app/antedecorators"
-	evmkeeper "github.com/sei-protocol/sei-chain/x/evm/keeper"
-	oraclekeeper "github.com/sei-protocol/sei-chain/x/oracle/keeper"
-	oracletypes "github.com/sei-protocol/sei-chain/x/oracle/types"
+	"github.com/kiichain/kiichain3/app/antedecorators"
+	evmkeeper "github.com/kiichain/kiichain3/x/evm/keeper"
+	oraclekeeper "github.com/kiichain/kiichain3/x/oracle/keeper"
+	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
@@ -80,7 +80,7 @@ func (t FakeTx) GetGas() uint64 {
 	return t.Gas
 }
 func (t FakeTx) GetFee() sdk.Coins {
-	return sdk.NewCoins(sdk.NewCoin("usei", sdk.ZeroInt()))
+	return sdk.NewCoins(sdk.NewCoin("ukii", sdk.ZeroInt()))
 }
 func (t FakeTx) FeePayer() sdk.AccAddress {
 	return nil
