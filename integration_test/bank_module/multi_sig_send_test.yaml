@@ -13,7 +13,7 @@
     # Send funds to the multisig
     - cmd: printf "12345678\n" | seid keys show -a admin
       env: ADMIN_ACC
-    - cmd: printf "12345678\n" | seid tx bank send $ADMIN_ACC $MULTI_SIG_ACC 11sei -b block --fees 2000usei --chain-id sei -y
+    - cmd: printf "12345678\n" | seid tx bank send $ADMIN_ACC $MULTI_SIG_ACC 11sei -b block --fees 2000ukii --chain-id sei -y
 
     # Creat and send multi-sig transaction
     - cmd: seid tx bank send $MULTI_SIG_ACC $MULTI_SIG_ACC 1sei -b block -y --fees 1sei -y --from $MULTI_SIG_ACC --generate-only --keyring-backend test > unsigned-tx.json

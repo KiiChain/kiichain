@@ -9,13 +9,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/sei-protocol/sei-chain/app"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
+	"github.com/kiichain/kiichain3/app"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/sei-protocol/sei-chain/x/evm/derived"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
-	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
+	"github.com/kiichain/kiichain3/x/evm/derived"
+	"github.com/kiichain/kiichain3/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/types/ethtx"
 	"github.com/stretchr/testify/require"
 )
 

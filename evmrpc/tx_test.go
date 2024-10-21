@@ -15,8 +15,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/go-bip39"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/sei-protocol/sei-chain/evmrpc"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/evmrpc"
+	"github.com/kiichain/kiichain3/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

@@ -13,9 +13,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/sei-protocol/sei-chain/utils/metrics"
-	"github.com/sei-protocol/sei-chain/x/evm/state"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/utils/metrics"
+	"github.com/kiichain/kiichain3/x/evm/state"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 const UnknownMethodCallGas uint64 = 3000
@@ -197,12 +197,12 @@ func ValidateNonPayable(value *big.Int) error {
 	return nil
 }
 
-func HandlePaymentUsei(ctx sdk.Context, precompileAddr sdk.AccAddress, payer sdk.AccAddress, value *big.Int, bankKeeper BankKeeper) (sdk.Coin, error) {
-	usei, wei := state.SplitUseiWeiAmount(value)
+func HandlePaymentUkii(ctx sdk.Context, precompileAddr sdk.AccAddress, payer sdk.AccAddress, value *big.Int, bankKeeper BankKeeper) (sdk.Coin, error) {
+	ukii, wei := state.SplitUkiiWeiAmount(value)
 	if !wei.IsZero() {
 		return sdk.Coin{}, fmt.Errorf("selected precompile function does not allow payment with non-zero wei remainder: received %s", value)
 	}
-	coin := sdk.NewCoin(sdk.MustGetBaseDenom(), usei)
+	coin := sdk.NewCoin(sdk.MustGetBaseDenom(), ukii)
 	// refund payer because the following precompile logic will debit the payments from payer's account
 	// this creates a new event manager to avoid surfacing these as cosmos events
 	if err := bankKeeper.SendCoins(ctx.WithEventManager(sdk.NewEventManager()), precompileAddr, payer, sdk.NewCoins(coin)); err != nil {
@@ -211,20 +211,20 @@ func HandlePaymentUsei(ctx sdk.Context, precompileAddr sdk.AccAddress, payer sdk
 	return coin, nil
 }
 
-func HandlePaymentUseiWei(ctx sdk.Context, precompileAddr sdk.AccAddress, payer sdk.AccAddress, value *big.Int, bankKeeper BankKeeper) (sdk.Int, sdk.Int, error) {
-	usei, wei := state.SplitUseiWeiAmount(value)
+func HandlePaymentUkiiWei(ctx sdk.Context, precompileAddr sdk.AccAddress, payer sdk.AccAddress, value *big.Int, bankKeeper BankKeeper) (sdk.Int, sdk.Int, error) {
+	ukii, wei := state.SplitUkiiWeiAmount(value)
 	// refund payer because the following precompile logic will debit the payments from payer's account
 	// this creates a new event manager to avoid surfacing these as cosmos events
-	if err := bankKeeper.SendCoinsAndWei(ctx.WithEventManager(sdk.NewEventManager()), precompileAddr, payer, usei, wei); err != nil {
+	if err := bankKeeper.SendCoinsAndWei(ctx.WithEventManager(sdk.NewEventManager()), precompileAddr, payer, ukii, wei); err != nil {
 		return sdk.Int{}, sdk.Int{}, err
 	}
-	return usei, wei, nil
+	return ukii, wei, nil
 }
 
 /*
 *
-sei gas = evm gas * multiplier
-sei gas price = fee / sei gas = fee / (evm gas * multiplier) = evm gas / multiplier
+kii gas = evm gas * multiplier
+kii gas price = fee / kii gas = fee / (evm gas * multiplier) = evm gas / multiplier
 */
 func GetRemainingGas(ctx sdk.Context, evmKeeper EVMKeeper) uint64 {
 	return evmKeeper.GetEVMGasLimitFromCtx(ctx)
@@ -259,18 +259,18 @@ func MustGetABI(f embed.FS, filename string) abi.ABI {
 	return newAbi
 }
 
-func GetSeiAddressByEvmAddress(ctx sdk.Context, evmAddress common.Address, evmKeeper EVMKeeper) (sdk.AccAddress, error) {
-	seiAddr, associated := evmKeeper.GetSeiAddress(ctx, evmAddress)
+func GetKiiAddressByEvmAddress(ctx sdk.Context, evmAddress common.Address, evmKeeper EVMKeeper) (sdk.AccAddress, error) {
+	kiiAddr, associated := evmKeeper.GetKiiAddress(ctx, evmAddress)
 	if !associated {
 		return nil, types.NewAssociationMissingErr(evmAddress.Hex())
 	}
-	return seiAddr, nil
+	return kiiAddr, nil
 }
 
-func GetSeiAddressFromArg(ctx sdk.Context, arg interface{}, evmKeeper EVMKeeper) (sdk.AccAddress, error) {
+func GetKiiAddressFromArg(ctx sdk.Context, arg interface{}, evmKeeper EVMKeeper) (sdk.AccAddress, error) {
 	addr := arg.(common.Address)
 	if addr == (common.Address{}) {
 		return nil, errors.New("invalid addr")
 	}
-	return GetSeiAddressByEvmAddress(ctx, addr, evmKeeper)
+	return GetKiiAddressByEvmAddress(ctx, addr, evmKeeper)
 }

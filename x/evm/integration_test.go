@@ -24,13 +24,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	pcommon "github.com/sei-protocol/sei-chain/precompiles/common"
-	"github.com/sei-protocol/sei-chain/precompiles/pointer"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw721"
-	"github.com/sei-protocol/sei-chain/x/evm/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
-	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
+	pcommon "github.com/kiichain/kiichain3/precompiles/common"
+	"github.com/kiichain/kiichain3/precompiles/pointer"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/cw721"
+	"github.com/kiichain/kiichain3/x/evm/keeper"
+	"github.com/kiichain/kiichain3/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/types/ethtx"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -73,7 +73,7 @@ func TestERC2981PointerToCW2981(t *testing.T) {
 	privKey := testkeeper.MockPrivateKey()
 	seiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
 	k.SetAddressMapping(ctx, seiAddr, evmAddr)
-	require.Nil(t, k.BankKeeper().AddCoins(ctx, seiAddr, sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(10000000))), true))
+	require.Nil(t, k.BankKeeper().AddCoins(ctx, seiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10000000))), true))
 	testPrivHex := hex.EncodeToString(privKey.Bytes())
 	key, _ := crypto.HexToECDSA(testPrivHex)
 	to := common.HexToAddress(pointer.PointerAddress)
@@ -150,7 +150,7 @@ func TestCW2981PointerToERC2981(t *testing.T) {
 	privKey := testkeeper.MockPrivateKey()
 	seiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
 	k.SetAddressMapping(ctx, seiAddr, evmAddr)
-	require.Nil(t, k.BankKeeper().AddCoins(ctx, seiAddr, sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(10000000))), true))
+	require.Nil(t, k.BankKeeper().AddCoins(ctx, seiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10000000))), true))
 	testPrivHex := hex.EncodeToString(privKey.Bytes())
 	key, _ := crypto.HexToECDSA(testPrivHex)
 	abiBz, err := os.ReadFile("../../example/contracts/erc2981/ERC2981Example.abi")
@@ -301,7 +301,7 @@ func TestInvalidAssociateMsg(t *testing.T) {
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now()).WithChainID("sei-test").WithBlockHeight(1)
 	privKey := testkeeper.MockPrivateKey()
 	seiAddr, _ := testkeeper.PrivateKeyToAddresses(privKey)
-	amt := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000)))
+	amt := sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000)))
 	k.BankKeeper().MintCoins(ctx, "evm", amt)
 	k.BankKeeper().SendCoinsFromModuleToAccount(ctx, "evm", seiAddr, amt)
 	testPrivHex := hex.EncodeToString(privKey.Bytes())

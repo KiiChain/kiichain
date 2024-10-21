@@ -17,9 +17,9 @@ echo "$keyaddress"  > $seihome/integration_test/contracts/wasm_creator_id.txt
 for i in {1..10}
 do
     echo "Storing first set contract #$i..."
-    store_result=$(printf "12345678\n" | $seidbin tx wasm store integration_test/contracts/mars.wasm -y --from="$keyname" --chain-id="$chainid" --gas=5000000 --fees=1000000usei --broadcast-mode=block --output=json)
+    store_result=$(printf "12345678\n" | $seidbin tx wasm store integration_test/contracts/mars.wasm -y --from="$keyname" --chain-id="$chainid" --gas=5000000 --fees=1000000ukii --broadcast-mode=block --output=json)
     contract_id=$(echo "$store_result" | jq -r '.logs[].events[].attributes[] | select(.key == "code_id").value')
-    printf "12345678\n" | $seidbin tx wasm instantiate "$contract_id" '{}' -y --no-admin --from="$keyname" --chain-id="$chainid" --gas=5000000 --fees=1000000usei --broadcast-mode=block --label=dex --output=json
+    printf "12345678\n" | $seidbin tx wasm instantiate "$contract_id" '{}' -y --no-admin --from="$keyname" --chain-id="$chainid" --gas=5000000 --fees=1000000ukii --broadcast-mode=block --label=dex --output=json
     echo "Got contract id $contract_id for iteration $i"
 done
 
@@ -32,9 +32,9 @@ sleep 5
 for i in {11..20}
 do
     echo "Storing second set contract #$i..."
-    store_result=$(printf "12345678\n" | $seidbin tx wasm store integration_test/contracts/saturn.wasm -y --from="$keyname" --chain-id="$chainid" --gas=5000000 --fees=1000000usei --broadcast-mode=block --output=json)
+    store_result=$(printf "12345678\n" | $seidbin tx wasm store integration_test/contracts/saturn.wasm -y --from="$keyname" --chain-id="$chainid" --gas=5000000 --fees=1000000ukii --broadcast-mode=block --output=json)
     contract_id=$(echo "$store_result" | jq -r '.logs[].events[].attributes[] | select(.key == "code_id").value')
-    printf "12345678\n" | $seidbin tx wasm instantiate "$contract_id" '{}' -y --no-admin --from="$keyname" --chain-id="$chainid" --gas=5000000 --fees=1000000usei --broadcast-mode=block --label=dex --output=json
+    printf "12345678\n" | $seidbin tx wasm instantiate "$contract_id" '{}' -y --no-admin --from="$keyname" --chain-id="$chainid" --gas=5000000 --fees=1000000ukii --broadcast-mode=block --label=dex --output=json
     echo "Got contract id $contract_id for iteration $i"
 done
 
@@ -47,9 +47,9 @@ sleep 5
 for i in {21..30}
 do
     echo "Storing third set contract #$i..."
-    store_result=$(printf "12345678\n" | $seidbin tx wasm store integration_test/contracts/venus.wasm -y --from="$keyname" --chain-id="$chainid" --gas=5000000 --fees=1000000usei --broadcast-mode=block --output=json)
+    store_result=$(printf "12345678\n" | $seidbin tx wasm store integration_test/contracts/venus.wasm -y --from="$keyname" --chain-id="$chainid" --gas=5000000 --fees=1000000ukii --broadcast-mode=block --output=json)
     contract_id=$(echo "$store_result" | jq -r '.logs[].events[].attributes[] | select(.key == "code_id").value')
-    printf "12345678\n" | $seidbin tx wasm instantiate "$contract_id" '{}' -y --no-admin --from="$keyname" --chain-id="$chainid" --gas=5000000 --fees=1000000usei --broadcast-mode=block --label=dex --output=json
+    printf "12345678\n" | $seidbin tx wasm instantiate "$contract_id" '{}' -y --no-admin --from="$keyname" --chain-id="$chainid" --gas=5000000 --fees=1000000ukii --broadcast-mode=block --label=dex --output=json
     echo "Got contract id $contract_id for iteration $i"
 done
 

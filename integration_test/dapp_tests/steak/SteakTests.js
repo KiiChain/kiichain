@@ -35,7 +35,7 @@ describe("Steak", async function () {
   let tokenPointer;
   let originalSeidConfig;
 
-  async function setupAccount(baseName, associate = true, amount="100000000000", denom="usei", funder='admin') {
+  async function setupAccount(baseName, associate = true, amount="100000000000", denom="ukii", funder='admin') {
     const uniqueName = `${baseName}-${uuidv4()}`;
 
     const account = await addAccount(uniqueName);
@@ -163,7 +163,7 @@ describe("Steak", async function () {
     });
 
     it("Unassociated account should be able to bond", async function () {
-      const unassociatedAccount = await setupAccount("unassociated", false, '2000000', 'usei', owner.address);
+      const unassociatedAccount = await setupAccount("unassociated", false, '2000000', 'ukii', owner.address);
       // Verify that account is not associated yet
       const initialEvmAddress = await getEvmAddress(
         unassociatedAccount.address
@@ -177,7 +177,7 @@ describe("Steak", async function () {
       expect(evmAddress).to.not.be.empty;
 
       // Send tokens to a new unassociated account
-      const newUnassociatedAccount = await setupAccount("unassociated", false, '2000000', 'usei', owner.address);
+      const newUnassociatedAccount = await setupAccount("unassociated", false, '2000000', 'ukii', owner.address);
       const transferAmount = 500000;
       await transferTokens(
         tokenAddress,

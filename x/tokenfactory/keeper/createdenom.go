@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/sei-protocol/sei-chain/x/tokenfactory/types"
+	"github.com/kiichain/kiichain3/x/tokenfactory/types"
 )
 
 // CreateDenom creates a new token denom with the given subdenom.

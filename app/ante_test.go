@@ -23,13 +23,13 @@ import (
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	aclutils "github.com/sei-protocol/sei-chain/aclmapping/utils"
-	app "github.com/sei-protocol/sei-chain/app"
-	"github.com/sei-protocol/sei-chain/app/apptesting"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
-	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
-	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
+	aclutils "github.com/kiichain/kiichain3/aclmapping/utils"
+	app "github.com/kiichain/kiichain3/app"
+	"github.com/kiichain/kiichain3/app/apptesting"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
+	"github.com/kiichain/kiichain3/x/evm/types"
+	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/types/ethtx"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -252,7 +252,7 @@ func TestEvmAnteErrorHandler(t *testing.T) {
 	require.Nil(t, err)
 
 	addr, _ := testkeeper.PrivateKeyToAddresses(privKey)
-	testkeeper.EVMTestApp.BankKeeper.AddCoins(ctx, addr, sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(100000000000))), true)
+	testkeeper.EVMTestApp.BankKeeper.AddCoins(ctx, addr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(100000000000))), true)
 	res := testkeeper.EVMTestApp.DeliverTx(ctx, abci.RequestDeliverTx{Tx: encodedTx}, txToSend, sha256.Sum256(encodedTx))
 	require.NotEqual(t, 0, res.Code)
 	testkeeper.EVMTestApp.EvmKeeper.SetTxResults([]*abci.ExecTxResult{{

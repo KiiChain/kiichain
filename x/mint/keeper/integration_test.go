@@ -1,11 +1,11 @@
 package keeper_test
 
 import (
-	"github.com/sei-protocol/sei-chain/app"
+	"github.com/kiichain/kiichain3/app"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/sei-protocol/sei-chain/x/mint/types"
+	"github.com/kiichain/kiichain3/x/mint/types"
 )
 
 // returns context and an app with updated mint keeper

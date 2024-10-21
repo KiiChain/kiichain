@@ -12,9 +12,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	"github.com/gorilla/websocket"
+	"github.com/kiichain/kiichain3/oracle/price-feeder/config"
+	"github.com/kiichain/kiichain3/oracle/price-feeder/oracle/types"
 	"github.com/rs/zerolog"
-	"github.com/sei-protocol/sei-chain/oracle/price-feeder/config"
-	"github.com/sei-protocol/sei-chain/oracle/price-feeder/oracle/types"
 )
 
 const (

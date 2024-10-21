@@ -9,8 +9,8 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	evmkeeper "github.com/sei-protocol/sei-chain/x/evm/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	evmkeeper "github.com/kiichain/kiichain3/x/evm/keeper"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 type EVMSigVerifyDecorator struct {

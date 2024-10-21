@@ -42,7 +42,7 @@ type Minter struct {
     StartDate           string `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
     // The day where the mint ends
     EndDate             string `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
-    // Denom for the coins minted, defaults to usei
+    // Denom for the coins minted, defaults to ukii
     Denom               string `protobuf:"bytes,3,opt,name=denom,proto3" json:"denom,omitempty"`
     // Total amount to be minted
     TotalMintAmount     uint64 `protobuf:"varint,4,opt,name=total_mint_amount,json=totalMintAmount,proto3" json:"total_mint_amount,omitempty"`
@@ -94,7 +94,7 @@ First, prepare a proposal in JSON format, like the minter_prop.json file below:
   "minter": {
     "start_date": "2023-10-05",
     "end_date": "2023-11-22",
-    "denom": "usei",
+    "denom": "ukii",
     "total_mint_amount": 100000
   }
 }
@@ -103,7 +103,7 @@ First, prepare a proposal in JSON format, like the minter_prop.json file below:
 Then, submit the proposal with the following command:
 
 ```bash
-seid tx gov submit-proposal update-minter ./minter_prop.json --deposit 20sei --from admin -b block -y --gas 200000 --fees 2000usei
+seid tx gov submit-proposal update-minter ./minter_prop.json --deposit 20sei --from admin -b block -y --gas 200000 --fees 2000ukii
 ```
 
 This command submits a proposal to update the minter. The --deposit flag is used to provide the initial deposit. The proposal is submitted by the address provided with the --from flag.
@@ -112,7 +112,7 @@ Before the proposal, the Minter parameters might look like this:
 
 ```**bash**
 > seid q mint minter
-denom: usei
+denom: ukii
 end_date: "2023-04-30"
 last_mint_amount: "333333333333"
 last_mint_date: "2023-04-27"
@@ -126,7 +126,7 @@ After the proposal is passed, the Minter parameters would be updated as per the 
 
 ```bash
 > seid q mint minter
-denom: usei
+denom: ukii
 end_date: "2023-11-22"
 last_mint_amount: "0"
 last_mint_date: ""
@@ -150,7 +150,7 @@ Here is an example for updating the params for the mint module
     {
       "subspace": "mint",
       "key": "MintDenom",
-      "value": "usei"
+      "value": "ukii"
     },
     {
       "subspace": "mint",
@@ -175,7 +175,7 @@ Here is an example for updating the params for the mint module
 Submit the proposal
 
 ```bash
-seid tx gov submit-proposal param-change ./param_change_prop.json --from admin -b block -y --gas 200000 --fees 200000usei
+seid tx gov submit-proposal param-change ./param_change_prop.json --from admin -b block -y --gas 200000 --fees 200000ukii
 ```
 
 ## Begin-Block

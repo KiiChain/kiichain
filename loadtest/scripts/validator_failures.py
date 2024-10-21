@@ -47,13 +47,13 @@ def delegation_change(chain_id):
     for i in range(len(validator_addrs // 4)):
         delegations[validator_addrs[i]] = 10 * total_delegation
         print(f"Delegating {10 * total_delegation} to {validator_addrs[i]}")
-        seid_staking_cmd = f"seid tx staking delegate {validator_addrs[i]} {10 * total_delegation}usei --from admin --chain-id {chain_id} -b block -y"
+        seid_staking_cmd = f"seid tx staking delegate {validator_addrs[i]} {10 * total_delegation}ukii --from admin --chain-id {chain_id} -b block -y"
         _run_seid_cmd(seid_staking_cmd)
     time.sleep(random.randint(600, 3600))
     # Unbond
     for validator in delegations:
         print(f"Unbonding {10 * total_delegation} from {validator}")
-        seid_unbond_cmd = f"seid tx staking unbond {validator} {delegations[validator]}usei --from admin -b block -y --chain-id {chain_id}"
+        seid_unbond_cmd = f"seid tx staking unbond {validator} {delegations[validator]}ukii --from admin -b block -y --chain-id {chain_id}"
         _run_seid_cmd(seid_unbond_cmd)
 
 

@@ -6,7 +6,7 @@ import "epoch/params.proto";
 import "epoch/epoch.proto";
 // this line is used by starport scaffolding # genesis/proto/import
 
-option go_package = "github.com/sei-protocol/sei-chain/x/epoch/types";
+option go_package = "github.com/kiichain/kiichain3/x/epoch/types";
 
 // GenesisState defines the epoch module's genesis state.
 message GenesisState {

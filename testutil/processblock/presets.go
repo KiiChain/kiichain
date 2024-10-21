@@ -9,7 +9,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	minttypes "github.com/sei-protocol/sei-chain/x/mint/types"
+	minttypes "github.com/kiichain/kiichain3/x/mint/types"
 )
 
 type Preset struct {

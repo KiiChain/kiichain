@@ -169,7 +169,7 @@ const mintCw721 = async (contractAddress, address, id) => {
     },
   };
   const jsonString = JSON.stringify(msg).replace(/"/g, '\\"');
-  const command = `seid tx wasm execute ${contractAddress} "${jsonString}" --from=${address} --gas=500000 --gas-prices=0.1usei --broadcast-mode=block -y --output=json`;
+  const command = `seid tx wasm execute ${contractAddress} "${jsonString}" --from=${address} --gas=500000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   if (response.code !== 0) {
@@ -220,7 +220,7 @@ const instantiateHubContract = async (
   label
 ) => {
   const jsonString = JSON.stringify(instantiateMsg).replace(/"/g, '\\"');
-  const command = `seid tx wasm instantiate ${codeId} "${jsonString}" --label ${label} --admin ${adminAddress} --from ${adminAddress} --gas=5000000 --fees=1000000usei -y --broadcast-mode block -o json`;
+  const command = `seid tx wasm instantiate ${codeId} "${jsonString}" --label ${label} --admin ${adminAddress} --from ${adminAddress} --gas=5000000 --fees=1000000ukii -y --broadcast-mode block -o json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   // Get all attributes with _contractAddress
@@ -256,7 +256,7 @@ const bond = async (contractAddress, address, amount) => {
     bond: {},
   };
   const jsonString = JSON.stringify(msg).replace(/"/g, '\\"');
-  const command = `seid tx wasm execute ${contractAddress} "${jsonString}" --amount=${amount}usei --from=${address} --gas=500000 --gas-prices=0.1usei --broadcast-mode=block -y --output=json`;
+  const command = `seid tx wasm execute ${contractAddress} "${jsonString}" --amount=${amount}ukii --from=${address} --gas=500000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   if (response.code !== 0) {
@@ -276,7 +276,7 @@ const unbond = async (hubAddress, tokenAddress, address, amount) => {
     },
   };
   const jsonString = JSON.stringify(msg).replace(/"/g, '\\"');
-  const command = `seid tx wasm execute ${tokenAddress} "${jsonString}" --from=${address} --gas=500000 --gas-prices=0.1usei --broadcast-mode=block -y --output=json`;
+  const command = `seid tx wasm execute ${tokenAddress} "${jsonString}" --from=${address} --gas=500000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   if (response.code !== 0) {
@@ -290,7 +290,7 @@ const harvest = async (contractAddress, address) => {
     harvest: {},
   };
   const jsonString = JSON.stringify(msg).replace(/"/g, '\\"');
-  const command = `seid tx wasm execute ${contractAddress} "${jsonString}" --from=${address} --gas=500000 --gas-prices=0.1usei --broadcast-mode=block -y --output=json`;
+  const command = `seid tx wasm execute ${contractAddress} "${jsonString}" --from=${address} --gas=500000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   if (response.code !== 0) {
@@ -326,7 +326,7 @@ const transferTokens = async (tokenAddress, sender, destination, amount) => {
     },
   };
   const jsonString = JSON.stringify(msg).replace(/"/g, '\\"');
-  const command = `seid tx wasm execute ${tokenAddress} "${jsonString}" --from=${sender} --gas=200000 --gas-prices=0.1usei --broadcast-mode=block -y --output=json`;
+  const command = `seid tx wasm execute ${tokenAddress} "${jsonString}" --from=${sender} --gas=200000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   if (response.code !== 0) {

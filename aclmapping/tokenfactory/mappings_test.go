@@ -11,13 +11,13 @@ import (
 	acltypes "github.com/cosmos/cosmos-sdk/x/accesscontrol/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	tkfactory "github.com/sei-protocol/sei-chain/aclmapping/tokenfactory"
-	aclutils "github.com/sei-protocol/sei-chain/aclmapping/utils"
-	"github.com/sei-protocol/sei-chain/app/apptesting"
-	oracletypes "github.com/sei-protocol/sei-chain/x/oracle/types"
-	tokenfactorykeeper "github.com/sei-protocol/sei-chain/x/tokenfactory/keeper"
-	"github.com/sei-protocol/sei-chain/x/tokenfactory/types"
-	tokenfactorytypes "github.com/sei-protocol/sei-chain/x/tokenfactory/types"
+	tkfactory "github.com/kiichain/kiichain3/aclmapping/tokenfactory"
+	aclutils "github.com/kiichain/kiichain3/aclmapping/utils"
+	"github.com/kiichain/kiichain3/app/apptesting"
+	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
+	tokenfactorykeeper "github.com/kiichain/kiichain3/x/tokenfactory/keeper"
+	"github.com/kiichain/kiichain3/x/tokenfactory/types"
+	tokenfactorytypes "github.com/kiichain/kiichain3/x/tokenfactory/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
@@ -46,7 +46,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 // Explicitly only run once during setup
 func (suite *KeeperTestSuite) PrepareTest() {
-	suite.defaultDenom = "usei"
+	suite.defaultDenom = "ukii"
 	suite.testDenom = "foocoins"
 
 	suite.initalBalance = sdk.Coins{sdk.NewInt64Coin(suite.defaultDenom, 100000000000)}
@@ -200,7 +200,7 @@ func TestGeneratorInvalidMessageTypes(t *testing.T) {
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	oracleVote := oracletypes.MsgAggregateExchangeRateVote{
-		ExchangeRates: "1usei",
+		ExchangeRates: "1ukii",
 		Feeder:        "test",
 		Validator:     "validator",
 	}
@@ -224,7 +224,7 @@ func TestMsgBeginBurnDepedencyGenerator(t *testing.T) {
 
 	sendMsg := tokenfactorytypes.MsgBurn{
 		Sender: addr1.String(),
-		Amount: sdk.NewInt64Coin("usei", 10),
+		Amount: sdk.NewInt64Coin("ukii", 10),
 	}
 
 	accessOps, err := tkfactory.TokenFactoryBurnDependencyGenerator(app.AccessControlKeeper, ctx, &sendMsg)

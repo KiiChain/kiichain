@@ -2,12 +2,12 @@ package aclmapping
 
 import (
 	aclkeeper "github.com/cosmos/cosmos-sdk/x/accesscontrol/keeper"
-	aclbankmapping "github.com/sei-protocol/sei-chain/aclmapping/bank"
-	aclevmmapping "github.com/sei-protocol/sei-chain/aclmapping/evm"
-	acloraclemapping "github.com/sei-protocol/sei-chain/aclmapping/oracle"
-	acltokenfactorymapping "github.com/sei-protocol/sei-chain/aclmapping/tokenfactory"
-	aclwasmmapping "github.com/sei-protocol/sei-chain/aclmapping/wasm"
-	evmkeeper "github.com/sei-protocol/sei-chain/x/evm/keeper"
+	aclbankmapping "github.com/kiichain/kiichain3/aclmapping/bank"
+	aclevmmapping "github.com/kiichain/kiichain3/aclmapping/evm"
+	acloraclemapping "github.com/kiichain/kiichain3/aclmapping/oracle"
+	acltokenfactorymapping "github.com/kiichain/kiichain3/aclmapping/tokenfactory"
+	aclwasmmapping "github.com/kiichain/kiichain3/aclmapping/wasm"
+	evmkeeper "github.com/kiichain/kiichain3/x/evm/keeper"
 )
 
 type CustomDependencyGenerator struct{}

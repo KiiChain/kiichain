@@ -1,16 +1,17 @@
 package keeper_test
 
 import (
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"testing"
+
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/sei-protocol/sei-chain/app/apptesting"
-	"github.com/sei-protocol/sei-chain/x/tokenfactory/keeper"
-	"github.com/sei-protocol/sei-chain/x/tokenfactory/types"
+	"github.com/kiichain/kiichain3/app/apptesting"
+	"github.com/kiichain/kiichain3/x/tokenfactory/keeper"
+	"github.com/kiichain/kiichain3/x/tokenfactory/types"
 )
 
 type KeeperTestSuite struct {

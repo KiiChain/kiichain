@@ -37,9 +37,9 @@ import (
 	"golang.org/x/sync/semaphore"
 	"golang.org/x/time/rate"
 
-	"github.com/sei-protocol/sei-chain/app"
-	"github.com/sei-protocol/sei-chain/utils/metrics"
-	tokenfactorytypes "github.com/sei-protocol/sei-chain/x/tokenfactory/types"
+	"github.com/kiichain/kiichain3/app"
+	"github.com/kiichain/kiichain3/utils/metrics"
+	tokenfactorytypes "github.com/kiichain/kiichain3/x/tokenfactory/types"
 )
 
 var TestConfig EncodingConfig
@@ -334,14 +334,14 @@ func (c *LoadTestClient) generateMessage(key cryptotypes.PrivKey, msgType string
 		// TODO: Potentially just hard code the Funds amount here
 		price := config.PriceDistr.Sample()
 		quantity := config.QuantityDistr.Sample()
-		amount, err := sdk.ParseCoinsNormalized(fmt.Sprintf("%d%s", price.Mul(quantity).Ceil().RoundInt64(), "usei"))
+		amount, err := sdk.ParseCoinsNormalized(fmt.Sprintf("%d%s", price.Mul(quantity).Ceil().RoundInt64(), "ukii"))
 		if err != nil {
 			panic(err)
 		}
 		msgs = []sdk.Msg{&wasmtypes.MsgExecuteContract{
 			Sender:   sdk.AccAddress(key.PubKey().Address()).String(),
 			Contract: contract,
-			Msg:      wasmtypes.RawContractMessage([]byte("{\"mint\":{\"owner\": \"sei1a27kj2j27c6uz58rn9zmhcjee9s3h3nhyhtvjj\"}}")),
+			Msg:      wasmtypes.RawContractMessage([]byte("{\"mint\":{\"owner\": \"kii14jekmh7yruasqx4k372mrktsd7hwz454snw0us\"}}")),
 			Funds:    amount,
 		}}
 	case WasmInstantiate:
@@ -351,7 +351,7 @@ func (c *LoadTestClient) generateMessage(key cryptotypes.PrivKey, msgType string
 			Label:  "test",
 			Msg:    wasmtypes.RawContractMessage([]byte(config.WasmMsgTypes.Instantiate.Payload)),
 			Funds: sdk.NewCoins(sdk.Coin{
-				Denom:  "usei",
+				Denom:  "ukii",
 				Amount: sdk.NewInt(1),
 			}), // maybe make this configurable as well in the future
 		}}
@@ -363,7 +363,7 @@ func (c *LoadTestClient) generateMessage(key cryptotypes.PrivKey, msgType string
 				FromAddress: sdk.AccAddress(key.PubKey().Address()).String(),
 				ToAddress:   sdk.AccAddress(key.PubKey().Address()).String(),
 				Amount: sdk.NewCoins(sdk.Coin{
-					Denom:  "usei",
+					Denom:  "ukii",
 					Amount: sdk.NewInt(1),
 				}),
 			})
@@ -374,7 +374,7 @@ func (c *LoadTestClient) generateMessage(key cryptotypes.PrivKey, msgType string
 			FromAddress: sdk.AccAddress(adminKey.PubKey().Address()).String(),
 			ToAddress:   sdk.AccAddress(key.PubKey().Address()).String(),
 			Amount: sdk.NewCoins(sdk.Coin{
-				Denom:  "usei",
+				Denom:  "ukii",
 				Amount: sdk.NewInt(10000000),
 			}),
 		}}
@@ -454,14 +454,14 @@ func (c *LoadTestClient) generateMessage(key cryptotypes.PrivKey, msgType string
 			}),
 		}}
 	case FailureBankInvalid:
-		var amountUsei int64
-		amountUsei = 1000000000000000000
+		var amountUkii int64
+		amountUkii = 1000000000000000000
 		msgs = []sdk.Msg{&banktypes.MsgSend{
 			FromAddress: sdk.AccAddress(key.PubKey().Address()).String(),
 			ToAddress:   sdk.AccAddress(key.PubKey().Address()).String(),
 			Amount: sdk.NewCoins(sdk.Coin{
-				Denom:  "usei",
-				Amount: sdk.NewInt(amountUsei),
+				Denom:  "ukii",
+				Amount: sdk.NewInt(amountUkii),
 			}),
 		}}
 	case WasmOccIteratorWrite:
@@ -533,7 +533,7 @@ func (c *LoadTestClient) generateStakingMsg(delegatorAddr string, chosenValidato
 		msg = &stakingtypes.MsgDelegate{
 			DelegatorAddress: delegatorAddr,
 			ValidatorAddress: chosenValidator,
-			Amount:           sdk.Coin{Denom: "usei", Amount: sdk.NewInt(1)},
+			Amount:           sdk.Coin{Denom: "ukii", Amount: sdk.NewInt(1)},
 		}
 		c.DelegationMap[delegatorAddr] = map[string]int{}
 		c.DelegationMap[delegatorAddr][chosenValidator] = 1
@@ -543,14 +543,14 @@ func (c *LoadTestClient) generateStakingMsg(delegatorAddr string, chosenValidato
 				DelegatorAddress:    delegatorAddr,
 				ValidatorSrcAddress: srcAddr,
 				ValidatorDstAddress: chosenValidator,
-				Amount:              sdk.Coin{Denom: "usei", Amount: sdk.NewInt(1)},
+				Amount:              sdk.Coin{Denom: "ukii", Amount: sdk.NewInt(1)},
 			}
 			c.DelegationMap[delegatorAddr][chosenValidator]++
 		} else {
 			msg = &stakingtypes.MsgUndelegate{
 				DelegatorAddress: delegatorAddr,
 				ValidatorAddress: srcAddr,
-				Amount:           sdk.Coin{Denom: "usei", Amount: sdk.NewInt(1)},
+				Amount:           sdk.Coin{Denom: "ukii", Amount: sdk.NewInt(1)},
 			}
 		}
 		// Update delegation map

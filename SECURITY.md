@@ -23,7 +23,7 @@ Send your detailed vulnerability report to `protocol-eng@seinetwork.io`.
 
 ### 2. GitHub Private Vulnerability Reporting
 
-Utilize [GitHub's Private Vulnerability Reporting](https://github.com/sei-protocol/sei-chain/security/advisories/new) for confidential disclosure.
+Utilize [GitHub's Private Vulnerability Reporting](https://github.com/kiichain/kiichain3/security/advisories/new) for confidential disclosure.
 
 ## Submit Vulnerability Report
 

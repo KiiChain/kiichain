@@ -8,8 +8,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/sei-protocol/sei-chain/app/params"
-	minttypes "github.com/sei-protocol/sei-chain/x/mint/types"
+	"github.com/kiichain/kiichain3/app/params"
+	minttypes "github.com/kiichain/kiichain3/x/mint/types"
 )
 
 type ModuleParser func([]byte) ([]string, error)

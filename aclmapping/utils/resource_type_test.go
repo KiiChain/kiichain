@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	sdkacltypes "github.com/cosmos/cosmos-sdk/types/accesscontrol"
-	aclutils "github.com/sei-protocol/sei-chain/aclmapping/utils"
+	aclutils "github.com/kiichain/kiichain3/aclmapping/utils"
 )
 
 func TestAllResourcesInTree(t *testing.T) {

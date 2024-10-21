@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/sei-protocol/sei-chain/x/epoch/keeper"
-	"github.com/sei-protocol/sei-chain/x/epoch/types"
+	"github.com/kiichain/kiichain3/x/epoch/keeper"
+	"github.com/kiichain/kiichain3/x/epoch/types"
 )
 
 func NewHandler(_ keeper.Keeper) sdk.Handler {

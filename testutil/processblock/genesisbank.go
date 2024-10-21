@@ -7,11 +7,11 @@ import (
 )
 
 func (a *App) FundAccount(acc sdk.AccAddress, amount int64) {
-	a.FundAccountWithDenom(acc, amount, "usei")
+	a.FundAccountWithDenom(acc, amount, "ukii")
 }
 
 func (a *App) FundModule(moduleName string, amount int64) {
-	a.FundModuleWithDenom(moduleName, amount, "usei")
+	a.FundModuleWithDenom(moduleName, amount, "ukii")
 }
 
 func (a *App) FundAccountWithDenom(acc sdk.AccAddress, amount int64, denom string) {

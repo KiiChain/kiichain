@@ -8,9 +8,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/tracing"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/state"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
+	"github.com/kiichain/kiichain3/x/evm/state"
+	"github.com/kiichain/kiichain3/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -125,7 +125,7 @@ func TestSelfDestructAssociated(t *testing.T) {
 	statedb.Finalize()
 	require.Equal(t, common.Hash{}, statedb.GetState(evmAddr, key))
 	// association should also be removed
-	_, ok := k.GetSeiAddress(statedb.Ctx(), evmAddr)
+	_, ok := k.GetKiiAddress(statedb.Ctx(), evmAddr)
 	require.False(t, ok)
 	// balance in destructed account should be cleared and transferred to coinbase
 	require.Equal(t, big.NewInt(0), statedb.GetBalance(evmAddr))

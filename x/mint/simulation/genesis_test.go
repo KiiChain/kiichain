@@ -11,8 +11,8 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/sei-protocol/sei-chain/x/mint/simulation"
-	"github.com/sei-protocol/sei-chain/x/mint/types"
+	"github.com/kiichain/kiichain3/x/mint/simulation"
+	"github.com/kiichain/kiichain3/x/mint/types"
 )
 
 // TestRandomizedGenState tests the normal scenario of applying RandomizedGenState.
@@ -39,8 +39,8 @@ func TestRandomizedGenState(t *testing.T) {
 	var mintGenesis types.GenesisState
 	simState.Cdc.MustUnmarshalJSON(simState.GenState[types.ModuleName], &mintGenesis)
 
-	require.Equal(t, "usei", mintGenesis.Params.MintDenom)
-	require.Equal(t, "0usei", mintGenesis.Minter.GetLastMintAmountCoin().String())
+	require.Equal(t, "ukii", mintGenesis.Params.MintDenom)
+	require.Equal(t, "0ukii", mintGenesis.Minter.GetLastMintAmountCoin().String())
 }
 
 // TestRandomizedGenState tests abnormal scenarios of applying RandomizedGenState.

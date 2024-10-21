@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/tracing"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 func (s *DBImpl) SubBalance(evmAddr common.Address, amt *big.Int, reason tracing.BalanceChangeReason) {
@@ -26,9 +26,9 @@ func (s *DBImpl) SubBalance(evmAddr common.Address, amt *big.Int, reason tracing
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 	}
 
-	usei, wei := SplitUseiWeiAmount(amt)
+	ukii, wei := SplitUkiiWeiAmount(amt)
 	addr := s.getSeiAddress(evmAddr)
-	err := s.k.BankKeeper().SubUnlockedCoins(ctx, addr, sdk.NewCoins(sdk.NewCoin(s.k.GetBaseDenom(s.ctx), usei)), true)
+	err := s.k.BankKeeper().SubUnlockedCoins(ctx, addr, sdk.NewCoins(sdk.NewCoin(s.k.GetBaseDenom(s.ctx), ukii)), true)
 	if err != nil {
 		s.err = err
 		return
@@ -66,9 +66,9 @@ func (s *DBImpl) AddBalance(evmAddr common.Address, amt *big.Int, reason tracing
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 	}
 
-	usei, wei := SplitUseiWeiAmount(amt)
+	ukii, wei := SplitUkiiWeiAmount(amt)
 	addr := s.getSeiAddress(evmAddr)
-	err := s.k.BankKeeper().AddCoins(ctx, addr, sdk.NewCoins(sdk.NewCoin(s.k.GetBaseDenom(s.ctx), usei)), true)
+	err := s.k.BankKeeper().AddCoins(ctx, addr, sdk.NewCoins(sdk.NewCoin(s.k.GetBaseDenom(s.ctx), ukii)), true)
 	if err != nil {
 		s.err = err
 		return
@@ -107,8 +107,8 @@ func (s *DBImpl) SetBalance(evmAddr common.Address, amt *big.Int, reason tracing
 	if s.err != nil {
 		panic(s.err)
 	}
-	usei, _ := SplitUseiWeiAmount(amt)
-	coinsAmt := sdk.NewCoins(sdk.NewCoin(s.k.GetBaseDenom(s.ctx), usei.Add(sdk.OneInt())))
+	ukii, _ := SplitUkiiWeiAmount(amt)
+	coinsAmt := sdk.NewCoins(sdk.NewCoin(s.k.GetBaseDenom(s.ctx), ukii.Add(sdk.OneInt())))
 	if err := s.k.BankKeeper().MintCoins(s.ctx, types.ModuleName, coinsAmt); err != nil {
 		panic(err)
 	}
@@ -122,12 +122,12 @@ func (s *DBImpl) getSeiAddress(evmAddr common.Address) sdk.AccAddress {
 	if s.coinbaseEvmAddress.Cmp(evmAddr) == 0 {
 		return s.coinbaseAddress
 	}
-	return s.k.GetSeiAddressOrDefault(s.ctx, evmAddr)
+	return s.k.GetKiiAddressOrDefault(s.ctx, evmAddr)
 }
 
 func (s *DBImpl) send(from sdk.AccAddress, to sdk.AccAddress, amt *big.Int) {
-	usei, wei := SplitUseiWeiAmount(amt)
-	err := s.k.BankKeeper().SendCoinsAndWei(s.ctx, from, to, usei, wei)
+	ukii, wei := SplitUkiiWeiAmount(amt)
+	err := s.k.BankKeeper().SendCoinsAndWei(s.ctx, from, to, ukii, wei)
 	if err != nil {
 		s.err = err
 	}

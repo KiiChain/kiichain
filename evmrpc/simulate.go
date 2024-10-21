@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sei-protocol/sei-chain/precompiles/wasmd"
-	"github.com/sei-protocol/sei-chain/utils/helpers"
+	"github.com/kiichain/kiichain3/precompiles/wasmd"
+	"github.com/kiichain/kiichain3/utils/helpers"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -26,11 +26,11 @@ import (
 	"github.com/ethereum/go-ethereum/lib/ethapi"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/sei-protocol/sei-chain/utils"
-	"github.com/sei-protocol/sei-chain/utils/metrics"
-	"github.com/sei-protocol/sei-chain/x/evm/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/state"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/utils"
+	"github.com/kiichain/kiichain3/utils/metrics"
+	"github.com/kiichain/kiichain3/x/evm/keeper"
+	"github.com/kiichain/kiichain3/x/evm/state"
+	"github.com/kiichain/kiichain3/x/evm/types"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	"github.com/tendermint/tendermint/rpc/coretypes"
 )
@@ -334,9 +334,9 @@ func (b *Backend) StateAtTransaction(ctx context.Context, block *ethtypes.Block,
 		// set address association for the sender if not present. Note that here we take the shortcut
 		// of querying from the latest height with the assumption that if this tx has been processed
 		// at all then its association must be present in the latest height
-		_, associated := b.keeper.GetSeiAddress(statedb.Ctx(), msg.From)
+		_, associated := b.keeper.GetKiiAddress(statedb.Ctx(), msg.From)
 		if !associated {
-			seiAddr, associatedNow := b.keeper.GetSeiAddress(b.ctxProvider(LatestCtxHeight), msg.From)
+			seiAddr, associatedNow := b.keeper.GetKiiAddress(b.ctxProvider(LatestCtxHeight), msg.From)
 			if !associatedNow {
 				err := types.NewAssociationMissingErr(msg.From.Hex())
 				metrics.IncrementAssociationError("state_at_tx", err)
@@ -374,9 +374,9 @@ func (b *Backend) StateAtBlock(ctx context.Context, block *ethtypes.Block, reexe
 		// set address association for the sender if not present. Note that here we take the shortcut
 		// of querying from the latest height with the assumption that if this tx has been processed
 		// at all then its association must be present in the latest height
-		_, associated := b.keeper.GetSeiAddress(statedb.Ctx(), msg.From)
+		_, associated := b.keeper.GetKiiAddress(statedb.Ctx(), msg.From)
 		if !associated {
-			seiAddr, associatedNow := b.keeper.GetSeiAddress(b.ctxProvider(LatestCtxHeight), msg.From)
+			seiAddr, associatedNow := b.keeper.GetKiiAddress(b.ctxProvider(LatestCtxHeight), msg.From)
 			if !associatedNow {
 				err := types.NewAssociationMissingErr(msg.From.Hex())
 				metrics.IncrementAssociationError("state_at_block", err)

@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	keepertest "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/epoch/types"
-	minttypes "github.com/sei-protocol/sei-chain/x/mint/types"
+	keepertest "github.com/kiichain/kiichain3/testutil/keeper"
+	"github.com/kiichain/kiichain3/x/epoch/types"
+	minttypes "github.com/kiichain/kiichain3/x/mint/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -61,7 +61,7 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 			},
 		}
 		mintParams := minttypes.NewParams(
-			"usei",
+			"ukii",
 			tokenReleaseSchedle,
 		)
 		seiApp.MintKeeper.SetParams(ctx, mintParams)
@@ -107,7 +107,7 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 			},
 		}
 		mintParams := minttypes.NewParams(
-			"usei",
+			"ukii",
 			tokenReleaseSchedle,
 		)
 		seiApp.MintKeeper.SetParams(ctx, mintParams)
@@ -168,7 +168,7 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 			},
 		}
 		mintParams := minttypes.NewParams(
-			"usei",
+			"ukii",
 			tokenReleaseSchedle,
 		)
 		seiApp.MintKeeper.SetParams(ctx, mintParams)
@@ -211,7 +211,7 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 			},
 		}
 		mintParams := minttypes.NewParams(
-			"usei",
+			"ukii",
 			tokenReleaseSchedle,
 		)
 		seiApp.MintKeeper.SetParams(ctx, mintParams)

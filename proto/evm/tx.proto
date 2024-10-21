@@ -7,7 +7,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "evm/enums.proto";
 import "evm/receipt.proto";
 
-option go_package = "github.com/sei-protocol/sei-chain/x/evm/types";
+option go_package = "github.com/kiichain/kiichain3/x/evm/types";
 
 service Msg {
   rpc EVMTransaction(MsgEVMTransaction) returns (MsgEVMTransactionResponse);
@@ -19,7 +19,7 @@ service Msg {
 
 message MsgEVMTransaction {
   google.protobuf.Any data = 1;
-  bytes derived = 2 [(gogoproto.customtype) = "github.com/sei-protocol/sei-chain/x/evm/derived.Derived"];
+  bytes derived = 2 [(gogoproto.customtype) = "github.com/kiichain/kiichain3/x/evm/derived.Derived"];
 }
 
 message MsgEVMTransactionResponse {

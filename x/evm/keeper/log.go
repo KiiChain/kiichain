@@ -7,8 +7,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/bitutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/sei-protocol/sei-chain/utils"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/utils"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 func (k *Keeper) GetBlockBloom(ctx sdk.Context) (res ethtypes.Bloom) {

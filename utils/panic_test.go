@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/sei-protocol/sei-chain/utils"
+	"github.com/kiichain/kiichain3/utils"
 	"github.com/stretchr/testify/require"
 )
 

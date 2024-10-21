@@ -18,12 +18,12 @@ import (
 	"github.com/ethereum/go-ethereum/core/tracing"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/sei-protocol/sei-chain/app"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm"
-	"github.com/sei-protocol/sei-chain/x/evm/state"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
-	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
+	"github.com/kiichain/kiichain3/app"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
+	"github.com/kiichain/kiichain3/x/evm"
+	"github.com/kiichain/kiichain3/x/evm/state"
+	"github.com/kiichain/kiichain3/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/types/ethtx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -67,7 +67,7 @@ func TestABCI(t *testing.T) {
 	k, ctx := testkeeper.MockEVMKeeper()
 	_, evmAddr1 := testkeeper.MockAddressPair()
 	_, evmAddr2 := testkeeper.MockAddressPair()
-	amt := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(10)))
+	amt := sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10)))
 	k.BankKeeper().MintCoins(ctx, types.ModuleName, amt)
 	k.BankKeeper().SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.AccAddress(evmAddr1[:]), amt)
 	m := evm.NewAppModule(nil, k)
@@ -95,8 +95,8 @@ func TestABCI(t *testing.T) {
 	k.SetTxResults([]*abci.ExecTxResult{{Code: 0}, {Code: 0}, {Code: 0}, {Code: 0}})
 	k.SetMsgs([]*types.MsgEVMTransaction{nil, {}, nil, {}})
 	m.EndBlock(ctx, abci.RequestEndBlock{})
-	require.Equal(t, uint64(0), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName), "usei").Amount.Uint64())
-	require.Equal(t, uint64(2), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(authtypes.FeeCollectorName), "usei").Amount.Uint64())
+	require.Equal(t, uint64(0), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName), "ukii").Amount.Uint64())
+	require.Equal(t, uint64(2), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(authtypes.FeeCollectorName), "ukii").Amount.Uint64())
 
 	// second block
 	m.BeginBlock(ctx, abci.RequestBeginBlock{})
@@ -111,8 +111,8 @@ func TestABCI(t *testing.T) {
 	k.SetTxResults([]*abci.ExecTxResult{{Code: 0}, {Code: 0}, {Code: 0}})
 	k.SetMsgs([]*types.MsgEVMTransaction{nil, nil, {}})
 	m.EndBlock(ctx, abci.RequestEndBlock{})
-	require.Equal(t, uint64(1), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName), "usei").Amount.Uint64())
-	require.Equal(t, uint64(2), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(authtypes.FeeCollectorName), "usei").Amount.Uint64())
+	require.Equal(t, uint64(1), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName), "ukii").Amount.Uint64())
+	require.Equal(t, uint64(2), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(authtypes.FeeCollectorName), "ukii").Amount.Uint64())
 
 	// third block
 	m.BeginBlock(ctx, abci.RequestBeginBlock{})
@@ -135,7 +135,7 @@ func TestABCI(t *testing.T) {
 	_, err = vms.CreateVestingAccount(sdk.WrapSDKContext(ctx), &vestingtypes.MsgCreateVestingAccount{
 		FromAddress: sdk.AccAddress(evmAddr1[:]).String(),
 		ToAddress:   coinbase.String(),
-		Amount:      sdk.NewCoins(sdk.NewCoin("usei", sdk.OneInt())),
+		Amount:      sdk.NewCoins(sdk.NewCoin("ukii", sdk.OneInt())),
 		EndTime:     math.MaxInt64,
 	})
 	require.Nil(t, err)
@@ -148,10 +148,10 @@ func TestABCI(t *testing.T) {
 	k.AppendToEvmTxDeferredInfo(ctx.WithTxIndex(2), ethtypes.Bloom{}, common.Hash{}, surplus)
 	k.SetTxResults([]*abci.ExecTxResult{{Code: 0}, {Code: 0}, {Code: 0}})
 	k.SetMsgs([]*types.MsgEVMTransaction{nil, nil, {}})
-	require.Equal(t, sdk.OneInt(), k.BankKeeper().SpendableCoins(ctx, coinbase).AmountOf("usei"))
+	require.Equal(t, sdk.OneInt(), k.BankKeeper().SpendableCoins(ctx, coinbase).AmountOf("ukii"))
 	m.EndBlock(ctx, abci.RequestEndBlock{}) // should not crash
-	require.Equal(t, sdk.OneInt(), k.BankKeeper().GetBalance(ctx, coinbase, "usei").Amount)
-	require.Equal(t, sdk.ZeroInt(), k.BankKeeper().SpendableCoins(ctx, coinbase).AmountOf("usei"))
+	require.Equal(t, sdk.OneInt(), k.BankKeeper().GetBalance(ctx, coinbase, "ukii").Amount)
+	require.Equal(t, sdk.ZeroInt(), k.BankKeeper().SpendableCoins(ctx, coinbase).AmountOf("ukii"))
 }
 
 func TestAnteSurplus(t *testing.T) {
@@ -163,7 +163,7 @@ func TestAnteSurplus(t *testing.T) {
 	m.BeginBlock(ctx, abci.RequestBeginBlock{})
 	k.AddAnteSurplus(ctx, common.BytesToHash([]byte("1234")), sdk.NewInt(1_000_000_000_001))
 	m.EndBlock(ctx, abci.RequestEndBlock{})
-	require.Equal(t, uint64(1), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName), "usei").Amount.Uint64())
+	require.Equal(t, uint64(1), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName), "ukii").Amount.Uint64())
 	require.Equal(t, uint64(1), k.BankKeeper().GetWeiBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName)).Uint64())
 	// ante surplus should be cleared
 	a.SetDeliverStateToCommit()

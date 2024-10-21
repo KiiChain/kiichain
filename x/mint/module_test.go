@@ -11,9 +11,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/simapp"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/sei-protocol/sei-chain/app"
-	"github.com/sei-protocol/sei-chain/x/mint"
-	"github.com/sei-protocol/sei-chain/x/mint/types"
+	"github.com/kiichain/kiichain3/app"
+	"github.com/kiichain/kiichain3/x/mint"
+	"github.com/kiichain/kiichain3/x/mint/types"
 )
 
 func TestItCreatesModuleAccountOnInitBlock(t *testing.T) {
@@ -43,7 +43,7 @@ func TestNewProposalHandler(t *testing.T) {
 	newMinter := types.NewMinter(
 		"2023-10-05",
 		"2023-11-22",
-		"usei",
+		"ukii",
 		12345,
 	)
 	updateMinterProposal := &types.UpdateMinterProposal{

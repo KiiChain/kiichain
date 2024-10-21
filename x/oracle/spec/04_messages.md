@@ -10,7 +10,7 @@ order: 4
 
 `Denom` is the denomination of the currency for which the vote is being cast. For example, if the voter wishes to submit a prevote for the usd, then the correct `Denom` is `uusd`.
 
-The exchange rate used in the hash must be the open market exchange rate of Sei, with respect to the denomination matching `Denom`. For example, if `Denom` is `uusd` and the going exchange rate for Sei is 1 USD, then "1" must be used as the exchange rate, as `1 usei = 1 uusd`.
+The exchange rate used in the hash must be the open market exchange rate of Sei, with respect to the denomination matching `Denom`. For example, if `Denom` is `uusd` and the going exchange rate for Sei is 1 USD, then "1" must be used as the exchange rate, as `1 ukii = 1 uusd`.
 
 `Feeder` (`terra-` address) is used if the validator wishes to delegate oracle vote signing to a separate key (who "feeds" the price in lieu of the operator) to de-risk exposing their validator signing key.
 

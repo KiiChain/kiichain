@@ -22,7 +22,7 @@ func (a *App) Sign(account sdk.AccAddress, fee int64, msgs ...sdk.Msg) xauthsign
 	}
 	txBuilder.SetGasLimit(1000000)
 	txBuilder.SetFeeAmount([]sdk.Coin{
-		sdk.NewCoin("usei", sdk.NewInt(fee)),
+		sdk.NewCoin("ukii", sdk.NewInt(fee)),
 	})
 
 	acc := a.AccountKeeper.GetAccount(a.Ctx(), account)

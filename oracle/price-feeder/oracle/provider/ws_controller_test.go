@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/websocket"
-	"github.com/sei-protocol/sei-chain/oracle/price-feeder/config"
+	"github.com/kiichain/kiichain3/oracle/price-feeder/config"
 	"github.com/stretchr/testify/require"
 )
 

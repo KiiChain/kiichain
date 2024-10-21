@@ -134,7 +134,7 @@ def fetch_latest_version():
 # Install release based on version tag.
 def install_release(version):
     try:
-        zip_url = f"https://github.com/sei-protocol/sei-chain/archive/refs/tags/{version}.zip"
+        zip_url = f"https://github.com/kiichain/kiichain3/archive/refs/tags/{version}.zip"
         response = requests.get(zip_url)
         response.raise_for_status()
         zip_file = zipfile.ZipFile(BytesIO(response.content))

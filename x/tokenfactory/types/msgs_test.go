@@ -2,13 +2,14 @@ package types_test
 
 import (
 	"fmt"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"testing"
+
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sei-protocol/sei-chain/x/tokenfactory/types"
+	"github.com/kiichain/kiichain3/x/tokenfactory/types"
 
 	"github.com/tendermint/tendermint/crypto/ed25519"
 )

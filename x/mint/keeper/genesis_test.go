@@ -4,11 +4,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sei-protocol/sei-chain/app"
-	"github.com/sei-protocol/sei-chain/testutil/nullify"
+	"github.com/kiichain/kiichain3/app"
+	"github.com/kiichain/kiichain3/testutil/nullify"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/sei-protocol/sei-chain/x/mint/types"
+	"github.com/kiichain/kiichain3/x/mint/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -31,7 +31,7 @@ func TestGenesis(t *testing.T) {
 		Minter: types.Minter{
 			StartDate:           now.Format(types.TokenReleaseDateFormat),
 			EndDate:             now.Format(types.TokenReleaseDateFormat),
-			Denom:               "usei",
+			Denom:               "ukii",
 			TotalMintAmount:     100,
 			RemainingMintAmount: 0,
 			LastMintAmount:      100,

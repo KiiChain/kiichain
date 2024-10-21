@@ -14,10 +14,10 @@ import (
 	"github.com/cosmos/ibc-go/v3/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	pcommon "github.com/sei-protocol/sei-chain/precompiles/common"
-	"github.com/sei-protocol/sei-chain/precompiles/ibc"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/state"
+	pcommon "github.com/kiichain/kiichain3/precompiles/common"
+	"github.com/kiichain/kiichain3/precompiles/ibc"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
+	"github.com/kiichain/kiichain3/x/evm/state"
 	"github.com/stretchr/testify/require"
 	tmtypes "github.com/tendermint/tendermint/proto/tendermint/types"
 )
@@ -228,7 +228,7 @@ func TestPrecompile_Run(t *testing.T) {
 					receiverAddr:  receiverAddress,
 					sourcePort:    "transfer",
 					sourceChannel: "channel-0",
-					denom:         "usei",
+					denom:         "ukii",
 					amount:        big.NewInt(100),
 					memo:          "test memo",
 				},
@@ -249,7 +249,7 @@ func TestPrecompile_Run(t *testing.T) {
 					receiverAddr:  receiverAddress,
 					sourcePort:    "transfer",
 					sourceChannel: "channel-0",
-					denom:         "usei",
+					denom:         "ukii",
 					amount:        big.NewInt(100),
 				},
 				suppliedGas: uint64(1000000),

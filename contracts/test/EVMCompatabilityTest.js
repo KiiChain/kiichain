@@ -1046,9 +1046,9 @@ describe("EVM Test", function () {
       });
     });
 
-    describe("Usei/Wei testing", function() {
-      it("Send 1 usei to contract", async function() {
-        const usei = ethers.parseUnits("1", 12);
+    describe("ukii/Wei testing", function() {
+      it("Send 1 ukii to contract", async function() {
+        const ukii = ethers.parseUnits("1", 12);
         const wei = ethers.parseUnits("1", 0);
         const twoWei = ethers.parseUnits("2", 0);
 
@@ -1056,13 +1056,13 @@ describe("EVM Test", function () {
         const initialBalance = await ethers.provider.getBalance(evmAddr);
 
         const txResponse = await evmTester.depositEther({
-          value: usei,
+          value: ukii,
         });
         await txResponse.wait();  // Wait for the transaction to be mined
 
         // Check that the contract received the ETH
         const contractBalance = await ethers.provider.getBalance(evmAddr);
-        expect(contractBalance - initialBalance).to.equal(usei);
+        expect(contractBalance - initialBalance).to.equal(ukii);
 
         // send 1 wei out of contract
         const txResponse2 = await evmTester.sendEther(owner.address, wei);

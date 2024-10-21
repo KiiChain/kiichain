@@ -1,6 +1,6 @@
 # Kiichain3
 
-![Banner!](assets/SeiLogo.png)
+![Banner!](assets/kii.png)
 
 Kiichain Version 3 - Forked from Sei Chain
 
@@ -26,8 +26,8 @@ kiichaind # you should now see a list of all the sub commands that can be used w
 
 # Testnet
 ## Get started (TODO)
-**How to validate on the Sei Testnet**
-*This is the Sei Atlantic-2 Testnet ()*
+**How to validate on the Kiichain Testnet**
+*This is the Kiichain kiichain3 Testnet ()*
 
 > Genesis [Published](https://github.com/sei-protocol/testnet/blob/main/atlantic-2/genesis.json)
 

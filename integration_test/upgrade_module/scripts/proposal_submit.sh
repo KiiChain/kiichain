@@ -21,6 +21,6 @@ else
     UPGRADE_INFO_FLAG="--upgrade-info $INFO"
 fi
 
-PROPOSAL_ID=$(printf "12345678\n"  | seid tx gov submit-proposal software-upgrade $VERSION --title $VERSION --from node_admin --fees 2000usei -b block -y --upgrade-height=$TARGET_HEIGHT --description "test $TYPE release" $UPGRADE_INFO_FLAG --is-expedited --deposit 20000000usei --output json | jq -M -r ".logs[].events[].attributes[0] | select(.key == \"proposal_id\").value")
+PROPOSAL_ID=$(printf "12345678\n"  | seid tx gov submit-proposal software-upgrade $VERSION --title $VERSION --from node_admin --fees 2000ukii -b block -y --upgrade-height=$TARGET_HEIGHT --description "test $TYPE release" $UPGRADE_INFO_FLAG --is-expedited --deposit 20000000ukii --output json | jq -M -r ".logs[].events[].attributes[0] | select(.key == \"proposal_id\").value")
 
 echo $PROPOSAL_ID

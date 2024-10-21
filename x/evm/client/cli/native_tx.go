@@ -8,10 +8,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/sei-protocol/sei-chain/evmrpc"
-	"github.com/sei-protocol/sei-chain/precompiles"
-	"github.com/sei-protocol/sei-chain/precompiles/pointer"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/evmrpc"
+	"github.com/kiichain/kiichain3/precompiles"
+	"github.com/kiichain/kiichain3/precompiles/pointer"
+	"github.com/kiichain/kiichain3/x/evm/types"
 	"github.com/spf13/cobra"
 )
 

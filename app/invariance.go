@@ -55,8 +55,8 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 		return
 	}
 	balanceChangePairs := ckv.GetChangedPairs(banktypes.BalancesPrefix)
-	useiPostTotal := sdk.ZeroInt()
-	useiChangedAddr := []sdk.AccAddress{}
+	ukiiPostTotal := sdk.ZeroInt()
+	ukiiChangedAddr := []sdk.AccAddress{}
 	for _, p := range balanceChangePairs {
 		if len(p.Key) < 2 {
 			// invalid key; ignore
@@ -66,7 +66,7 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 					Value: "sei",
 				},
 			})
-			app.Logger().Error(fmt.Sprintf("invalid changed pair key for usei: %X", p.Key))
+			app.Logger().Error(fmt.Sprintf("invalid changed pair key for ukii: %X", p.Key))
 			continue
 		}
 		addrLen := int(p.Key[1])
@@ -78,7 +78,7 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 					Value: "sei",
 				},
 			})
-			app.Logger().Error(fmt.Sprintf("invalid changed pair key for usei: %X", p.Key))
+			app.Logger().Error(fmt.Sprintf("invalid changed pair key for ukii: %X", p.Key))
 			continue
 		}
 		addr := p.Key[2 : addrLen+2]
@@ -92,7 +92,7 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 				metrics.IncrCounterWithLabels([]string{"sei", "lightinvariance_supply", "unmarshal_failure"}, 1, []metrics.Label{
 					{
 						Name:  "type",
-						Value: "usei",
+						Value: "ukii",
 					}, {
 						Name:  "step",
 						Value: "post_block",
@@ -104,12 +104,12 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 			if balance.Amount.IsNegative() {
 				panic(fmt.Sprintf("negative balance found for addr %s: %s", sdk.AccAddress(addr).String(), balance.String()))
 			}
-			useiPostTotal = useiPostTotal.Add(balance.Amount)
+			ukiiPostTotal = ukiiPostTotal.Add(balance.Amount)
 		}
-		useiChangedAddr = append(useiChangedAddr, addr)
+		ukiiChangedAddr = append(ukiiChangedAddr, addr)
 	}
-	useiPreTotal := sdk.ZeroInt()
-	for _, a := range useiChangedAddr {
+	ukiiPreTotal := sdk.ZeroInt()
+	for _, a := range ukiiChangedAddr {
 		key := append(banktypes.CreateAccountBalancesPrefix(a), []byte(sdk.MustGetBaseDenom())...)
 		val := ckv.Get(key)
 		if val == nil {
@@ -120,7 +120,7 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 			metrics.IncrCounterWithLabels([]string{"sei", "lightinvariance_supply", "unmarshal_failure"}, 1, []metrics.Label{
 				{
 					Name:  "type",
-					Value: "usei",
+					Value: "ukii",
 				}, {
 					Name:  "step",
 					Value: "pre_block",
@@ -129,7 +129,7 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 			app.Logger().Error(fmt.Sprintf("failed to unmarshal preblock balance: %s", err))
 			continue
 		}
-		useiPreTotal = useiPreTotal.Add(balance.Amount)
+		ukiiPreTotal = ukiiPreTotal.Add(balance.Amount)
 	}
 	weiChangePairs := ckv.GetChangedPairs(banktypes.WeiBalancesPrefix)
 	weiPostTotal := sdk.ZeroInt()
@@ -235,13 +235,13 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 		}
 	}
 	weiDiff := weiPostTotal.Sub(weiPreTotal)
-	weiDiffInUsei, weiDiffRemainder := bankkeeper.SplitUseiWeiAmount(weiDiff)
+	weiDiffInUkii, weiDiffRemainder := bankkeeper.SplitUkiiWeiAmount(weiDiff)
 	if !weiDiffRemainder.IsZero() {
 		panic(fmt.Sprintf("non-zero wei diff found! Pre-block wei total %s, post-block wei total %s", weiPreTotal, weiPostTotal))
 	}
-	useiDiff := useiPreTotal.Sub(useiPostTotal).Sub(weiDiffInUsei).Add(supplyChanged)
-	if !useiDiff.IsZero() {
-		panic(fmt.Sprintf("unexpected usei balance total found! Pre-block usei total %s wei total %s total supply %s, post-block usei total %s wei total %s total supply %s", useiPreTotal, weiPreTotal, preTotalSupply, useiPostTotal, weiPostTotal, preTotalSupply.Add(supplyChanged)))
+	ukiiDiff := ukiiPreTotal.Sub(ukiiPostTotal).Sub(weiDiffInUkii).Add(supplyChanged)
+	if !ukiiDiff.IsZero() {
+		panic(fmt.Sprintf("unexpected ukii balance total found! Pre-block ukii total %s wei total %s total supply %s, post-block ukii total %s wei total %s total supply %s", ukiiPreTotal, weiPreTotal, preTotalSupply, ukiiPostTotal, weiPostTotal, preTotalSupply.Add(supplyChanged)))
 	}
 	app.Logger().Info("successfully verified supply light invariance")
 }

@@ -6,7 +6,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/sei-protocol/sei-chain/evmrpc"
+	"github.com/kiichain/kiichain3/evmrpc"
 	"github.com/stretchr/testify/require"
 )
 

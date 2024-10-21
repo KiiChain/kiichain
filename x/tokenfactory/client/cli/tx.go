@@ -17,9 +17,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
+	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
 
-	"github.com/sei-protocol/sei-chain/x/tokenfactory/types"
+	"github.com/kiichain/kiichain3/x/tokenfactory/types"
 )
 
 const (
