@@ -6,7 +6,7 @@ NUM_ACCOUNTS=${NUM_ACCOUNTS:-5}
 echo "Configure and initialize environment"
 
 cp build/kiichaind "$GOBIN"/
-cp build/price-feeder "$GOBIN"/
+# cp build/price-feeder "$GOBIN"/
 
 # Prepare shared folders
 mkdir -p build/generated/gentx/
@@ -23,12 +23,12 @@ MONIKER="kiichain-node-$NODE_ID"
 kiichaind init "$MONIKER" --chain-id kiichain3 >/dev/null 2>&1
 
 # Copy configs
-ORACLE_CONFIG_FILE="build/generated/node_$NODE_ID/price_feeder_config.toml"
+# ORACLE_CONFIG_FILE="build/generated/node_$NODE_ID/price_feeder_config.toml"
 APP_CONFIG_FILE="build/generated/node_$NODE_ID/app.toml"
 TENDERMINT_CONFIG_FILE="build/generated/node_$NODE_ID/config.toml"
 cp docker/localnode/config/app.toml "$APP_CONFIG_FILE"
 cp docker/localnode/config/config.toml "$TENDERMINT_CONFIG_FILE"
-cp docker/localnode/config/price_feeder_config.toml "$ORACLE_CONFIG_FILE"
+# cp docker/localnode/config/price_feeder_config.toml "$ORACLE_CONFIG_FILE"
 
 
 # Set up persistent peers
@@ -63,7 +63,7 @@ PRIV_KEY=$(printf "12345678\n12345678\n" | kiichaind keys export "$ACCOUNT_NAME"
 echo "$PRIV_KEY" >> build/generated/exported_keys/"$KIICHAINVALOPER_INFO".txt
 
 # Update price_feeder_config.toml with address info
-sed -i.bak -e "s|^address *=.*|address = \"$GENESIS_ACCOUNT_ADDRESS\"|" $ORACLE_CONFIG_FILE
-sed -i.bak -e "s|^validator *=.*|validator = \"$KIICHAINVALOPER_INFO\"|" $ORACLE_CONFIG_FILE
+# sed -i.bak -e "s|^address *=.*|address = \"$GENESIS_ACCOUNT_ADDRESS\"|" $ORACLE_CONFIG_FILE
+# sed -i.bak -e "s|^validator *=.*|validator = \"$KIICHAINVALOPER_INFO\"|" $ORACLE_CONFIG_FILE
 
 echo "DONE" >> build/generated/init.complete
