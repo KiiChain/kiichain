@@ -50,7 +50,7 @@ async function fundDeployer(deployerAddress) {
 async function deployWasm() {
     // Wrap the exec function in a Promise
     let codeId = await new Promise((resolve, reject) => {
-        exec(`seid tx wasm store ${CW20_BASE_WASM_LOCATION} --from admin --gas=5000000 --fees=1000000usei -y --broadcast-mode block`, (error, stdout, stderr) => {
+        exec(`seid tx wasm store ${CW20_BASE_WASM_LOCATION} --from admin --gas=5000000 --fees=1000000ukii -y --broadcast-mode block`, (error, stdout, stderr) => {
             if (error) {
                 console.log(`error: ${error.message}`);
                 reject(error);
@@ -105,7 +105,7 @@ async function getAdmin() {
 async function instantiateWasm(codeId, adminAddr) {
     // Wrap the exec function in a Promise
     let contractAddress = await new Promise((resolve, reject) => {
-        exec(`seid tx wasm instantiate ${codeId} '{ "name": "BTOK", "symbol": "BTOK", "decimals": 6, "initial_balances": [ { "address": "${adminAddr}", "amount": "1000000" } ], "mint": { "minter": "${adminAddr}", "cap": "99900000000" } }' --label cw20-test --admin ${adminAddr} --from admin --gas=5000000 --fees=1000000usei -y --broadcast-mode block`, (error, stdout, stderr) => {
+        exec(`seid tx wasm instantiate ${codeId} '{ "name": "BTOK", "symbol": "BTOK", "decimals": 6, "initial_balances": [ { "address": "${adminAddr}", "amount": "1000000" } ], "mint": { "minter": "${adminAddr}", "cap": "99900000000" } }' --label cw20-test --admin ${adminAddr} --from admin --gas=5000000 --fees=1000000ukii -y --broadcast-mode block`, (error, stdout, stderr) => {
             if (error) {
                 console.log(`error: ${error.message}`);
                 reject(error);

@@ -13,8 +13,8 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/sei-protocol/sei-chain/utils"
-	"github.com/sei-protocol/sei-chain/utils/helpers"
+	"github.com/kiichain/kiichain3/utils"
+	"github.com/kiichain/kiichain3/utils/helpers"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -22,13 +22,13 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	pcommon "github.com/sei-protocol/sei-chain/precompiles/common"
-	"github.com/sei-protocol/sei-chain/utils/metrics"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	pcommon "github.com/kiichain/kiichain3/precompiles/common"
+	"github.com/kiichain/kiichain3/utils/metrics"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 const (
-	GetSeiAddressMethod = "getSeiAddr"
+	GetKiiAddressMethod = "getKiiAddr"
 	GetEvmAddressMethod = "getEvmAddr"
 	Associate           = "associate"
 	AssociatePubKey     = "associatePubKey"
@@ -48,7 +48,7 @@ type PrecompileExecutor struct {
 	bankKeeper    pcommon.BankKeeper
 	accountKeeper pcommon.AccountKeeper
 
-	GetSeiAddressID   []byte
+	GetKiiAddressID   []byte
 	GetEvmAddressID   []byte
 	AssociateID       []byte
 	AssociatePubKeyID []byte
@@ -66,8 +66,8 @@ func NewPrecompile(evmKeeper pcommon.EVMKeeper, bankKeeper pcommon.BankKeeper, a
 
 	for name, m := range newAbi.Methods {
 		switch name {
-		case GetSeiAddressMethod:
-			p.GetSeiAddressID = m.ID
+		case GetKiiAddressMethod:
+			p.GetKiiAddressID = m.ID
 		case GetEvmAddressMethod:
 			p.GetEvmAddressID = m.ID
 		case Associate:
@@ -90,8 +90,8 @@ func (p PrecompileExecutor) RequiredGas(input []byte, method *abi.Method) uint64
 
 func (p PrecompileExecutor) Execute(ctx sdk.Context, method *abi.Method, _ common.Address, _ common.Address, args []interface{}, value *big.Int, readOnly bool, _ *vm.EVM) (bz []byte, err error) {
 	switch method.Name {
-	case GetSeiAddressMethod:
-		return p.getSeiAddr(ctx, method, args, value)
+	case GetKiiAddressMethod:
+		return p.getKiiAddr(ctx, method, args, value)
 	case GetEvmAddressMethod:
 		return p.getEvmAddr(ctx, method, args, value)
 	case Associate:
@@ -108,7 +108,7 @@ func (p PrecompileExecutor) Execute(ctx sdk.Context, method *abi.Method, _ commo
 	return
 }
 
-func (p PrecompileExecutor) getSeiAddr(ctx sdk.Context, method *abi.Method, args []interface{}, value *big.Int) ([]byte, error) {
+func (p PrecompileExecutor) getKiiAddr(ctx sdk.Context, method *abi.Method, args []interface{}, value *big.Int) ([]byte, error) {
 	if err := pcommon.ValidateNonPayable(value); err != nil {
 		return nil, err
 	}
@@ -117,9 +117,9 @@ func (p PrecompileExecutor) getSeiAddr(ctx sdk.Context, method *abi.Method, args
 		return nil, err
 	}
 
-	seiAddr, found := p.evmKeeper.GetSeiAddress(ctx, args[0].(common.Address))
+	seiAddr, found := p.evmKeeper.GetKiiAddress(ctx, args[0].(common.Address))
 	if !found {
-		metrics.IncrementAssociationError("getSeiAddr", types.NewAssociationMissingErr(args[0].(common.Address).Hex()))
+		metrics.IncrementAssociationError("getKiiAddr", types.NewAssociationMissingErr(args[0].(common.Address).Hex()))
 		return nil, fmt.Errorf("EVM address %s is not associated", args[0].(common.Address).Hex())
 	}
 	return method.Outputs.Pack(seiAddr.String())

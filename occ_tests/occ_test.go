@@ -8,8 +8,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/sei-protocol/sei-chain/occ_tests/messages"
-	"github.com/sei-protocol/sei-chain/occ_tests/utils"
+	"github.com/kiichain/kiichain3/occ_tests/messages"
+	"github.com/kiichain/kiichain3/occ_tests/utils"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/abci/types"
 )

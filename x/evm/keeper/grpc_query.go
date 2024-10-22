@@ -7,12 +7,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw20"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw721"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc20"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc721"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/native"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/cw20"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/cw721"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/erc20"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/erc721"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/native"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 var _ types.QueryServer = Querier{}
@@ -33,7 +33,7 @@ func (q Querier) SeiAddressByEVMAddress(c context.Context, req *types.QuerySeiAd
 		return nil, sdkerrors.ErrInvalidRequest
 	}
 	evmAddr := common.HexToAddress(req.EvmAddress)
-	addr, found := q.Keeper.GetSeiAddress(ctx, evmAddr)
+	addr, found := q.Keeper.GetKiiAddress(ctx, evmAddr)
 	if !found {
 		return &types.QuerySeiAddressByEVMAddressResponse{Associated: false}, nil
 	}

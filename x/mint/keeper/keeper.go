@@ -7,8 +7,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	epochTypes "github.com/sei-protocol/sei-chain/x/epoch/types"
-	"github.com/sei-protocol/sei-chain/x/mint/types"
+	epochTypes "github.com/kiichain/kiichain3/x/epoch/types"
+	"github.com/kiichain/kiichain3/x/mint/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
 

@@ -1,7 +1,7 @@
 syntax = "proto3";
 package seiprotocol.seichain.evm;
 
-option go_package = "github.com/sei-protocol/sei-chain/x/evm/types";
+option go_package = "github.com/kiichain/kiichain3/x/evm/types";
 
 enum PointerType {
     ERC20 = 0;

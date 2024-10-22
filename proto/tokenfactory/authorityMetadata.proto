@@ -4,7 +4,7 @@ package seiprotocol.seichain.tokenfactory;
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "github.com/sei-protocol/sei-chain/x/tokenfactory/types";
+option go_package = "github.com/kiichain/kiichain3/x/tokenfactory/types";
 
 // DenomAuthorityMetadata specifies metadata for addresses that have specific
 // capabilities over a token factory denom. Right now there is only one Admin

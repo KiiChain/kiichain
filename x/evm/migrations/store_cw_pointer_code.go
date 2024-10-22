@@ -3,11 +3,11 @@ package migrations
 import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc20"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc721"
-	artifactsutils "github.com/sei-protocol/sei-chain/x/evm/artifacts/utils"
-	"github.com/sei-protocol/sei-chain/x/evm/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/erc20"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/erc721"
+	artifactsutils "github.com/kiichain/kiichain3/x/evm/artifacts/utils"
+	"github.com/kiichain/kiichain3/x/evm/keeper"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 func StoreCWPointerCode(ctx sdk.Context, k *keeper.Keeper, store20 bool, store721 bool) error {

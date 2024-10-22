@@ -24,7 +24,7 @@ seid query oracle params
     whitelist:
     - name: uatom
     - name: uusdc
-    - name: usei
+    - name: ukii
 ```
 
 Start the price feeder in the background, note that you may want to submit all whitelisted coins' price, otherwise you may not be eligible for the oracle reward. ${coin_list} example: 'cosmos','usd-coin'

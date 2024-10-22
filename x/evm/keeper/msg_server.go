@@ -22,12 +22,12 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	"github.com/sei-protocol/sei-chain/precompiles/wasmd"
-	"github.com/sei-protocol/sei-chain/utils"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc20"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc721"
-	"github.com/sei-protocol/sei-chain/x/evm/state"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/precompiles/wasmd"
+	"github.com/kiichain/kiichain3/utils"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/erc20"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/erc721"
+	"github.com/kiichain/kiichain3/x/evm/state"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 type msgServer struct {
@@ -242,7 +242,7 @@ func (k Keeper) applyEVMMessage(ctx sdk.Context, msg *core.Message, stateDB *sta
 
 func (server msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.MsgSendResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	recipient := server.GetSeiAddressOrDefault(ctx, common.HexToAddress(msg.ToAddress))
+	recipient := server.GetKiiAddressOrDefault(ctx, common.HexToAddress(msg.ToAddress))
 	_, err := bankkeeper.NewMsgServerImpl(server.BankKeeper()).Send(goCtx, &banktypes.MsgSend{
 		FromAddress: msg.FromAddress,
 		ToAddress:   recipient.String(),

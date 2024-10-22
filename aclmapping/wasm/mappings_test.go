@@ -11,7 +11,7 @@ import (
 	acltypes "github.com/cosmos/cosmos-sdk/x/accesscontrol/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
-	oracletypes "github.com/sei-protocol/sei-chain/x/oracle/types"
+	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
@@ -33,7 +33,7 @@ func TestGeneratorInvalidMessageTypes(t *testing.T) {
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	oracleVote := oracletypes.MsgAggregateExchangeRateVote{
-		ExchangeRates: "1usei",
+		ExchangeRates: "1ukii",
 		Feeder:        "test",
 		Validator:     "validator",
 	}

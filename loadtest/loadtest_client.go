@@ -19,7 +19,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/sei-protocol/sei-chain/utils/metrics"
+	"github.com/kiichain/kiichain3/utils/metrics"
 	"golang.org/x/sync/semaphore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
@@ -229,7 +229,7 @@ func (c *LoadTestClient) generateSignedCosmosTxs(keyIndex int, msgType string, m
 	_ = txBuilder.SetMsgs(msgs...)
 	txBuilder.SetGasLimit(gas)
 	txBuilder.SetFeeAmount([]types.Coin{
-		types.NewCoin("usei", types.NewInt(fee)),
+		types.NewCoin("ukii", types.NewInt(fee)),
 	})
 	// Use random seqno to get around txs that might already be seen in mempool
 	c.SignerClient.SignTx(c.ChainID, &txBuilder, key, uint64(msgTypeCount))

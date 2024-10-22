@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/sei-protocol/sei-chain/x/evm/state"
+	"github.com/kiichain/kiichain3/x/evm/state"
 	"github.com/stretchr/testify/require"
 )
 
@@ -13,7 +13,7 @@ func TestGetCoinbaseAddress(t *testing.T) {
 	require.Equal(t, coinbaseAddr, "sei1v4mx6hmrda5kucnpwdjsqqqqqqqqqqqpz6djs7")
 }
 
-func TestSplitUseiWeiAmount(t *testing.T) {
+func TestSplitUkiiWeiAmount(t *testing.T) {
 	for _, test := range []struct {
 		amt         *big.Int
 		expectedSei *big.Int
@@ -45,8 +45,8 @@ func TestSplitUseiWeiAmount(t *testing.T) {
 			expectedWei: big.NewInt(789_123_456_789),
 		},
 	} {
-		usei, wei := state.SplitUseiWeiAmount(test.amt)
-		require.Equal(t, test.expectedSei, usei.BigInt())
+		ukii, wei := state.SplitUkiiWeiAmount(test.amt)
+		require.Equal(t, test.expectedSei, ukii.BigInt())
 		require.Equal(t, test.expectedWei, wei.BigInt())
 	}
 }

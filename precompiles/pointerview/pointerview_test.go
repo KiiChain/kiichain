@@ -5,11 +5,11 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/sei-protocol/sei-chain/precompiles/pointerview"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw20"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw721"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/native"
+	"github.com/kiichain/kiichain3/precompiles/pointerview"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/cw20"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/cw721"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/native"
 	"github.com/stretchr/testify/require"
 )
 

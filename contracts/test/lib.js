@@ -71,17 +71,17 @@ async function evmSend(addr, fromKey, amount="100000000000000000000000") {
     return output.replace(/.*0x/, "0x").trim()
 }
 
-async function bankSend(toAddr, fromKey, amount="100000000000", denom="usei") {
-    const result = await execute(`seid tx bank send ${fromKey} ${toAddr} ${amount}${denom} -b block --fees 20000usei -y`);
+async function bankSend(toAddr, fromKey, amount="100000000000", denom="ukii") {
+    const result = await execute(`seid tx bank send ${fromKey} ${toAddr} ${amount}${denom} -b block --fees 20000ukii -y`);
     await delay()
     return result
 }
 
-async function fundSeiAddress(seiAddr, amount="100000000000", denom="usei", funder=adminKeyName) {
-    return await execute(`seid tx bank send ${funder} ${seiAddr} ${amount}${denom} -b block --fees 20000usei -y`);
+async function fundSeiAddress(seiAddr, amount="100000000000", denom="ukii", funder=adminKeyName) {
+    return await execute(`seid tx bank send ${funder} ${seiAddr} ${amount}${denom} -b block --fees 20000ukii -y`);
 }
 
-async function getSeiBalance(seiAddr, denom="usei") {
+async function getSeiBalance(seiAddr, denom="ukii") {
     const result = await execute(`seid query bank balances ${seiAddr} -o json`);
     const balances = JSON.parse(result)
     for(let b of balances.balances) {
@@ -175,14 +175,14 @@ async function incrementPointerVersion(provider, pointerType, offset) {
 }
 
 async function createTokenFactoryTokenAndMint(name, amount, recipient, from=adminKeyName) {
-    const command = `seid tx tokenfactory create-denom ${name} --from ${from} --gas=5000000 --fees=1000000usei -y --broadcast-mode block -o json`
+    const command = `seid tx tokenfactory create-denom ${name} --from ${from} --gas=5000000 --fees=1000000ukii -y --broadcast-mode block -o json`
     const output = await execute(command);
     const response = JSON.parse(output)
     const token_denom = getEventAttribute(response, "create_denom", "new_token_denom")
-    const mint_command = `seid tx tokenfactory mint ${amount}${token_denom} --from ${from} --gas=5000000 --fees=1000000usei -y --broadcast-mode block -o json`
+    const mint_command = `seid tx tokenfactory mint ${amount}${token_denom} --from ${from} --gas=5000000 --fees=1000000ukii -y --broadcast-mode block -o json`
     await execute(mint_command);
 
-    const send_command = `seid tx bank send ${from} ${recipient} ${amount}${token_denom} --from ${from} --gas=5000000 --fees=1000000usei -y --broadcast-mode block -o json`
+    const send_command = `seid tx bank send ${from} ${recipient} ${amount}${token_denom} --from ${from} --gas=5000000 --fees=1000000ukii -y --broadcast-mode block -o json`
     await execute(send_command);
     return token_denom
 }
@@ -194,7 +194,7 @@ async function getPointerForNative(name) {
 }
 
 async function storeWasm(path, from=adminKeyName) {
-    const command = `seid tx wasm store ${path} --from ${from} --gas=5000000 --fees=1000000usei -y --broadcast-mode block -o json`
+    const command = `seid tx wasm store ${path} --from ${from} --gas=5000000 --fees=1000000ukii -y --broadcast-mode block -o json`
     const output = await execute(command);
     const response = JSON.parse(output)
     return getEventAttribute(response, "store_code", "code_id")
@@ -280,20 +280,20 @@ async function deployWasm(path, adminAddr, label, args = {}, from=adminKeyName) 
 
 async function instantiateWasm(codeId, adminAddr, label, args = {}, from=adminKeyName) {
     const jsonString = JSON.stringify(args).replace(/"/g, '\\"');
-    const command = `seid tx wasm instantiate ${codeId} "${jsonString}" --label ${label} --admin ${adminAddr} --from ${from} --gas=5000000 --fees=1000000usei -y --broadcast-mode block -o json`;
+    const command = `seid tx wasm instantiate ${codeId} "${jsonString}" --label ${label} --admin ${adminAddr} --from ${from} --gas=5000000 --fees=1000000ukii -y --broadcast-mode block -o json`;
     const output = await execute(command);
     const response = JSON.parse(output);
     return getEventAttribute(response, "instantiate", "_contract_address");
 }
 
-async function proposeCW20toERC20Upgrade(erc20Address, cw20Address, title="erc20-pointer", version=99, description="erc20 pointer",fees="20000usei", from=adminKeyName) {
-    const command = `seid tx evm add-cw-erc20-pointer "${title}" "${description}" ${erc20Address} ${version} 200000000usei ${cw20Address} --from ${from} --fees ${fees} -y -o json --broadcast-mode=block`
+async function proposeCW20toERC20Upgrade(erc20Address, cw20Address, title="erc20-pointer", version=99, description="erc20 pointer",fees="20000ukii", from=adminKeyName) {
+    const command = `seid tx evm add-cw-erc20-pointer "${title}" "${description}" ${erc20Address} ${version} 200000000ukii ${cw20Address} --from ${from} --fees ${fees} -y -o json --broadcast-mode=block`
     const output = await execute(command);
     const proposalId = getEventAttribute(JSON.parse(output), "submit_proposal", "proposal_id")
     return await passProposal(proposalId)
 }
 
-async function passProposal(proposalId,  desposit="200000000usei", fees="20000usei", from=adminKeyName) {
+async function passProposal(proposalId,  desposit="200000000ukii", fees="20000ukii", from=adminKeyName) {
     if(await isDocker()) {
         await executeOnAllNodes(`seid tx gov vote ${proposalId} yes --from node_admin -b block -y --fees ${fees}`)
     } else {
@@ -310,7 +310,7 @@ async function passProposal(proposalId,  desposit="200000000usei", fees="20000us
     throw new Error("could not pass proposal "+proposalId)
 }
 
-async function registerPointerForERC20(erc20Address, fees="20000usei", from=adminKeyName) {
+async function registerPointerForERC20(erc20Address, fees="20000ukii", from=adminKeyName) {
     const command = `seid tx evm register-cw-pointer ERC20 ${erc20Address} --from ${from} --fees ${fees} --broadcast-mode block -y -o json`
     const output = await execute(command);
     const response = JSON.parse(output)
@@ -320,7 +320,7 @@ async function registerPointerForERC20(erc20Address, fees="20000usei", from=admi
     return getEventAttribute(response, "pointer_registered", "pointer_address")
 }
 
-async function registerPointerForERC721(erc721Address, fees="20000usei", from=adminKeyName) {
+async function registerPointerForERC721(erc721Address, fees="20000ukii", from=adminKeyName) {
     const command = `seid tx evm register-cw-pointer ERC721 ${erc721Address} --from ${from} --fees ${fees} --broadcast-mode block -y -o json`
     const output = await execute(command);
     const response = JSON.parse(output)
@@ -385,15 +385,15 @@ async function queryWasm(contractAddress, operation, args={}){
     return JSON.parse(output)
 }
 
-async function executeWasm(contractAddress, msg, coins = "0usei") {
+async function executeWasm(contractAddress, msg, coins = "0ukii") {
     const jsonString = JSON.stringify(msg).replace(/"/g, '\\"'); // Properly escape JSON string
-    const command = `seid tx wasm execute ${contractAddress} "${jsonString}" --amount ${coins} --from ${adminKeyName} --gas=5000000 --fees=1000000usei -y --broadcast-mode block -o json`;
+    const command = `seid tx wasm execute ${contractAddress} "${jsonString}" --amount ${coins} --from ${adminKeyName} --gas=5000000 --fees=1000000ukii -y --broadcast-mode block -o json`;
     const output = await execute(command);
     return JSON.parse(output);
 }
 
 async function associateWasm(contractAddress) {
-    const command = `seid tx evm associate-contract-address ${contractAddress} --from ${adminKeyName} --gas=5000000 --fees=1000000usei -y --broadcast-mode block -o json`;
+    const command = `seid tx evm associate-contract-address ${contractAddress} --from ${adminKeyName} --gas=5000000 --fees=1000000ukii -y --broadcast-mode block -o json`;
     const output = await execute(command);
     return JSON.parse(output);
 }

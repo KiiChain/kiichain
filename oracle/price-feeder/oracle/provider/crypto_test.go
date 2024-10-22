@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/kiichain/kiichain3/oracle/price-feeder/config"
+	"github.com/kiichain/kiichain3/oracle/price-feeder/oracle/types"
 	"github.com/rs/zerolog"
-	"github.com/sei-protocol/sei-chain/oracle/price-feeder/config"
-	"github.com/sei-protocol/sei-chain/oracle/price-feeder/oracle/types"
 	"github.com/stretchr/testify/require"
 )
 

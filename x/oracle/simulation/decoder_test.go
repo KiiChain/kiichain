@@ -11,10 +11,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
-	"github.com/sei-protocol/sei-chain/x/oracle/keeper"
-	sim "github.com/sei-protocol/sei-chain/x/oracle/simulation"
-	"github.com/sei-protocol/sei-chain/x/oracle/types"
-	"github.com/sei-protocol/sei-chain/x/oracle/utils"
+	"github.com/kiichain/kiichain3/x/oracle/keeper"
+	sim "github.com/kiichain/kiichain3/x/oracle/simulation"
+	"github.com/kiichain/kiichain3/x/oracle/types"
+	"github.com/kiichain/kiichain3/x/oracle/utils"
 )
 
 var (
@@ -36,7 +36,7 @@ func TestDecodeDistributionStore(t *testing.T) {
 	}, valAddr)
 	votePenaltyCounter := types.VotePenaltyCounter{MissCount: missCounter, AbstainCount: abstainCounter}
 
-	denom := "usei"
+	denom := "ukii"
 
 	kvPairs := kv.Pairs{
 		Pairs: []kv.Pair{

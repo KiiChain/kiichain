@@ -23,8 +23,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	"github.com/sei-protocol/sei-chain/x/evm"
-	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm"
+	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
 )
 
 const (

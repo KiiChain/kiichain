@@ -11,8 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	pcommon "github.com/sei-protocol/sei-chain/precompiles/common"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	pcommon "github.com/kiichain/kiichain3/precompiles/common"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 const (
@@ -118,7 +118,7 @@ func (p PrecompileExecutor) delegate(ctx sdk.Context, method *abi.Method, caller
 	// if delegator is associated, then it must have Account set already
 	// if delegator is not associated, then it can't delegate anyway (since
 	// there is no good way to merge delegations if it becomes associated)
-	delegator, associated := p.evmKeeper.GetSeiAddress(ctx, caller)
+	delegator, associated := p.evmKeeper.GetKiiAddress(ctx, caller)
 	if !associated {
 		return nil, types.NewAssociationMissingErr(caller.Hex())
 	}
@@ -126,7 +126,7 @@ func (p PrecompileExecutor) delegate(ctx sdk.Context, method *abi.Method, caller
 	if value == nil || value.Sign() == 0 {
 		return nil, errors.New("set `value` field to non-zero to send delegate fund")
 	}
-	coin, err := pcommon.HandlePaymentUsei(ctx, p.evmKeeper.GetSeiAddressOrDefault(ctx, p.address), delegator, value, p.bankKeeper)
+	coin, err := pcommon.HandlePaymentUkii(ctx, p.evmKeeper.GetKiiAddressOrDefault(ctx, p.address), delegator, value, p.bankKeeper)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func (p PrecompileExecutor) redelegate(ctx sdk.Context, method *abi.Method, call
 	if err := pcommon.ValidateArgsLength(args, 3); err != nil {
 		return nil, err
 	}
-	delegator, associated := p.evmKeeper.GetSeiAddress(ctx, caller)
+	delegator, associated := p.evmKeeper.GetKiiAddress(ctx, caller)
 	if !associated {
 		return nil, types.NewAssociationMissingErr(caller.Hex())
 	}
@@ -176,7 +176,7 @@ func (p PrecompileExecutor) undelegate(ctx sdk.Context, method *abi.Method, call
 	if err := pcommon.ValidateArgsLength(args, 2); err != nil {
 		return nil, err
 	}
-	delegator, associated := p.evmKeeper.GetSeiAddress(ctx, caller)
+	delegator, associated := p.evmKeeper.GetKiiAddress(ctx, caller)
 	if !associated {
 		return nil, types.NewAssociationMissingErr(caller.Hex())
 	}
@@ -219,7 +219,7 @@ func (p PrecompileExecutor) delegation(ctx sdk.Context, method *abi.Method, args
 		return nil, err
 	}
 
-	seiDelegatorAddress, err := pcommon.GetSeiAddressFromArg(ctx, args[0], p.evmKeeper)
+	seiDelegatorAddress, err := pcommon.GetKiiAddressFromArg(ctx, args[0], p.evmKeeper)
 	if err != nil {
 		return nil, err
 	}

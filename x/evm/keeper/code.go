@@ -8,8 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/sei-protocol/sei-chain/utils"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/utils"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 func (k *Keeper) GetCode(ctx sdk.Context, addr common.Address) []byte {
@@ -31,8 +31,8 @@ func (k *Keeper) SetCode(ctx sdk.Context, addr common.Address, code []byte) {
 	h := crypto.Keccak256Hash(code)
 	k.PrefixStore(ctx, types.CodeHashKeyPrefix).Set(addr[:], h[:])
 	// set association with direct cast Sei address for the contract address
-	if _, ok := k.GetSeiAddress(ctx, addr); !ok {
-		k.SetAddressMapping(ctx, k.GetSeiAddressOrDefault(ctx, addr), addr)
+	if _, ok := k.GetKiiAddress(ctx, addr); !ok {
+		k.SetAddressMapping(ctx, k.GetKiiAddressOrDefault(ctx, addr), addr)
 	}
 }
 
@@ -41,7 +41,7 @@ func (k *Keeper) GetCodeHash(ctx sdk.Context, addr common.Address) common.Hash {
 	bz := store.Get(addr[:])
 	if bz == nil {
 		// per Ethereum behavior, if an address has no code or balance, return Hash(0)
-		if k.GetBalance(ctx, k.GetSeiAddressOrDefault(ctx, addr)).Cmp(utils.Big0) == 0 {
+		if k.GetBalance(ctx, k.GetKiiAddressOrDefault(ctx, addr)).Cmp(utils.Big0) == 0 {
 			return common.Hash{}
 		}
 		// if an address has no code but some balance, return EmptyCodeHash

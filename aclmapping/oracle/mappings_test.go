@@ -8,17 +8,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkacltypes "github.com/cosmos/cosmos-sdk/types/accesscontrol"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	oracleacl "github.com/sei-protocol/sei-chain/aclmapping/oracle"
-	aclutils "github.com/sei-protocol/sei-chain/aclmapping/utils"
-	utils "github.com/sei-protocol/sei-chain/aclmapping/utils"
-	"github.com/sei-protocol/sei-chain/app/apptesting"
-	oraclekeeper "github.com/sei-protocol/sei-chain/x/oracle/keeper"
-	oracletypes "github.com/sei-protocol/sei-chain/x/oracle/types"
+	oracleacl "github.com/kiichain/kiichain3/aclmapping/oracle"
+	aclutils "github.com/kiichain/kiichain3/aclmapping/utils"
+	utils "github.com/kiichain/kiichain3/aclmapping/utils"
+	"github.com/kiichain/kiichain3/app/apptesting"
+	oraclekeeper "github.com/kiichain/kiichain3/x/oracle/keeper"
+	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	acltypes "github.com/cosmos/cosmos-sdk/x/accesscontrol/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/sei-protocol/sei-chain/app"
+	"github.com/kiichain/kiichain3/app"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -47,8 +47,8 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 // Explicitly only run once during setup
 func (suite *KeeperTestSuite) PrepareTest() {
-	suite.defaultDenom = "usei"
-	suite.defaultExchangeRate = fmt.Sprintf("%dusei", sdk.NewDec(1700))
+	suite.defaultDenom = "ukii"
+	suite.defaultExchangeRate = fmt.Sprintf("%dukii", sdk.NewDec(1700))
 
 	suite.initalBalance = sdk.Coins{sdk.NewInt64Coin(suite.defaultDenom, 100000000000)}
 	suite.FundAcc(suite.TestAccs[0], suite.initalBalance)
@@ -132,7 +132,7 @@ func TestMsgVoteDependencyGenerator(t *testing.T) {
 	testWrapper := app.NewTestWrapper(t, tm, valPub, false)
 
 	oracleVote := oracletypes.MsgAggregateExchangeRateVote{
-		ExchangeRates: "1usei",
+		ExchangeRates: "1ukii",
 		Feeder:        "test",
 		Validator:     "validator",
 	}

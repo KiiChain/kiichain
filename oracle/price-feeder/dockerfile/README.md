@@ -16,7 +16,7 @@ Edit your `address`, `validator`, `grpc_endpoint`, `tmrpc_endpoint` you may need
 ```bash
 sudo tee config.toml <<EOF
 gas_adjustment = 1.5
-gas_prices = "0.00125usei"
+gas_prices = "0.00125ukii"
 enable_server = true
 enable_voter = true
 provider_timeout = "500ms"

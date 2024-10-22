@@ -8,9 +8,9 @@ body:
   - type: checkboxes
     attributes:
       label: Search before asking
-      description: Please search [issues](https://github.com/sei-protocol/sei-chain/issues) to check if your issue has already been reported.
+      description: Please search [issues](https://github.com/kiichain/kiichain3/issues) to check if your issue has already been reported.
       options:
-        - label: I searched in the [issues](https://github.com/sei-protocol/sei-chain/issues) and found nothing similar.
+        - label: I searched in the [issues](https://github.com/kiichain/kiichain3/issues) and found nothing similar.
           required: true
   - type: textarea
     attributes:
@@ -33,7 +33,7 @@ body:
     attributes:
       label: Are you willing to submit a PR?
       description: >
-        We look forward to the community of developers or users helping improve sei chain together. If you are willing to submit a PR to implement the enhancement, please check the box.
+        We look forward to the community of developers or users helping improve kii chain together. If you are willing to submit a PR to implement the enhancement, please check the box.
       options:
         - label: I'm willing to submit a PR!
   - type: markdown

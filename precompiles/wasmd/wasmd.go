@@ -13,9 +13,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	pcommon "github.com/sei-protocol/sei-chain/precompiles/common"
-	"github.com/sei-protocol/sei-chain/x/evm/state"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	pcommon "github.com/kiichain/kiichain3/precompiles/common"
+	"github.com/kiichain/kiichain3/x/evm/state"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 const (
@@ -85,7 +85,7 @@ func NewPrecompile(evmKeeper pcommon.EVMKeeper, wasmdKeeper pcommon.WasmdKeeper,
 
 func (p PrecompileExecutor) Execute(ctx sdk.Context, method *abi.Method, caller common.Address, callingContract common.Address, args []interface{}, value *big.Int, readOnly bool, evm *vm.EVM, suppliedGas uint64) (ret []byte, remainingGas uint64, err error) {
 	if method.Name != QueryMethod && !ctx.IsEVM() {
-		return nil, 0, errors.New("sei does not support CW->EVM->CW call pattern")
+		return nil, 0, errors.New("kii does not support CW->EVM->CW call pattern")
 	}
 	switch method.Name {
 	case InstantiateMethod:
@@ -128,7 +128,7 @@ func (p PrecompileExecutor) instantiate(ctx sdk.Context, method *abi.Method, cal
 
 	// type assertion will always succeed because it's already validated in p.Prepare call in Run()
 	codeID := args[0].(uint64)
-	creatorAddr, found := p.evmKeeper.GetSeiAddress(ctx, caller)
+	creatorAddr, found := p.evmKeeper.GetKiiAddress(ctx, caller)
 	if !found {
 		rerr = types.NewAssociationMissingErr(caller.Hex())
 		return
@@ -152,7 +152,7 @@ func (p PrecompileExecutor) instantiate(ctx sdk.Context, method *abi.Method, cal
 		rerr = err
 		return
 	}
-	coinsValue := coins.AmountOf(sdk.MustGetBaseDenom()).Mul(state.SdkUseiToSweiMultiplier).BigInt()
+	coinsValue := coins.AmountOf(sdk.MustGetBaseDenom()).Mul(state.SdkUkiiToSweiMultiplier).BigInt()
 	if (value == nil && coinsValue.Sign() == 1) || (value != nil && coinsValue.Cmp(value) != 0) {
 		rerr = errors.New("coin amount must equal value specified")
 		return
@@ -172,16 +172,16 @@ func (p PrecompileExecutor) instantiate(ctx sdk.Context, method *abi.Method, cal
 		rerr = err
 		return
 	}
-	useiAmt := coins.AmountOf(sdk.MustGetBaseDenom())
-	if value != nil && !useiAmt.IsZero() {
-		useiAmtAsWei := useiAmt.Mul(state.SdkUseiToSweiMultiplier).BigInt()
-		coin, err := pcommon.HandlePaymentUsei(ctx, p.evmKeeper.GetSeiAddressOrDefault(ctx, p.address), creatorAddr, useiAmtAsWei, p.bankKeeper)
+	ukiiAmt := coins.AmountOf(sdk.MustGetBaseDenom())
+	if value != nil && !ukiiAmt.IsZero() {
+		ukiiAmtAsWei := ukiiAmt.Mul(state.SdkUkiiToSweiMultiplier).BigInt()
+		coin, err := pcommon.HandlePaymentUkii(ctx, p.evmKeeper.GetKiiAddressOrDefault(ctx, p.address), creatorAddr, ukiiAmtAsWei, p.bankKeeper)
 		if err != nil {
 			rerr = err
 			return
 		}
 		// sanity check coin amounts match
-		if !coin.Amount.Equal(useiAmt) {
+		if !coin.Amount.Equal(ukiiAmt) {
 			rerr = errors.New("mismatch between coins and payment value")
 			return
 		}
@@ -234,7 +234,7 @@ func (p PrecompileExecutor) executeBatch(ctx sdk.Context, method *abi.Method, ca
 			rerr = err
 			return
 		}
-		messageAmount := coins.AmountOf(sdk.MustGetBaseDenom()).Mul(state.SdkUseiToSweiMultiplier).BigInt()
+		messageAmount := coins.AmountOf(sdk.MustGetBaseDenom()).Mul(state.SdkUkiiToSweiMultiplier).BigInt()
 		validateValue.Add(validateValue, messageAmount)
 	}
 	// if validateValue is greater than zero, then value must be provided, and they must be equal
@@ -267,7 +267,7 @@ func (p PrecompileExecutor) executeBatch(ctx sdk.Context, method *abi.Method, ca
 			rerr = err
 			return
 		}
-		senderAddr, senderAssociated := p.evmKeeper.GetSeiAddress(ctx, caller)
+		senderAddr, senderAssociated := p.evmKeeper.GetKiiAddress(ctx, caller)
 		if !senderAssociated {
 			rerr = types.NewAssociationMissingErr(caller.Hex())
 			return
@@ -279,22 +279,22 @@ func (p PrecompileExecutor) executeBatch(ctx sdk.Context, method *abi.Method, ca
 			rerr = err
 			return
 		}
-		useiAmt := coins.AmountOf(sdk.MustGetBaseDenom())
-		if valueCopy != nil && !useiAmt.IsZero() {
+		ukiiAmt := coins.AmountOf(sdk.MustGetBaseDenom())
+		if valueCopy != nil && !ukiiAmt.IsZero() {
 			// process coin amount from the value provided
-			useiAmtAsWei := useiAmt.Mul(state.SdkUseiToSweiMultiplier).BigInt()
-			coin, err := pcommon.HandlePaymentUsei(ctx, p.evmKeeper.GetSeiAddressOrDefault(ctx, p.address), senderAddr, useiAmtAsWei, p.bankKeeper)
+			ukiiAmtAsWei := ukiiAmt.Mul(state.SdkUkiiToSweiMultiplier).BigInt()
+			coin, err := pcommon.HandlePaymentUkii(ctx, p.evmKeeper.GetKiiAddressOrDefault(ctx, p.address), senderAddr, ukiiAmtAsWei, p.bankKeeper)
 			if err != nil {
 				rerr = err
 				return
 			}
-			valueCopy.Sub(valueCopy, useiAmtAsWei)
+			valueCopy.Sub(valueCopy, ukiiAmtAsWei)
 			if valueCopy.Sign() == -1 {
 				rerr = errors.New("insufficient value provided for payment")
 				return
 			}
 			// sanity check coin amounts match
-			if !coin.Amount.Equal(useiAmt) {
+			if !coin.Amount.Equal(ukiiAmt) {
 				rerr = errors.New("mismatch between coins and payment value")
 				return
 			}
@@ -354,13 +354,13 @@ func (p PrecompileExecutor) execute(ctx sdk.Context, method *abi.Method, caller 
 			return nil, 0, fmt.Errorf("%s is not a pointer of %s", callingContract.Hex(), contractAddrStr)
 		}
 	}
-	// addresses will be sent in Sei format
+	// addresses will be sent in kii format
 	contractAddr, err := sdk.AccAddressFromBech32(contractAddrStr)
 	if err != nil {
 		rerr = err
 		return
 	}
-	senderAddr, found := p.evmKeeper.GetSeiAddress(ctx, caller)
+	senderAddr, found := p.evmKeeper.GetKiiAddress(ctx, caller)
 	if !found {
 		rerr = types.NewAssociationMissingErr(caller.Hex())
 		return
@@ -372,7 +372,7 @@ func (p PrecompileExecutor) execute(ctx sdk.Context, method *abi.Method, caller 
 		rerr = err
 		return
 	}
-	coinsValue := coins.AmountOf(sdk.MustGetBaseDenom()).Mul(state.SdkUseiToSweiMultiplier).BigInt()
+	coinsValue := coins.AmountOf(sdk.MustGetBaseDenom()).Mul(state.SdkUkiiToSweiMultiplier).BigInt()
 	if (value == nil && coinsValue.Sign() == 1) || (value != nil && coinsValue.Cmp(value) != 0) {
 		rerr = errors.New("coin amount must equal value specified")
 		return
@@ -391,16 +391,16 @@ func (p PrecompileExecutor) execute(ctx sdk.Context, method *abi.Method, caller 
 		return
 	}
 
-	useiAmt := coins.AmountOf(sdk.MustGetBaseDenom())
-	if value != nil && !useiAmt.IsZero() {
-		useiAmtAsWei := useiAmt.Mul(state.SdkUseiToSweiMultiplier).BigInt()
-		coin, err := pcommon.HandlePaymentUsei(ctx, p.evmKeeper.GetSeiAddressOrDefault(ctx, p.address), senderAddr, useiAmtAsWei, p.bankKeeper)
+	ukiiAmt := coins.AmountOf(sdk.MustGetBaseDenom())
+	if value != nil && !ukiiAmt.IsZero() {
+		ukiiAmtAsWei := ukiiAmt.Mul(state.SdkUkiiToSweiMultiplier).BigInt()
+		coin, err := pcommon.HandlePaymentUkii(ctx, p.evmKeeper.GetKiiAddressOrDefault(ctx, p.address), senderAddr, ukiiAmtAsWei, p.bankKeeper)
 		if err != nil {
 			rerr = err
 			return
 		}
 		// sanity check coin amounts match
-		if !coin.Amount.Equal(useiAmt) {
+		if !coin.Amount.Equal(ukiiAmt) {
 			rerr = errors.New("mismatch between coins and payment value")
 			return
 		}
@@ -435,7 +435,7 @@ func (p PrecompileExecutor) query(ctx sdk.Context, method *abi.Method, args []in
 	}
 
 	contractAddrStr := args[0].(string)
-	// addresses will be sent in Sei format
+	// addresses will be sent in kii format
 	contractAddr, err := sdk.AccAddressFromBech32(contractAddrStr)
 	if err != nil {
 		rerr = err

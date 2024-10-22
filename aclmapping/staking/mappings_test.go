@@ -12,13 +12,13 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	stakingacl "github.com/sei-protocol/sei-chain/aclmapping/staking"
-	aclutils "github.com/sei-protocol/sei-chain/aclmapping/utils"
-	"github.com/sei-protocol/sei-chain/app/apptesting"
-	oracletypes "github.com/sei-protocol/sei-chain/x/oracle/types"
+	stakingacl "github.com/kiichain/kiichain3/aclmapping/staking"
+	aclutils "github.com/kiichain/kiichain3/aclmapping/utils"
+	"github.com/kiichain/kiichain3/app/apptesting"
+	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
 
 	acltypes "github.com/cosmos/cosmos-sdk/x/accesscontrol/types"
-	"github.com/sei-protocol/sei-chain/app"
+	"github.com/kiichain/kiichain3/app"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -51,11 +51,11 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 // Explicitly only run once during setup
 func (suite *KeeperTestSuite) PrepareTest() {
-	suite.defaultDenom = "usei"
-	suite.defaultExchangeRate = fmt.Sprintf("%dusei", sdk.NewDec(1700))
+	suite.defaultDenom = "ukii"
+	suite.defaultExchangeRate = fmt.Sprintf("%dukii", sdk.NewDec(1700))
 
 	suite.initalBalance = sdk.Coins{sdk.NewInt64Coin(suite.defaultDenom, 100000000000)}
-	suite.initalBalance = sdk.Coins{sdk.NewInt64Coin("usei", 100000000000)}
+	suite.initalBalance = sdk.Coins{sdk.NewInt64Coin("ukii", 100000000000)}
 	suite.FundAcc(suite.TestAccs[0], suite.initalBalance)
 
 	suite.queryClient = stakingtypes.NewQueryClient(suite.QueryHelper)
@@ -99,17 +99,17 @@ func (suite *KeeperTestSuite) PrepareTest() {
 	suite.App.AccountKeeper.SetModuleAccount(suite.Ctx, bondedPool)
 
 	suite.delegateMsg = &stakingtypes.MsgDelegate{
-		Amount:           sdk.NewInt64Coin("usei", 10),
+		Amount:           sdk.NewInt64Coin("ukii", 10),
 		ValidatorAddress: suite.validator.String(),
 		DelegatorAddress: suite.TestAccs[0].String(),
 	}
 	suite.undelegateMsg = &stakingtypes.MsgUndelegate{
-		Amount:           sdk.NewInt64Coin("usei", 10),
+		Amount:           sdk.NewInt64Coin("ukii", 10),
 		ValidatorAddress: suite.validator.String(),
 		DelegatorAddress: suite.TestAccs[0].String(),
 	}
 	suite.redelegateMsg = &stakingtypes.MsgBeginRedelegate{
-		Amount:              sdk.NewInt64Coin("usei", 10),
+		Amount:              sdk.NewInt64Coin("ukii", 10),
 		ValidatorSrcAddress: suite.validator.String(),
 		ValidatorDstAddress: suite.newValidator.String(),
 		DelegatorAddress:    suite.TestAccs[0].String(),
@@ -284,10 +284,10 @@ func TestGeneratorInvalidMessageTypes(t *testing.T) {
 	stakingDelegate := stakingtypes.MsgDelegate{
 		DelegatorAddress: "delegator",
 		ValidatorAddress: "validator",
-		Amount:           sdk.Coin{Denom: "usei", Amount: sdk.NewInt(5)},
+		Amount:           sdk.Coin{Denom: "ukii", Amount: sdk.NewInt(5)},
 	}
 	oracleVote := oracletypes.MsgAggregateExchangeRateVote{
-		ExchangeRates: "1usei",
+		ExchangeRates: "1ukii",
 		Feeder:        "test",
 		Validator:     "validator",
 	}

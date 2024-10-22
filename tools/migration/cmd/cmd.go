@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
-	"github.com/sei-protocol/sei-chain/tools/migration/sc"
-	"github.com/sei-protocol/sei-chain/tools/migration/ss"
+	"github.com/kiichain/kiichain3/tools/migration/sc"
+	"github.com/kiichain/kiichain3/tools/migration/ss"
 	"github.com/spf13/cobra"
 	dbm "github.com/tendermint/tm-db"
 )

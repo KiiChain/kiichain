@@ -9,13 +9,13 @@ import (
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 func (k *Keeper) VerifyBalance(ctx sdk.Context, addr common.Address) {
-	useiBalance := k.BankKeeper().GetBalance(ctx, k.GetSeiAddressOrDefault(ctx, addr), "usei").Amount
-	weiBalance := k.bankKeeper.GetWeiBalance(ctx, k.GetSeiAddressOrDefault(ctx, addr))
-	totalSeiBalance := useiBalance.Mul(sdk.NewInt(1_000_000_000_000)).Add(weiBalance).BigInt()
+	ukiiBalance := k.BankKeeper().GetBalance(ctx, k.GetKiiAddressOrDefault(ctx, addr), "ukii").Amount
+	weiBalance := k.bankKeeper.GetWeiBalance(ctx, k.GetKiiAddressOrDefault(ctx, addr))
+	totalSeiBalance := ukiiBalance.Mul(sdk.NewInt(1_000_000_000_000)).Add(weiBalance).BigInt()
 	ethBalance, err := k.EthClient.BalanceAt(ctx.Context(), addr, big.NewInt(k.GetReplayInitialHeight(ctx)+ctx.BlockHeight()))
 	if err != nil {
 		panic(err)

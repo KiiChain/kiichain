@@ -7,14 +7,14 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	aclkeeper "github.com/cosmos/cosmos-sdk/x/accesscontrol/keeper"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	epochwasm "github.com/sei-protocol/sei-chain/x/epoch/client/wasm"
-	epochkeeper "github.com/sei-protocol/sei-chain/x/epoch/keeper"
-	evmwasm "github.com/sei-protocol/sei-chain/x/evm/client/wasm"
-	evmkeeper "github.com/sei-protocol/sei-chain/x/evm/keeper"
-	oraclewasm "github.com/sei-protocol/sei-chain/x/oracle/client/wasm"
-	oraclekeeper "github.com/sei-protocol/sei-chain/x/oracle/keeper"
-	tokenfactorywasm "github.com/sei-protocol/sei-chain/x/tokenfactory/client/wasm"
-	tokenfactorykeeper "github.com/sei-protocol/sei-chain/x/tokenfactory/keeper"
+	epochwasm "github.com/kiichain/kiichain3/x/epoch/client/wasm"
+	epochkeeper "github.com/kiichain/kiichain3/x/epoch/keeper"
+	evmwasm "github.com/kiichain/kiichain3/x/evm/client/wasm"
+	evmkeeper "github.com/kiichain/kiichain3/x/evm/keeper"
+	oraclewasm "github.com/kiichain/kiichain3/x/oracle/client/wasm"
+	oraclekeeper "github.com/kiichain/kiichain3/x/oracle/keeper"
+	tokenfactorywasm "github.com/kiichain/kiichain3/x/tokenfactory/client/wasm"
+	tokenfactorykeeper "github.com/kiichain/kiichain3/x/tokenfactory/keeper"
 )
 
 func RegisterCustomPlugins(

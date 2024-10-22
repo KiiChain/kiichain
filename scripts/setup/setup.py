@@ -95,7 +95,7 @@ def set_price_feeder():
     logging.info('Setting price feeder...')
     addr, _ = seid_add_key(ORACLE_PRICE_FEEDER_ACC_NAME)
     run_with_password(
-        f'seid tx oracle set-feeder $(seid keys show {ORACLE_PRICE_FEEDER_ACC_NAME} -a) --from admin --yes --fees=2000usei',
+        f'seid tx oracle set-feeder $(seid keys show {ORACLE_PRICE_FEEDER_ACC_NAME} -a) --from admin --yes --fees=2000ukii',
         account_cache[ORACLE_PRICE_FEEDER_ACC_NAME].password
     )
     logging.info("Please send sei tokens to the feeder account '%s' to fund it", addr)

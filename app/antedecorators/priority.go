@@ -4,7 +4,7 @@ import (
 	"math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	oracletypes "github.com/sei-protocol/sei-chain/x/oracle/types"
+	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
 )
 
 const (

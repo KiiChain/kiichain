@@ -9,6 +9,6 @@ func Send(from sdk.AccAddress, to sdk.AccAddress, amount int64) *banktypes.MsgSe
 	return &banktypes.MsgSend{
 		FromAddress: from.String(),
 		ToAddress:   to.String(),
-		Amount:      sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(amount))),
+		Amount:      sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(amount))),
 	}
 }

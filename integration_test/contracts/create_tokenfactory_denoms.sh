@@ -17,7 +17,7 @@ echo "$keyaddress"  > $seihome/integration_test/contracts/tfk_creator_id.txt
 for i in {1..10}
 do
     echo "Creating first set of tokenfactory denoms #$i..."
-    create_denom_result=$(printf "12345678\n" | $seidbin tx tokenfactory create-denom "$i" -y --from="$keyname" --chain-id="$chainid" --gas=500000 --fees=100000usei --broadcast-mode=block --output=json)
+    create_denom_result=$(printf "12345678\n" | $seidbin tx tokenfactory create-denom "$i" -y --from="$keyname" --chain-id="$chainid" --gas=500000 --fees=100000ukii --broadcast-mode=block --output=json)
     new_token_denom=$(echo "$create_denom_result" | jq -r '.logs[].events[].attributes[] | select(.key == "new_token_denom").value')
     echo "Got token $new_token_denom for iteration $i"
 done
@@ -32,7 +32,7 @@ sleep 5
 for i in {11..20}
 do
     echo "Creating first set of tokenfactory denoms #$i..."
-    create_denom_result=$(printf "12345678\n" | $seidbin tx tokenfactory create-denom "$i" -y --from="$keyname" --chain-id="$chainid" --gas=500000 --fees=100000usei --broadcast-mode=block --output=json)
+    create_denom_result=$(printf "12345678\n" | $seidbin tx tokenfactory create-denom "$i" -y --from="$keyname" --chain-id="$chainid" --gas=500000 --fees=100000ukii --broadcast-mode=block --output=json)
     new_token_denom=$(echo "$create_denom_result" | jq -r '.logs[].events[].attributes[] | select(.key == "new_token_denom").value')
     echo "Got token $new_token_denom for iteration $i"
 done
@@ -46,7 +46,7 @@ sleep 5
 for i in {21..30}
 do
     echo "Creating first set of tokenfactory denoms #$i..."
-    create_denom_result=$(printf "12345678\n" | $seidbin tx tokenfactory create-denom "$i" -y --from="$keyname" --chain-id="$chainid" --gas=500000 --fees=100000usei --broadcast-mode=block --output=json)
+    create_denom_result=$(printf "12345678\n" | $seidbin tx tokenfactory create-denom "$i" -y --from="$keyname" --chain-id="$chainid" --gas=500000 --fees=100000ukii --broadcast-mode=block --output=json)
     new_token_denom=$(echo "$create_denom_result" | jq -r '.logs[].events[].attributes[] | select(.key == "new_token_denom").value')
     echo "Got token $new_token_denom for iteration $i"
 done

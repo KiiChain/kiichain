@@ -60,7 +60,7 @@ cat ~/.kiichain3/config/genesis.json | jq '.app_state["oracle"]["params"]["white
 cat ~/.kiichain3/config/genesis.json | jq '.app_state["distribution"]["params"]["community_tax"]="0.000000000000000000"' > ~/.kiichain3/config/tmp_genesis.json && mv ~/.kiichain3/config/tmp_genesis.json ~/.kiichain3/config/genesis.json
 cat ~/.kiichain3/config/genesis.json | jq '.consensus_params["block"]["max_gas"]="35000000"' > ~/.kiichain3/config/tmp_genesis.json && mv ~/.kiichain3/config/tmp_genesis.json ~/.kiichain3/config/genesis.json
 cat ~/.kiichain3/config/genesis.json | jq '.app_state["staking"]["params"]["max_voting_power_ratio"]="1.000000000000000000"' > ~/.kiichain3/config/tmp_genesis.json && mv ~/.kiichain3/config/tmp_genesis.json ~/.kiichain3/config/genesis.json
-cat ~/.kiichain3/config/genesis.json | jq '.app_state["bank"]["denom_metadata"]=[{"denom_units":[{"denom":"ukii","exponent":0,"aliases":["USEI"]}],"base":"ukii","display":"ukii","name":"USEI","symbol":"USEI"}]' > ~/.kiichain3/config/tmp_genesis.json && mv ~/.kiichain3/config/tmp_genesis.json ~/.kiichain3/config/genesis.json
+cat ~/.kiichain3/config/genesis.json | jq '.app_state["bank"]["denom_metadata"]=[{"denom_units":[{"denom":"ukii","exponent":0,"aliases":["ukii"]}],"base":"ukii","display":"ukii","name":"ukii","symbol":"ukii"}]' > ~/.kiichain3/config/tmp_genesis.json && mv ~/.kiichain3/config/tmp_genesis.json ~/.kiichain3/config/genesis.json
 
 # Use the Python command to get the dates
 START_DATE=$($PYTHON_CMD -c "from datetime import datetime; print(datetime.now().strftime('%Y-%m-%d'))")

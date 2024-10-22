@@ -3,7 +3,7 @@ package seiprotocol.seichain.eth;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/sei-protocol/sei-chain/x/evm/types/ethtx";
+option go_package = "github.com/kiichain/kiichain3/x/evm/types/ethtx";
 
 // Source: https://github.com/evmos/evmos/blob/main/proto/ethermint/evm/v1/tx.proto
 

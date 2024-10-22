@@ -10,10 +10,10 @@ import (
 	acltypes "github.com/cosmos/cosmos-sdk/x/accesscontrol/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/sei-protocol/sei-chain/x/evm/ante"
-	evmkeeper "github.com/sei-protocol/sei-chain/x/evm/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/state"
-	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/ante"
+	evmkeeper "github.com/kiichain/kiichain3/x/evm/keeper"
+	"github.com/kiichain/kiichain3/x/evm/state"
+	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
 )
 
 var ErrInvalidMessageType = fmt.Errorf("invalid message received for EVM Module")
@@ -56,7 +56,7 @@ func TransactionDependencyGenerator(_ aclkeeper.Keeper, evmKeeper evmkeeper.Keep
 	tx, _ := evmMsg.AsTransaction()
 	toAddress := tx.To()
 	if toAddress != nil {
-		seiAddress := evmKeeper.GetSeiAddressOrDefault(ctx, *toAddress)
+		seiAddress := evmKeeper.GetKiiAddressOrDefault(ctx, *toAddress)
 		ops = appendRWBalanceOps(ops, seiAddress)
 		ops = append(ops, sdkacltypes.AccessOperation{
 			AccessType:         sdkacltypes.AccessType_READ,

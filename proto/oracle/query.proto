@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "oracle/oracle.proto";
 
-option go_package = "github.com/sei-protocol/sei-chain/x/oracle/types";
+option go_package = "github.com/kiichain/kiichain3/x/oracle/types";
 
 // Query defines the gRPC querier service.
 service Query {

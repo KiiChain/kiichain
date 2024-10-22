@@ -10,11 +10,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw721"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/native"
-	"github.com/sei-protocol/sei-chain/x/evm/client/wasm/bindings"
-	"github.com/sei-protocol/sei-chain/x/evm/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/cw721"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/native"
+	"github.com/kiichain/kiichain3/x/evm/client/wasm/bindings"
+	"github.com/kiichain/kiichain3/x/evm/keeper"
+	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
 type EVMQueryHandler struct {
@@ -192,7 +192,7 @@ func (h *EVMQueryHandler) HandleERC721Owner(ctx sdk.Context, caller string, cont
 	typedOwner := typed[0].(common.Address)
 	owner := ""
 	if (typedOwner != common.Address{}) {
-		owner = h.k.GetSeiAddressOrDefault(ctx, typedOwner).String()
+		owner = h.k.GetKiiAddressOrDefault(ctx, typedOwner).String()
 	}
 	response := bindings.ERC721OwnerResponse{Owner: owner}
 	return json.Marshal(response)
@@ -379,7 +379,7 @@ func (h *EVMQueryHandler) HandleERC721Approved(ctx sdk.Context, caller string, c
 	approved := typed[0].(common.Address)
 	a := ""
 	if (approved != common.Address{}) {
-		a = h.k.GetSeiAddressOrDefault(ctx, approved).String()
+		a = h.k.GetKiiAddressOrDefault(ctx, approved).String()
 	}
 	response := bindings.ERC721ApprovedResponse{Approved: a}
 	return json.Marshal(response)
@@ -528,7 +528,7 @@ func (h *EVMQueryHandler) HandleGetEvmAddress(ctx sdk.Context, seiAddr string) (
 
 func (h *EVMQueryHandler) HandleGetSeiAddress(ctx sdk.Context, evmAddr string) ([]byte, error) {
 	addr := common.HexToAddress(evmAddr)
-	seiAddr, associated := h.k.GetSeiAddress(ctx, addr)
+	seiAddr, associated := h.k.GetKiiAddress(ctx, addr)
 	response := bindings.GetSeiAddressResponse{SeiAddress: seiAddr.String(), Associated: associated}
 	return json.Marshal(response)
 }
@@ -563,7 +563,7 @@ func (h *EVMQueryHandler) HandleERC721RoyaltyInfo(ctx sdk.Context, caller string
 	typedReceiver := typed[0].(common.Address)
 	receiver := ""
 	if (typedReceiver != common.Address{}) {
-		receiver = h.k.GetSeiAddressOrDefault(ctx, typedReceiver).String()
+		receiver = h.k.GetKiiAddressOrDefault(ctx, typedReceiver).String()
 	}
 	royaltyAmount := sdk.NewIntFromBigInt(typed[1].(*big.Int))
 	response := bindings.ERC721RoyaltyInfoResponse{Receiver: receiver, RoyaltyAmount: &royaltyAmount}

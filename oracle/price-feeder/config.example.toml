@@ -1,5 +1,5 @@
 gas_adjustment = 1.5
-gas_prices = "0.00125usei"
+gas_prices = "0.00125ukii"
 enable_server = true
 enable_voter = true
 
@@ -101,8 +101,8 @@ providers = [
 quote = "USD"
 
 [[currency_pairs]]
-base = "SEI"
-chain_denom = "usei"
+base = "KII"
+chain_denom = "ukii"
 providers = [
   "binance",
   "huobi",
@@ -111,8 +111,8 @@ providers = [
 quote = "USDT"
 
 [[currency_pairs]]
-base = "SEI"
-chain_denom = "usei"
+base = "KII"
+chain_denom = "ukii"
 providers = [
   "kraken",
   "coinbase",
@@ -135,11 +135,11 @@ quote = "USDT"
 address = "<FEEDER_ADDR>"
 chain_id = "<CHAIN_ID>"
 validator = "<VALIDATOR_ADDR>"
-prefix = "sei"
+prefix = "kii"
 
 [keyring]
 backend = "os"
-dir = "/root/.sei"
+dir = "/root/.kiichain3"
 
 [rpc]
 grpc_endpoint = "localhost:9090"

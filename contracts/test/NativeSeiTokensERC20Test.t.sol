@@ -19,7 +19,7 @@ contract MockBank {
 
     // subset of IBank functions
     function balance(address account, string memory denom) public view returns (uint256) {
-        require(keccak256(abi.encodePacked(denom)) == keccak256(abi.encodePacked("usei")), "MockBank: denom not supported");
+        require(keccak256(abi.encodePacked(denom)) == keccak256(abi.encodePacked("ukii")), "MockBank: denom not supported");
         return balances[account];
     }
 
@@ -29,7 +29,7 @@ contract MockBank {
         string memory denom,
         uint256 amount
     ) external returns (bool success) {
-        require(keccak256(abi.encodePacked(denom)) == keccak256(abi.encodePacked("usei")), "MockBank: denom not supported");
+        require(keccak256(abi.encodePacked(denom)) == keccak256(abi.encodePacked("ukii")), "MockBank: denom not supported");
         balances[fromAddress] -= amount;
         balances[toAddress] += amount;
         return true;
@@ -48,7 +48,7 @@ contract NativeSeiTokensERC20Test is Test {
     function setUp() public {
         alice = makeAddr("alice");
         bob = makeAddr("bob");
-        seiERC20 = new NativeSeiTokensERC20("usei", "SEI", "SEISYMBOL", 6);
+        seiERC20 = new NativeSeiTokensERC20("ukii", "SEI", "SEISYMBOL", 6);
 
         MockBank mockBank = new MockBank();
         vm.etch(BANK_PRECOMPILE_ADDRESS, address(mockBank).code);
@@ -67,7 +67,7 @@ contract NativeSeiTokensERC20Test is Test {
     }
 
     function testBalanceOf() public {
-        vm.mockCall(BANK_PRECOMPILE_ADDRESS, abi.encodeWithSelector(IBank.balance.selector, address(this), "usei"), abi.encode(123));
+        vm.mockCall(BANK_PRECOMPILE_ADDRESS, abi.encodeWithSelector(IBank.balance.selector, address(this), "ukii"), abi.encode(123));
         assertEq(seiERC20.balanceOf(address(this)), 123);
     }
 
@@ -76,7 +76,7 @@ contract NativeSeiTokensERC20Test is Test {
     }
 
     function testTotalSupply() public {
-        vm.mockCall(BANK_PRECOMPILE_ADDRESS, abi.encodeWithSelector(IBank.supply.selector, "usei"), abi.encode(123));
+        vm.mockCall(BANK_PRECOMPILE_ADDRESS, abi.encodeWithSelector(IBank.supply.selector, "ukii"), abi.encode(123));
         assertEq(seiERC20.totalSupply(), 123);
     }
 

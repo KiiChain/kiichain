@@ -6,18 +6,18 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/sei-protocol/sei-chain/utils/metrics"
-	epochwasm "github.com/sei-protocol/sei-chain/x/epoch/client/wasm"
-	epochbindings "github.com/sei-protocol/sei-chain/x/epoch/client/wasm/bindings"
-	epochtypes "github.com/sei-protocol/sei-chain/x/epoch/types"
-	evmwasm "github.com/sei-protocol/sei-chain/x/evm/client/wasm"
-	evmbindings "github.com/sei-protocol/sei-chain/x/evm/client/wasm/bindings"
-	oraclewasm "github.com/sei-protocol/sei-chain/x/oracle/client/wasm"
-	oraclebindings "github.com/sei-protocol/sei-chain/x/oracle/client/wasm/bindings"
-	oracletypes "github.com/sei-protocol/sei-chain/x/oracle/types"
-	tokenfactorywasm "github.com/sei-protocol/sei-chain/x/tokenfactory/client/wasm"
-	tokenfactorybindings "github.com/sei-protocol/sei-chain/x/tokenfactory/client/wasm/bindings"
-	tokenfactorytypes "github.com/sei-protocol/sei-chain/x/tokenfactory/types"
+	"github.com/kiichain/kiichain3/utils/metrics"
+	epochwasm "github.com/kiichain/kiichain3/x/epoch/client/wasm"
+	epochbindings "github.com/kiichain/kiichain3/x/epoch/client/wasm/bindings"
+	epochtypes "github.com/kiichain/kiichain3/x/epoch/types"
+	evmwasm "github.com/kiichain/kiichain3/x/evm/client/wasm"
+	evmbindings "github.com/kiichain/kiichain3/x/evm/client/wasm/bindings"
+	oraclewasm "github.com/kiichain/kiichain3/x/oracle/client/wasm"
+	oraclebindings "github.com/kiichain/kiichain3/x/oracle/client/wasm/bindings"
+	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
+	tokenfactorywasm "github.com/kiichain/kiichain3/x/tokenfactory/client/wasm"
+	tokenfactorybindings "github.com/kiichain/kiichain3/x/tokenfactory/client/wasm/bindings"
+	tokenfactorytypes "github.com/kiichain/kiichain3/x/tokenfactory/types"
 )
 
 type QueryPlugin struct {
@@ -193,7 +193,7 @@ func (qp QueryPlugin) HandleEVMQuery(ctx sdk.Context, queryData json.RawMessage)
 		c := parsedQuery.GetEvmAddress
 		return qp.evmHandler.HandleGetEvmAddress(ctx, c.SeiAddress)
 	case evmbindings.GetSeiAddressType:
-		c := parsedQuery.GetSeiAddress
+		c := parsedQuery.GetKiiAddress
 		return qp.evmHandler.HandleGetSeiAddress(ctx, c.EvmAddress)
 	case evmbindings.SupportsInterfaceType:
 		c := parsedQuery.SupportsInterface

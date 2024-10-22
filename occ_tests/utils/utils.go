@@ -29,11 +29,11 @@ import (
 	"github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/sei-protocol/sei-chain/app"
-	utils2 "github.com/sei-protocol/sei-chain/utils"
-	"github.com/sei-protocol/sei-chain/x/evm/config"
-	types2 "github.com/sei-protocol/sei-chain/x/evm/types"
-	minttypes "github.com/sei-protocol/sei-chain/x/mint/types"
+	"github.com/kiichain/kiichain3/app"
+	utils2 "github.com/kiichain/kiichain3/utils"
+	"github.com/kiichain/kiichain3/x/evm/config"
+	types2 "github.com/kiichain/kiichain3/x/evm/types"
+	minttypes "github.com/kiichain/kiichain3/x/mint/types"
 )
 
 // ignoreStoreKeys are store keys that are not compared
@@ -99,7 +99,7 @@ func NewSigner() TestAcct {
 }
 
 func Funds(amount int64) sdk.Coins {
-	return sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(amount)))
+	return sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(amount)))
 }
 
 func panicIfErr(err error) {
@@ -126,7 +126,7 @@ func NewTestContext(t *testing.T, testAccts []TestAcct, blockTime time.Time, wor
 	testApp := wrapper.App
 	ctx := wrapper.Ctx
 	ctx = ctx.WithBlockHeader(tmproto.Header{Height: ctx.BlockHeader().Height, ChainID: ctx.BlockHeader().ChainID, Time: blockTime})
-	amounts := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000000000000)), sdk.NewCoin("uusdc", sdk.NewInt(1000000000000000)))
+	amounts := sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000000000000)), sdk.NewCoin("uusdc", sdk.NewInt(1000000000000000)))
 	bankkeeper := testApp.BankKeeper
 	wasmKeeper := testApp.WasmKeeper
 	contractKeeper := wasmkeeper.NewDefaultPermissionKeeper(&wasmKeeper)
@@ -182,7 +182,7 @@ func toTxBytes(testCtx *TestContext, msgs []*TestMessage) [][]byte {
 		})
 
 		if tm.IsEVM {
-			amounts := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000000000000000)), sdk.NewCoin("uusdc", sdk.NewInt(1000000000000000)))
+			amounts := sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000000000000000)), sdk.NewCoin("uusdc", sdk.NewInt(1000000000000000)))
 
 			// fund account so it has funds
 			if err := testCtx.TestApp.BankKeeper.MintCoins(testCtx.Ctx, minttypes.ModuleName, amounts); err != nil {

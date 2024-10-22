@@ -16,8 +16,8 @@ import (
 	ibctypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/sei-protocol/sei-chain/utils"
-	oracletypes "github.com/sei-protocol/sei-chain/x/oracle/types"
+	"github.com/kiichain/kiichain3/utils"
+	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
 )
 
 type BankKeeper interface {
@@ -33,8 +33,8 @@ type BankKeeper interface {
 }
 
 type EVMKeeper interface {
-	GetSeiAddress(sdk.Context, common.Address) (sdk.AccAddress, bool)
-	GetSeiAddressOrDefault(ctx sdk.Context, evmAddress common.Address) sdk.AccAddress // only used for getting precompile Sei addresses
+	GetKiiAddress(sdk.Context, common.Address) (sdk.AccAddress, bool)
+	GetKiiAddressOrDefault(ctx sdk.Context, evmAddress common.Address) sdk.AccAddress // only used for getting precompile Sei addresses
 	GetEVMAddress(sdk.Context, sdk.AccAddress) (common.Address, bool)
 	SetAddressMapping(sdk.Context, sdk.AccAddress, common.Address)
 	GetCodeHash(sdk.Context, common.Address) common.Hash

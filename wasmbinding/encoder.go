@@ -7,8 +7,8 @@ import (
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	evmwasm "github.com/sei-protocol/sei-chain/x/evm/client/wasm"
-	tokenfactorywasm "github.com/sei-protocol/sei-chain/x/tokenfactory/client/wasm"
+	evmwasm "github.com/kiichain/kiichain3/x/evm/client/wasm"
+	tokenfactorywasm "github.com/kiichain/kiichain3/x/tokenfactory/client/wasm"
 )
 
 type SeiWasmMessage struct {

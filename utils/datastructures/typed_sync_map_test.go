@@ -4,8 +4,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/sei-protocol/sei-chain/utils"
-	"github.com/sei-protocol/sei-chain/utils/datastructures"
+	"github.com/kiichain/kiichain3/utils"
+	"github.com/kiichain/kiichain3/utils/datastructures"
 	"github.com/stretchr/testify/require"
 )
 

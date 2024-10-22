@@ -7,9 +7,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/core/tracing"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/state"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
+	"github.com/kiichain/kiichain3/x/evm/state"
+	"github.com/kiichain/kiichain3/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -99,20 +99,20 @@ func TestSurplus(t *testing.T) {
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
 	_, evmAddr := testkeeper.MockAddressPair()
 
-	// test negative usei surplus negative wei surplus
+	// test negative ukii surplus negative wei surplus
 	db := state.NewDBImpl(ctx, k, false)
 	db.AddBalance(evmAddr, big.NewInt(1_000_000_000_001), tracing.BalanceChangeUnspecified)
 	_, err := db.Finalize()
 	require.Nil(t, err)
 
-	// test negative usei surplus positive wei surplus (negative total)
+	// test negative ukii surplus positive wei surplus (negative total)
 	db = state.NewDBImpl(ctx, k, false)
 	db.AddBalance(evmAddr, big.NewInt(1_000_000_000_000), tracing.BalanceChangeUnspecified)
 	db.SubBalance(evmAddr, big.NewInt(1), tracing.BalanceChangeUnspecified)
 	_, err = db.Finalize()
 	require.Nil(t, err)
 
-	// test negative usei surplus positive wei surplus (positive total)
+	// test negative ukii surplus positive wei surplus (positive total)
 	db = state.NewDBImpl(ctx, k, false)
 	db.AddBalance(evmAddr, big.NewInt(1_000_000_000_000), tracing.BalanceChangeUnspecified)
 	db.SubBalance(evmAddr, big.NewInt(2), tracing.BalanceChangeUnspecified)
@@ -121,7 +121,7 @@ func TestSurplus(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, sdk.OneInt(), surplus)
 
-	// test positive usei surplus negative wei surplus (negative total)
+	// test positive ukii surplus negative wei surplus (negative total)
 	db = state.NewDBImpl(ctx, k, false)
 	db.SubBalance(evmAddr, big.NewInt(1_000_000_000_000), tracing.BalanceChangeUnspecified)
 	db.AddBalance(evmAddr, big.NewInt(2), tracing.BalanceChangeUnspecified)
@@ -129,7 +129,7 @@ func TestSurplus(t *testing.T) {
 	_, err = db.Finalize()
 	require.Nil(t, err)
 
-	// test positive usei surplus negative wei surplus (positive total)
+	// test positive ukii surplus negative wei surplus (positive total)
 	db = state.NewDBImpl(ctx, k, false)
 	db.SubBalance(evmAddr, big.NewInt(1_000_000_000_000), tracing.BalanceChangeUnspecified)
 	db.AddBalance(evmAddr, big.NewInt(999_999_999_999), tracing.BalanceChangeUnspecified)

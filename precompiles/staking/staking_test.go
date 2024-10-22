@@ -20,16 +20,16 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/sei-protocol/sei-chain/app"
-	pcommon "github.com/sei-protocol/sei-chain/precompiles/common"
-	"github.com/sei-protocol/sei-chain/precompiles/staking"
-	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/ante"
-	"github.com/sei-protocol/sei-chain/x/evm/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/state"
-	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
-	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
-	minttypes "github.com/sei-protocol/sei-chain/x/mint/types"
+	"github.com/kiichain/kiichain3/app"
+	pcommon "github.com/kiichain/kiichain3/precompiles/common"
+	"github.com/kiichain/kiichain3/precompiles/staking"
+	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
+	"github.com/kiichain/kiichain3/x/evm/ante"
+	"github.com/kiichain/kiichain3/x/evm/keeper"
+	"github.com/kiichain/kiichain3/x/evm/state"
+	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
+	"github.com/kiichain/kiichain3/x/evm/types/ethtx"
+	minttypes "github.com/kiichain/kiichain3/x/mint/types"
 	"github.com/stretchr/testify/require"
 	tmtypes "github.com/tendermint/tendermint/proto/tendermint/types"
 )
@@ -281,7 +281,7 @@ func TestPrecompile_Run_Delegation(t *testing.T) {
 				ValidatorAddress: validatorAddress,
 				Shares:           sdk.NewDec(int64(shares)),
 			},
-			Balance: sdk.NewCoin("usei", sdk.NewInt(int64(shares))),
+			Balance: sdk.NewCoin("ukii", sdk.NewInt(int64(shares))),
 		},
 	}
 	hundredSharesValue := new(big.Int)
@@ -289,7 +289,7 @@ func TestPrecompile_Run_Delegation(t *testing.T) {
 	delegation := staking.Delegation{
 		Balance: staking.Balance{
 			Amount: big.NewInt(int64(shares)),
-			Denom:  "usei",
+			Denom:  "ukii",
 		},
 		Delegation: staking.DelegationDetails{
 			DelegatorAddress: callerSeiAddress.String(),

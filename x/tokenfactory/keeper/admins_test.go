@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/sei-protocol/sei-chain/x/tokenfactory/types"
+	"github.com/kiichain/kiichain3/x/tokenfactory/types"
 )
 
 func (suite *KeeperTestSuite) TestAdminMsgs() {
@@ -187,12 +187,12 @@ func (suite *KeeperTestSuite) TestSetDenomMetaData() {
 						Exponent: 0,
 					},
 					{
-						Denom:    "usei",
+						Denom:    "ukii",
 						Exponent: 6,
 					},
 				},
 				Base:    suite.defaultDenom,
-				Display: "usei",
+				Display: "ukii",
 				Name:    "SEI",
 				Symbol:  "SEI",
 			}),
@@ -208,12 +208,12 @@ func (suite *KeeperTestSuite) TestSetDenomMetaData() {
 						Exponent: 0,
 					},
 					{
-						Denom:    "usei",
+						Denom:    "ukii",
 						Exponent: 6,
 					},
 				},
 				Base:    fmt.Sprintf("factory/%s/litecoin", suite.TestAccs[0].String()),
-				Display: "usei",
+				Display: "ukii",
 				Name:    "SEI",
 				Symbol:  "SEI",
 			}),
@@ -225,16 +225,16 @@ func (suite *KeeperTestSuite) TestSetDenomMetaData() {
 				Description: "test3",
 				DenomUnits: []*banktypes.DenomUnit{
 					{
-						Denom:    "usei",
+						Denom:    "ukii",
 						Exponent: 0,
 					},
 					{
-						Denom:    "usei",
+						Denom:    "ukii",
 						Exponent: 6,
 					},
 				},
-				Base:    "usei",
-				Display: "usei",
+				Base:    "ukii",
+				Display: "ukii",
 				Name:    "SEI",
 				Symbol:  "SEI",
 			}),
@@ -250,12 +250,12 @@ func (suite *KeeperTestSuite) TestSetDenomMetaData() {
 						Exponent: 0,
 					},
 					{
-						Denom:    "usei",
+						Denom:    "ukii",
 						Exponent: 6,
 					},
 				},
 				Base:    suite.defaultDenom,
-				Display: "usei",
+				Display: "ukii",
 				Name:    "SEI",
 				Symbol:  "SEI",
 			}),
@@ -272,7 +272,7 @@ func (suite *KeeperTestSuite) TestSetDenomMetaData() {
 					},
 				},
 				Base:    suite.defaultDenom,
-				Display: "usei",
+				Display: "ukii",
 				Name:    "SEI",
 				Symbol:  "SEI",
 			}),

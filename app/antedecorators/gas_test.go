@@ -8,21 +8,21 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/accesscontrol"
 	acltypes "github.com/cosmos/cosmos-sdk/x/accesscontrol/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/sei-protocol/sei-chain/app"
-	"github.com/sei-protocol/sei-chain/app/antedecorators"
+	"github.com/kiichain/kiichain3/app"
+	"github.com/kiichain/kiichain3/app/antedecorators"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
 func TestMultiplierGasSetter(t *testing.T) {
 	testApp := app.Setup(false, false)
-	contractAddr, err := sdk.AccAddressFromBech32("sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw")
+	contractAddr, err := sdk.AccAddressFromBech32("kii14jekmh7yruasqx4k372mrktsd7hwz454snw0us")
 	require.NoError(t, err)
 	ctx := testApp.NewContext(false, types.Header{}).WithBlockHeight(2)
 	testApp.ParamsKeeper.SetCosmosGasParams(ctx, *paramtypes.DefaultCosmosGasParams())
 	testApp.ParamsKeeper.SetFeesParams(ctx, paramtypes.DefaultGenesis().GetFeesParams())
 	testMsg := wasmtypes.MsgExecuteContract{
-		Contract: "sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw",
+		Contract: "kii14jekmh7yruasqx4k372mrktsd7hwz454snw0us",
 		Msg:      []byte("{\"xyz\":{}}"),
 	}
 	testTx := app.NewTestTx([]sdk.Msg{&testMsg})

@@ -6,9 +6,9 @@
     # query the current token balance
     - cmd: seid q wasm contract-state smart $GRINGOTTS_ADDR " {\"info\":{}} " --output json |jq -r .data.withdrawn_unlocked
     # withdraw vested tokens, note that no partial withdrawal is supported, and op needs to make sure, that enough staked tokens are already unbonded, otherwise the tx would fail
-    - cmd: printf "12345678\n" | seid tx wasm execute $GRINGOTTS_ADDR " {\"initiate_withdraw_unlocked\":{}} " -y --from=op --chain-id=sei --gas=5000000 --fees=1000000usei --broadcast-mode=block --output json |jq -r .code
+    - cmd: printf "12345678\n" | seid tx wasm execute $GRINGOTTS_ADDR " {\"initiate_withdraw_unlocked\":{}} " -y --from=op --chain-id=sei --gas=5000000 --fees=1000000ukii --broadcast-mode=block --output json |jq -r .code
     # withdraw staking rewards
-    - cmd: printf "12345678\n" | seid tx wasm execute $GRINGOTTS_ADDR " {\"initiate_withdraw_reward\":{}} " -y --from=op --chain-id=sei --gas=5000000 --fees=1000000usei --broadcast-mode=block --output json |jq -r .code
+    - cmd: printf "12345678\n" | seid tx wasm execute $GRINGOTTS_ADDR " {\"initiate_withdraw_reward\":{}} " -y --from=op --chain-id=sei --gas=5000000 --fees=1000000ukii --broadcast-mode=block --output json |jq -r .code
     # query the token balance again
     - cmd: seid q wasm contract-state smart $GRINGOTTS_ADDR " {\"info\":{}} " --output json |jq -r .data.withdrawn_unlocked
       env: RESULT

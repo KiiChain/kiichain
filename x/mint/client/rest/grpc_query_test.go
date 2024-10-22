@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/testutil/network"
-	minttypes "github.com/sei-protocol/sei-chain/x/mint/types"
+	minttypes "github.com/kiichain/kiichain3/x/mint/types"
 )
 
 type IntegrationTestSuite struct {
@@ -73,7 +73,7 @@ func (s *IntegrationTestSuite) TestQueryGRPC() {
 			map[string]string{},
 			&minttypes.QueryParamsResponse{},
 			&minttypes.QueryParamsResponse{
-				Params: minttypes.NewParams("usei", sdk.NewDecWithPrec(13, 2), sdk.NewDecWithPrec(100, 2),
+				Params: minttypes.NewParams("ukii", sdk.NewDecWithPrec(13, 2), sdk.NewDecWithPrec(100, 2),
 					sdk.NewDec(1), sdk.NewDecWithPrec(67, 2), (60 * 60 * 8766 / 5)),
 			},
 		},
