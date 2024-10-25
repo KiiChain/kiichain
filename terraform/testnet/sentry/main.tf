@@ -14,21 +14,52 @@ resource "aws_instance" "sentry" {
   vpc_security_group_ids = [aws_security_group.sentry_sg.id]
 
   user_data = <<-EOF
-              #!/bin/bash
-              sudo apt-get update -y
-              sudo apt-get install -y docker.io git make
-              sudo systemctl start docker
-              sudo systemctl enable docker
+    #!/bin/bash
+    echo "Starting user data script..." >> /tmp/userdata.log
 
-              # Clone the project repository
-              git clone https://github.com/KiiChain/kiichain3.git
+    # Update package lists
+    sudo apt-get update -y >> /tmp/userdata.log 2>&1
 
-              # Change directory to the cloned repo
-              cd kiichain3
+    # Install required packages
+    sudo apt-get install -y build-essential docker.io git make wget >> /tmp/userdata.log 2>&1
+    sudo systemctl start docker >> /tmp/userdata.log 2>&1
+    sudo systemctl enable docker >> /tmp/userdata.log 2>&1
+    sudo usermod -aG docker ubuntu >> /tmp/userdata.log 2>&1
 
-              # Run the specified make command
-              make run-local-node
-              EOF
+    # Install Go 1.21
+    echo "Installing Go 1.21..." >> /tmp/userdata.log
+    wget https://go.dev/dl/go1.21.0.linux-amd64.tar.gz >> /tmp/userdata.log 2>&1
+    sudo rm -rf /usr/local/go >> /tmp/userdata.log 2>&1
+    sudo tar -C /usr/local -xzf go1.21.0.linux-amd64.tar.gz >> /tmp/userdata.log 2>&1
+
+    # Set up Go environment variables
+    echo "export PATH=\$PATH:/usr/local/go/bin" >> /home/ubuntu/.profile
+    echo "export GOPATH=/home/ubuntu/go" >> /home/ubuntu/.profile
+    echo "export GOBIN=\$GOPATH/bin" >> /home/ubuntu/.profile
+    echo "export PATH=\$PATH:\$GOBIN" >> /home/ubuntu/.profile
+
+    # Source the profile to apply the changes immediately
+    source /home/ubuntu/.profile >> /tmp/userdata.log 2>&1
+
+    echo "Go 1.21 installation completed." >> /tmp/userdata.log
+
+    # Clone the project repository
+    echo "Cloning the repository..." >> /tmp/userdata.log
+    git clone https://<TOKEN>@github.com/KiiChain/kiichain3.git >> /tmp/userdata.log 2>&1
+
+    cd kiichain3 >> /tmp/userdata.log 2>&1
+    echo "Verifying Makefile..." >> /tmp/userdata.log
+    cat Makefile >> /tmp/userdata.log 2>&1
+    pwd >> /tmp/userdata.log
+    ls -la >> /tmp/userdata.log
+
+    # Add a short delay to ensure Docker is up and running
+    sleep 10
+
+    # Run the Makefile command and log any failure
+    make run-local-node >> /tmp/userdata.log 2>&1 || echo "Make command failed" >> /tmp/userdata.log
+    echo "User data script completed." >> /tmp/userdata.log
+    EOF
 
   tags = {
     Name = "Testnet Sentry"
