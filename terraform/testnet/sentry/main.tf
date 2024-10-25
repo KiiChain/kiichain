@@ -4,7 +4,7 @@ provider "aws" {
 }
 
 resource "aws_instance" "sentry" {
-  ami                         = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 AMI (change as needed)
+  ami                         = "ami-0ea142bd7dc67f09c"  # Ubuntu Server 20.04 LTS AMI (update the AMI ID as needed based on your region)
   instance_type               = "t2.xlarge"
   count                       = var.instance_count
   root_block_device {
@@ -15,10 +15,19 @@ resource "aws_instance" "sentry" {
 
   user_data = <<-EOF
               #!/bin/bash
-              sudo yum update -y
-              sudo amazon-linux-extras install docker -y
-              sudo service docker start
-              # Similar setup as validators but skip validator-specific scripts
+              sudo apt-get update -y
+              sudo apt-get install -y docker.io git make
+              sudo systemctl start docker
+              sudo systemctl enable docker
+
+              # Clone the project repository
+              git clone https://github.com/KiiChain/kiichain3.git
+
+              # Change directory to the cloned repo
+              cd kiichain3
+
+              # Run the specified make command
+              make run-local-node
               EOF
 
   tags = {
