@@ -11,5 +11,5 @@ LEDGER_ENABLED=false
 make clean
 make build-linux
 # make build-price-feeder-linux
-mkdir -p build/generated
+mkdir -p build/generated/remote
 echo "DONE" > build/generated/build.complete

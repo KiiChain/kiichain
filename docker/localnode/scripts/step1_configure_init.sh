@@ -34,7 +34,18 @@ cp docker/localnode/config/config.toml "$TENDERMINT_CONFIG_FILE"
 # Set up persistent peers
 KIICHAIN_NODE_ID=$(kiichaind tendermint show-node-id)
 NODE_IP=$(hostname -i | awk '{print $1}')
-echo "$KIICHAIN_NODE_ID@$NODE_IP:26656" >> build/generated/persistent_peers.txt
+PERSISTENT_PEERS_FILE="build/generated/persistent_peers.txt"
+REMOTE_PEERS_FILE="build/generated/remote/persistent_peers.txt"
+# Check if the remote peers file exists, and if so, copy its contents
+if [ -f "$REMOTE_PEERS_FILE" ]; then
+  cp "$REMOTE_PEERS_FILE" "$PERSISTENT_PEERS_FILE"
+else
+  # Ensure we start with an empty or existing file
+  > "$PERSISTENT_PEERS_FILE"
+fi
+# Append the current node's ID and IP to the persistent peers file
+echo "$KIICHAIN_NODE_ID@$NODE_IP:26656" >> "$PERSISTENT_PEERS_FILE"
+cp "$PERSISTENT_PEERS_FILE" "$REMOTE_PEERS_FILE"
 
 # Create a new account
 ACCOUNT_NAME="validator_one"
