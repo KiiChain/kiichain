@@ -142,6 +142,7 @@ run-local-node: kill-kiichain-node build-docker-node
 	-v $(GO_PKG_PATH)/mod:/root/go/pkg/mod:Z \
 	-v $(shell go env GOCACHE):/root/.cache/go-build:Z \
 	-p 26668-26670:26656-26658 \
+	-p 1318:137 \
 	--platform linux/x86_64 \
 	kiichain3/localnode
 .PHONY: run-local-node
@@ -158,6 +159,7 @@ run-rpc-node: build-rpc-node
 	-v $(GO_PKG_PATH)/mod:/root/go/pkg/mod:Z \
 	-v $(shell go env GOCACHE):/root/.cache/go-build:Z \
 	-p 26668-26670:26656-26658 \
+	-p 1318:1317 \
 	--platform linux/x86_64 \
 	kiichain3/rpcnode
 .PHONY: run-rpc-node
