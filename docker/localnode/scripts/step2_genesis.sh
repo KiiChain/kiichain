@@ -5,9 +5,9 @@ NODE_ID=${ID:-0}
 
 echo "Preparing genesis file"
 
-ACCOUNT_NAME="admin"
-echo "Adding account $ACCOUNT_NAME"
-printf "12345678\n12345678\ny\n" | kiichaind keys add $ACCOUNT_NAME >/dev/null 2>&1
+# ACCOUNT_NAME="admin"
+# echo "Adding account $ACCOUNT_NAME"
+# printf "12345678\n12345678\ny\n" | kiichaind keys add $ACCOUNT_NAME >/dev/null 2>&1
 
 override_genesis() {
   cat ~/.kiichain3/config/genesis.json | jq "$1" > ~/.kiichain3/config/tmp_genesis.json && mv ~/.kiichain3/config/tmp_genesis.json ~/.kiichain3/config/genesis.json;
@@ -16,24 +16,25 @@ override_genesis() {
 override_genesis '.app_state["crisis"]["constant_fee"]["denom"]="ukii"'
 override_genesis '.app_state["mint"]["params"]["mint_denom"]="ukii"'
 override_genesis '.app_state["staking"]["params"]["bond_denom"]="ukii"'
-override_genesis '.app_state["oracle"]["params"]["vote_period"]="2"'
+# override_genesis '.app_state["oracle"]["params"]["vote_period"]="2"'
 override_genesis '.app_state["slashing"]["params"]["signed_blocks_window"]="10000"'
 override_genesis '.app_state["slashing"]["params"]["min_signed_per_window"]="0.050000000000000000"'
-override_genesis '.app_state["staking"]["params"]["max_validators"]="50"'
+override_genesis '.app_state["staking"]["params"]["max_validators"]="25"'
 override_genesis '.consensus_params["block"]["max_gas"]="35000000"'
 override_genesis '.app_state["staking"]["params"]["unbonding_time"]="10s"'
+override_genesis '.app_state["distribution"]["params"]["community_tax"]="0.020000000000000000"'
 
 # Set a token release schedule for the genesis file
-start_date="$(date +"%Y-%m-%d")"
-end_date="$(date -d "+3 days" +"%Y-%m-%d")"
-override_genesis ".app_state[\"mint\"][\"params\"][\"token_release_schedule\"]=[{\"start_date\": \"$start_date\", \"end_date\": \"$end_date\", \"token_release_amount\": \"999999999999\"}]"
+# start_date="$(date +"%Y-%m-%d")"
+# end_date="$(date -d "+3 days" +"%Y-%m-%d")"
+# override_genesis ".app_state[\"mint\"][\"params\"][\"token_release_schedule\"]=[{\"start_date\": \"$start_date\", \"end_date\": \"$end_date\", \"token_release_amount\": \"999999999999\"}]"
 
 
 # We already added node0's genesis account in configure_init, remove it here since we're going to re-add it in the "add genesis accounts" step
-override_genesis '.app_state["auth"]["accounts"]=[]'
-override_genesis '.app_state["bank"]["balances"]=[]'
-override_genesis '.app_state["genutil"]["gen_txs"]=[]'
-override_genesis '.app_state["bank"]["denom_metadata"]=[{"denom_units":[{"denom":"UATOM","exponent":6,"aliases":["UATOM"]}],"base":"uatom","display":"uatom","name":"UATOM","symbol":"UATOM"}]'
+# override_genesis '.app_state["auth"]["accounts"]=[]'
+# override_genesis '.app_state["bank"]["balances"]=[]'
+# override_genesis '.app_state["genutil"]["gen_txs"]=[]'
+# override_genesis '.app_state["bank"]["denom_metadata"]=[{"denom_units":[{"denom":"UATOM","exponent":6,"aliases":["UATOM"]}],"base":"uatom","display":"uatom","name":"UATOM","symbol":"UATOM"}]'
 
 # gov parameters
 override_genesis '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="ukii"'
@@ -46,14 +47,16 @@ override_genesis '.app_state["gov"]["tally_params"]["threshold"]="0.5"'
 override_genesis '.app_state["gov"]["tally_params"]["expedited_quorum"]="0.9"'
 override_genesis '.app_state["gov"]["tally_params"]["expedited_threshold"]="0.9"'
 
+
+
 # add genesis accounts for each node
-while read account; do
-  echo "Adding: $account"
-  kiichaind add-genesis-account "$account" 1000000000000000000000ukii,1000000000000000000000uusdc,1000000000000000000000uatom
-done <build/generated/genesis_accounts.txt
+# while read account; do
+#   echo "Adding: $account"
+#   kiichaind add-genesis-account "$account" 18000000000000000ukii
+# done <build/generated/genesis_accounts.txt
 
 # add funds to admin account
-printf "12345678\n" | kiichaind add-genesis-account admin 1000000000000000000000ukii,1000000000000000000000uusdc,1000000000000000000000uatom
+# printf "12345678\n" | kiichaind add-genesis-account admin 1000000000000000000000ukii,1000000000000000000000uusdc,1000000000000000000000uatom
 
 mkdir -p ~/exported_keys
 cp -r build/generated/gentx/* ~/.kiichain3/config/gentx

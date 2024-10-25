@@ -8,6 +8,7 @@ build/
 cache/
 
 # Local .terraform directories
+terraform/mainnet
 **/.terraform
 
 # .tfstate files
