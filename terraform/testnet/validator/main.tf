@@ -3,10 +3,6 @@ provider "aws" {
   profile = "kiichain"
 }
 
-resource "aws_s3_bucket" "my_bucket" {
-  bucket_prefix = "validator-genesis-"
-}
-
 resource "aws_instance" "validator" {
   ami                         = "ami-024b5075fd81ab5d8"  # Update as needed
   instance_type               = "t2.xlarge"
@@ -19,12 +15,11 @@ resource "aws_instance" "validator" {
   user_data = <<-EOF
       #!/bin/bash
       export NODE_ID=${var.instance_id}
-      export S3_BUCKET_NAME=${aws_s3_bucket.my_bucket.bucket}
     
       echo "Starting user data script..." >> /tmp/userdata.log
 
       sudo apt-get update -y >> /tmp/userdata.log 2>&1
-      sudo apt-get install -y build-essential docker.io git make wget awscli >> /tmp/userdata.log 2>&1
+      sudo apt-get install -y build-essential docker.io git make wget >> /tmp/userdata.log 2>&1
 
       sudo systemctl start docker >> /tmp/userdata.log 2>&1
       sudo systemctl enable docker >> /tmp/userdata.log 2>&1
@@ -71,9 +66,4 @@ resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
   from_port         = 22
   ip_protocol       = "tcp"
   to_port           = 22
-}
-
-output "s3_bucket_url" {
-  value       = aws_s3_bucket.my_bucket.bucket_domain_name
-  description = "URL of the S3 bucket for storing validator data"
 }
