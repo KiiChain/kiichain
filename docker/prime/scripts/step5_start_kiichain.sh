@@ -8,8 +8,6 @@ mkdir -p $LOG_DIR
 
 echo "Starting the kiichaind process for node $NODE_ID with invariant check interval=$INVARIANT_CHECK_INTERVAL..."
 
-kiichaind start --chain-id kiichain3 --inv-check-period ${INVARIANT_CHECK_INTERVAL} > "$LOG_DIR/kiichaind-$NODE_ID.log" 2>&1 &
-
 # Background process to monitor for genesis.json and upload it
 (
   GENESIS_FILE="build/generated/genesis.json"
@@ -24,6 +22,8 @@ kiichaind start --chain-id kiichain3 --inv-check-period ${INVARIANT_CHECK_INTERV
   aws s3 cp "$GENESIS_FILE" "$S3_BUCKET_URL"
   echo "Upload complete."
 ) &
+
+kiichaind start --chain-id kiichain3 --inv-check-period ${INVARIANT_CHECK_INTERVAL} > "$LOG_DIR/kiichaind-$NODE_ID.log" 2>&1 &
 
 echo "Node $NODE_ID kiichaind is started now"
 echo "Done" >> build/generated/launch.complete
