@@ -36,7 +36,7 @@ resource "aws_instance" "validator" {
       echo "export PATH=\$PATH:/usr/local/go/bin" >> /home/ubuntu/.profile
       source /home/ubuntu/.profile >> /tmp/userdata.log 2>&1
 
-      git clone https://@github.com/KiiChain/kiichain3.git >> /tmp/userdata.log 2>&1
+      git clone https://<TOKEN>@github.com/KiiChain/kiichain3.git >> /tmp/userdata.log 2>&1
 
       cd kiichain3 >> /tmp/userdata.log 2>&1
       make run-local-node >> /tmp/userdata.log 2>&1 || echo "Make command failed" >> /tmp/userdata.log
