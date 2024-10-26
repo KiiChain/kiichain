@@ -26,9 +26,9 @@ kiichaind init "$MONIKER" --chain-id kiichain3 >/dev/null 2>&1
 # ORACLE_CONFIG_FILE="build/generated/node_$NODE_ID/price_feeder_config.toml"
 APP_CONFIG_FILE="build/generated/node_$NODE_ID/app.toml"
 TENDERMINT_CONFIG_FILE="build/generated/node_$NODE_ID/config.toml"
-cp docker/localnode/config/app.toml "$APP_CONFIG_FILE"
-cp docker/localnode/config/config.toml "$TENDERMINT_CONFIG_FILE"
-# cp docker/localnode/config/price_feeder_config.toml "$ORACLE_CONFIG_FILE"
+cp docker/prime/config/app.toml "$APP_CONFIG_FILE"
+cp docker/prime/config/config.toml "$TENDERMINT_CONFIG_FILE"
+# cp docker/prime/config/price_feeder_config.toml "$ORACLE_CONFIG_FILE"
 
 
 # Set up persistent peers

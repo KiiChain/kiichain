@@ -124,6 +124,10 @@ build-price-feeder-linux:
 .PHONY: build-price-feeder-linux
 
 # Build docker image
+build-docker-prime:
+	@cd docker && docker build --tag kiichain3/prime prime --platform linux/x86_64
+.PHONY: build-docker-node
+
 build-docker-node:
 	@cd docker && docker build --tag kiichain3/localnode localnode --platform linux/x86_64
 .PHONY: build-docker-node

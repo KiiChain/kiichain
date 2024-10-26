@@ -3,7 +3,7 @@ variable "aws_region" {
   default     = "us-east-2"
 }
 
-variable "instance_count" {
-  description = "Number of validator instances to create."
-  default     = 1
+variable "instance_id" {
+  description = "Instance ID"
+  default     = 0
 }
