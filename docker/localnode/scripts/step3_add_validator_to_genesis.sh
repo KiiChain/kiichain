@@ -15,4 +15,4 @@ do
     IDX=$(($IDX+1))
 done
 
-mv ~/.kiichain3/config/tmp_genesis.json ~/.kiichain3/config/genesis.json
+# mv ~/.kiichain3/config/tmp_genesis.json ~/.kiichain3/config/genesis.json

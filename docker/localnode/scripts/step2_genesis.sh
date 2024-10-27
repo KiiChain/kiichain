@@ -69,7 +69,6 @@ cp -r build/generated/exported_keys ~/exported_keys
 echo "Collecting all gentx"
 kiichaind collect-gentxs >/dev/null 2>&1
 
-cp ~/.kiichain3/config/genesis.json build/generated/genesis.json
-cp ~/.kiichain3/config/genesis.json remote/genesis.json
+cp remote/genesis.json ~/.kiichain3/config/genesis.json
 
 echo "Genesis file has been created successfully"

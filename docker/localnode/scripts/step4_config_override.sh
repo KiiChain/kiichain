@@ -4,7 +4,7 @@ NODE_ID=${ID:-0}
 
 APP_CONFIG_FILE="build/generated/node_$NODE_ID/app.toml"
 TENDERMINT_CONFIG_FILE="build/generated/node_$NODE_ID/config.toml"
-cp build/generated/genesis.json ~/.kiichain3/config/genesis.json
+cp remote/genesis.json ~/.kiichain3/config/genesis.json
 cp "$APP_CONFIG_FILE" ~/.kiichain3/config/app.toml
 cp "$TENDERMINT_CONFIG_FILE" ~/.kiichain3/config/config.toml
 
