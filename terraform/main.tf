@@ -19,20 +19,14 @@ module "prime_validator" {
 #   make_command = "run-local-node"
 # }
 
-# module "testnet_sentry" {
+# module "testnet_sentry_1" {
 #   source = "./testnet/sentry"
 #   aws_region = "us-east-2"
 #   instance_id = 2
 # }
 
-# module "mainnet_validator" {
+# module "testnet_sentry_2" {
 #   source = "./mainnet/validator"
-#   aws_region = "us-east-2"
-#   instance_id = 1
-# }
-
-# module "mainnet_sentry" {
-#   source = "./mainnet/sentry"
 #   aws_region = "us-east-2"
 #   instance_id = 1
 # }
