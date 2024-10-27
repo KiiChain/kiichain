@@ -7,3 +7,8 @@ variable "instance_id" {
   description = "Instance ID"
   default     = 0
 }
+
+variable "make_command" {
+  description = "command for make file"
+  default     = "run-prime-node"
+}

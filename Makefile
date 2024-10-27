@@ -126,7 +126,7 @@ build-price-feeder-linux:
 # Build docker image
 build-docker-prime:
 	@cd docker && docker build --tag kiichain3/prime prime --platform linux/x86_64
-.PHONY: build-docker-node
+.PHONY: build-docker-prime
 
 build-docker-node:
 	@cd docker && docker build --tag kiichain3/localnode localnode --platform linux/x86_64
@@ -135,6 +135,20 @@ build-docker-node:
 build-rpc-node:
 	@cd docker && docker build --tag kiichain3/rpcnode rpcnode --platform linux/x86_64
 .PHONY: build-rpc-node
+
+# Run a single node docker container
+run-prime-node: kill-kiichain-node build-docker-prime
+	@rm -rf $(PROJECT_HOME)/build/generated
+	docker run --rm \
+	--name kiichain-node \
+	--user="$(shell id -u):$(shell id -g)" \
+	-v $(PROJECT_HOME):/kiichain/kiichain3:Z \
+	-v $(GO_PKG_PATH)/mod:/root/go/pkg/mod:Z \
+	-v $(shell go env GOCACHE):/root/.cache/go-build:Z \
+	-p 26668-26670:26656-26658 \
+	--platform linux/x86_64 \
+	kiichain3/prime
+.PHONY: run-local-prime
 
 # Run a single node docker container
 run-local-node: kill-kiichain-node build-docker-node
