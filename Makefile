@@ -204,7 +204,7 @@ kill-rpc-node:
 	docker ps --filter name=kiichain-rpc-node --filter status=running -aq | xargs docker kill 2> /dev/null || true
 
 # Run a 4-node docker containers
-docker-cluster-start: docker-cluster-stop build-docker-node
+docker-cluster-start: docker-cluster-stop build-docker-prime
 	@rm -rf $(PROJECT_HOME)/build/generated
 	@mkdir -p $(shell go env GOPATH)/pkg/mod
 	@mkdir -p $(shell go env GOCACHE)
@@ -213,7 +213,7 @@ docker-cluster-start: docker-cluster-stop build-docker-node
 .PHONY: localnet-start
 
 # Use this to skip the kiichaind build process
-docker-cluster-start-skipbuild: docker-cluster-stop build-docker-node
+docker-cluster-start-skipbuild: docker-cluster-stop build-docker-prime
 	@rm -rf $(PROJECT_HOME)/build/generated
 	@cd docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) NUM_ACCOUNTS=10 SKIP_BUILD=true docker compose up
 .PHONY: localnet-start
