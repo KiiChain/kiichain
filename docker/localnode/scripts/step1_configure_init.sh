@@ -44,7 +44,7 @@ else
   > "$PERSISTENT_PEERS_FILE"
 fi
 # Append the current node's ID and IP to the persistent peers file
-echo "$KIICHAIN_NODE_ID@$NODE_IP:26656" >> "$PERSISTENT_PEERS_FILE"
+echo -e "\n$KIICHAIN_NODE_ID@$NODE_IP:26656" >> "$PERSISTENT_PEERS_FILE"
 cp "$PERSISTENT_PEERS_FILE" "$REMOTE_PEERS_FILE"
 
 # Create a new account
