@@ -52,18 +52,7 @@ ACCOUNT_NAME="validator_one"
 echo "Adding account $ACCOUNT_NAME"
 printf "12345678\n12345678\ny\n" | kiichaind keys add "$ACCOUNT_NAME" >/dev/null 2>&1
 
-# Function to add genesis account
-add_genesis_account() {
-  local account_name=$1
-  local balance=$2
-  # Create account and get address
-  account_address=$(printf "12345678\n" | kiichaind keys add "$account_name")
-  acct=$(printf "12345678\n" | kiichaind keys show "$account_name" -a)
-  # Add the account address to the genesis_accounts.txt
-  echo "$account_address" >> build/generated/genesis_accounts.txt
-  # Add funds to the genesis account
-  kiichaind add-genesis-account "$acct" "$balance"
-}
+
 # Get genesis account info for node_admin
 GENESIS_ACCOUNT_ADDRESS=$(printf "12345678\n" | kiichaind keys show "$ACCOUNT_NAME" -a)
 echo "$GENESIS_ACCOUNT_ADDRESS" >> build/generated/genesis_accounts.txt
@@ -75,7 +64,11 @@ accounts="private_sale:54000000000000ukii public_sale:126000000000000ukii liquid
 for account in $accounts; do
   name="${account%%:*}"
   balance="${account##*:}"
-  kiichaind add_genesis_account "$name" "$balance"
+
+  account_address=$(printf "12345678\n" | kiichaind keys add "$name")
+  acct=$(printf "12345678\n" | kiichaind keys show "$account_name" -a)
+
+  kiichaind add-genesis-account "$acct" "$balance"
 done
 # Create gentx for the primary account
 printf "12345678\n" | kiichaind gentx "$ACCOUNT_NAME" 1000000000000ukii --chain-id kiichain3
