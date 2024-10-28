@@ -81,32 +81,32 @@ services:
       localnet:
         ipv4_address: 192.168.10.12
 
-  node3:
-    platform: linux/amd64
-    container_name: kiichain-node-3
-    image: "kiichain3/prime"
-    user: "${USERID}:${GROUPID}"
-    environment:
-      - ID=3
-      - CLUSTER_SIZE=4
-      - NUM_ACCOUNTS
-      - SKIP_BUILD
-      - INVARIANT_CHECK_INTERVAL
-      - UPGRADE_VERSION_LIST
-    ports:
-      - "26665-26667:26656-26658"
-      - "9096-9097:9090-9091"
-    volumes:
-      - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
-      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/sei-tendermint:Z"
-      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/sei-cosmos:Z"
-      - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
-      - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
-      - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
-      - "${GOCACHE}:/root/.cache/go-build:Z"
-    networks:
-      localnet:
-        ipv4_address: 192.168.10.13
+  # node3:
+  #   platform: linux/amd64
+  #   container_name: kiichain-node-3
+  #   image: "kiichain3/prime"
+  #   user: "${USERID}:${GROUPID}"
+  #   environment:
+  #     - ID=3
+  #     - CLUSTER_SIZE=4
+  #     - NUM_ACCOUNTS
+  #     - SKIP_BUILD
+  #     - INVARIANT_CHECK_INTERVAL
+  #     - UPGRADE_VERSION_LIST
+  #   ports:
+  #     - "26665-26667:26656-26658"
+  #     - "9096-9097:9090-9091"
+  #   volumes:
+  #     - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
+  #     - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/sei-tendermint:Z"
+  #     - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/sei-cosmos:Z"
+  #     - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
+  #     - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
+  #     - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
+  #     - "${GOCACHE}:/root/.cache/go-build:Z"
+  #   networks:
+  #     localnet:
+  #       ipv4_address: 192.168.10.13
 
 networks:
   localnet:

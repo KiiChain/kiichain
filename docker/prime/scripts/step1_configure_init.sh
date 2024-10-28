@@ -75,7 +75,7 @@ accounts="private_sale:54000000000000ukii public_sale:126000000000000ukii liquid
 for account in $accounts; do
   name="${account%%:*}"
   balance="${account##*:}"
-  add_genesis_account "$name" "$balance"
+  kiichaind add_genesis_account "$name" "$balance"
 done
 # Create gentx for the primary account
 printf "12345678\n" | kiichaind gentx "$ACCOUNT_NAME" 1000000000000ukii --chain-id kiichain3
