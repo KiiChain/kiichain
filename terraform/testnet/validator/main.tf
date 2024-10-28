@@ -46,17 +46,30 @@ resource "aws_instance" "validator" {
         wget https://go.dev/dl/go1.21.0.linux-amd64.tar.gz >> /tmp/userdata.log 2>&1
         sudo tar -C /usr/local -xzf go1.21.0.linux-amd64.tar.gz >> /tmp/userdata.log 2>&1
 
-        # Set up Go environment
-        echo "export PATH=\$PATH:/usr/local/go/bin" >> /home/ubuntu/.profile
+        # Set up Go environment globally for all users
+        echo "export PATH=\$PATH:/usr/local/go/bin" | sudo tee -a /etc/profile /home/ubuntu/.profile
         source /home/ubuntu/.profile >> /tmp/userdata.log 2>&1
+
+        # Verify Go installation
+        go version >> /tmp/userdata.log 2>&1 || { echo "Go command not found" >> /tmp/userdata.log; exit 1; }
 
         # Clone the project repository
         git clone https://<TOKEN>@github.com/KiiChain/kiichain3.git >> /tmp/userdata.log 2>&1
 
         # Navigate to project directory and execute make command
         cd kiichain3 >> /tmp/userdata.log 2>&1
+        echo "export PROJECT_HOME=$(git rev-parse --show-toplevel)" | sudo tee -a /etc/profile /home/ubuntu/.profile
+        echo "export GO_PKG_PATH=$(HOME)/go/pkg" | sudo tee -a /etc/profile /home/ubuntu/.profile
+        echo "export GOCACHE=$(HOME)/.cache/go-build" | sudo tee -a /etc/profile /home/ubuntu/.profile
+        source /home/ubuntu/.profile >> /tmp/userdata.log 2>&1
 
-        make ${var.make_command} >> /tmp/userdata.log 2>&1 || echo "Make command failed" >> /tmp/userdata.log
+        echo "PROJECT_HOME: $PROJECT_HOME" >> /tmp/userdata.log
+        echo "GO_PKG_PATH: $GO_PKG_PATH" >> /tmp/userdata.log
+        echo "GOCACHE: $GOCACHE" >> /tmp/userdata.log
+
+        git config --global --add safe.directory $(PROJECT_HOME)
+
+        PROJECT_HOME=$PROJECT_HOME GO_PKG_PATH=$GO_PKG_PATH GOCACHE=$GOCACHE make ${var.make_command} >> /tmp/userdata.log 2>&1 || echo "Make command failed" >> /tmp/userdata.log
         echo "User data script completed." >> /tmp/userdata.log
         EOF
 
@@ -69,7 +82,7 @@ resource "aws_security_group" "validator_sg" {
   name_prefix = "validator_sg_"
 
   ingress {
-    from_port   = 26668
+    from_port   = 26660
     to_port     = 26670
     protocol    = "tcp"
     # cidr_blocks = ["172.31.0.0/16"]
