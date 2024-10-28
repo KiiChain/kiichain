@@ -26,6 +26,8 @@ resource "aws_instance" "validator" {
         sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
         sudo apt install -y docker-ce >> /tmp/userdata.log 2>&1
 
+        curl -L https://go.dev/dl/go1.22.4.linux-amd64.tar.gz | tar xvzf - -C /usr/local/
+
         # Install Docker packages separately to avoid conflicts
         sudo apt-get install -y containerd.io docker-buildx-plugin docker-compose-plugin >> /tmp/userdata.log 2>&1
 
@@ -55,6 +57,7 @@ resource "aws_instance" "validator" {
 
         # Navigate to project directory and execute make command
         cd kiichain3 >> /tmp/userdata.log 2>&1
+        git config --global --add safe.directory .
 
         make ${var.make_command} >> /tmp/userdata.log 2>&1 || echo "Make command failed" >> /tmp/userdata.log
         echo "User data script completed." >> /tmp/userdata.log

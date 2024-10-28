@@ -2,8 +2,7 @@ services:
   node0:
     platform: linux/amd64
     container_name: kiichain-node-0
-    build:
-      context: ./prime
+    image: "kiichain3/prime"
     user: "${USERID}:${GROUPID}"
     ports:
       - "26656-26658:26656-26658"
@@ -13,13 +12,13 @@ services:
       - ID=0
       - CLUSTER_SIZE=4
       - NUM_ACCOUNTS
-      # - SKIP_BUILD
+      - SKIP_BUILD
       - INVARIANT_CHECK_INTERVAL
       - UPGRADE_VERSION_LIST
     volumes:
       - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
-      - "${PROJECT_HOME}/../kiichain-tendermint:/kiichain/kiichain3/kiichain-tendermint:Z"
-      - "${PROJECT_HOME}/../kiichain-cosmos:/kiichain/kiichain3/kiichain-cosmos:Z"
+      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/sei-tendermint:Z"
+      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/sei-cosmos:Z"
       - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
       - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
       - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
@@ -31,8 +30,7 @@ services:
   node1:
     platform: linux/amd64
     container_name: kiichain-node-1
-    build:
-      context: ./prime
+    image: "kiichain3/prime"
     user: "${USERID}:${GROUPID}"
     ports:
       - "26659-26661:26656-26658"
@@ -41,13 +39,13 @@ services:
       - ID=1
       - CLUSTER_SIZE=4
       - NUM_ACCOUNTS
-      # - SKIP_BUILD
+      - SKIP_BUILD
       - INVARIANT_CHECK_INTERVAL
       - UPGRADE_VERSION_LIST
     volumes:
       - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
-      - "${PROJECT_HOME}/../kiichain-tendermint:/kiichain/kiichain3/kiichain-tendermint:Z"
-      - "${PROJECT_HOME}/../kiichain-cosmos:/kiichain/kiichain3/kiichain-cosmos:Z"
+      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/sei-tendermint:Z"
+      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/sei-cosmos:Z"
       - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
       - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
       - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
@@ -59,14 +57,13 @@ services:
   node2:
     platform: linux/amd64
     container_name: kiichain-node-2
-    build:
-      context: ./prime
+    image: "kiichain3/prime"
     user: "${USERID}:${GROUPID}"
     environment:
       - ID=2
       - CLUSTER_SIZE=4
       - NUM_ACCOUNTS
-      # - SKIP_BUILD
+      - SKIP_BUILD
       - INVARIANT_CHECK_INTERVAL
       - UPGRADE_VERSION_LIST
     ports:
@@ -74,8 +71,8 @@ services:
       - "9094-9095:9090-9091"
     volumes:
       - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
-      - "${PROJECT_HOME}/../kiichain-tendermint:/kiichain/kiichain3/kiichain-tendermint:Z"
-      - "${PROJECT_HOME}/../kiichain-cosmos:/kiichain/kiichain3/kiichain-cosmos:Z"
+      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/sei-tendermint:Z"
+      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/sei-cosmos:Z"
       - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
       - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
       - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
@@ -87,14 +84,13 @@ services:
   node3:
     platform: linux/amd64
     container_name: kiichain-node-3
-    build:
-      context: ./prime
+    image: "kiichain3/prime"
     user: "${USERID}:${GROUPID}"
     environment:
       - ID=3
       - CLUSTER_SIZE=4
       - NUM_ACCOUNTS
-      # - SKIP_BUILD
+      - SKIP_BUILD
       - INVARIANT_CHECK_INTERVAL
       - UPGRADE_VERSION_LIST
     ports:
@@ -102,8 +98,8 @@ services:
       - "9096-9097:9090-9091"
     volumes:
       - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
-      - "${PROJECT_HOME}/../kiichain-tendermint:/kiichain/kiichain3/kiichain-tendermint:Z"
-      - "${PROJECT_HOME}/../kiichain-cosmos:/kiichain/kiichain3/kiichain-cosmos:Z"
+      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/sei-tendermint:Z"
+      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/sei-cosmos:Z"
       - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
       - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
       - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
