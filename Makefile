@@ -148,7 +148,7 @@ run-prime-node: kill-kiichain-node build-docker-prime
 	-p 26668-26670:26656-26658 \
 	--platform linux/x86_64 \
 	kiichain3/prime
-.PHONY: run-local-prime
+.PHONY: run-prime-node
 
 # Run a single node docker container
 run-local-node: kill-kiichain-node build-docker-node
@@ -208,7 +208,7 @@ docker-cluster-start: docker-cluster-stop build-docker-prime
 	@rm -rf $(PROJECT_HOME)/build/generated
 	@mkdir -p $(shell go env GOPATH)/pkg/mod
 	@mkdir -p $(shell go env GOCACHE)
-	@cd docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) NUM_ACCOUNTS=10 INVARIANT_CHECK_INTERVAL=${INVARIANT_CHECK_INTERVAL} UPGRADE_VERSION_LIST=${UPGRADE_VERSION_LIST} docker compose up
+	@cd docker && PROJECT_HOME=$(PROJECT_HOME) USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) NUM_ACCOUNTS=10 INVARIANT_CHECK_INTERVAL=${INVARIANT_CHECK_INTERVAL} UPGRADE_VERSION_LIST=${UPGRADE_VERSION_LIST} docker compose up
 
 .PHONY: localnet-start
 
