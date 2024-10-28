@@ -13,29 +13,52 @@ resource "aws_instance" "validator" {
   vpc_security_group_ids = [aws_security_group.validator_sg.id]
 
   user_data = <<-EOF
-      #!/bin/bash
-      export NODE_ID=${var.instance_id}
-    
-      echo "Starting user data script..." >> /tmp/userdata.log
+        #!/bin/bash
+        export NODE_ID=${var.instance_id}
+      
+        echo "Starting user data script..." >> /tmp/userdata.log
 
-      sudo apt-get update -y >> /tmp/userdata.log 2>&1
-      sudo apt-get install -y build-essential docker.io git make wget >> /tmp/userdata.log 2>&1
+        # Update package list and install build-essential first to ensure make is available
+        sudo apt-get update -y >> /tmp/userdata.log 2>&1
+        sudo apt-get install -y build-essential wget git >> /tmp/userdata.log 2>&1
+        sudo apt install apt-transport-https ca-certificates curl software-properties-common >> /tmp/userdata.log 2>&1
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+        sudo apt install -y docker-ce >> /tmp/userdata.log 2>&1
 
-      sudo systemctl start docker >> /tmp/userdata.log 2>&1
-      sudo systemctl enable docker >> /tmp/userdata.log 2>&1
-      sudo usermod -aG docker ubuntu >> /tmp/userdata.log 2>&1
+        # Install Docker packages separately to avoid conflicts
+        sudo apt-get install -y containerd.io docker-buildx-plugin docker-compose-plugin >> /tmp/userdata.log 2>&1
 
-      wget https://go.dev/dl/go1.21.0.linux-amd64.tar.gz >> /tmp/userdata.log 2>&1
-      sudo tar -C /usr/local -xzf go1.21.0.linux-amd64.tar.gz >> /tmp/userdata.log 2>&1
+        # Start and enable Docker
+        sudo systemctl start docker >> /tmp/userdata.log 2>&1
+        sudo systemctl enable docker >> /tmp/userdata.log 2>&1
+        sudo usermod -aG docker ubuntu >> /tmp/userdata.log 2>&1
 
-      echo "export PATH=\$PATH:/usr/local/go/bin" >> /home/ubuntu/.profile
-      source /home/ubuntu/.profile >> /tmp/userdata.log 2>&1
+        # Install Docker Compose as a plugin
+        sudo mkdir -p /usr/lib/docker/cli-plugins >> /tmp/userdata.log 2>&1
+        sudo curl -SL "https://github.com/docker/compose/releases/download/v2.11.1/docker-compose-linux-x86_64" -o /usr/lib/docker/cli-plugins/docker-compose >> /tmp/userdata.log 2>&1
+        sudo chmod +x /usr/lib/docker/cli-plugins/docker-compose >> /tmp/userdata.log 2>&1
 
-      git clone https://<TOKEN>@github.com/KiiChain/kiichain3.git >> /tmp/userdata.log 2>&1
+        # Verify Docker Compose installation
+        docker compose version >> /tmp/userdata.log 2>&1 || echo "Docker Compose installation failed" >> /tmp/userdata.log
 
-      cd kiichain3 >> /tmp/userdata.log 2>&1
-      make ${var.make_command} >> /tmp/userdata.log 2>&1 || echo "Make command failed" >> /tmp/userdata.log
-      EOF
+        # Install Go 1.21
+        wget https://go.dev/dl/go1.21.0.linux-amd64.tar.gz >> /tmp/userdata.log 2>&1
+        sudo tar -C /usr/local -xzf go1.21.0.linux-amd64.tar.gz >> /tmp/userdata.log 2>&1
+
+        # Set up Go environment
+        echo "export PATH=\$PATH:/usr/local/go/bin" >> /home/ubuntu/.profile
+        source /home/ubuntu/.profile >> /tmp/userdata.log 2>&1
+
+        # Clone the project repository
+        git clone https://<TOKEN>@github.com/KiiChain/kiichain3.git >> /tmp/userdata.log 2>&1
+
+        # Navigate to project directory and execute make command
+        cd kiichain3 >> /tmp/userdata.log 2>&1
+
+        make ${var.make_command} >> /tmp/userdata.log 2>&1 || echo "Make command failed" >> /tmp/userdata.log
+        echo "User data script completed." >> /tmp/userdata.log
+        EOF
 
   tags = {
     Name = "Testnet Validator - ${var.instance_id}"

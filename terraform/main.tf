@@ -2,7 +2,7 @@ module "prime_validator" {
   source = "./testnet/validator"
   aws_region = "us-east-2"
   instance_id = 0
-  make_command = "run-prime-node"
+  make_command = "docker-cluster-start"
 }
 
 # module "validator_1" {

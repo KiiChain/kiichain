@@ -17,8 +17,8 @@ services:
       - UPGRADE_VERSION_LIST
     volumes:
       - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
-      - "${PROJECT_HOME}/../kiichain-tendermint:/kiichain/kiichain3/kiichain-tendermint:Z"
-      - "${PROJECT_HOME}/../kiichain-cosmos:/kiichain/kiichain3/kiichain-cosmos:Z"
+      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/kiichain-tendermint:Z"
+      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/kiichain-cosmos:Z"
       - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
       - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
       - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
@@ -44,8 +44,8 @@ services:
       - UPGRADE_VERSION_LIST
     volumes:
       - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
-      - "${PROJECT_HOME}/../kiichain-tendermint:/kiichain/kiichain3/kiichain-tendermint:Z"
-      - "${PROJECT_HOME}/../kiichain-cosmos:/kiichain/kiichain3/kiichain-cosmos:Z"
+      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/kiichain-tendermint:Z"
+      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/kiichain-cosmos:Z"
       - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
       - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
       - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
@@ -71,8 +71,8 @@ services:
       - "9094-9095:9090-9091"
     volumes:
       - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
-      - "${PROJECT_HOME}/../kiichain-tendermint:/kiichain/kiichain3/kiichain-tendermint:Z"
-      - "${PROJECT_HOME}/../kiichain-cosmos:/kiichain/kiichain3/kiichain-cosmos:Z"
+      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/kiichain-tendermint:Z"
+      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/kiichain-cosmos:Z"
       - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
       - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
       - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
@@ -98,8 +98,8 @@ services:
       - "9096-9097:9090-9091"
     volumes:
       - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
-      - "${PROJECT_HOME}/../kiichain-tendermint:/kiichain/kiichain3/kiichain-tendermint:Z"
-      - "${PROJECT_HOME}/../kiichain-cosmos:/kiichain/kiichain3/kiichain-cosmos:Z"
+      - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/kiichain-tendermint:Z"
+      - "${PROJECT_HOME}/../sei-cosmos:/kiichain/kiichain3/kiichain-cosmos:Z"
       - "${PROJECT_HOME}/../sei-db:/kiichain/kiichain3/sei-db:Z"
       - "${PROJECT_HOME}/../go-ethereum:/kiichain/kiichain3/go-ethereum:Z"
       - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
