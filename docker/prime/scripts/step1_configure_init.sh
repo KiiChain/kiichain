@@ -66,7 +66,7 @@ for account in $accounts; do
   balance="${account##*:}"
 
   account_address=$(printf "12345678\n" | kiichaind keys add "$name")
-  acct=$(printf "12345678\n" | kiichaind keys show "$account_address" -a)
+  acct=$(printf "12345678\n" | kiichaind keys show "$name" -a)
 
   kiichaind add-genesis-account "$acct" "$balance"
 done
