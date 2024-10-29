@@ -26,67 +26,44 @@ kiichaind init "$MONIKER" --chain-id kiichain3 >/dev/null 2>&1
 # ORACLE_CONFIG_FILE="build/generated/node_$NODE_ID/price_feeder_config.toml"
 APP_CONFIG_FILE="build/generated/node_$NODE_ID/app.toml"
 TENDERMINT_CONFIG_FILE="build/generated/node_$NODE_ID/config.toml"
-cp docker/prime/config/app.toml "$APP_CONFIG_FILE"
-cp docker/prime/config/config.toml "$TENDERMINT_CONFIG_FILE"
-# cp docker/prime/config/price_feeder_config.toml "$ORACLE_CONFIG_FILE"
+cp docker/localnode/config/app.toml "$APP_CONFIG_FILE"
+cp docker/localnode/config/config.toml "$TENDERMINT_CONFIG_FILE"
+# cp docker/localnode/config/price_feeder_config.toml "$ORACLE_CONFIG_FILE"
 
 
 # Set up persistent peers
 KIICHAIN_NODE_ID=$(kiichaind tendermint show-node-id)
 NODE_IP=$(hostname -i | awk '{print $1}')
-PERSISTENT_PEERS_FILE="build/generated/persistent_peers.txt"
-REMOTE_PEERS_FILE="remote/persistent_peers.txt"
-# Check if the remote peers file exists, and if so, copy its contents
-if [ -f "$REMOTE_PEERS_FILE" ]; then
-  cp "$REMOTE_PEERS_FILE" "$PERSISTENT_PEERS_FILE"
-else
-  # Ensure we start with an empty or existing file
-  > "$PERSISTENT_PEERS_FILE"
-fi
-# Append the current node's ID and IP to the persistent peers file
-echo "$KIICHAIN_NODE_ID@$NODE_IP:26656" >> "$PERSISTENT_PEERS_FILE"
-cp "$PERSISTENT_PEERS_FILE" "$REMOTE_PEERS_FILE"
+echo "$KIICHAIN_NODE_ID@$NODE_IP:26656" >> build/generated/persistent_peers.txt
 
 # Create a new account
 ACCOUNT_NAME="node_admin"
 echo "Adding account $ACCOUNT_NAME"
 printf "12345678\n12345678\ny\n" | kiichaind keys add "$ACCOUNT_NAME" >/dev/null 2>&1
 
-
-# Get genesis account info for node_admin
+# Get genesis account info
 GENESIS_ACCOUNT_ADDRESS=$(printf "12345678\n" | kiichaind keys show "$ACCOUNT_NAME" -a)
 echo "$GENESIS_ACCOUNT_ADDRESS" >> build/generated/genesis_accounts.txt
-# Add funds to genesis account for node_admin
+
+# Add funds to genesis account
 kiichaind add-genesis-account "$GENESIS_ACCOUNT_ADDRESS" 1000000000000ukii
 
-if [ "$NODE_ID" = 0 ]
-then
-  # New genesis accounts with balances
-  accounts="private_sale:54000000000000ukii public_sale:126000000000000ukii liquidity:180000000000000ukii community_development:180000000000000ukii team:358000000000000ukii rewards:900000000000000ukii"
-  # Loop through new accounts and set them up
-  for account in $accounts; do
-    name="${account%%:*}"
-    balance="${account##*:}"
-
-    account_address=$(printf "12345678\n" | kiichaind keys add "$name")
-    acct=$(printf "12345678\n" | kiichaind keys show "$name" -a)
-
-    kiichaind add-genesis-account "$acct" "$balance"
-  done
-fi
-
-# Create gentx for the primary account
+# Create gentx
 printf "12345678\n" | kiichaind gentx "$ACCOUNT_NAME" 1000000000000ukii --chain-id kiichain3
 cp ~/.kiichain3/config/gentx/* build/generated/gentx/
+
 # Creating some testing accounts
 # echo "Creating $NUM_ACCOUNTS accounts"
 # python3 loadtest/scripts/populate_genesis_accounts.py "$NUM_ACCOUNTS" loc >/dev/null 2>&1
 # echo "Finished $NUM_ACCOUNTS accounts creation"
+
 # Set node seivaloper info
 KIICHAINVALOPER_INFO=$(printf "12345678\n" | kiichaind keys show "$ACCOUNT_NAME" --bech=val -a)
 PRIV_KEY=$(printf "12345678\n12345678\n" | kiichaind keys export "$ACCOUNT_NAME")
 echo "$PRIV_KEY" >> build/generated/exported_keys/"$KIICHAINVALOPER_INFO".txt
+
 # Update price_feeder_config.toml with address info
 # sed -i.bak -e "s|^address *=.*|address = \"$GENESIS_ACCOUNT_ADDRESS\"|" $ORACLE_CONFIG_FILE
 # sed -i.bak -e "s|^validator *=.*|validator = \"$KIICHAINVALOPER_INFO\"|" $ORACLE_CONFIG_FILE
+
 echo "DONE" >> build/generated/init.complete

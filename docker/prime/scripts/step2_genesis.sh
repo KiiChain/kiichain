@@ -31,9 +31,9 @@ override_genesis '.app_state["distribution"]["params"]["community_tax"]="0.02000
 
 
 # We already added node0's genesis account in configure_init, remove it here since we're going to re-add it in the "add genesis accounts" step
-# override_genesis '.app_state["auth"]["accounts"]=[]'
-# override_genesis '.app_state["bank"]["balances"]=[]'
-# override_genesis '.app_state["genutil"]["gen_txs"]=[]'
+override_genesis '.app_state["auth"]["accounts"]=[]'
+override_genesis '.app_state["bank"]["balances"]=[]'
+override_genesis '.app_state["genutil"]["gen_txs"]=[]'
 # override_genesis '.app_state["bank"]["denom_metadata"]=[{"denom_units":[{"denom":"UATOM","exponent":6,"aliases":["UATOM"]}],"base":"uatom","display":"uatom","name":"UATOM","symbol":"UATOM"}]'
 
 # gov parameters
@@ -50,13 +50,26 @@ override_genesis '.app_state["gov"]["tally_params"]["expedited_threshold"]="0.9"
 
 
 # add genesis accounts for each node
-# while read account; do
-#   echo "Adding: $account"
-#   kiichaind add-genesis-account "$account" 18000000000000000ukii
-# done <build/generated/genesis_accounts.txt
+while read account; do
+  echo "Adding: $account"
+  kiichaind add-genesis-account "$account" 1000000000000ukii
+done <build/generated/genesis_accounts.txt
 
-# add funds to admin account
-# printf "12345678\n" | kiichaind add-genesis-account admin 1000000000000000000000ukii,1000000000000000000000uusdc,1000000000000000000000uatom
+if [ "$NODE_ID" = 0 ]
+then
+  # New genesis accounts with balances
+  accounts="private_sale:54000000000000ukii public_sale:126000000000000ukii liquidity:180000000000000ukii community_development:180000000000000ukii team:358000000000000ukii rewards:900000000000000ukii"
+  # Loop through new accounts and set them up
+  for account in $accounts; do
+    name="${account%%:*}"
+    balance="${account##*:}"
+
+    account_address=$(printf "12345678\n" | kiichaind keys add "$name")
+    acct=$(printf "12345678\n" | kiichaind keys show "$name" -a)
+    echo "$acct" >> build/generated/genesis_accounts.txt
+    kiichaind add-genesis-account "$acct" "$balance"
+  done
+fi
 
 mkdir -p ~/exported_keys
 cp -r build/generated/gentx/* ~/.kiichain3/config/gentx
