@@ -82,8 +82,8 @@ resource "aws_security_group" "validator_sg" {
   name_prefix = "validator_sg_"
 
   ingress {
-    from_port   = 26660
-    to_port     = 26670
+    from_port   = 26656
+    to_port     = 26664
     protocol    = "tcp"
     # cidr_blocks = ["172.31.0.0/16"]
     cidr_blocks = ["0.0.0.0/0"]
