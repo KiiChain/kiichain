@@ -58,18 +58,23 @@ GENESIS_ACCOUNT_ADDRESS=$(printf "12345678\n" | kiichaind keys show "$ACCOUNT_NA
 echo "$GENESIS_ACCOUNT_ADDRESS" >> build/generated/genesis_accounts.txt
 # Add funds to genesis account for node_admin
 kiichaind add-genesis-account "$GENESIS_ACCOUNT_ADDRESS" 1000000000000ukii
-# New genesis accounts with balances
-accounts="private_sale:54000000000000ukii public_sale:126000000000000ukii liquidity:180000000000000ukii community_development:180000000000000ukii team:358000000000000ukii rewards:900000000000000ukii validator_two:1000000000000ukii"
-# Loop through new accounts and set them up
-for account in $accounts; do
-  name="${account%%:*}"
-  balance="${account##*:}"
 
-  account_address=$(printf "12345678\n" | kiichaind keys add "$name")
-  acct=$(printf "12345678\n" | kiichaind keys show "$name" -a)
+if [ "$NODE_ID" = 0 ]
+then
+  # New genesis accounts with balances
+  accounts="private_sale:54000000000000ukii public_sale:126000000000000ukii liquidity:180000000000000ukii community_development:180000000000000ukii team:358000000000000ukii rewards:900000000000000ukii validator_two:1000000000000ukii"
+  # Loop through new accounts and set them up
+  for account in $accounts; do
+    name="${account%%:*}"
+    balance="${account##*:}"
 
-  kiichaind add-genesis-account "$acct" "$balance"
-done
+    account_address=$(printf "12345678\n" | kiichaind keys add "$name")
+    acct=$(printf "12345678\n" | kiichaind keys show "$name" -a)
+
+    kiichaind add-genesis-account "$acct" "$balance"
+  done
+fi
+
 # Create gentx for the primary account
 printf "12345678\n" | kiichaind gentx "$ACCOUNT_NAME" 1000000000000ukii --chain-id kiichain3
 cp ~/.kiichain3/config/gentx/* build/generated/gentx/
