@@ -48,7 +48,7 @@ echo "$KIICHAIN_NODE_ID@$NODE_IP:26656" >> "$PERSISTENT_PEERS_FILE"
 cp "$PERSISTENT_PEERS_FILE" "$REMOTE_PEERS_FILE"
 
 # Create a new account
-ACCOUNT_NAME="validator_one"
+ACCOUNT_NAME="node_admin"
 echo "Adding account $ACCOUNT_NAME"
 printf "12345678\n12345678\ny\n" | kiichaind keys add "$ACCOUNT_NAME" >/dev/null 2>&1
 
@@ -62,7 +62,7 @@ kiichaind add-genesis-account "$GENESIS_ACCOUNT_ADDRESS" 1000000000000ukii
 if [ "$NODE_ID" = 0 ]
 then
   # New genesis accounts with balances
-  accounts="private_sale:54000000000000ukii public_sale:126000000000000ukii liquidity:180000000000000ukii community_development:180000000000000ukii team:358000000000000ukii rewards:900000000000000ukii validator_two:1000000000000ukii"
+  accounts="private_sale:54000000000000ukii public_sale:126000000000000ukii liquidity:180000000000000ukii community_development:180000000000000ukii team:358000000000000ukii rewards:900000000000000ukii"
   # Loop through new accounts and set them up
   for account in $accounts; do
     name="${account%%:*}"

@@ -16,3 +16,5 @@ do
 done
 
 mv ~/.kiichain3/config/tmp_genesis.json ~/.kiichain3/config/genesis.json
+
+echo "Validators added to genesis"
