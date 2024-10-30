@@ -66,7 +66,7 @@ resource "aws_instance" "validator" {
         EOF
 
   tags = {
-    Name = "Testnet Validator - ${var.instance_id}"
+    Name = "Testnet Validators Kiichain3 - ${var.instance_id}"
   }
 }
 
