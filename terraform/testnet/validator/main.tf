@@ -34,14 +34,6 @@ resource "aws_instance" "validator" {
         sudo systemctl enable docker >> /tmp/userdata.log 2>&1
         sudo usermod -aG docker ubuntu >> /tmp/userdata.log 2>&1
 
-        # Install Docker Compose as a plugin
-        sudo mkdir -p /usr/lib/docker/cli-plugins >> /tmp/userdata.log 2>&1
-        sudo curl -SL "https://github.com/docker/compose/releases/download/v2.11.1/docker-compose-linux-x86_64" -o /usr/lib/docker/cli-plugins/docker-compose >> /tmp/userdata.log 2>&1
-        sudo chmod +x /usr/lib/docker/cli-plugins/docker-compose >> /tmp/userdata.log 2>&1
-
-        # Verify Docker Compose installation
-        docker compose version >> /tmp/userdata.log 2>&1 || echo "Docker Compose installation failed" >> /tmp/userdata.log
-
         # Install Go 1.21
         wget https://go.dev/dl/go1.21.0.linux-amd64.tar.gz >> /tmp/userdata.log 2>&1
         sudo tar -C /usr/local -xzf go1.21.0.linux-amd64.tar.gz >> /tmp/userdata.log 2>&1
@@ -85,8 +77,7 @@ resource "aws_security_group" "validator_sg" {
     from_port   = 26656
     to_port     = 26664
     protocol    = "tcp"
-    # cidr_blocks = ["172.31.0.0/16"]
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["172.31.0.0/16"]
   }
 
   egress {
@@ -97,10 +88,10 @@ resource "aws_security_group" "validator_sg" {
   }
 }
 
-resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
-  security_group_id = aws_security_group.validator_sg.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 22
-  ip_protocol       = "tcp"
-  to_port           = 22
-}
+# resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
+#   security_group_id = aws_security_group.validator_sg.id
+#   cidr_ipv4         = "0.0.0.0/0"
+#   from_port         = 22
+#   ip_protocol       = "tcp"
+#   to_port           = 22
+# }

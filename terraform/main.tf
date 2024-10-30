@@ -5,28 +5,16 @@ module "prime_validator" {
   make_command = "docker-cluster-start"
 }
 
-# module "validator_1" {
-#   source = "./testnet/validator"
-#   aws_region = "us-east-2"
-#   instance_id = 1
-#   make_command = "run-local-node"
-# }
+module "sentry_1" {
+  source = "./testnet/sentry"
+  aws_region = "us-east-2"
+  instance_id = 1
+  make_command = "run-rpc-node"
+}
 
-# module "validator_2" {
-#   source = "./testnet/validator"
-#   aws_region = "us-east-2"
-#   instance_id = 2
-#   make_command = "run-local-node"
-# }
-
-# module "testnet_sentry_1" {
-#   source = "./testnet/sentry"
-#   aws_region = "us-east-2"
-#   instance_id = 2
-# }
-
-# module "testnet_sentry_2" {
-#   source = "./mainnet/validator"
-#   aws_region = "us-east-2"
-#   instance_id = 1
-# }
+module "sentry_2" {
+  source = "./testnet/sentry"
+  aws_region = "us-east-2"
+  instance_id = 2
+  make_command = "run-rpc-node"
+}
