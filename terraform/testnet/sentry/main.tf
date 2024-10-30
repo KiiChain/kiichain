@@ -14,7 +14,7 @@ resource "aws_instance" "sentry" {
     volume_size = 100
   }
 
-  vpc_security_group_ids = [aws_security_group.sentry_sg.id,"sg-0f4c15c3eb9956557"]
+  vpc_security_group_ids = [aws_security_group.sentry_sg.id]
 
   user_data = <<-EOF
         #!/bin/bash
