@@ -3,6 +3,8 @@
 # Set up GO PATH
 echo "Configure and initialize environment"
 
+cp build/kiichaind "$GOBIN"/
+
 # Testing whether kiichaind works or not
 kiichaind version # Uncomment the below line if there are any dependency issues
 # ldd build/kiichaind
@@ -14,13 +16,7 @@ kiichaind init --chain-id kiichain3 "$MONIKER"
 # Copy configs
 cp docker/rpcnode/config/app.toml ~/.kiichain3/config/app.toml
 cp docker/rpcnode/config/config.toml ~/.kiichain3/config/config.toml
-cp build/generated/genesis.json ~/.kiichain3/config/genesis.json
-
-REMOTE_PEERS_FILE="remote/genesis.json"
-# Check if the remote peers file exists, and if so, copy its contents
-if [ -f "$REMOTE_PEERS_FILE" ]; then
-  cp "$REMOTE_PEERS_FILE" ~/.kiichain3/config/genesis.json
-fi
+cp remote/genesis.json ~/.kiichain3/config/genesis.json
 
 # Override state sync configs
 

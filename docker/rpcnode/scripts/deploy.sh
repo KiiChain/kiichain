@@ -18,7 +18,6 @@ if [ -z "$SKIP_BUILD" ]
 then
   /usr/bin/build.sh
 fi
-cp build/generated/kiichaind "$GOBIN"/
 
 # Run init to set up state sync configurations
 /usr/bin/configure_init.sh
