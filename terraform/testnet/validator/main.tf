@@ -88,6 +88,14 @@ resource "aws_security_group" "validator_sg" {
   }
 }
 
+resource "aws_vpc_security_group_ingress_rule" "allow_rpc" {
+  security_group_id = aws_security_group.validator_sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 26657
+  ip_protocol       = "tcp"
+  to_port           = 26657
+}
+
 # resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
 #   security_group_id = aws_security_group.validator_sg.id
 #   cidr_ipv4         = "0.0.0.0/0"
