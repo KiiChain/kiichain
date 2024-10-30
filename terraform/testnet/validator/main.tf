@@ -66,7 +66,7 @@ resource "aws_instance" "validator" {
         EOF
 
   tags = {
-    Name = "Testnet Validators Kiichain3 - ${var.instance_id}"
+    Name = "Testnet Validators KIICHAIN3 - ${var.instance_id}"
   }
 }
 
@@ -75,7 +75,7 @@ resource "aws_security_group" "validator_sg" {
 
   ingress {
     from_port   = 26656
-    to_port     = 26664
+    to_port     = 26656
     protocol    = "tcp"
     cidr_blocks = ["172.31.0.0/16"]
   }
@@ -88,6 +88,22 @@ resource "aws_security_group" "validator_sg" {
   }
 }
 
+resource "aws_vpc_security_group_ingress_rule" "val_1" {
+  security_group_id = aws_security_group.validator_sg.id
+  cidr_ipv4         = "172.31.0.0/16"
+  from_port         = 26659
+  ip_protocol       = "tcp"
+  to_port           = 26659
+}
+
+resource "aws_vpc_security_group_ingress_rule" "val_2" {
+  security_group_id = aws_security_group.validator_sg.id
+  cidr_ipv4         = "172.31.0.0/16"
+  from_port         = 26662
+  ip_protocol       = "tcp"
+  to_port           = 26662
+}
+
 resource "aws_vpc_security_group_ingress_rule" "allow_rpc" {
   security_group_id = aws_security_group.validator_sg.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -96,10 +112,10 @@ resource "aws_vpc_security_group_ingress_rule" "allow_rpc" {
   to_port           = 26657
 }
 
-# resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
-#   security_group_id = aws_security_group.validator_sg.id
-#   cidr_ipv4         = "0.0.0.0/0"
-#   from_port         = 22
-#   ip_protocol       = "tcp"
-#   to_port           = 22
-# }
+resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
+  security_group_id = aws_security_group.validator_sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 22
+  ip_protocol       = "tcp"
+  to_port           = 22
+}

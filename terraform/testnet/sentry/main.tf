@@ -70,7 +70,7 @@ resource "aws_instance" "sentry" {
         EOF
 
   tags = {
-    Name = "Testnet Sentry Kiichain3 - ${var.instance_id}"
+    Name = "Testnet Sentry KIICHAIN3 - ${var.instance_id}"
   }
 }
 
@@ -78,10 +78,10 @@ resource "aws_security_group" "sentry_sg" {
   name_prefix = "sentry_sg_"
 
   ingress {
-    from_port   = 26669
+    from_port   = 26656
     to_port     = 26670
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0","172.31.0.0/16"]
   }
 
   egress {
@@ -114,28 +114,4 @@ resource "aws_vpc_security_group_ingress_rule" "allow_rest_api" {
   from_port         = 1317
   ip_protocol       = "tcp"
   to_port           = 1317
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_val_1" {
-  security_group_id = aws_security_group.sentry_sg.id
-  cidr_ipv4         = "172.31.0.0/16"
-  from_port         = 26656
-  ip_protocol       = "tcp"
-  to_port           = 26656
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_val_2" {
-  security_group_id = aws_security_group.sentry_sg.id
-  cidr_ipv4         = "172.31.0.0/16"
-  from_port         = 26659
-  ip_protocol       = "tcp"
-  to_port           = 26659
-}
-
-resource "aws_vpc_security_group_ingress_rule" "allow_val_3" {
-  security_group_id = aws_security_group.sentry_sg.id
-  cidr_ipv4         = "172.31.0.0/16"
-  from_port         = 26662
-  ip_protocol       = "tcp"
-  to_port           = 26662
 }
