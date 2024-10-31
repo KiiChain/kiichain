@@ -146,6 +146,7 @@ run-prime-node: kill-kiichain-node build-docker-prime
 	-v $(GO_PKG_PATH)/mod:/root/go/pkg/mod:Z \
 	-v $(shell go env GOCACHE):/root/.cache/go-build:Z \
 	-p 26668-26670:26656-26658 \
+	-p 1317:1317 \
 	--platform linux/x86_64 \
 	kiichain3/prime
 .PHONY: run-prime-node

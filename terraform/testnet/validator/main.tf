@@ -112,10 +112,26 @@ resource "aws_vpc_security_group_ingress_rule" "allow_rpc" {
   to_port           = 26657
 }
 
+resource "aws_vpc_security_group_ingress_rule" "allow_rest" {
+  security_group_id = aws_security_group.validator_sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 1317
+  ip_protocol       = "tcp"
+  to_port           = 1317
+}
+
 resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
   security_group_id = aws_security_group.validator_sg.id
   cidr_ipv4         = "0.0.0.0/0"
   from_port         = 22
   ip_protocol       = "tcp"
   to_port           = 22
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_evm_rpc" {
+  security_group_id = aws_security_group.sentry_sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 8545
+  ip_protocol       = "tcp"
+  to_port           = 8546
 }
