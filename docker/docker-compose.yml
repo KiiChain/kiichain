@@ -34,10 +34,8 @@ services:
     image: "kiichain3/prime"
     user: "${USERID}:${GROUPID}"
     ports:
-      - "26656-26658:26656-26658"
-      - "9090-9091:9090-9091"
-      - "8545-8546:8545-8546"
-      - "1317:1317"
+      - "26659-26661:26656-26658"
+      - "9092-9093:9090-9091"
     environment:
       - ID=1
       - CLUSTER_SIZE=3
@@ -70,10 +68,8 @@ services:
       - INVARIANT_CHECK_INTERVAL
       - UPGRADE_VERSION_LIST
     ports:
-      - "26656-26658:26656-26658"
-      - "9090-9091:9090-9091"
-      - "8545-8546:8545-8546"
-      - "1317:1317"
+      - "26662-26664:26656-26658"
+      - "9094-9095:9090-9091"
     volumes:
       - "${PROJECT_HOME}:/kiichain/kiichain3:Z"
       - "${PROJECT_HOME}/../sei-tendermint:/kiichain/kiichain3/sei-tendermint:Z"
