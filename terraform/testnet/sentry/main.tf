@@ -79,9 +79,9 @@ resource "aws_security_group" "sentry_sg" {
 
   ingress {
     from_port   = 26656
-    to_port     = 26670
+    to_port     = 26656
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0","172.31.0.0/16"]
+    cidr_blocks = ["172.31.0.0/16"]
   }
 
   egress {
@@ -90,6 +90,22 @@ resource "aws_security_group" "sentry_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "val_1" {
+  security_group_id = aws_security_group.sentry_sg.id
+  cidr_ipv4         = "172.31.0.0/16"
+  from_port         = 26659
+  ip_protocol       = "tcp"
+  to_port           = 26659
+}
+
+resource "aws_vpc_security_group_ingress_rule" "val_2" {
+  security_group_id = aws_security_group.sentry_sg.id
+  cidr_ipv4         = "172.31.0.0/16"
+  from_port         = 26662
+  ip_protocol       = "tcp"
+  to_port           = 26662
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
@@ -114,4 +130,12 @@ resource "aws_vpc_security_group_ingress_rule" "allow_rest_api" {
   from_port         = 1317
   ip_protocol       = "tcp"
   to_port           = 1317
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_rpc" {
+  security_group_id = aws_security_group.sentry_sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 26657
+  ip_protocol       = "tcp"
+  to_port           = 26657
 }

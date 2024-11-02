@@ -37,9 +37,9 @@ NODE_IP=$(hostname -i | awk '{print $1}')
 echo "$KIICHAIN_NODE_ID@$NODE_IP:26656" >> build/generated/persistent_peers.txt
 
 # Create a new account
-ACCOUNT_NAME="node_admin"
+ACCOUNT_NAME="node_admin-$NODE_ID"
 echo "Adding account $ACCOUNT_NAME"
-printf "12345678\n12345678\ny\n" | kiichaind keys add "$ACCOUNT_NAME" >/dev/null 2>&1
+printf "12345678\n12345678\ny\n" | kiichaind keys add "$ACCOUNT_NAME" >> build/generated/mnemonic.txt 2>&1
 
 # Get genesis account info
 GENESIS_ACCOUNT_ADDRESS=$(printf "12345678\n" | kiichaind keys show "$ACCOUNT_NAME" -a)
@@ -49,7 +49,7 @@ echo "$GENESIS_ACCOUNT_ADDRESS" >> build/generated/genesis_accounts.txt
 kiichaind add-genesis-account "$GENESIS_ACCOUNT_ADDRESS" 1000000000000ukii
 
 # Create gentx
-printf "12345678\n" | kiichaind gentx "$ACCOUNT_NAME" 1000000000000ukii --chain-id kiichain3
+printf "12345678\n" | kiichaind gentx "$ACCOUNT_NAME" 1000000000000ukii --identity EB78F9072FB4AEB3 --website https://app.kiichain.io --security-contact support@kiichain.io  --chain-id kiichain3
 cp ~/.kiichain3/config/gentx/* build/generated/gentx/
 
 # Creating some testing accounts

@@ -16,13 +16,14 @@ override_genesis() {
 override_genesis '.app_state["crisis"]["constant_fee"]["denom"]="ukii"'
 override_genesis '.app_state["mint"]["params"]["mint_denom"]="ukii"'
 override_genesis '.app_state["staking"]["params"]["bond_denom"]="ukii"'
-# override_genesis '.app_state["oracle"]["params"]["vote_period"]="2"'
-override_genesis '.app_state["slashing"]["params"]["signed_blocks_window"]="10000"'
+override_genesis '.app_state["oracle"]["params"]["vote_period"]="1"'
+override_genesis '.app_state["slashing"]["params"]["signed_blocks_window"]="108000"'
 override_genesis '.app_state["slashing"]["params"]["min_signed_per_window"]="0.050000000000000000"'
-override_genesis '.app_state["staking"]["params"]["max_validators"]="25"'
-override_genesis '.consensus_params["block"]["max_gas"]="35000000"'
-override_genesis '.app_state["staking"]["params"]["unbonding_time"]="10s"'
+override_genesis '.app_state["staking"]["params"]["max_validators"]=25'
+override_genesis '.consensus_params["block"]["max_gas"]="10000000"'
+override_genesis '.app_state["staking"]["params"]["unbonding_time"]="1814400s"'
 override_genesis '.app_state["distribution"]["params"]["community_tax"]="0.020000000000000000"'
+override_genesis '.app_state["staking"]["params"]["max_voting_power_enforcement_threshold"]="3333333333"'
 
 # Set a token release schedule for the genesis file
 # start_date="$(date +"%Y-%m-%d")"
@@ -39,13 +40,13 @@ override_genesis '.app_state["genutil"]["gen_txs"]=[]'
 # gov parameters
 override_genesis '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="ukii"'
 override_genesis '.app_state["gov"]["deposit_params"]["min_expedited_deposit"][0]["denom"]="ukii"'
-override_genesis '.app_state["gov"]["deposit_params"]["max_deposit_period"]="100s"'
-override_genesis '.app_state["gov"]["voting_params"]["voting_period"]="30s"'
-override_genesis '.app_state["gov"]["voting_params"]["expedited_voting_period"]="15s"'
-override_genesis '.app_state["gov"]["tally_params"]["quorum"]="0.5"'
-override_genesis '.app_state["gov"]["tally_params"]["threshold"]="0.5"'
-override_genesis '.app_state["gov"]["tally_params"]["expedited_quorum"]="0.9"'
-override_genesis '.app_state["gov"]["tally_params"]["expedited_threshold"]="0.9"'
+override_genesis '.app_state["gov"]["deposit_params"]["max_deposit_period"]="172800s"'
+override_genesis '.app_state["gov"]["voting_params"]["voting_period"]="432000s"'
+override_genesis '.app_state["gov"]["voting_params"]["expedited_voting_period"]="86400s"'
+override_genesis '.app_state["gov"]["tally_params"]["quorum"]="0.334000000000000000"'
+override_genesis '.app_state["gov"]["tally_params"]["threshold"]="0.500000000000000000"'
+override_genesis '.app_state["gov"]["tally_params"]["expedited_quorum"]="0.667000000000000000"'
+override_genesis '.app_state["gov"]["tally_params"]["expedited_threshold"]="0.667000000000000000"'
 
 
 
@@ -58,13 +59,13 @@ done <build/generated/genesis_accounts.txt
 if [ "$NODE_ID" = 0 ]
 then
   # New genesis accounts with balances
-  accounts="private_sale:54000000000000ukii public_sale:126000000000000ukii liquidity:180000000000000ukii community_development:180000000000000ukii team:358000000000000ukii rewards:900000000000000ukii"
+  accounts="private_sale:54000000000000ukii public_sale:126000000000000ukii liquidity:180000000000000ukii community_development:180000000000000ukii team:357000000000000ukii rewards:900000000000000ukii"
   # Loop through new accounts and set them up
   for account in $accounts; do
     name="${account%%:*}"
     balance="${account##*:}"
 
-    account_address=$(printf "12345678\n" | kiichaind keys add "$name")
+    account_address=$(printf "12345678\n" | kiichaind keys add "$name" | tee -a build/generated/mnemonic.txt)
     acct=$(printf "12345678\n" | kiichaind keys show "$name" -a)
     echo "$acct" >> build/generated/genesis_accounts.txt
     kiichaind add-genesis-account "$acct" "$balance"
