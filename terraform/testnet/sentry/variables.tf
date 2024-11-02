@@ -8,6 +8,11 @@ variable "instance_id" {
   default     = 0
 }
 
+variable "instance_character" {
+  description = "Instance character"
+  default     = "a"
+}
+
 variable "make_command" {
   description = "command for make file"
   default     = "run-rpc-node"

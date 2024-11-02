@@ -9,6 +9,7 @@ module "sentry_1" {
   source = "./testnet/sentry"
   aws_region = "us-east-2"
   instance_id = 1
+  instance_character = "a"
   make_command = "run-rpc-node"
 }
 
@@ -16,5 +17,6 @@ module "sentry_2" {
   source = "./testnet/sentry"
   aws_region = "us-east-2"
   instance_id = 2
+  instance_character = "b"
   make_command = "run-rpc-node"
 }

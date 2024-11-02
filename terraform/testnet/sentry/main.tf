@@ -24,7 +24,7 @@ resource "aws_instance" "sentry" {
 
         # Update package list and install build-essential first to ensure make is available
         sudo apt-get update -y >> /tmp/userdata.log 2>&1
-        sudo apt-get install -y build-essential wget git >> /tmp/userdata.log 2>&1
+        sudo apt-get install -y build-essential wget git nginx software-properties-common certbot python3-certbot-nginx >> /tmp/userdata.log 2>&1
         sudo apt install apt-transport-https ca-certificates curl software-properties-common >> /tmp/userdata.log 2>&1
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
         sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
@@ -59,11 +59,21 @@ resource "aws_instance" "sentry" {
         echo "export GOCACHE=$(HOME)/.cache/go-build" | sudo tee -a /etc/profile /home/ubuntu/.profile
         source /home/ubuntu/.profile >> /tmp/userdata.log 2>&1
 
-        echo "PROJECT_HOME: $PROJECT_HOME" >> /tmp/userdata.log
-        echo "GO_PKG_PATH: $GO_PKG_PATH" >> /tmp/userdata.log
-        echo "GOCACHE: $GOCACHE" >> /tmp/userdata.log
+        echo "PROJECT_HOME: $PROJECT_HOME" >> /tmp/userdata.log 2>&1
+        echo "GO_PKG_PATH: $GO_PKG_PATH" >> /tmp/userdata.log 2>&1
+        echo "GOCACHE: $GOCACHE" >> /tmp/userdata.log 2>&1
 
         git config --global --add safe.directory $(PROJECT_HOME)
+
+        sed -i 's/REPLACE/${var.instance_character}/g' terraform/default
+
+        cp terraform/default /etc/nginx/sites-available/default
+        sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+
+        sudo nginx -t >> /tmp/userdata.log 2>&1
+        sudo systemctl restart nginx >> /tmp/userdata.log 2>&1
+
+        sudo certbot --nginx -d ${var.instance_character}.sentry.testnet.v3.kiivalidator.com --register-unsafely-without-email --agree-tos >> /tmp/userdata.log 2>&1
 
         PROJECT_HOME=$PROJECT_HOME GO_PKG_PATH=$GO_PKG_PATH GOCACHE=$GOCACHE make ${var.make_command} >> /tmp/userdata.log 2>&1 || echo "Make command failed" >> /tmp/userdata.log
         echo "User data script completed." >> /tmp/userdata.log
@@ -139,3 +149,28 @@ resource "aws_vpc_security_group_ingress_rule" "allow_rpc" {
   ip_protocol       = "tcp"
   to_port           = 26657
 }
+
+resource "aws_vpc_security_group_ingress_rule" "allow_https" {
+  security_group_id = aws_security_group.sentry_sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 443
+  ip_protocol       = "tcp"
+  to_port           = 443
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_rpc_ssl" {
+  security_group_id = aws_security_group.sentry_sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 26671
+  ip_protocol       = "tcp"
+  to_port           = 26671
+}
+
+resource "aws_route53_record" "sentry_record" {
+  zone_id = "Z07671973O0LTK82CZVWD"
+  name    = "${var.instance_character}.sentry.testnet.v3.kiivalidator.com"
+  type    = "A"
+  ttl     = 300
+  records = [aws_instance.sentry.public_ip]
+}
+
