@@ -24,7 +24,7 @@ resource "aws_instance" "sentry" {
 
         # Update package list and install build-essential first to ensure make is available
         sudo apt-get update -y >> /tmp/userdata.log 2>&1
-        sudo apt-get install -y build-essential wget git nginx software-properties-common certbot python3-certbot-nginx >> /tmp/userdata.log 2>&1
+        sudo apt-get install -y build-essential wget git nginx software-properties-common >> /tmp/userdata.log 2>&1
         sudo apt install apt-transport-https ca-certificates curl software-properties-common >> /tmp/userdata.log 2>&1
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
         sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
@@ -67,13 +67,20 @@ resource "aws_instance" "sentry" {
 
         sed -i 's/REPLACE/${var.instance_character}/g' terraform/default
 
-        cp terraform/default /etc/nginx/sites-available/default
+        sudo nginx -t >> /tmp/userdata.log 2>&1
+
+        sudo snap install --classic certbot >> /tmp/userdata.log 2>&1
+
+        sudo ln -s /snap/bin/certbot /usr/bin/certbot
+
+        sudo certbot --nginx -d "${var.instance_character}.sentry.testnet.v3.kiivalidator.com" \
+          --non-interactive --agree-tos --email "support@kiiglobal.io"
+
+        sudo cp terraform/default /etc/nginx/sites-available/default
+        
         sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
-        sudo nginx -t >> /tmp/userdata.log 2>&1
         sudo systemctl restart nginx >> /tmp/userdata.log 2>&1
-
-        sudo certbot --nginx -d ${var.instance_character}.sentry.testnet.v3.kiivalidator.com --register-unsafely-without-email --agree-tos >> /tmp/userdata.log 2>&1
 
         PROJECT_HOME=$PROJECT_HOME GO_PKG_PATH=$GO_PKG_PATH GOCACHE=$GOCACHE make ${var.make_command} >> /tmp/userdata.log 2>&1 || echo "Make command failed" >> /tmp/userdata.log
         echo "User data script completed." >> /tmp/userdata.log
@@ -142,12 +149,20 @@ resource "aws_vpc_security_group_ingress_rule" "allow_rest_api" {
   to_port           = 1317
 }
 
+resource "aws_vpc_security_group_ingress_rule" "allow_p2p" {
+  security_group_id = aws_security_group.sentry_sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 26668
+  ip_protocol       = "tcp"
+  to_port           = 26668
+}
+
 resource "aws_vpc_security_group_ingress_rule" "allow_rpc" {
   security_group_id = aws_security_group.sentry_sg.id
   cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 26657
+  from_port         = 26669
   ip_protocol       = "tcp"
-  to_port           = 26657
+  to_port           = 26669
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_https" {
@@ -164,6 +179,14 @@ resource "aws_vpc_security_group_ingress_rule" "allow_rpc_ssl" {
   from_port         = 26671
   ip_protocol       = "tcp"
   to_port           = 26671
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_http" {
+  security_group_id = aws_security_group.sentry_sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 80
+  ip_protocol       = "tcp"
+  to_port           = 80
 }
 
 resource "aws_route53_record" "sentry_record" {
