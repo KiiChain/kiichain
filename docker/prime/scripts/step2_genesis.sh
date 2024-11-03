@@ -59,7 +59,7 @@ done <build/generated/genesis_accounts.txt
 if [ "$NODE_ID" = 0 ]
 then
   # New genesis accounts with balances
-  accounts="private_sale:54000000000000ukii public_sale:126000000000000ukii liquidity:180000000000000ukii community_development:180000000000000ukii team:357000000000000ukii rewards:900000000000000ukii"
+  accounts="private_sale:54000000000000ukii public_sale:126000000000000ukii liquidity:180000000000000ukii community_development:180000000000000ukii team:356700000000000ukii rewards:900000000000000ukii"
   # Loop through new accounts and set them up
   for account in $accounts; do
     name="${account%%:*}"

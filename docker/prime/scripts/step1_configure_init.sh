@@ -46,7 +46,7 @@ GENESIS_ACCOUNT_ADDRESS=$(printf "12345678\n" | kiichaind keys show "$ACCOUNT_NA
 echo "$GENESIS_ACCOUNT_ADDRESS" >> build/generated/genesis_accounts.txt
 
 # Add funds to genesis account
-kiichaind add-genesis-account "$GENESIS_ACCOUNT_ADDRESS" 1000000000000ukii
+kiichaind add-genesis-account "$GENESIS_ACCOUNT_ADDRESS" 1100000000000ukii
 
 # Create gentx
 printf "12345678\n" | kiichaind gentx "$ACCOUNT_NAME" 1000000000000ukii --identity EB78F9072FB4AEB3 --website https://app.kiichain.io --security-contact support@kiichain.io  --chain-id kiichain3
