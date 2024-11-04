@@ -53,7 +53,7 @@ override_genesis '.app_state["gov"]["tally_params"]["expedited_threshold"]="0.66
 # add genesis accounts for each node
 while read account; do
   echo "Adding: $account"
-  kiichaind add-genesis-account "$account" 1000000000000ukii
+  kiichaind add-genesis-account "$account" 1100000000000ukii
 done <build/generated/genesis_accounts.txt
 
 if [ "$NODE_ID" = 0 ]
