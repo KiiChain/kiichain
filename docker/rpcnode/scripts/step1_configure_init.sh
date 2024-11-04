@@ -21,9 +21,9 @@ cp remote/genesis.json ~/.kiichain3/config/genesis.json
 # Override state sync configs
 
 # SELECT AN RPC NODE FOR SYNCING eg. 192.168.10.10:26657
-STATE_SYNC_RPC="18.216.237.215:26669"
+STATE_SYNC_RPC="172.31.0.130:26657"
 # LIST PEERS FOR SYNCING eg. 2f9846450b7a3dcf4af1ac0082e3279c16744df8@172.31.9.18:26656,ec98c4a28a2023f4f976828c8a8e7127bfef4e1b@172.31.4.96:26656....
-STATE_SYNC_PEER="fdc99e6aece5d1630636fff7c7b6ea6b601f1187@18.216.237.215:26668,0eb4d0ebd2d828a1ac5ee97fd2408c7641cc6394@13.58.67.184:26668"
+STATE_SYNC_PEER="202f6f8dc342be835840fd54b51bbc730d630bfb@172.31.0.130:26656,d50dad713df17588ff728bf9be1862595c0dfdd3@172.31.0.130:26659,badc3cb475513000ca4b81cc02d15cfad4f0cdbe@172.31.0.130:26662"
 curl "$STATE_SYNC_RPC"/net_info |jq -r '.peers[] | .url' |sed -e 's#mconn://##' >> build/generated/PEERS
 LATEST_HEIGHT=$(curl -s $STATE_SYNC_RPC/block | jq -r .block.header.height)
 SYNC_BLOCK_HEIGHT=$LATEST_HEIGHT
