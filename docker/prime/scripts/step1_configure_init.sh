@@ -34,7 +34,8 @@ cp docker/localnode/config/config.toml "$TENDERMINT_CONFIG_FILE"
 # Set up persistent peers
 KIICHAIN_NODE_ID=$(kiichaind tendermint show-node-id)
 NODE_IP=$(hostname -i | awk '{print $1}')
-echo "$KIICHAIN_NODE_ID@$NODE_IP:26656" >> build/generated/persistent_peers.txt
+NODE_PORT=$((NODE_ID * 3 + 26656))
+echo "$KIICHAIN_NODE_ID@$NODE_IP:$NODE_PORT" >> build/generated/persistent_peers.txt
 
 # Create a new account
 ACCOUNT_NAME="node_admin-$NODE_ID"
