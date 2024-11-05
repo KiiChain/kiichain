@@ -49,7 +49,7 @@ echo "$GENESIS_ACCOUNT_ADDRESS" >> build/generated/genesis_accounts.txt
 kiichaind add-genesis-account "$GENESIS_ACCOUNT_ADDRESS" 1100000000000ukii
 
 # Create gentx
-printf "12345678\n" | kiichaind gentx "$ACCOUNT_NAME" 1000000000000ukii --identity EB78F9072FB4AEB3 --website https://app.kiichain.io --security-contact support@kiichain.io  --chain-id kiichain3
+printf "12345678\n" | kiichaind gentx "$ACCOUNT_NAME" 1000000000000ukii --identity EB78F9072FB4AEB3 --website https://app.kiichain.io --security-contact support@kiichain.io --fees 2000ukii --chain-id kiichain3
 cp ~/.kiichain3/config/gentx/* build/generated/gentx/
 
 # Creating some testing accounts
