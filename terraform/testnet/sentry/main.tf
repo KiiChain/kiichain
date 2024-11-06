@@ -181,6 +181,14 @@ resource "aws_vpc_security_group_ingress_rule" "allow_rpc_ssl" {
   to_port           = 26671
 }
 
+resource "aws_vpc_security_group_ingress_rule" "allow_evm_rpc_ssl" {
+  security_group_id = aws_security_group.sentry_sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 8547
+  ip_protocol       = "tcp"
+  to_port           = 8547
+}
+
 resource "aws_vpc_security_group_ingress_rule" "allow_http" {
   security_group_id = aws_security_group.sentry_sg.id
   cidr_ipv4         = "0.0.0.0/0"
