@@ -17,13 +17,13 @@ override_genesis '.app_state["crisis"]["constant_fee"]["denom"]="ukii"'
 override_genesis '.app_state["mint"]["params"]["mint_denom"]="ukii"'
 override_genesis '.app_state["staking"]["params"]["bond_denom"]="ukii"'
 override_genesis '.app_state["oracle"]["params"]["vote_period"]="1"'
-override_genesis '.app_state["slashing"]["params"]["signed_blocks_window"]="108000"'
+override_genesis '.app_state["slashing"]["params"]["signed_blocks_window"]="10000"'
 override_genesis '.app_state["slashing"]["params"]["min_signed_per_window"]="0.050000000000000000"'
 override_genesis '.app_state["staking"]["params"]["max_validators"]=25'
-override_genesis '.consensus_params["block"]["max_gas"]="10000000"'
+override_genesis '.consensus_params["block"]["max_gas"]="-1"'
 override_genesis '.app_state["staking"]["params"]["unbonding_time"]="1814400s"'
 override_genesis '.app_state["distribution"]["params"]["community_tax"]="0.020000000000000000"'
-override_genesis '.app_state["staking"]["params"]["max_voting_power_enforcement_threshold"]="3333333333"'
+override_genesis '.app_state["staking"]["params"]["max_voting_power_enforcement_threshold"]="1000000"'
 
 # Set a token release schedule for the genesis file
 # start_date="$(date +"%Y-%m-%d")"

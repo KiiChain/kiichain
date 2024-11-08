@@ -34,8 +34,7 @@ cp docker/localnode/config/config.toml "$TENDERMINT_CONFIG_FILE"
 # Set up persistent peers
 KIICHAIN_NODE_ID=$(kiichaind tendermint show-node-id)
 NODE_IP=$(hostname -i | awk '{print $1}')
-NODE_PORT=$((NODE_ID * 3 + 26656))
-echo "$KIICHAIN_NODE_ID@$NODE_IP:$NODE_PORT" >> build/generated/persistent_peers.txt
+echo "$KIICHAIN_NODE_ID@$NODE_IP:26656" >> build/generated/persistent_peers.txt
 
 # Create a new account
 ACCOUNT_NAME="node_admin-$NODE_ID"
@@ -50,7 +49,7 @@ echo "$GENESIS_ACCOUNT_ADDRESS" >> build/generated/genesis_accounts.txt
 kiichaind add-genesis-account "$GENESIS_ACCOUNT_ADDRESS" 1100000000000ukii
 
 # Create gentx
-printf "12345678\n" | kiichaind gentx "$ACCOUNT_NAME" 1000000000000ukii --identity EB78F9072FB4AEB3 --website https://app.kiichain.io --security-contact support@kiichain.io --fees 2000ukii --chain-id kiichain3
+printf "12345678\n" | kiichaind gentx "$ACCOUNT_NAME" 100000000000ukii --identity EB78F9072FB4AEB3 --website https://app.kiichain.io --security-contact support@kiichain.io --chain-id kiichain3
 cp ~/.kiichain3/config/gentx/* build/generated/gentx/
 
 # Creating some testing accounts
