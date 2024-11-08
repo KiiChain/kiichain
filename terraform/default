@@ -5,7 +5,7 @@ upstream rpc_url {
     server 127.0.0.1:26669;
 }
 upstream evm_rpc {
-    server 127.0.0.1:8545
+    server 127.0.0.1:8545;
 }
 
 server  {
