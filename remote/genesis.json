@@ -1,672 +1,672 @@
 {
-    "genesis_time": "2024-11-04T07:41:07.479402546Z",
-    "chain_id": "kiichain3",
-    "initial_height": "1",
-    "consensus_params": {
-      "block": {
-        "max_bytes": "22020096",
-        "max_gas": "10000000"
+  "genesis_time": "2024-11-08T07:25:48.511402581Z",
+  "chain_id": "kiichain3",
+  "initial_height": "1",
+  "consensus_params": {
+    "block": {
+      "max_bytes": "22020096",
+      "max_gas": "-1"
+    },
+    "evidence": {
+      "max_age_num_blocks": "100000",
+      "max_age_duration": "172800000000000",
+      "max_bytes": "1048576"
+    },
+    "validator": {
+      "pub_key_types": [
+        "ed25519"
+      ]
+    },
+    "version": {
+      "app_version": "0"
+    },
+    "synchrony": {
+      "precision": "505000000",
+      "message_delay": "12000000000"
+    },
+    "timeout": {
+      "propose": "1000000000",
+      "propose_delta": "500000000",
+      "vote": "50000000",
+      "vote_delta": "500000000",
+      "commit": "50000000",
+      "bypass_commit_timeout": false
+    },
+    "abci": {
+      "vote_extensions_enable_height": 0,
+      "recheck_tx": false
+    }
+  },
+  "validators": [
+    {
+      "address": "395D5694D378EA8BD57B5314D977887A217D1175",
+      "pub_key": {
+        "type": "tendermint/PubKeyEd25519",
+        "value": "k9GTi+ZWWoIUdyoxqccwM78m+u4pxE8A9kUAbxQ3i00="
       },
-      "evidence": {
-        "max_age_num_blocks": "100000",
-        "max_age_duration": "172800000000000",
-        "max_bytes": "1048576"
+      "power": "100000",
+      "name": ""
+    },
+    {
+      "address": "98C55820D7802C70BF278BC0B03C665B52BED3D6",
+      "pub_key": {
+        "type": "tendermint/PubKeyEd25519",
+        "value": "StSI11NpY2xMUhWEX1vsiaP4fh+WHcRErR4p75+apdM="
       },
-      "validator": {
-        "pub_key_types": [
-          "ed25519"
-        ]
+      "power": "100000",
+      "name": ""
+    },
+    {
+      "address": "E560A87DF57AECCAA8C0852B630DE2D4AB0C2789",
+      "pub_key": {
+        "type": "tendermint/PubKeyEd25519",
+        "value": "ccKfm/+gMyB+OaWTSlFGeVdgxZwq3xCpy0yxFW+Ywuw="
       },
-      "version": {
-        "app_version": "0"
+      "power": "100000",
+      "name": ""
+    }
+  ],
+  "app_hash": "",
+  "app_state": {
+    "accesscontrol": {
+      "params": {},
+      "message_dependency_mapping": [],
+      "wasm_dependency_mappings": []
+    },
+    "auth": {
+      "params": {
+        "max_memo_characters": "256",
+        "tx_sig_limit": "7",
+        "tx_size_cost_per_byte": "10",
+        "sig_verify_cost_ed25519": "590",
+        "sig_verify_cost_secp256k1": "1000",
+        "disable_seqno_check": false
       },
-      "synchrony": {
-        "precision": "505000000",
-        "message_delay": "12000000000"
+      "accounts": [
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "kii1p0h0mxakn3mjenq3ne2sxet2ltq44234sw6rdq",
+          "pub_key": null,
+          "account_number": "0",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "kii1xdruljfucz7cluqffhfzjmaxzz6x8n45eha9ze",
+          "pub_key": null,
+          "account_number": "0",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "kii1rcpga75u77xeulk66pnt77p3uff2htskn45ecs",
+          "pub_key": null,
+          "account_number": "0",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "kii1pvg2aknxgvppwvssgjh9grp2u4z22edy6ccc44",
+          "pub_key": null,
+          "account_number": "0",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "kii1au80j683z9rjp5f5cal54pdsgfds0d3utr565z",
+          "pub_key": null,
+          "account_number": "0",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "kii1w08ldq5ytuy0ect23wydkycfesu2eceywcmx63",
+          "pub_key": null,
+          "account_number": "0",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "kii1z4gx9akk9cvjwxj2tpu40k68vj9pq8xarfszv7",
+          "pub_key": null,
+          "account_number": "0",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "kii18fj8f3pg6kmzv99j34qhwyhpm5te0alpzh5szv",
+          "pub_key": null,
+          "account_number": "0",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "kii1wp43ccllmc2txeghpqefanpqjnmc7uly7l9lne",
+          "pub_key": null,
+          "account_number": "0",
+          "sequence": "0"
+        }
+      ]
+    },
+    "authz": {
+      "authorization": []
+    },
+    "bank": {
+      "params": {
+        "send_enabled": [],
+        "default_send_enabled": true
       },
-      "timeout": {
-        "propose": "1000000000",
-        "propose_delta": "500000000",
-        "vote": "50000000",
-        "vote_delta": "500000000",
-        "commit": "50000000",
-        "bypass_commit_timeout": false
-      },
-      "abci": {
-        "vote_extensions_enable_height": 0,
-        "recheck_tx": false
+      "balances": [
+        {
+          "address": "kii1pvg2aknxgvppwvssgjh9grp2u4z22edy6ccc44",
+          "coins": [
+            {
+              "denom": "ukii",
+              "amount": "54000000000000"
+            }
+          ]
+        },
+        {
+          "address": "kii1p0h0mxakn3mjenq3ne2sxet2ltq44234sw6rdq",
+          "coins": [
+            {
+              "denom": "ukii",
+              "amount": "1100000000000"
+            }
+          ]
+        },
+        {
+          "address": "kii1z4gx9akk9cvjwxj2tpu40k68vj9pq8xarfszv7",
+          "coins": [
+            {
+              "denom": "ukii",
+              "amount": "180000000000000"
+            }
+          ]
+        },
+        {
+          "address": "kii1rcpga75u77xeulk66pnt77p3uff2htskn45ecs",
+          "coins": [
+            {
+              "denom": "ukii",
+              "amount": "1100000000000"
+            }
+          ]
+        },
+        {
+          "address": "kii1xdruljfucz7cluqffhfzjmaxzz6x8n45eha9ze",
+          "coins": [
+            {
+              "denom": "ukii",
+              "amount": "1100000000000"
+            }
+          ]
+        },
+        {
+          "address": "kii18fj8f3pg6kmzv99j34qhwyhpm5te0alpzh5szv",
+          "coins": [
+            {
+              "denom": "ukii",
+              "amount": "356700000000000"
+            }
+          ]
+        },
+        {
+          "address": "kii1wp43ccllmc2txeghpqefanpqjnmc7uly7l9lne",
+          "coins": [
+            {
+              "denom": "ukii",
+              "amount": "900000000000000"
+            }
+          ]
+        },
+        {
+          "address": "kii1w08ldq5ytuy0ect23wydkycfesu2eceywcmx63",
+          "coins": [
+            {
+              "denom": "ukii",
+              "amount": "180000000000000"
+            }
+          ]
+        },
+        {
+          "address": "kii1au80j683z9rjp5f5cal54pdsgfds0d3utr565z",
+          "coins": [
+            {
+              "denom": "ukii",
+              "amount": "126000000000000"
+            }
+          ]
+        }
+      ],
+      "supply": [],
+      "denom_metadata": [],
+      "wei_balances": []
+    },
+    "capability": {
+      "index": "1",
+      "owners": []
+    },
+    "crisis": {
+      "constant_fee": {
+        "denom": "ukii",
+        "amount": "1000"
       }
     },
-    "validators": [
-      {
-        "address": "B0B122657F0D9236C9DEFAD8062104AFBB3DEC33",
-        "pub_key": {
-          "type": "tendermint/PubKeyEd25519",
-          "value": "W88oJp7TVpTgK5Lu9KxanTyBmzIbaWIv2d70dBx0ZO4="
-        },
-        "power": "1000000",
-        "name": ""
+    "distribution": {
+      "params": {
+        "community_tax": "0.020000000000000000",
+        "base_proposer_reward": "0.000000000000000000",
+        "bonus_proposer_reward": "0.000000000000000000",
+        "withdraw_addr_enabled": true
       },
-      {
-        "address": "A08BB5283BC90A181F49E498590BA62B63C35C7C",
-        "pub_key": {
-          "type": "tendermint/PubKeyEd25519",
-          "value": "pnKx8HcnCYdfKjkBP5oB5vol9v3Tu2XhSf2cCQAWu6I="
-        },
-        "power": "1000000",
-        "name": ""
+      "fee_pool": {
+        "community_pool": []
       },
-      {
-        "address": "BE6E44398D70F04A5B10DC605CF5523952857ADF",
-        "pub_key": {
-          "type": "tendermint/PubKeyEd25519",
-          "value": "LPIOJAWYDJKMebk4O5sUevn4hcCBOW3dh/vWOHJCwSk="
-        },
-        "power": "1000000",
-        "name": ""
+      "delegator_withdraw_infos": [],
+      "previous_proposer": "",
+      "outstanding_rewards": [],
+      "validator_accumulated_commissions": [],
+      "validator_historical_rewards": [],
+      "validator_current_rewards": [],
+      "delegator_starting_infos": [],
+      "validator_slash_events": []
+    },
+    "epoch": {
+      "params": {},
+      "epoch": {
+        "genesis_time": "2024-11-08T07:25:48.510962358Z",
+        "epoch_duration": "60s",
+        "current_epoch": "0",
+        "current_epoch_start_time": "2024-11-08T07:25:48.510962358Z",
+        "current_epoch_height": "0"
       }
-    ],
-    "app_hash": "",
-    "app_state": {
-      "accesscontrol": {
-        "params": {},
-        "message_dependency_mapping": [],
-        "wasm_dependency_mappings": []
+    },
+    "evidence": {
+      "evidence": []
+    },
+    "evm": {
+      "params": {
+        "priority_normalizer": "1.000000000000000000",
+        "base_fee_per_gas": "0.000000000000000000",
+        "minimum_fee_per_gas": "1000000000.000000000000000000",
+        "whitelisted_cw_code_hashes_for_delegate_call": [],
+        "deliver_tx_hook_wasm_gas_limit": "300000",
+        "max_dynamic_base_fee_upward_adjustment": "0.018900000000000000",
+        "max_dynamic_base_fee_downward_adjustment": "0.003900000000000000",
+        "target_gas_used_per_block": "250000"
       },
-      "auth": {
-        "params": {
-          "max_memo_characters": "256",
-          "tx_sig_limit": "7",
-          "tx_size_cost_per_byte": "10",
-          "sig_verify_cost_ed25519": "590",
-          "sig_verify_cost_secp256k1": "1000",
-          "disable_seqno_check": false
+      "address_associations": [],
+      "codes": [],
+      "states": [],
+      "nonces": [],
+      "serialized": []
+    },
+    "feegrant": {
+      "allowances": []
+    },
+    "genutil": {
+      "gen_txs": [
+        {
+          "body": {
+            "messages": [
+              {
+                "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
+                "description": {
+                  "moniker": "kiichain-node-2",
+                  "identity": "EB78F9072FB4AEB3",
+                  "website": "https://app.kiichain.io",
+                  "security_contact": "support@kiichain.io",
+                  "details": ""
+                },
+                "commission": {
+                  "rate": "0.100000000000000000",
+                  "max_rate": "0.200000000000000000",
+                  "max_change_rate": "0.010000000000000000"
+                },
+                "min_self_delegation": "1",
+                "delegator_address": "kii1rcpga75u77xeulk66pnt77p3uff2htskn45ecs",
+                "validator_address": "kiivaloper1rcpga75u77xeulk66pnt77p3uff2htskxr02ey",
+                "pubkey": {
+                  "@type": "/cosmos.crypto.ed25519.PubKey",
+                  "key": "k9GTi+ZWWoIUdyoxqccwM78m+u4pxE8A9kUAbxQ3i00="
+                },
+                "value": {
+                  "denom": "ukii",
+                  "amount": "100000000000"
+                }
+              }
+            ],
+            "memo": "5a5da19326f545b0d45f2c15367fe1f88516369c@192.168.10.12:26656",
+            "timeout_height": "0",
+            "extension_options": [],
+            "non_critical_extension_options": []
+          },
+          "auth_info": {
+            "signer_infos": [
+              {
+                "public_key": {
+                  "@type": "/cosmos.crypto.secp256k1.PubKey",
+                  "key": "AqomUBUppq75hyiUOVzdPNHRz/hjACyPYm7G1fqCx3TU"
+                },
+                "mode_info": {
+                  "single": {
+                    "mode": "SIGN_MODE_DIRECT"
+                  }
+                },
+                "sequence": "0"
+              }
+            ],
+            "fee": {
+              "amount": [],
+              "gas_limit": "200000",
+              "payer": "",
+              "granter": ""
+            }
+          },
+          "signatures": [
+            "ncO8ufzcOZVlz3NmXrO0VVCpZ42DJ95NJTRKgYUYJUgg8z4nKwudrEfZ5JUsdC0ypxN+oEq7VPoJOmZnA7vhgw=="
+          ]
         },
-        "accounts": [
-          {
-            "@type": "/cosmos.auth.v1beta1.BaseAccount",
-            "address": "kii17e98l5k5p0v9wj26hhymlgv0ch8hsh9n85gvnq",
-            "pub_key": null,
-            "account_number": "0",
-            "sequence": "0"
+        {
+          "body": {
+            "messages": [
+              {
+                "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
+                "description": {
+                  "moniker": "kiichain-node-1",
+                  "identity": "EB78F9072FB4AEB3",
+                  "website": "https://app.kiichain.io",
+                  "security_contact": "support@kiichain.io",
+                  "details": ""
+                },
+                "commission": {
+                  "rate": "0.100000000000000000",
+                  "max_rate": "0.200000000000000000",
+                  "max_change_rate": "0.010000000000000000"
+                },
+                "min_self_delegation": "1",
+                "delegator_address": "kii1xdruljfucz7cluqffhfzjmaxzz6x8n45eha9ze",
+                "validator_address": "kiivaloper1xdruljfucz7cluqffhfzjmaxzz6x8n45vpxkrd",
+                "pubkey": {
+                  "@type": "/cosmos.crypto.ed25519.PubKey",
+                  "key": "StSI11NpY2xMUhWEX1vsiaP4fh+WHcRErR4p75+apdM="
+                },
+                "value": {
+                  "denom": "ukii",
+                  "amount": "100000000000"
+                }
+              }
+            ],
+            "memo": "e5edd086074bf045582884bfeb20f2d4e2982d2e@192.168.10.11:26656",
+            "timeout_height": "0",
+            "extension_options": [],
+            "non_critical_extension_options": []
           },
-          {
-            "@type": "/cosmos.auth.v1beta1.BaseAccount",
-            "address": "kii1ad4rxvu9w6wyrdx439fxhkrdl85ru0p05dey3x",
-            "pub_key": null,
-            "account_number": "0",
-            "sequence": "0"
+          "auth_info": {
+            "signer_infos": [
+              {
+                "public_key": {
+                  "@type": "/cosmos.crypto.secp256k1.PubKey",
+                  "key": "AlkKJGe9hixPRf+jc+qwLhxtbpLGU/D+oFNB/rmc+xqI"
+                },
+                "mode_info": {
+                  "single": {
+                    "mode": "SIGN_MODE_DIRECT"
+                  }
+                },
+                "sequence": "0"
+              }
+            ],
+            "fee": {
+              "amount": [],
+              "gas_limit": "200000",
+              "payer": "",
+              "granter": ""
+            }
           },
-          {
-            "@type": "/cosmos.auth.v1beta1.BaseAccount",
-            "address": "kii189qzhl6st5an2tu8yv9kv9azq0h6wmls7q0pzf",
-            "pub_key": null,
-            "account_number": "0",
-            "sequence": "0"
-          },
-          {
-            "@type": "/cosmos.auth.v1beta1.BaseAccount",
-            "address": "kii1rghtk8c9hjpguwpugcjhj2q5xgkmhcl5xn4atr",
-            "pub_key": null,
-            "account_number": "0",
-            "sequence": "0"
-          },
-          {
-            "@type": "/cosmos.auth.v1beta1.BaseAccount",
-            "address": "kii1em80rf38ceqfzyzvtaxhgrlkwwyzqd2925py4r",
-            "pub_key": null,
-            "account_number": "0",
-            "sequence": "0"
-          },
-          {
-            "@type": "/cosmos.auth.v1beta1.BaseAccount",
-            "address": "kii12jwt04alkc2ys02jyq53qrxf97pj2p4dkdudz0",
-            "pub_key": null,
-            "account_number": "0",
-            "sequence": "0"
-          },
-          {
-            "@type": "/cosmos.auth.v1beta1.BaseAccount",
-            "address": "kii1gmqvh3ljky0d5dgsq5ls46w8qupargvwr42j5r",
-            "pub_key": null,
-            "account_number": "0",
-            "sequence": "0"
-          },
-          {
-            "@type": "/cosmos.auth.v1beta1.BaseAccount",
-            "address": "kii1s5ayyuu2d449ulctnqugngeap25h44aptferr2",
-            "pub_key": null,
-            "account_number": "0",
-            "sequence": "0"
-          },
-          {
-            "@type": "/cosmos.auth.v1beta1.BaseAccount",
-            "address": "kii1a7q0vlf92qr56tu9tmmpj9j8ff7vh7kkr5f2j7",
-            "pub_key": null,
-            "account_number": "0",
-            "sequence": "0"
-          }
-        ]
-      },
-      "authz": {
-        "authorization": []
-      },
-      "bank": {
-        "params": {
-          "send_enabled": [],
-          "default_send_enabled": true
+          "signatures": [
+            "rk3TRTnAQJikk7bgw0SYTkaMKjdxw+X6DZExKUF39l5OBgJSa/3YD0Fv2FuRoq1FK/Rem3X0WSHVKOLF2miQ1g=="
+          ]
         },
-        "balances": [
-          {
-            "address": "kii1rghtk8c9hjpguwpugcjhj2q5xgkmhcl5xn4atr",
-            "coins": [
+        {
+          "body": {
+            "messages": [
               {
-                "denom": "ukii",
-                "amount": "54000000000000"
+                "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
+                "description": {
+                  "moniker": "kiichain-node-0",
+                  "identity": "EB78F9072FB4AEB3",
+                  "website": "https://app.kiichain.io",
+                  "security_contact": "support@kiichain.io",
+                  "details": ""
+                },
+                "commission": {
+                  "rate": "0.100000000000000000",
+                  "max_rate": "0.200000000000000000",
+                  "max_change_rate": "0.010000000000000000"
+                },
+                "min_self_delegation": "1",
+                "delegator_address": "kii1p0h0mxakn3mjenq3ne2sxet2ltq44234sw6rdq",
+                "validator_address": "kiivaloper1p0h0mxakn3mjenq3ne2sxet2ltq442349cpsv5",
+                "pubkey": {
+                  "@type": "/cosmos.crypto.ed25519.PubKey",
+                  "key": "ccKfm/+gMyB+OaWTSlFGeVdgxZwq3xCpy0yxFW+Ywuw="
+                },
+                "value": {
+                  "denom": "ukii",
+                  "amount": "100000000000"
+                }
               }
-            ]
+            ],
+            "memo": "fd991ac3c36da7f088b891472b905410e74ca58b@192.168.10.10:26656",
+            "timeout_height": "0",
+            "extension_options": [],
+            "non_critical_extension_options": []
           },
-          {
-            "address": "kii189qzhl6st5an2tu8yv9kv9azq0h6wmls7q0pzf",
-            "coins": [
+          "auth_info": {
+            "signer_infos": [
               {
-                "denom": "ukii",
-                "amount": "1100000000000"
+                "public_key": {
+                  "@type": "/cosmos.crypto.secp256k1.PubKey",
+                  "key": "AtzBw9yYksmMODKmRSPlHKLRyUn6K8xTHSRahBXSyEcz"
+                },
+                "mode_info": {
+                  "single": {
+                    "mode": "SIGN_MODE_DIRECT"
+                  }
+                },
+                "sequence": "0"
               }
-            ]
+            ],
+            "fee": {
+              "amount": [],
+              "gas_limit": "200000",
+              "payer": "",
+              "granter": ""
+            }
           },
+          "signatures": [
+            "j09yit0rwNRVOJ/+Ygc2DCOohlGSu6UhnTCD9eQVlXNlwWIp/seOJrHUUMcMZsBpUCvkmlpjH4W+X5rm1zSCGg=="
+          ]
+        }
+      ]
+    },
+    "gov": {
+      "starting_proposal_id": "1",
+      "deposits": [],
+      "votes": [],
+      "proposals": [],
+      "deposit_params": {
+        "min_deposit": [
           {
-            "address": "kii1gmqvh3ljky0d5dgsq5ls46w8qupargvwr42j5r",
-            "coins": [
-              {
-                "denom": "ukii",
-                "amount": "180000000000000"
-              }
-            ]
-          },
-          {
-            "address": "kii12jwt04alkc2ys02jyq53qrxf97pj2p4dkdudz0",
-            "coins": [
-              {
-                "denom": "ukii",
-                "amount": "180000000000000"
-              }
-            ]
-          },
-          {
-            "address": "kii1s5ayyuu2d449ulctnqugngeap25h44aptferr2",
-            "coins": [
-              {
-                "denom": "ukii",
-                "amount": "356700000000000"
-              }
-            ]
-          },
-          {
-            "address": "kii1em80rf38ceqfzyzvtaxhgrlkwwyzqd2925py4r",
-            "coins": [
-              {
-                "denom": "ukii",
-                "amount": "126000000000000"
-              }
-            ]
-          },
-          {
-            "address": "kii1ad4rxvu9w6wyrdx439fxhkrdl85ru0p05dey3x",
-            "coins": [
-              {
-                "denom": "ukii",
-                "amount": "1100000000000"
-              }
-            ]
-          },
-          {
-            "address": "kii1a7q0vlf92qr56tu9tmmpj9j8ff7vh7kkr5f2j7",
-            "coins": [
-              {
-                "denom": "ukii",
-                "amount": "900000000000000"
-              }
-            ]
-          },
-          {
-            "address": "kii17e98l5k5p0v9wj26hhymlgv0ch8hsh9n85gvnq",
-            "coins": [
-              {
-                "denom": "ukii",
-                "amount": "1100000000000"
-              }
-            ]
+            "denom": "ukii",
+            "amount": "10000000"
           }
         ],
-        "supply": [],
-        "denom_metadata": [],
-        "wei_balances": []
-      },
-      "capability": {
-        "index": "1",
-        "owners": []
-      },
-      "crisis": {
-        "constant_fee": {
-          "denom": "ukii",
-          "amount": "1000"
-        }
-      },
-      "distribution": {
-        "params": {
-          "community_tax": "0.020000000000000000",
-          "base_proposer_reward": "0.000000000000000000",
-          "bonus_proposer_reward": "0.000000000000000000",
-          "withdraw_addr_enabled": true
-        },
-        "fee_pool": {
-          "community_pool": []
-        },
-        "delegator_withdraw_infos": [],
-        "previous_proposer": "",
-        "outstanding_rewards": [],
-        "validator_accumulated_commissions": [],
-        "validator_historical_rewards": [],
-        "validator_current_rewards": [],
-        "delegator_starting_infos": [],
-        "validator_slash_events": []
-      },
-      "epoch": {
-        "params": {},
-        "epoch": {
-          "genesis_time": "2024-11-04T07:41:07.479201132Z",
-          "epoch_duration": "60s",
-          "current_epoch": "0",
-          "current_epoch_start_time": "2024-11-04T07:41:07.479201132Z",
-          "current_epoch_height": "0"
-        }
-      },
-      "evidence": {
-        "evidence": []
-      },
-      "evm": {
-        "params": {
-          "priority_normalizer": "1.000000000000000000",
-          "base_fee_per_gas": "0.000000000000000000",
-          "minimum_fee_per_gas": "1000000000.000000000000000000",
-          "whitelisted_cw_code_hashes_for_delegate_call": [],
-          "deliver_tx_hook_wasm_gas_limit": "300000",
-          "max_dynamic_base_fee_upward_adjustment": "0.018900000000000000",
-          "max_dynamic_base_fee_downward_adjustment": "0.003900000000000000",
-          "target_gas_used_per_block": "250000"
-        },
-        "address_associations": [],
-        "codes": [],
-        "states": [],
-        "nonces": [],
-        "serialized": []
-      },
-      "feegrant": {
-        "allowances": []
-      },
-      "genutil": {
-        "gen_txs": [
+        "max_deposit_period": "172800s",
+        "min_expedited_deposit": [
           {
-            "body": {
-              "messages": [
-                {
-                  "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
-                  "description": {
-                    "moniker": "kiichain-node-2",
-                    "identity": "EB78F9072FB4AEB3",
-                    "website": "https://app.kiichain.io",
-                    "security_contact": "support@kiichain.io",
-                    "details": ""
-                  },
-                  "commission": {
-                    "rate": "0.100000000000000000",
-                    "max_rate": "0.200000000000000000",
-                    "max_change_rate": "0.010000000000000000"
-                  },
-                  "min_self_delegation": "1",
-                  "delegator_address": "kii1ad4rxvu9w6wyrdx439fxhkrdl85ru0p05dey3x",
-                  "validator_address": "kiivaloper1ad4rxvu9w6wyrdx439fxhkrdl85ru0p0pmzhsj",
-                  "pubkey": {
-                    "@type": "/cosmos.crypto.ed25519.PubKey",
-                    "key": "W88oJp7TVpTgK5Lu9KxanTyBmzIbaWIv2d70dBx0ZO4="
-                  },
-                  "value": {
-                    "denom": "ukii",
-                    "amount": "1000000000000"
-                  }
-                }
-              ],
-              "memo": "0d9781ea1348d4620d3959e9cdec95a87be8fc61@192.168.10.12:26656",
-              "timeout_height": "0",
-              "extension_options": [],
-              "non_critical_extension_options": []
-            },
-            "auth_info": {
-              "signer_infos": [
-                {
-                  "public_key": {
-                    "@type": "/cosmos.crypto.secp256k1.PubKey",
-                    "key": "A1JIqDCDatTMTVXUX0JY+hbuixKdHgM4GoiKSxxbty4q"
-                  },
-                  "mode_info": {
-                    "single": {
-                      "mode": "SIGN_MODE_DIRECT"
-                    }
-                  },
-                  "sequence": "0"
-                }
-              ],
-              "fee": {
-                "amount": [],
-                "gas_limit": "200000",
-                "payer": "",
-                "granter": ""
-              }
-            },
-            "signatures": [
-              "HXu9iYbs1O4q8JRMrAf6Y8AjWQAC80DbhxDf4kdKrc84XWvoprfWaaHwzY4b5e4c4/T6YyocKdtDEb6nT8/JMQ=="
-            ]
-          },
-          {
-            "body": {
-              "messages": [
-                {
-                  "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
-                  "description": {
-                    "moniker": "kiichain-node-0",
-                    "identity": "EB78F9072FB4AEB3",
-                    "website": "https://app.kiichain.io",
-                    "security_contact": "support@kiichain.io",
-                    "details": ""
-                  },
-                  "commission": {
-                    "rate": "0.100000000000000000",
-                    "max_rate": "0.200000000000000000",
-                    "max_change_rate": "0.010000000000000000"
-                  },
-                  "min_self_delegation": "1",
-                  "delegator_address": "kii17e98l5k5p0v9wj26hhymlgv0ch8hsh9n85gvnq",
-                  "validator_address": "kiivaloper17e98l5k5p0v9wj26hhymlgv0ch8hsh9njznlj5",
-                  "pubkey": {
-                    "@type": "/cosmos.crypto.ed25519.PubKey",
-                    "key": "pnKx8HcnCYdfKjkBP5oB5vol9v3Tu2XhSf2cCQAWu6I="
-                  },
-                  "value": {
-                    "denom": "ukii",
-                    "amount": "1000000000000"
-                  }
-                }
-              ],
-              "memo": "5ff72c592494dad8ecdafb44b64a657dd7fdac94@192.168.10.10:26656",
-              "timeout_height": "0",
-              "extension_options": [],
-              "non_critical_extension_options": []
-            },
-            "auth_info": {
-              "signer_infos": [
-                {
-                  "public_key": {
-                    "@type": "/cosmos.crypto.secp256k1.PubKey",
-                    "key": "A6B6zgLfi1yV+di38citTr9j1C5IHjUwCCn5kO1MauCZ"
-                  },
-                  "mode_info": {
-                    "single": {
-                      "mode": "SIGN_MODE_DIRECT"
-                    }
-                  },
-                  "sequence": "0"
-                }
-              ],
-              "fee": {
-                "amount": [],
-                "gas_limit": "200000",
-                "payer": "",
-                "granter": ""
-              }
-            },
-            "signatures": [
-              "ViSeVP4Esi7hVd8FXNFGYzL0VjsLlpSU63CSRwxtvashvDckJvpj5KE1kxJkNG5f7TUOvgfHXukBzwY7Mq8Thg=="
-            ]
-          },
-          {
-            "body": {
-              "messages": [
-                {
-                  "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
-                  "description": {
-                    "moniker": "kiichain-node-1",
-                    "identity": "EB78F9072FB4AEB3",
-                    "website": "https://app.kiichain.io",
-                    "security_contact": "support@kiichain.io",
-                    "details": ""
-                  },
-                  "commission": {
-                    "rate": "0.100000000000000000",
-                    "max_rate": "0.200000000000000000",
-                    "max_change_rate": "0.010000000000000000"
-                  },
-                  "min_self_delegation": "1",
-                  "delegator_address": "kii189qzhl6st5an2tu8yv9kv9azq0h6wmls7q0pzf",
-                  "validator_address": "kiivaloper189qzhl6st5an2tu8yv9kv9azq0h6wmlstk5jra",
-                  "pubkey": {
-                    "@type": "/cosmos.crypto.ed25519.PubKey",
-                    "key": "LPIOJAWYDJKMebk4O5sUevn4hcCBOW3dh/vWOHJCwSk="
-                  },
-                  "value": {
-                    "denom": "ukii",
-                    "amount": "1000000000000"
-                  }
-                }
-              ],
-              "memo": "e70d58cc64e7e8543b8f19c8e7ecba35dc028994@192.168.10.11:26656",
-              "timeout_height": "0",
-              "extension_options": [],
-              "non_critical_extension_options": []
-            },
-            "auth_info": {
-              "signer_infos": [
-                {
-                  "public_key": {
-                    "@type": "/cosmos.crypto.secp256k1.PubKey",
-                    "key": "AkIUnQdiH20+aGW5jwpVT0ty9AgX2x3c0m4f5p1IveH8"
-                  },
-                  "mode_info": {
-                    "single": {
-                      "mode": "SIGN_MODE_DIRECT"
-                    }
-                  },
-                  "sequence": "0"
-                }
-              ],
-              "fee": {
-                "amount": [],
-                "gas_limit": "200000",
-                "payer": "",
-                "granter": ""
-              }
-            },
-            "signatures": [
-              "YQorC7LYQUVf2g4tz1y0jR9oQsu17/KS83XIdFtUr8IloIooV/Cl5x8U9ATXJG+KvriqmCKJGmiEN6bBo9+RqQ=="
-            ]
+            "denom": "ukii",
+            "amount": "20000000"
           }
         ]
       },
-      "gov": {
-        "starting_proposal_id": "1",
-        "deposits": [],
-        "votes": [],
-        "proposals": [],
-        "deposit_params": {
-          "min_deposit": [
-            {
-              "denom": "ukii",
-              "amount": "10000000"
-            }
-          ],
-          "max_deposit_period": "172800s",
-          "min_expedited_deposit": [
-            {
-              "denom": "ukii",
-              "amount": "20000000"
-            }
+      "voting_params": {
+        "voting_period": "432000s",
+        "expedited_voting_period": "86400s"
+      },
+      "tally_params": {
+        "quorum": "0.334000000000000000",
+        "threshold": "0.500000000000000000",
+        "veto_threshold": "0.334000000000000000",
+        "expedited_quorum": "0.667000000000000000",
+        "expedited_threshold": "0.667000000000000000"
+      }
+    },
+    "ibc": {
+      "client_genesis": {
+        "clients": [],
+        "clients_consensus": [],
+        "clients_metadata": [],
+        "params": {
+          "allowed_clients": [
+            "06-solomachine",
+            "07-tendermint"
           ]
         },
-        "voting_params": {
-          "voting_period": "432000s",
-          "expedited_voting_period": "86400s"
-        },
-        "tally_params": {
-          "quorum": "0.334000000000000000",
-          "threshold": "0.500000000000000000",
-          "veto_threshold": "0.334000000000000000",
-          "expedited_quorum": "0.667000000000000000",
-          "expedited_threshold": "0.667000000000000000"
-        }
+        "create_localhost": false,
+        "next_client_sequence": "0"
       },
-      "ibc": {
-        "client_genesis": {
-          "clients": [],
-          "clients_consensus": [],
-          "clients_metadata": [],
-          "params": {
-            "allowed_clients": [
-              "06-solomachine",
-              "07-tendermint"
-            ]
-          },
-          "create_localhost": false,
-          "next_client_sequence": "0"
-        },
-        "connection_genesis": {
-          "connections": [],
-          "client_connection_paths": [],
-          "next_connection_sequence": "0",
-          "params": {
-            "max_expected_time_per_block": "30000000000"
-          }
-        },
-        "channel_genesis": {
-          "channels": [],
-          "acknowledgements": [],
-          "commitments": [],
-          "receipts": [],
-          "send_sequences": [],
-          "recv_sequences": [],
-          "ack_sequences": [],
-          "next_channel_sequence": "0"
-        }
-      },
-      "mint": {
-        "minter": {
-          "start_date": "0001-01-01",
-          "end_date": "0001-01-01",
-          "denom": "ukii",
-          "total_mint_amount": "0",
-          "remaining_mint_amount": "0",
-          "last_mint_amount": "0",
-          "last_mint_date": "0001-01-01",
-          "last_mint_height": "0"
-        },
+      "connection_genesis": {
+        "connections": [],
+        "client_connection_paths": [],
+        "next_connection_sequence": "0",
         "params": {
-          "mint_denom": "ukii",
-          "token_release_schedule": []
+          "max_expected_time_per_block": "30000000000"
         }
       },
-      "oracle": {
-        "params": {
-          "vote_period": "1",
-          "vote_threshold": "0.667000000000000000",
-          "reward_band": "0.020000000000000000",
-          "whitelist": [
-            {
-              "name": "uatom"
-            },
-            {
-              "name": "ueth"
-            }
-          ],
-          "slash_fraction": "0.000000000000000000",
-          "slash_window": "216000",
-          "min_valid_per_window": "0.050000000000000000",
-          "lookback_duration": "3600"
-        },
-        "feeder_delegations": [],
-        "exchange_rates": [],
-        "penalty_counters": [],
-        "aggregate_exchange_rate_votes": [],
-        "price_snapshots": []
+      "channel_genesis": {
+        "channels": [],
+        "acknowledgements": [],
+        "commitments": [],
+        "receipts": [],
+        "send_sequences": [],
+        "recv_sequences": [],
+        "ack_sequences": [],
+        "next_channel_sequence": "0"
+      }
+    },
+    "mint": {
+      "minter": {
+        "start_date": "0001-01-01",
+        "end_date": "0001-01-01",
+        "denom": "ukii",
+        "total_mint_amount": "0",
+        "remaining_mint_amount": "0",
+        "last_mint_amount": "0",
+        "last_mint_date": "0001-01-01",
+        "last_mint_height": "0"
       },
       "params": {
-        "fees_params": {
-          "global_minimum_gas_prices": [
-            {
-              "denom": "ukii",
-              "amount": "0.010000000000000000"
-            }
-          ]
-        },
-        "cosmos_gas_params": {
-          "cosmos_gas_multiplier_numerator": "1",
-          "cosmos_gas_multiplier_denominator": "1"
-        }
-      },
-      "slashing": {
-        "params": {
-          "signed_blocks_window": "108000",
-          "min_signed_per_window": "0.050000000000000000",
-          "downtime_jail_duration": "600s",
-          "slash_fraction_double_sign": "0.000000000000000000",
-          "slash_fraction_downtime": "0.000000000000000000"
-        },
-        "signing_infos": [],
-        "missed_blocks": []
-      },
-      "staking": {
-        "params": {
-          "unbonding_time": "1814400s",
-          "max_validators": 25,
-          "max_entries": 7,
-          "historical_entries": 10000,
-          "bond_denom": "ukii",
-          "min_commission_rate": "0.050000000000000000",
-          "max_voting_power_ratio": "0.200000000000000000",
-          "max_voting_power_enforcement_threshold": "3333333333"
-        },
-        "last_total_power": "0",
-        "last_validator_powers": [],
-        "validators": [],
-        "delegations": [],
-        "unbonding_delegations": [],
-        "redelegations": [],
-        "exported": false
-      },
-      "tokenfactory": {
-        "params": {},
-        "factory_denoms": []
-      },
-      "transfer": {
-        "port_id": "transfer",
-        "denom_traces": [],
-        "params": {
-          "send_enabled": true,
-          "receive_enabled": true
-        }
-      },
-      "upgrade": {},
-      "vesting": {},
-      "wasm": {
-        "params": {
-          "code_upload_access": {
-            "permission": "Everybody",
-            "address": ""
-          },
-          "instantiate_default_permission": "Everybody"
-        },
-        "codes": [],
-        "contracts": [],
-        "sequences": [],
-        "gen_msgs": []
+        "mint_denom": "ukii",
+        "token_release_schedule": []
       }
+    },
+    "oracle": {
+      "params": {
+        "vote_period": "1",
+        "vote_threshold": "0.667000000000000000",
+        "reward_band": "0.020000000000000000",
+        "whitelist": [
+          {
+            "name": "uatom"
+          },
+          {
+            "name": "ueth"
+          }
+        ],
+        "slash_fraction": "0.000000000000000000",
+        "slash_window": "216000",
+        "min_valid_per_window": "0.050000000000000000",
+        "lookback_duration": "3600"
+      },
+      "feeder_delegations": [],
+      "exchange_rates": [],
+      "penalty_counters": [],
+      "aggregate_exchange_rate_votes": [],
+      "price_snapshots": []
+    },
+    "params": {
+      "fees_params": {
+        "global_minimum_gas_prices": [
+          {
+            "denom": "ukii",
+            "amount": "0.010000000000000000"
+          }
+        ]
+      },
+      "cosmos_gas_params": {
+        "cosmos_gas_multiplier_numerator": "1",
+        "cosmos_gas_multiplier_denominator": "1"
+      }
+    },
+    "slashing": {
+      "params": {
+        "signed_blocks_window": "10000",
+        "min_signed_per_window": "0.050000000000000000",
+        "downtime_jail_duration": "600s",
+        "slash_fraction_double_sign": "0.000000000000000000",
+        "slash_fraction_downtime": "0.000000000000000000"
+      },
+      "signing_infos": [],
+      "missed_blocks": []
+    },
+    "staking": {
+      "params": {
+        "unbonding_time": "1814400s",
+        "max_validators": 25,
+        "max_entries": 7,
+        "historical_entries": 10000,
+        "bond_denom": "ukii",
+        "min_commission_rate": "0.050000000000000000",
+        "max_voting_power_ratio": "0.200000000000000000",
+        "max_voting_power_enforcement_threshold": "1000000"
+      },
+      "last_total_power": "0",
+      "last_validator_powers": [],
+      "validators": [],
+      "delegations": [],
+      "unbonding_delegations": [],
+      "redelegations": [],
+      "exported": false
+    },
+    "tokenfactory": {
+      "params": {},
+      "factory_denoms": []
+    },
+    "transfer": {
+      "port_id": "transfer",
+      "denom_traces": [],
+      "params": {
+        "send_enabled": true,
+        "receive_enabled": true
+      }
+    },
+    "upgrade": {},
+    "vesting": {},
+    "wasm": {
+      "params": {
+        "code_upload_access": {
+          "permission": "Everybody",
+          "address": ""
+        },
+        "instantiate_default_permission": "Everybody"
+      },
+      "codes": [],
+      "contracts": [],
+      "sequences": [],
+      "gen_msgs": []
     }
   }
+}
