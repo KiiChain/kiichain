@@ -4,7 +4,7 @@ upstream lcd_url {
 upstream rpc_url {
     server 127.0.0.1:26669;
 }
-upsteam evm_rpc {
+upstream evm_rpc {
     server 127.0.0.1:8545
 }
 
