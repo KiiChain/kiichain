@@ -3,10 +3,6 @@ provider "aws" {
   profile = "kiichain"
 }
 
-resource "aws_s3_bucket" "my_bucket" {
-  bucket_prefix = "sentry-genesis-"
-}
-
 resource "aws_instance" "sentry" {
   ami                         = "ami-024b5075fd81ab5d8"  # Update as needed
   instance_type               = "t2.xlarge"
