@@ -14,7 +14,7 @@ import (
 	tkfactory "github.com/kiichain/kiichain3/aclmapping/tokenfactory"
 	aclutils "github.com/kiichain/kiichain3/aclmapping/utils"
 	"github.com/kiichain/kiichain3/app/apptesting"
-	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
+
 	tokenfactorykeeper "github.com/kiichain/kiichain3/x/tokenfactory/keeper"
 	"github.com/kiichain/kiichain3/x/tokenfactory/types"
 	tokenfactorytypes "github.com/kiichain/kiichain3/x/tokenfactory/types"
@@ -192,25 +192,25 @@ func (suite *KeeperTestSuite) TestMsgMintDependencies() {
 	}
 }
 
-func TestGeneratorInvalidMessageTypes(t *testing.T) {
-	accs := authtypes.GenesisAccounts{}
-	balances := []banktypes.Balance{}
+// func TestGeneratorInvalidMessageTypes(t *testing.T) {
+// 	accs := authtypes.GenesisAccounts{}
+// 	balances := []banktypes.Balance{}
 
-	app := simapp.SetupWithGenesisAccounts(accs, balances...)
-	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
+// 	app := simapp.SetupWithGenesisAccounts(accs, balances...)
+// 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
-	oracleVote := oracletypes.MsgAggregateExchangeRateVote{
-		ExchangeRates: "1ukii",
-		Feeder:        "test",
-		Validator:     "validator",
-	}
+// 	oracleVote := oracletypes.MsgAggregateExchangeRateVote{
+// 		ExchangeRates: "1ukii",
+// 		Feeder:        "test",
+// 		Validator:     "validator",
+// 	}
 
-	_, err := tkfactory.TokenFactoryBurnDependencyGenerator(app.AccessControlKeeper, ctx, &oracleVote)
-	require.Error(t, err)
+// 	_, err := tkfactory.TokenFactoryBurnDependencyGenerator(app.AccessControlKeeper, ctx, &oracleVote)
+// 	require.Error(t, err)
 
-	_, err = tkfactory.TokenFactoryMintDependencyGenerator(app.AccessControlKeeper, ctx, &oracleVote)
-	require.Error(t, err)
-}
+// 	_, err = tkfactory.TokenFactoryMintDependencyGenerator(app.AccessControlKeeper, ctx, &oracleVote)
+// 	require.Error(t, err)
+// }
 
 func TestMsgBeginBurnDepedencyGenerator(t *testing.T) {
 	priv1 := secp256k1.GenPrivKey()

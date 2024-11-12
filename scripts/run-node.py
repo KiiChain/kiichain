@@ -27,9 +27,9 @@ TESTNET_VERSION = "v5.2.2"
 # Map env to chain ID and optional manual version override
 ENV_TO_CONFIG = {
     "local": {"chain_id": None, "version": "latest"},
-    "devnet": {"chain_id": "arctic-1", "version": DEVNET_VERSION},
-    "testnet": {"chain_id": "atlantic-2", "version": TESTNET_VERSION},
-    "mainnet": {"chain_id": "pacific-1", "version": MAINNET_VERSION}
+    "devnet": {"chain_id": None, "version": DEVNET_VERSION},
+    "testnet": {"chain_id": "kiichain3", "version": TESTNET_VERSION},
+    "mainnet": {"chain_id": None, "version": MAINNET_VERSION}
 }
 
 def print_ascii_and_intro():
@@ -54,14 +54,14 @@ def print_ascii_and_intro():
                   .-+###############*+:.
                      ..-+********+-.
 
-Welcome to the Sei node installer!
-For more information please visit docs.sei.io
+Welcome to the Kiichain node installer!
+For more information please visit https://docs.kiiglobal.io/docs/learn/what-is-kiichain/getting-started
 Please make sure you have the following installed locally:
 \t- golang 1.21 (with PATH and GOPATH set properly)
 \t- make
 \t- gcc
 \t- docker
-This tool will build from scratch seid and wipe away existing state.
+This tool will build from scratch kiichaind and wipe away existing state.
 Please backup any important existing data before proceeding.
 """)
 
@@ -81,7 +81,7 @@ def take_manual_inputs():
         env = input("Choose an environment: ")
 
     env = ["local", "devnet", "testnet", "mainnet"][int(env) - 1]
-    db_choice = input("Choose the database backend (1: legacy [default], 2: sei-db): ").strip() or "1"
+    db_choice = input("Choose the database backend (1: legacy [default], 2: kiichain-db): ").strip() or "1"
     if db_choice not in ["1", "2"]:
         db_choice = "1"  # Default to "1" if the input is invalid or empty
     return env, db_choice
@@ -122,9 +122,10 @@ def get_rpc_server(chain_id):
 # Fetch latest version from GitHub for local environment
 def fetch_latest_version():
     try:
-        response = requests.get("https://api.github.com/repos/sei-protocol/sei-chain/releases/latest")
-        response.raise_for_status()
-        latest_version = response.json()["tag_name"]
+        # response = requests.get("https://api.github.com/repos/KiiChain/kiichain3/releases/latest")
+        # response.raise_for_status()
+        # latest_version = response.json()["tag_name"]
+        latest_version = "v1.0.0"
         logging.info(f"Fetched latest version {latest_version} from GitHub API")
         return latest_version
     except Exception as e:
@@ -134,13 +135,14 @@ def fetch_latest_version():
 # Install release based on version tag.
 def install_release(version):
     try:
-        zip_url = f"https://github.com/kiichain/kiichain3/archive/refs/tags/{version}.zip"
-        response = requests.get(zip_url)
-        response.raise_for_status()
-        zip_file = zipfile.ZipFile(BytesIO(response.content))
-        zip_file.extractall(".")
+        # zip_url = f"https://github.com/KiiChain/kiichain3/archive/refs/tags/{version}.zip"
+        # response = requests.get(zip_url)
+        # response.raise_for_status()
+        # zip_file = zipfile.ZipFile(BytesIO(response.content))
+        # zip_file.extractall(".")
 
-        os.chdir(zip_file.namelist()[0])
+        # os.chdir(zip_file.namelist()[0])
+        os.chdir("/Users/matteyu/Code/M/kiichain3")
         subprocess.run(["make", "install"], check=True)
         logging.info(f"Successfully installed version: {version}")
 
@@ -187,7 +189,7 @@ def get_state_sync_params(rpc_url):
 
 # Fetch peers list
 def get_persistent_peers(rpc_url):
-    node_key_path = os.path.expanduser('~/.sei/config/node_key.json')
+    node_key_path = os.path.expanduser('~/.kiichain3/config/node_key.json')
     with open(node_key_path, 'r') as f:
         self_id = json.load(f)['id']
         response = requests.get(f"{rpc_url}/net_info")
@@ -197,10 +199,10 @@ def get_persistent_peers(rpc_url):
 
 # Fetch and write genesis file directly from source
 def write_genesis_file(chain_id):
-    genesis_url = f"https://raw.githubusercontent.com/sei-protocol/testnet/main/{chain_id}/genesis.json"
+    genesis_url = f"https://raw.githubusercontent.com/sei-protocol/testnet/main/remote/genesis.json"
     response = requests.get(genesis_url)
     if response.status_code == 200:
-        genesis_path = os.path.expanduser('~/.sei/config/genesis.json')
+        genesis_path = os.path.expanduser('~/.kiichain3/config/genesis.json')
         with open(genesis_path, 'wb') as file:
             file.write(response.content)
         logging.info("Genesis file written successfully.")
@@ -250,21 +252,21 @@ def main():
         install_release(version)
 
         # Unsafe-reset-all only if directory exists, and by config at top of script
-        home_dir = os.path.expanduser('~/.sei')
+        home_dir = os.path.expanduser('~/.kiichain3')
         if enable_unsafe_reset and os.path.exists(home_dir):
             try:
-                subprocess.run(["seid", "tendermint", "unsafe-reset-all"], check=True)
+                subprocess.run(["kiichaind", "tendermint", "unsafe-reset-all"], check=True)
             except subprocess.CalledProcessError as e:
-                logging.error(f"Failed to execute 'seid tendermint unsafe-reset-all': {e}")
+                logging.error(f"Failed to execute 'kiichaind tendermint unsafe-reset-all': {e}")
                 sys.exit(1)
 
-        # Clean up previous data, init seid with given chain ID and moniker
+        # Clean up previous data, init kiichaind with given chain ID and moniker
         subprocess.run(["rm", "-rf", home_dir])
-        subprocess.run(["seid", "init", moniker, "--chain-id", chain_id], check=True)
+        subprocess.run(["kiichaind", "init", moniker, "--chain-id", chain_id], check=True)
 
         if env == "local":
             logging.info("Running local initialization script...")
-            local_script_path = os.path.expanduser('~/sei-chain/scripts/initialize_local_chain.sh')
+            local_script_path = os.path.expanduser('~/kiichain3/scripts/initialize_local_chain.sh')
             run_command(f"chmod +x {local_script_path}")
             run_command(local_script_path)
         else:
@@ -276,8 +278,8 @@ def main():
             write_genesis_file(chain_id)
 
             # Config changes
-            config_path = os.path.expanduser('~/.sei/config/config.toml')
-            app_config_path = os.path.expanduser('~/.sei/config/app.toml')
+            config_path = os.path.expanduser('~/.kiichain3/config/config.toml')
+            app_config_path = os.path.expanduser('~/.kiichain3/config/app.toml')
 
             # Confirm exists before modifying config files
             ensure_file_path(config_path)
@@ -305,9 +307,9 @@ def main():
                 with open(app_config_path, 'w') as file:
                     file.write(app_data)
 
-        # Start seid
-        logging.info("Starting seid...")
-        run_command("seid start")
+        # Start kiichaind
+        logging.info("Starting kiichaind...")
+        run_command("kiichaind start")
     except KeyboardInterrupt:
         logging.info("Main process interrupted by user. Exiting gracefully...")
 

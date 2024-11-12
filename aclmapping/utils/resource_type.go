@@ -13,7 +13,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	epochtypes "github.com/kiichain/kiichain3/x/epoch/types"
 	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
-	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
+
 	tokenfactorytypes "github.com/kiichain/kiichain3/x/tokenfactory/types"
 )
 
@@ -62,15 +62,15 @@ var StoreKeyToResourceTypePrefixMap = aclsdktypes.StoreKeyToResourceTypePrefixMa
 		aclsdktypes.ResourceType_KV_FEEGRANT:           aclsdktypes.EmptyPrefix,
 		aclsdktypes.ResourceType_KV_FEEGRANT_ALLOWANCE: feegranttypes.FeeAllowanceKeyPrefix,
 	},
-	oracletypes.StoreKey: {
-		aclsdktypes.ResourceType_KV_ORACLE:                      aclsdktypes.EmptyPrefix,
-		aclsdktypes.ResourceType_KV_ORACLE_VOTE_TARGETS:         oracletypes.VoteTargetKey,
-		aclsdktypes.ResourceType_KV_ORACLE_AGGREGATE_VOTES:      oracletypes.AggregateExchangeRateVoteKey,
-		aclsdktypes.ResourceType_KV_ORACLE_FEEDERS:              oracletypes.FeederDelegationKey,
-		aclsdktypes.ResourceType_KV_ORACLE_PRICE_SNAPSHOT:       oracletypes.PriceSnapshotKey,
-		aclsdktypes.ResourceType_KV_ORACLE_EXCHANGE_RATE:        oracletypes.ExchangeRateKey,
-		aclsdktypes.ResourceType_KV_ORACLE_VOTE_PENALTY_COUNTER: oracletypes.VotePenaltyCounterKey,
-	},
+	// oracletypes.StoreKey: {
+	// 	aclsdktypes.ResourceType_KV_ORACLE:                      aclsdktypes.EmptyPrefix,
+	// 	aclsdktypes.ResourceType_KV_ORACLE_VOTE_TARGETS:         oracletypes.VoteTargetKey,
+	// 	aclsdktypes.ResourceType_KV_ORACLE_AGGREGATE_VOTES:      oracletypes.AggregateExchangeRateVoteKey,
+	// 	aclsdktypes.ResourceType_KV_ORACLE_FEEDERS:              oracletypes.FeederDelegationKey,
+	// 	aclsdktypes.ResourceType_KV_ORACLE_PRICE_SNAPSHOT:       oracletypes.PriceSnapshotKey,
+	// 	aclsdktypes.ResourceType_KV_ORACLE_EXCHANGE_RATE:        oracletypes.ExchangeRateKey,
+	// 	aclsdktypes.ResourceType_KV_ORACLE_VOTE_PENALTY_COUNTER: oracletypes.VotePenaltyCounterKey,
+	// },
 	stakingtypes.StoreKey: {
 		aclsdktypes.ResourceType_KV_STAKING:                          aclsdktypes.EmptyPrefix,
 		aclsdktypes.ResourceType_KV_STAKING_VALIDATION_POWER:         stakingtypes.LastValidatorPowerKey,
@@ -173,13 +173,13 @@ var ResourceTypeToStoreKeyMap = aclsdktypes.ResourceTypeToStoreKeyMap{
 	aclsdktypes.ResourceType_KV_FEEGRANT_ALLOWANCE: feegranttypes.StoreKey,
 
 	// ~~~~ ORACLE Resource Types ~~~~
-	aclsdktypes.ResourceType_KV_ORACLE:                      oracletypes.StoreKey,
-	aclsdktypes.ResourceType_KV_ORACLE_VOTE_TARGETS:         oracletypes.StoreKey,
-	aclsdktypes.ResourceType_KV_ORACLE_AGGREGATE_VOTES:      oracletypes.StoreKey,
-	aclsdktypes.ResourceType_KV_ORACLE_FEEDERS:              oracletypes.StoreKey,
-	aclsdktypes.ResourceType_KV_ORACLE_PRICE_SNAPSHOT:       oracletypes.StoreKey,
-	aclsdktypes.ResourceType_KV_ORACLE_EXCHANGE_RATE:        oracletypes.StoreKey,
-	aclsdktypes.ResourceType_KV_ORACLE_VOTE_PENALTY_COUNTER: oracletypes.StoreKey,
+	// aclsdktypes.ResourceType_KV_ORACLE:                      oracletypes.StoreKey,
+	// aclsdktypes.ResourceType_KV_ORACLE_VOTE_TARGETS:         oracletypes.StoreKey,
+	// aclsdktypes.ResourceType_KV_ORACLE_AGGREGATE_VOTES:      oracletypes.StoreKey,
+	// aclsdktypes.ResourceType_KV_ORACLE_FEEDERS:              oracletypes.StoreKey,
+	// aclsdktypes.ResourceType_KV_ORACLE_PRICE_SNAPSHOT:       oracletypes.StoreKey,
+	// aclsdktypes.ResourceType_KV_ORACLE_EXCHANGE_RATE:        oracletypes.StoreKey,
+	// aclsdktypes.ResourceType_KV_ORACLE_VOTE_PENALTY_COUNTER: oracletypes.StoreKey,
 
 	// ~~~~ STAKING Resource Types ~~~~
 	aclsdktypes.ResourceType_KV_STAKING:                          stakingtypes.StoreKey,

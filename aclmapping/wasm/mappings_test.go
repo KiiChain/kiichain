@@ -11,7 +11,7 @@ import (
 	acltypes "github.com/cosmos/cosmos-sdk/x/accesscontrol/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
-	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
+
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
@@ -25,22 +25,22 @@ func TestWasmDependencyGenerator(t *testing.T) {
 	require.True(t, ok)
 }
 
-func TestGeneratorInvalidMessageTypes(t *testing.T) {
-	accs := authtypes.GenesisAccounts{}
-	balances := []types.Balance{}
+// func TestGeneratorInvalidMessageTypes(t *testing.T) {
+// 	accs := authtypes.GenesisAccounts{}
+// 	balances := []types.Balance{}
 
-	app := simapp.SetupWithGenesisAccounts(accs, balances...)
-	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
+// 	app := simapp.SetupWithGenesisAccounts(accs, balances...)
+// 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
-	oracleVote := oracletypes.MsgAggregateExchangeRateVote{
-		ExchangeRates: "1ukii",
-		Feeder:        "test",
-		Validator:     "validator",
-	}
+// 	oracleVote := oracletypes.MsgAggregateExchangeRateVote{
+// 		ExchangeRates: "1ukii",
+// 		Feeder:        "test",
+// 		Validator:     "validator",
+// 	}
 
-	_, err := NewWasmDependencyGenerator().WasmExecuteContractGenerator(app.AccessControlKeeper, ctx, &oracleVote)
-	require.Error(t, err)
-}
+// 	_, err := NewWasmDependencyGenerator().WasmExecuteContractGenerator(app.AccessControlKeeper, ctx, &oracleVote)
+// 	require.Error(t, err)
+// }
 
 func TestMsgBeginWasmExecuteGenerator(t *testing.T) {
 	priv1 := secp256k1.GenPrivKey()

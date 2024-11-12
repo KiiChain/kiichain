@@ -98,7 +98,6 @@ func (suite *AnteTestSuite) SetupTest(isCheckTx bool) {
 			IBCKeeper:           suite.App.IBCKeeper,
 			WasmConfig:          &wasmConfig,
 			WasmKeeper:          &suite.App.WasmKeeper,
-			OracleKeeper:        &suite.App.OracleKeeper,
 			AccessControlKeeper: &suite.App.AccessControlKeeper,
 			TracingInfo:         tracingInfo,
 			EVMKeeper:           &suite.App.EvmKeeper,

@@ -71,14 +71,14 @@ install: go.sum
 install-with-race-detector: go.sum
 		go install -race $(BUILD_FLAGS) ./cmd/kiichaind
 
-install-price-feeder: go.sum
-		go install $(BUILD_FLAGS) ./oracle/price-feeder
+# install-price-feeder: go.sum
+# 		go install $(BUILD_FLAGS) ./oracle/price-feeder
 
 loadtest: go.sum
 		go build $(BUILD_FLAGS) -o ./build/loadtest ./loadtest/
 
-price-feeder: go.sum
-		go build $(BUILD_FLAGS) -o ./build/price-feeder ./oracle/price-feeder
+# price-feeder: go.sum
+# 		go build $(BUILD_FLAGS) -o ./build/price-feeder ./oracle/price-feeder
 
 go.sum: go.mod
 		@echo "--> Ensure dependencies have not been modified"
@@ -92,8 +92,8 @@ lint:
 build:
 	go build $(BUILD_FLAGS) -o ./build/kiichaind ./cmd/kiichaind
 
-build-price-feeder:
-	go build $(BUILD_FLAGS) -o ./build/price-feeder ./oracle/price-feeder
+# build-price-feeder:
+# 	go build $(BUILD_FLAGS) -o ./build/price-feeder ./oracle/price-feeder
 
 clean:
 	rm -rf ./build
@@ -128,10 +128,6 @@ build-docker-prime:
 	@cd docker && docker build --tag kiichain3/prime prime --platform linux/x86_64
 .PHONY: build-docker-prime
 
-build-docker-node:
-	@cd docker && docker build --tag kiichain3/localnode localnode --platform linux/x86_64
-.PHONY: build-docker-node
-
 build-rpc-node:
 	@cd docker && docker build --tag kiichain3/rpcnode rpcnode --platform linux/x86_64
 .PHONY: build-rpc-node
@@ -150,20 +146,6 @@ run-prime-node: kill-kiichain-node build-docker-prime
 	--platform linux/x86_64 \
 	kiichain3/prime
 .PHONY: run-prime-node
-
-# Run a single node docker container
-run-local-node: kill-kiichain-node build-docker-node
-	@rm -rf $(PROJECT_HOME)/build/generated
-	docker run --rm \
-	--name kiichain-node \
-	--user="$(shell id -u):$(shell id -g)" \
-	-v $(PROJECT_HOME):/kiichain/kiichain3:Z \
-	-v $(GO_PKG_PATH)/mod:/root/go/pkg/mod:Z \
-	-v $(shell go env GOCACHE):/root/.cache/go-build:Z \
-	-p 26668-26670:26656-26658 \
-	--platform linux/x86_64 \
-	kiichain3/localnode
-.PHONY: run-local-node
 
 # Run a single rpc state sync node docker container
 run-rpc-node: build-rpc-node

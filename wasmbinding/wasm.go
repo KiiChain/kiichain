@@ -11,14 +11,12 @@ import (
 	epochkeeper "github.com/kiichain/kiichain3/x/epoch/keeper"
 	evmwasm "github.com/kiichain/kiichain3/x/evm/client/wasm"
 	evmkeeper "github.com/kiichain/kiichain3/x/evm/keeper"
-	oraclewasm "github.com/kiichain/kiichain3/x/oracle/client/wasm"
-	oraclekeeper "github.com/kiichain/kiichain3/x/oracle/keeper"
+
 	tokenfactorywasm "github.com/kiichain/kiichain3/x/tokenfactory/client/wasm"
 	tokenfactorykeeper "github.com/kiichain/kiichain3/x/tokenfactory/keeper"
 )
 
 func RegisterCustomPlugins(
-	oracle *oraclekeeper.Keeper,
 	epoch *epochkeeper.Keeper,
 	tokenfactory *tokenfactorykeeper.Keeper,
 	_ *authkeeper.AccountKeeper,
@@ -31,11 +29,10 @@ func RegisterCustomPlugins(
 	aclKeeper aclkeeper.Keeper,
 	evmKeeper *evmkeeper.Keeper,
 ) []wasmkeeper.Option {
-	oracleHandler := oraclewasm.NewOracleWasmQueryHandler(oracle)
 	epochHandler := epochwasm.NewEpochWasmQueryHandler(epoch)
 	tokenfactoryHandler := tokenfactorywasm.NewTokenFactoryWasmQueryHandler(tokenfactory)
 	evmHandler := evmwasm.NewEVMQueryHandler(evmKeeper)
-	wasmQueryPlugin := NewQueryPlugin(oracleHandler, epochHandler, tokenfactoryHandler, evmHandler)
+	wasmQueryPlugin := NewQueryPlugin(epochHandler, tokenfactoryHandler, evmHandler)
 
 	queryPluginOpt := wasmkeeper.WithQueryPlugins(&wasmkeeper.QueryPlugins{
 		Custom: CustomQuerier(wasmQueryPlugin),

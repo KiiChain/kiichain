@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkacltypes "github.com/cosmos/cosmos-sdk/types/accesscontrol"
 	"github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -15,10 +14,8 @@ import (
 	stakingacl "github.com/kiichain/kiichain3/aclmapping/staking"
 	aclutils "github.com/kiichain/kiichain3/aclmapping/utils"
 	"github.com/kiichain/kiichain3/app/apptesting"
-	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
 
 	acltypes "github.com/cosmos/cosmos-sdk/x/accesscontrol/types"
-	"github.com/kiichain/kiichain3/app"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -276,30 +273,30 @@ func (suite *KeeperTestSuite) TestMsgDelegateDependencies() {
 	}
 }
 
-func TestGeneratorInvalidMessageTypes(t *testing.T) {
-	tm := time.Now().UTC()
-	valPub := secp256k1.GenPrivKey().PubKey()
-	testWrapper := app.NewTestWrapper(t, tm, valPub, false)
+// func TestGeneratorInvalidMessageTypes(t *testing.T) {
+// 	tm := time.Now().UTC()
+// 	valPub := secp256k1.GenPrivKey().PubKey()
+// 	testWrapper := app.NewTestWrapper(t, tm, valPub, false)
 
-	stakingDelegate := stakingtypes.MsgDelegate{
-		DelegatorAddress: "delegator",
-		ValidatorAddress: "validator",
-		Amount:           sdk.Coin{Denom: "ukii", Amount: sdk.NewInt(5)},
-	}
-	oracleVote := oracletypes.MsgAggregateExchangeRateVote{
-		ExchangeRates: "1ukii",
-		Feeder:        "test",
-		Validator:     "validator",
-	}
+// 	stakingDelegate := stakingtypes.MsgDelegate{
+// 		DelegatorAddress: "delegator",
+// 		ValidatorAddress: "validator",
+// 		Amount:           sdk.Coin{Denom: "ukii", Amount: sdk.NewInt(5)},
+// 	}
+// oracleVote := oracletypes.MsgAggregateExchangeRateVote{
+// 	ExchangeRates: "1ukii",
+// 	Feeder:        "test",
+// 	Validator:     "validator",
+// }
 
-	_, err := stakingacl.MsgUndelegateDependencyGenerator(testWrapper.App.AccessControlKeeper, testWrapper.Ctx, &oracleVote)
-	require.Error(t, err)
-	_, err = stakingacl.MsgUndelegateDependencyGenerator(testWrapper.App.AccessControlKeeper, testWrapper.Ctx, &stakingDelegate)
-	require.Error(t, err)
-	_, err = stakingacl.MsgUndelegateDependencyGenerator(testWrapper.App.AccessControlKeeper, testWrapper.Ctx, &stakingDelegate)
-	require.Error(t, err)
+// _, err := stakingacl.MsgUndelegateDependencyGenerator(testWrapper.App.AccessControlKeeper, testWrapper.Ctx, &oracleVote)
+// require.Error(t, err)
+// _, err = stakingacl.MsgUndelegateDependencyGenerator(testWrapper.App.AccessControlKeeper, testWrapper.Ctx, &stakingDelegate)
+// require.Error(t, err)
+// _, err = stakingacl.MsgUndelegateDependencyGenerator(testWrapper.App.AccessControlKeeper, testWrapper.Ctx, &stakingDelegate)
+// require.Error(t, err)
 
-}
+// }
 
 func (suite *KeeperTestSuite) TestMsgDelegateGenerator() {
 	suite.PrepareTest()

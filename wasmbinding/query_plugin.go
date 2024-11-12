@@ -29,8 +29,6 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 			return nil, sdkerrors.Wrap(err, "Error parsing request data")
 		}
 		switch contractQuery.Route {
-		case OracleRoute:
-			return qp.HandleOracleQuery(ctx, contractQuery.QueryData)
 		case EpochRoute:
 			return qp.HandleEpochQuery(ctx, contractQuery.QueryData)
 		case TokenFactoryRoute:

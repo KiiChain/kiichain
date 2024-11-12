@@ -15,7 +15,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	aclutils "github.com/kiichain/kiichain3/aclmapping/utils"
 	utils "github.com/kiichain/kiichain3/aclmapping/utils"
-	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
+
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
@@ -110,22 +110,22 @@ func TestMsgBankSendAclOps(t *testing.T) {
 	}
 }
 
-func TestGeneratorInvalidMessageTypes(t *testing.T) {
-	accs := authtypes.GenesisAccounts{}
-	balances := []types.Balance{}
+// func TestGeneratorInvalidMessageTypes(t *testing.T) {
+// 	accs := authtypes.GenesisAccounts{}
+// 	balances := []types.Balance{}
 
-	app := simapp.SetupWithGenesisAccounts(accs, balances...)
-	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
+// 	app := simapp.SetupWithGenesisAccounts(accs, balances...)
+// 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
-	oracleVote := oracletypes.MsgAggregateExchangeRateVote{
-		ExchangeRates: "1ukii",
-		Feeder:        "test",
-		Validator:     "validator",
-	}
+// 	oracleVote := oracletypes.MsgAggregateExchangeRateVote{
+// 		ExchangeRates: "1ukii",
+// 		Feeder:        "test",
+// 		Validator:     "validator",
+// 	}
 
-	_, err := MsgSendDependencyGenerator(app.AccessControlKeeper, ctx, &oracleVote)
-	require.Error(t, err)
-}
+// 	_, err := MsgSendDependencyGenerator(app.AccessControlKeeper, ctx, &oracleVote)
+// 	require.Error(t, err)
+// }
 
 func TestMsgBeginBankSendGenerator(t *testing.T) {
 	priv1 := secp256k1.GenPrivKey()

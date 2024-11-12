@@ -13,7 +13,6 @@ import (
 	"github.com/kiichain/kiichain3/precompiles/gov"
 	"github.com/kiichain/kiichain3/precompiles/ibc"
 	"github.com/kiichain/kiichain3/precompiles/json"
-	"github.com/kiichain/kiichain3/precompiles/oracle"
 	"github.com/kiichain/kiichain3/precompiles/pointer"
 	"github.com/kiichain/kiichain3/precompiles/pointerview"
 	"github.com/kiichain/kiichain3/precompiles/staking"
@@ -48,7 +47,6 @@ func InitializePrecompiles(
 	stakingQuerier common.StakingQuerier,
 	govKeeper common.GovKeeper,
 	distrKeeper common.DistributionKeeper,
-	oracleKeeper common.OracleKeeper,
 	transferKeeper common.TransferKeeper,
 	clientKeeper common.ClientKeeper,
 	connectionKeeper common.ConnectionKeeper,
@@ -88,10 +86,6 @@ func InitializePrecompiles(
 	if err != nil {
 		return err
 	}
-	oraclep, err := oracle.NewPrecompile(oracleKeeper, evmKeeper)
-	if err != nil {
-		return err
-	}
 	ibcp, err := ibc.NewPrecompile(transferKeeper, evmKeeper, clientKeeper, connectionKeeper, channelKeeper)
 	if err != nil {
 		return err
@@ -111,7 +105,6 @@ func InitializePrecompiles(
 	PrecompileNamesToInfo[stakingp.GetName()] = PrecompileInfo{ABI: stakingp.GetABI(), Address: stakingp.Address()}
 	PrecompileNamesToInfo[govp.GetName()] = PrecompileInfo{ABI: govp.GetABI(), Address: govp.Address()}
 	PrecompileNamesToInfo[distrp.GetName()] = PrecompileInfo{ABI: distrp.GetABI(), Address: distrp.Address()}
-	PrecompileNamesToInfo[oraclep.GetName()] = PrecompileInfo{ABI: oraclep.GetABI(), Address: oraclep.Address()}
 	PrecompileNamesToInfo[ibcp.GetName()] = PrecompileInfo{ABI: ibcp.GetABI(), Address: ibcp.Address()}
 	PrecompileNamesToInfo[pointerp.GetName()] = PrecompileInfo{ABI: pointerp.GetABI(), Address: pointerp.Address()}
 	PrecompileNamesToInfo[pointerviewp.GetName()] = PrecompileInfo{ABI: pointerviewp.GetABI(), Address: pointerviewp.Address()}
@@ -123,7 +116,6 @@ func InitializePrecompiles(
 		addPrecompileToVM(stakingp)
 		addPrecompileToVM(govp)
 		addPrecompileToVM(distrp)
-		addPrecompileToVM(oraclep)
 		addPrecompileToVM(ibcp)
 		addPrecompileToVM(pointerp)
 		addPrecompileToVM(pointerviewp)
@@ -135,7 +127,7 @@ func InitializePrecompiles(
 func GetPrecompileInfo(name string) PrecompileInfo {
 	if !Initialized {
 		// Precompile Info does not require any keeper state
-		_ = InitializePrecompiles(true, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
+		_ = InitializePrecompiles(true, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	}
 	i, ok := PrecompileNamesToInfo[name]
 	if !ok {

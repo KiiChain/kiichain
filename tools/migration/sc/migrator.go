@@ -37,7 +37,7 @@ import (
 	epochmoduletypes "github.com/kiichain/kiichain3/x/epoch/types"
 	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
 	minttypes "github.com/kiichain/kiichain3/x/mint/types"
-	oracletypes "github.com/kiichain/kiichain3/x/oracle/types"
+
 	tokenfactorytypes "github.com/kiichain/kiichain3/x/tokenfactory/types"
 	"github.com/sei-protocol/sei-db/config"
 	"github.com/tendermint/tendermint/libs/log"
@@ -55,7 +55,7 @@ var Keys = sdk.NewKVStoreKeys(
 	acltypes.StoreKey, authtypes.StoreKey, authzkeeper.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
 	minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 	govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
-	evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey, oracletypes.StoreKey,
+	evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 	evmtypes.StoreKey, wasm.StoreKey, epochmoduletypes.StoreKey, tokenfactorytypes.StoreKey, "dex",
 )
 

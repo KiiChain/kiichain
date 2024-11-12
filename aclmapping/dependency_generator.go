@@ -4,7 +4,6 @@ import (
 	aclkeeper "github.com/cosmos/cosmos-sdk/x/accesscontrol/keeper"
 	aclbankmapping "github.com/kiichain/kiichain3/aclmapping/bank"
 	aclevmmapping "github.com/kiichain/kiichain3/aclmapping/evm"
-	acloraclemapping "github.com/kiichain/kiichain3/aclmapping/oracle"
 	acltokenfactorymapping "github.com/kiichain/kiichain3/aclmapping/tokenfactory"
 	aclwasmmapping "github.com/kiichain/kiichain3/aclmapping/wasm"
 	evmkeeper "github.com/kiichain/kiichain3/x/evm/keeper"
@@ -23,7 +22,6 @@ func (customDepGen CustomDependencyGenerator) GetCustomDependencyGenerators(evmK
 	dependencyGeneratorMap = dependencyGeneratorMap.Merge(aclbankmapping.GetBankDepedencyGenerator())
 	dependencyGeneratorMap = dependencyGeneratorMap.Merge(acltokenfactorymapping.GetTokenFactoryDependencyGenerators())
 	dependencyGeneratorMap = dependencyGeneratorMap.Merge(wasmDependencyGenerators.GetWasmDependencyGenerators())
-	dependencyGeneratorMap = dependencyGeneratorMap.Merge(acloraclemapping.GetOracleDependencyGenerator())
 	dependencyGeneratorMap = dependencyGeneratorMap.Merge(aclevmmapping.GetEVMDependencyGenerators(evmKeeper))
 
 	return dependencyGeneratorMap
