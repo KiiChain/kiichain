@@ -109,7 +109,7 @@ laddr = "tcp://0.0.0.0:26657"
 # A list of origins a cross-domain request can be executed from
 # Default value '[]' disables cors support
 # Use '["*"]' to allow any origin
-cors-allowed-origins = []
+cors-allowed-origins = ['*']
 
 # A list of methods the client is allowed to use with cross-domain requests
 cors-allowed-methods = ["HEAD", "GET", "POST", ]
