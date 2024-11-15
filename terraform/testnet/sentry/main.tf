@@ -50,6 +50,10 @@ resource "aws_instance" "sentry" {
 
         # Navigate to project directory and execute make command
         cd kiichain3 >> /tmp/userdata.log 2>&1
+
+        sed -i 's/REPLACE_SYNC_RPC/172.31.10.58:26657/g' docker/rpcnode/scripts/step1_configure_init.sh
+        sed -i 's/REPLACE_SYNC_PEERS/011d83fee9f5345454751021bab62b5e5b10a13c@172.31.10.58:26656,1e9a9c3b0f3bb36e77eb729c138f2a396d015c80@172.31.10.58:26659,d48bb135b14a6b8ba13972daef8b3e51fe4a7a0f@172.31.10.58:26662/g' docker/rpcnode/scripts/step1_configure_init.sh
+
         echo "export PROJECT_HOME=$(git rev-parse --show-toplevel)" | sudo tee -a /etc/profile /home/ubuntu/.profile
         echo "export GO_PKG_PATH=$(HOME)/go/pkg" | sudo tee -a /etc/profile /home/ubuntu/.profile
         echo "export GOCACHE=$(HOME)/.cache/go-build" | sudo tee -a /etc/profile /home/ubuntu/.profile
