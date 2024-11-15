@@ -8,6 +8,17 @@ Kiichain Version 3 - Forked from Sei Chain
 ```shell
 git clone git@github.com:KiiChain/kiichain3.git
 cd kiichain3
+```
+
+```shell
+nano docker/rpcnode/scripts/step1_configure.init.sh
+
+# replace REPLACE_SYNC_RPC with 18.226.34.140:26669
+
+# replace REPLACE_SYNC_PEERS with d2fbe128da8cf541a44ae3f893e4f14395fdfd3a@18.226.34.140:26668,2a6353f698929346e4a7b4ea8987a5c7748c73af@3.142.36.147:26668
+```
+
+```shell
 make run-prime-node # this is to run a local node
 
 # once the container is running, verify that you can reach the rpc
