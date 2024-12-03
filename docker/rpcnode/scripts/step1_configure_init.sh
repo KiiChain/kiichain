@@ -18,12 +18,24 @@ cp docker/rpcnode/config/app.toml ~/.kiichain3/config/app.toml
 cp docker/rpcnode/config/config.toml ~/.kiichain3/config/config.toml
 cp remote/genesis.json ~/.kiichain3/config/genesis.json
 
+# cosmovisor files
+mkdir -p ~/.kiichain3/cosmovisor/genesis/bin
+mkdir -p ~/.kiichain3/cosmovisor/upgrades
+cp $GOBIN/kiichaind ~/.kiichain3/cosmovisor/genesis/bin
+if [ -f ~/.kiichain3/cosmovisor/genesis/bin/kiichaind ]; then
+    echo "Cosmovisor setup completed successfully."
+else
+    echo "Error: Cosmovisor setup failed. Binary not found in genesis/bin."
+    exit 1
+fi
+
 # Override state sync configs
 
 # SELECT AN RPC NODE FOR SYNCING eg. 192.168.10.10:26657
-STATE_SYNC_RPC="REPLACE_SYNC_RPC"
+STATE_SYNC_RPC="18.226.34.140:26669"
+
 # LIST PEERS FOR SYNCING eg. 2f9846450b7a3dcf4af1ac0082e3279c16744df8@172.31.9.18:26656,ec98c4a28a2023f4f976828c8a8e7127bfef4e1b@172.31.4.96:26656....
-STATE_SYNC_PEER="REPLACE_SYNC_PEERS"
+STATE_SYNC_PEER="d2fbe128da8cf541a44ae3f893e4f14395fdfd3a@18.226.34.140:26668,2a6353f698929346e4a7b4ea8987a5c7748c73af@3.142.36.147:26668"
 curl "$STATE_SYNC_RPC"/net_info |jq -r '.peers[] | .url' |sed -e 's#mconn://##' >> build/generated/PEERS
 LATEST_HEIGHT=$(curl -s $STATE_SYNC_RPC/block | jq -r .block.header.height)
 SYNC_BLOCK_HEIGHT=$LATEST_HEIGHT

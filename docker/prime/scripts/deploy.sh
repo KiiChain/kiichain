@@ -14,6 +14,18 @@ echo "export PATH=$GOBIN:$PATH:/usr/local/go/bin:$BUILD_PATH:$HOME/.foundry/bin"
 rm -rf build/generated
 /bin/bash -c "source $HOME/.bashrc"
 mkdir -p $GOBIN
+
+# Set up cosmovisor env
+export DAEMON_NAME="kiichaind"
+export DAEMON_HOME="/root/.kiichain3"
+export DAEMON_ALLOW_DOWNLOAD_BINARIES="false"
+export DAEMON_RESTART_AFTER_UPGRADE="true"
+echo "export DAEMON_NAME=$DAEMON_NAME" >> /root/.bashrc
+echo "export DAEMON_HOME=$DAEMON_HOME" >> /root/.bashrc
+echo "export DAEMON_ALLOW_DOWNLOAD_BINARIES=$DAEMON_ALLOW_DOWNLOAD_BINARIES" >> /root/.bashrc
+echo "export DAEMON_RESTART_AFTER_UPGRADE=$DAEMON_RESTART_AFTER_UPGRADE" >> /root/.bashrc
+
+
 # Step 0: Build on node 0
 if [ "$NODE_ID" = 0 ] && [ -z "$SKIP_BUILD" ]
 then

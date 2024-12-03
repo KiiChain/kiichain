@@ -137,7 +137,6 @@ run-prime-node: kill-kiichain-node build-docker-prime
 	@rm -rf $(PROJECT_HOME)/build/generated
 	docker run --rm \
 	--name kiichain-node \
-	--user="$(shell id -u):$(shell id -g)" \
 	-v $(PROJECT_HOME):/kiichain/kiichain3:Z \
 	-v $(GO_PKG_PATH)/mod:/root/go/pkg/mod:Z \
 	-v $(shell go env GOCACHE):/root/.cache/go-build:Z \
@@ -151,7 +150,6 @@ run-prime-node: kill-kiichain-node build-docker-prime
 run-rpc-node: build-rpc-node
 	docker run --rm \
 	--name kiichain-rpc-node \
-	--user="$(shell id -u):$(shell id -g)" \
 	-v $(PROJECT_HOME):/kiichain/kiichain3:Z \
 	-v $(PROJECT_HOME)/../sei-tendermint:/kiichain/kiichain-tendermint:Z \
     -v $(PROJECT_HOME)/../sei-cosmos:/kiichain/kiichain-cosmos:Z \
