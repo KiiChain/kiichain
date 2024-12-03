@@ -66,7 +66,7 @@ func TestInstantiate(t *testing.T) {
 	outputs, err := instantiateMethod.Outputs.Unpack(res)
 	require.Nil(t, err)
 	require.Equal(t, 2, len(outputs))
-	require.Equal(t, "sei1hrpna9v7vs3stzyd4z3xf00676kf78zpe2u5ksvljswn2vnjp3yslucc3n", outputs[0].(string))
+	require.Equal(t, "kii1hrpna9v7vs3stzyd4z3xf00676kf78zpe2u5ksvljswn2vnjp3yst7pgzj", outputs[0].(string))
 	require.Empty(t, outputs[1].([]byte))
 	require.NotZero(t, g)
 
@@ -89,7 +89,7 @@ func TestInstantiate(t *testing.T) {
 	outputs, err = instantiateMethod.Outputs.Unpack(res)
 	require.Nil(t, err)
 	require.Equal(t, 2, len(outputs))
-	require.Equal(t, "sei1hrpna9v7vs3stzyd4z3xf00676kf78zpe2u5ksvljswn2vnjp3yslucc3n", outputs[0].(string))
+	require.Equal(t, "kii1hrpna9v7vs3stzyd4z3xf00676kf78zpe2u5ksvljswn2vnjp3yst7pgzj", outputs[0].(string))
 	require.Empty(t, outputs[1].([]byte))
 	require.NotZero(t, g)
 
@@ -156,7 +156,7 @@ func TestExecute(t *testing.T) {
 	statedb.WithCtx(statedb.Ctx().WithIsEVM(false))
 	testApp.EvmKeeper.SetCode(statedb.Ctx(), mockEVMAddr, []byte{1, 2, 3})
 	res, _, err := p.RunAndCalculateGas(&evm, mockEVMAddr, mockEVMAddr, append(p.GetExecutor().(*wasmd.PrecompileExecutor).ExecuteID, args...), suppliedGas, big.NewInt(1000_000_000_000_000), nil, false, false)
-	require.Equal(t, "sei does not support CW->EVM->CW call pattern", string(res))
+	require.Equal(t, "kii does not support CW->EVM->CW call pattern", string(res))
 	require.Equal(t, vm.ErrExecutionReverted, err)
 	statedb.WithCtx(statedb.Ctx().WithIsEVM(true))
 	res, g, err := p.RunAndCalculateGas(&evm, mockEVMAddr, mockEVMAddr, append(p.GetExecutor().(*wasmd.PrecompileExecutor).ExecuteID, args...), suppliedGas, big.NewInt(1000_000_000_000_000), nil, false, false)

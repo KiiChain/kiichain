@@ -270,7 +270,7 @@ func TestHandleERC721RoyaltyInfo(t *testing.T) {
 	res2, err := h.HandleERC721RoyaltyInfo(ctx, addr1.String(), contractAddr.String(), "1", &value)
 	require.Nil(t, err)
 	require.NotEmpty(t, res2)
-	match, _ := regexp.MatchString(`{"receiver":"sei\w{39}","royalty_amount":"5"}`, string(res2))
+	match, _ := regexp.MatchString(`{"receiver":"kii\w{39}","royalty_amount":"5"}`, string(res2))
 	require.True(t, match)
 }
 
