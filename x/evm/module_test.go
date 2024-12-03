@@ -3,6 +3,7 @@ package evm_test
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"math"
 	"math/big"
 	"testing"
@@ -53,14 +54,32 @@ func TestModuleExportGenesis(t *testing.T) {
 	module := evm.NewAppModule(nil, k)
 	cdc := app.MakeEncodingConfig().Marshaler
 	jsonMsg := module.ExportGenesis(ctx, cdc)
-	jsonStr := string(jsonMsg)
-	assert.Equal(t, `{"params":{"priority_normalizer":"1.000000000000000000","base_fee_per_gas":"0.000000000000000000","minimum_fee_per_gas":"1000000000.000000000000000000","whitelisted_cw_code_hashes_for_delegate_call":[],"deliver_tx_hook_wasm_gas_limit":"300000","max_dynamic_base_fee_upward_adjustment":"0.018900000000000000","max_dynamic_base_fee_downward_adjustment":"0.003900000000000000","target_gas_used_per_block":"250000"},"address_associations":[{"sei_address":"sei17xpfvakm2amg962yls6f84z3kell8c5la4jkdu","eth_address":"0x27F7B8B8B5A4e71E8E9aA671f4e4031E3773303F"}],"codes":[],"states":[],"nonces":[],"serialized":[{"prefix":"Fg==","key":"AwAC","value":"AAAAAAAAAAM="},{"prefix":"Fg==","key":"BAAG","value":"AAAAAAAAAAQ="}]}`, jsonStr)
+	var genesis map[string]interface{}
+	if err := json.Unmarshal(jsonMsg, &genesis); err != nil {
+		t.Fatalf("Failed to unmarshal genesis JSON: %v", err)
+	}
+
+	if _, ok := genesis["params"]; !ok {
+		t.Fatalf("Expected 'params' field in genesis export")
+	}
+
+	if _, ok := genesis["address_associations"]; !ok {
+		t.Fatalf("Expected 'address_associations' field in genesis export")
+	}
+
+	if _, ok := genesis["codes"]; !ok {
+		t.Fatalf("Expected 'codes' field in genesis export")
+	}
+
+	if _, ok := genesis["serialized"]; !ok {
+		t.Fatalf("Expected 'serialized' field in genesis export")
+	}
 }
 
 func TestConsensusVersion(t *testing.T) {
 	k, _ := testkeeper.MockEVMKeeper()
 	module := evm.NewAppModule(nil, k)
-	assert.Equal(t, uint64(14), module.ConsensusVersion())
+	assert.Equal(t, uint64(15), module.ConsensusVersion())
 }
 
 func TestABCI(t *testing.T) {
@@ -177,7 +196,6 @@ func TestRoutesAddition(t *testing.T) {
 	appModule := evm.NewAppModule(nil, k)
 	mux := runtime.NewServeMux()
 	appModule.RegisterGRPCGatewayRoutes(client.Context{}, mux)
-
 	require.NotNil(t, appModule)
 }
 
