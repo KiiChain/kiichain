@@ -14,6 +14,8 @@ WORKDIR /kiichain/kiichain3
 
 EXPOSE 26656 26657 26658 9090 9091 7171
 
+RUN /usr/local/go/bin/go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@v1.5.0
+
 CMD ["/usr/bin/deploy.sh"]
 
 STOPSIGNAL SIGTERM

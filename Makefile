@@ -137,7 +137,6 @@ run-prime-node: kill-kiichain-node build-docker-prime
 	@rm -rf $(PROJECT_HOME)/build/generated
 	docker run --rm \
 	--name kiichain-node \
-	--user="$(shell id -u):$(shell id -g)" \
 	-v $(PROJECT_HOME):/kiichain/kiichain3:Z \
 	-v $(GO_PKG_PATH)/mod:/root/go/pkg/mod:Z \
 	-v $(shell go env GOCACHE):/root/.cache/go-build:Z \
@@ -151,7 +150,6 @@ run-prime-node: kill-kiichain-node build-docker-prime
 run-rpc-node: build-rpc-node
 	docker run --rm \
 	--name kiichain-rpc-node \
-	--user="$(shell id -u):$(shell id -g)" \
 	-v $(PROJECT_HOME):/kiichain/kiichain3:Z \
 	-v $(PROJECT_HOME)/../sei-tendermint:/kiichain/kiichain-tendermint:Z \
     -v $(PROJECT_HOME)/../sei-cosmos:/kiichain/kiichain-cosmos:Z \
@@ -230,3 +228,44 @@ split-test-packages:$(BUILDDIR)/packages.txt
 	split -d -n l/$(NUM_SPLIT) $< $<.
 test-group-%:split-test-packages
 	cat $(BUILDDIR)/packages.txt.$* | xargs go test -parallel 4 -mod=readonly -timeout=10m -race -coverprofile=$*.profile.out -covermode=atomic
+
+###############################################################################
+###                       Upgrade using cosmovisor                          ###
+###############################################################################
+GENESIS_BIN_PATH = /root/.kiichain3/cosmovisor/genesis/bin
+
+.PHONY: prepare-upgrade
+prepare-upgrade:
+	@if [ -z "$(UPGRADE_NAME)" ]; then echo "Error: UPGRADE_NAME is not set. Use \`make upgrade UPGRADE_NAME=<name>\` to specify the upgrade name."; exit 1; fi
+	@if [ -z "$(CONTAINER_NAME)" ]; then echo "Error: CONTAINER_NAME is not set. Use \`make upgrade CONTAINER_NAME=<name>\` to specify the container name."; exit 1; fi
+	@echo "Compiling new binary"
+	@make install
+	@echo "Creating the upgrade folder in cosmovisor inside the Docker container"
+	@docker exec $(CONTAINER_NAME) mkdir -p /root/.kiichain3/cosmovisor/upgrades/$(UPGRADE_NAME)/bin
+	@echo "Copying the binary from local GOBIN to the Docker container"
+	@docker cp ~/go/bin/kiichaind $(CONTAINER_NAME):/root/.kiichain3/cosmovisor/upgrades/$(UPGRADE_NAME)/bin/kiichaind
+	@docker exec $(CONTAINER_NAME) chmod +x /root/.kiichain3/cosmovisor/upgrades/$(UPGRADE_NAME)/bin/kiichaind
+	@echo "Preparing for upgrade '$(UPGRADE_NAME)' completed"
+
+.PHONY: verify
+verify:
+	@if [ -z "$(UPGRADE_NAME)" ]; then echo "Error: UPGRADE_NAME is not set. Use \`make upgrade UPGRADE_NAME=<name>\` to specify the upgrade name."; exit 1; fi
+	@if [ -z "$(CONTAINER_NAME)" ]; then echo "Error: CONTAINER_NAME is not set. Use \`make upgrade CONTAINER_NAME=<name>\` to specify the container name."; exit 1; fi
+	@echo "Checking cosmovisor settings inside the Docker container"
+	@docker exec $(CONTAINER_NAME) sh -c '[ -f $(GENESIS_BIN_PATH)/kiichaind ] && echo "Cosmovisor: Genesis binary found." || (echo "Cosmovisor: Genesis binary not found." && exit 1)'
+	@docker exec $(CONTAINER_NAME) sh -c '[ -d /root/.kiichain3/cosmovisor/upgrades/$(UPGRADE_NAME) ] && echo "Cosmovisor: Upgrade folder '$(UPGRADE_NAME)' found." || (echo "Cosmovisor: Upgrade folder '$(UPGRADE_NAME)' not found." && exit 1)'
+	@echo "Cosmovisor settings verified successfully"
+
+.PHONY: upgrade
+upgrade:
+	@if [ -z "$(UPGRADE_NAME)" ]; then echo "Error: UPGRADE_NAME is not set. Use \`make upgrade UPGRADE_NAME=<name>\` to specify the upgrade name."; exit 1; fi
+	@if [ -z "$(CONTAINER_NAME)" ]; then echo "Error: CONTAINER_NAME is not set. Use \`make upgrade CONTAINER_NAME=<name>\` to specify the container name."; exit 1; fi
+	@echo "Starting upgrade process for $(UPGRADE_NAME)..."
+	@$(MAKE) prepare-upgrade UPGRADE_NAME=$(UPGRADE_NAME) CONTAINER_NAME=$(CONTAINER_NAME)
+	@$(MAKE) verify UPGRADE_NAME=$(UPGRADE_NAME) CONTAINER_NAME=$(CONTAINER_NAME)
+	@echo "Restarting docker container $(CONTAINER_NAME)..."
+	@docker restart $(CONTAINER_NAME)
+	@echo "Upgrade completed. The node is ready for the upgrade block."
+
+###############################################################################
+

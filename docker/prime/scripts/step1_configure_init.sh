@@ -30,6 +30,16 @@ cp docker/prime/config/app.toml "$APP_CONFIG_FILE"
 cp docker/prime/config/config.toml "$TENDERMINT_CONFIG_FILE"
 # cp docker/prime/config/price_feeder_config.toml "$ORACLE_CONFIG_FILE"
 
+# cosmovisor files
+mkdir -p ~/.kiichain3/cosmovisor/genesis/bin
+mkdir -p ~/.kiichain3/cosmovisor/upgrades
+cp $GOBIN/kiichaind ~/.kiichain3/cosmovisor/genesis/bin
+if [ -f ~/.kiichain3/cosmovisor/genesis/bin/kiichaind ]; then
+    echo "Cosmovisor setup completed successfully."
+else
+    echo "Error: Cosmovisor setup failed. Binary not found in genesis/bin."
+    exit 1
+fi
 
 # Set up persistent peers
 KIICHAIN_NODE_ID=$(kiichaind tendermint show-node-id)

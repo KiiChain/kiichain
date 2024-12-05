@@ -19,6 +19,7 @@ import (
 	"github.com/kiichain/kiichain3/x/evm/artifacts/cw20"
 	"github.com/kiichain/kiichain3/x/evm/artifacts/cw721"
 	"github.com/kiichain/kiichain3/x/evm/artifacts/native"
+	"github.com/kiichain/kiichain3/x/evm/config"
 	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
@@ -45,6 +46,7 @@ func GetQueryCmd(_ string) *cobra.Command {
 	cmd.AddCommand(CmdQueryPointer())
 	cmd.AddCommand(CmdQueryPointerVersion())
 	cmd.AddCommand(CmdQueryPointee())
+	cmd.AddCommand(CmdQueryChainID())
 
 	return cmd
 }
@@ -371,6 +373,29 @@ func CmdQueryPointee() *cobra.Command {
 			}
 
 			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func CmdQueryChainID() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "chain-id",
+		Short: "Query the EVM Chain ID based on the current Cosmos Chain ID",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			cosmosChainID := clientCtx.ChainID
+			evmChainID := config.GetEVMChainID(cosmosChainID)
+
+			return clientCtx.PrintString(fmt.Sprintf("EVM Chain ID: %d\n", evmChainID))
 		},
 	}
 
