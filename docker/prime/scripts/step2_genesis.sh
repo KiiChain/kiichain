@@ -66,7 +66,7 @@ then
     name="${account%%:*}"
     balance="${account##*:}"
 
-    printf "12345678\n" | kiichaind keys add "$name" >> build/generated/mnemonic.txt
+    printf "12345678\n" | kiichaind keys add "$name" >> build/generated/mnemonic.txt 2>&1
     acct=$(printf "12345678\n" | kiichaind keys show "$name" -a)
     echo "$acct" >> build/generated/genesis_accounts.txt
     kiichaind add-genesis-account "$acct" "$balance"
