@@ -14,9 +14,9 @@ cd kiichain3
 ```shell
 nano docker/rpcnode/scripts/step1_configure.init.sh
 
-# replace REPLACE_SYNC_RPC with 18.226.34.140:26669
+# replace REPLACE_SYNC_RPC with 18.227.13.176:26669
 
-# replace REPLACE_SYNC_PEERS with d2fbe128da8cf541a44ae3f893e4f14395fdfd3a@18.226.34.140:26668,2a6353f698929346e4a7b4ea8987a5c7748c73af@3.142.36.147:26668
+# replace REPLACE_SYNC_PEERS with 42355192eb77b71edbaa7e03f38e335849993ca0@18.227.13.176:26668,f3232ca5248aeb38af1d99542316d3c784dbf6f2@3.15.3.149:26668
 ```
 
 ```shell
