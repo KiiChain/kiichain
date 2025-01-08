@@ -26,7 +26,6 @@ server  {
         proxy_pass                          http://lcd_url;
         proxy_read_timeout                  90;
     }
-
 }
 server  {
     listen                       26671 ssl;
@@ -50,7 +49,6 @@ server  {
         proxy_pass                          http://rpc_url;
         proxy_read_timeout                90;
     }
-
 }
 server  {
     listen                       8547 ssl;
@@ -74,5 +72,73 @@ server  {
         proxy_pass                          http://evm_rpc;
         proxy_read_timeout                90;
     }
-
+}
+server  {
+    listen                       443 ssl;
+    server_name                  lcd.REPLACE.sentry.testnet.v3.kiivalidator.com;
+    ssl_certificate              /etc/letsencrypt/live/lcd.REPLACE.sentry.testnet.v3.kiivalidator.com/fullchain.pem;
+    ssl_certificate_key          /etc/letsencrypt/live/lcd.REPLACE.sentry.testnet.v3.kiivalidator.com/privkey.pem;
+    ssl_session_cache            builtin:1000  shared:SSL:10m;
+    ssl_protocols                TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers                  HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
+    ssl_prefer_server_ciphers    on;
+    access_log                   /var/log/nginx/access.log;
+    error_log                    /var/log/nginx/error.log;
+    location / {
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header                    Host $host;
+        proxy_set_header                    X-Real-IP $remote_addr;
+        proxy_set_header                    X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_http_version 1.1;
+        proxy_bind                          $server_addr;
+        proxy_pass                          http://lcd_url;
+        proxy_read_timeout                90;
+    }
+}
+server  {
+    listen                       443 ssl;
+    server_name                  rpc.REPLACE.sentry.testnet.v3.kiivalidator.com;
+    ssl_certificate              /etc/letsencrypt/live/rpc.REPLACE.sentry.testnet.v3.kiivalidator.com/fullchain.pem;
+    ssl_certificate_key          /etc/letsencrypt/live/rpc.REPLACE.sentry.testnet.v3.kiivalidator.com/privkey.pem;
+    ssl_session_cache            builtin:1000  shared:SSL:10m;
+    ssl_protocols                TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers                  HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
+    ssl_prefer_server_ciphers    on;
+    access_log                   /var/log/nginx/access.log;
+    error_log                    /var/log/nginx/error.log;
+    location / {
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header                    Host $host;
+        proxy_set_header                    X-Real-IP $remote_addr;
+        proxy_set_header                    X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_http_version 1.1;
+        proxy_bind                          $server_addr;
+        proxy_pass                          http://rpc_url;
+        proxy_read_timeout                90;
+    }
+}
+server  {
+    listen                       443 ssl;
+    server_name                  json-rpc.REPLACE.sentry.testnet.v3.kiivalidator.com;
+    ssl_certificate              /etc/letsencrypt/live/json-rpc.REPLACE.sentry.testnet.v3.kiivalidator.com/fullchain.pem;
+    ssl_certificate_key          /etc/letsencrypt/live/json-rpc.REPLACE.sentry.testnet.v3.kiivalidator.com/privkey.pem;
+    ssl_session_cache            builtin:1000  shared:SSL:10m;
+    ssl_protocols                TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers                  HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
+    ssl_prefer_server_ciphers    on;
+    access_log                   /var/log/nginx/access.log;
+    error_log                    /var/log/nginx/error.log;
+    location / {
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header                    Host $host;
+        proxy_set_header                    X-Real-IP $remote_addr;
+        proxy_set_header                    X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_http_version 1.1;
+        proxy_bind                          $server_addr;
+        proxy_pass                          http://evm_rpc;
+        proxy_read_timeout                90;
+    }
 }
