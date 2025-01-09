@@ -75,6 +75,12 @@ resource "aws_instance" "sentry" {
 
         sudo certbot --nginx -d "${var.instance_character}.sentry.testnet.v3.kiivalidator.com" \
           --non-interactive --agree-tos --email "support@kiiglobal.io"
+        sudo certbot --nginx -d "lcd.${var.instance_character}.sentry.testnet.v3.kiivalidator.com" \
+          --non-interactive --agree-tos --email "support@kiiglobal.io"
+        sudo certbot --nginx -d "rpc.${var.instance_character}.sentry.testnet.v3.kiivalidator.com" \
+          --non-interactive --agree-tos --email "support@kiiglobal.io"
+        sudo certbot --nginx -d "json-rpc.${var.instance_character}.sentry.testnet.v3.kiivalidator.com" \
+          --non-interactive --agree-tos --email "support@kiiglobal.io"                            
 
         sudo cp terraform/default /etc/nginx/sites-available/default
         
