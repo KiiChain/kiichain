@@ -187,7 +187,7 @@ func (suite *AnteTestSuite) TestValidateDepedencies() {
 
 	suite.Require().NotNil(err, "Did not error on invalid tx")
 
-	privs, accNums, accSeqs = []cryptotypes.PrivKey{suite.testAccPriv}, []uint64{8}, []uint64{0}
+	privs, accNums, accSeqs = []cryptotypes.PrivKey{suite.testAccPriv}, []uint64{7}, []uint64{0}
 
 	handlerCtx, cms := aclutils.CacheTxContext(suite.Ctx)
 	validTx, err := suite.CreateTestTx(privs, accNums, accSeqs, suite.Ctx.ChainID())
@@ -209,7 +209,7 @@ func (suite *AnteTestSuite) TestValidateDepedencies() {
 	// decorator should skip processing invalidTx on recheck and thus return nil-error
 	handlerCtx, cms = aclutils.CacheTxContext(suite.Ctx)
 	depdenencies, _ = suite.anteDepGenerator([]sdkacltypes.AccessOperation{}, invalidTx, 0)
-	_, err = suite.anteHandler(handlerCtx, invalidTx, false)
+	_, _ = suite.anteHandler(handlerCtx, invalidTx, false)
 	missing = handlerCtx.MsgValidator().ValidateAccessOperations(depdenencies, cms.GetEvents())
 
 	err = suite.AnteHandlerValidateAccessOp(depdenencies)
