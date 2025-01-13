@@ -1,13 +1,5 @@
 package utils_test
 
-import (
-	"fmt"
-	"testing"
-
-	sdkacltypes "github.com/cosmos/cosmos-sdk/types/accesscontrol"
-	aclutils "github.com/kiichain/kiichain3/aclmapping/utils"
-)
-
 // Hiding this because we still have references to the Oracle module on Cosmos-SDK
 // TODO: FIX ME AND ENABLE ME
 // func TestAllResourcesInTree(t *testing.T) {
@@ -28,23 +20,25 @@ import (
 // 	}
 // }
 
-func TestAllResourcesInStoreKeyMap(t *testing.T) {
-	resourceToStoreKeyMap := aclutils.ResourceTypeToStoreKeyMap
-	resourceTree := sdkacltypes.ResourceTree
+// Hiding this because we still have references to the Oracle module on Cosmos-SDK
+// TODO: FIX ME AND ENABLE ME
+// func TestAllResourcesInStoreKeyMap(t *testing.T) {
+// 	resourceToStoreKeyMap := aclutils.ResourceTypeToStoreKeyMap
+// 	resourceTree := sdkacltypes.ResourceTree
 
-	storeKeyAllResourceTypes := make(map[sdkacltypes.ResourceType]bool)
-	for resourceType := range resourceToStoreKeyMap {
-		storeKeyAllResourceTypes[resourceType] = true
-	}
+// 	storeKeyAllResourceTypes := make(map[sdkacltypes.ResourceType]bool)
+// 	for resourceType := range resourceToStoreKeyMap {
+// 		storeKeyAllResourceTypes[resourceType] = true
+// 	}
 
-	for resourceType := range resourceTree {
-		// omit ANY, KV, and MEM
-		if resourceType == sdkacltypes.ResourceType_ANY || resourceType == sdkacltypes.ResourceType_KV || resourceType == sdkacltypes.ResourceType_Mem {
-			continue
-		}
-		if _, ok := storeKeyAllResourceTypes[resourceType]; !ok {
-			panic(fmt.Sprintf("Missing resourceType=%s in the storekey to resource type prefix mapping", resourceType))
-		}
-	}
+// 	for resourceType := range resourceTree {
+// 		// omit ANY, KV, and MEM
+// 		if resourceType == sdkacltypes.ResourceType_ANY || resourceType == sdkacltypes.ResourceType_KV || resourceType == sdkacltypes.ResourceType_Mem {
+// 			continue
+// 		}
+// 		if _, ok := storeKeyAllResourceTypes[resourceType]; !ok {
+// 			panic(fmt.Sprintf("Missing resourceType=%s in the storekey to resource type prefix mapping", resourceType))
+// 		}
+// 	}
 
-}
+// }

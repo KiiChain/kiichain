@@ -6,9 +6,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/kiichain/kiichain3/wasmbinding/bindings"
+	"github.com/stretchr/testify/require"
+
 	tokenfactorywasm "github.com/kiichain/kiichain3/x/tokenfactory/client/wasm"
 	tokenfactorytypes "github.com/kiichain/kiichain3/x/tokenfactory/types"
-	"github.com/stretchr/testify/require"
+
+	// Fixes the kii addresses
+	_ "github.com/kiichain/kiichain3/app/params"
 )
 
 const (
