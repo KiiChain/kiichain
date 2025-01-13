@@ -51,7 +51,7 @@ type TestAppOpts struct {
 
 func (t TestAppOpts) Get(s string) interface{} {
 	if s == "chain-id" {
-		return "sei-test"
+		return "kii-test"
 	}
 	if s == FlagSCEnable {
 		return t.useSc
@@ -84,7 +84,7 @@ func newTestWrapper(t *testing.T, tm time.Time, valPub crptotypes.PubKey, enable
 	} else {
 		appPtr = Setup(false, enableEVMCustomPrecompiles, baseAppOptions...)
 	}
-	ctx := appPtr.BaseApp.NewContext(false, tmproto.Header{Height: 1, ChainID: "sei-test", Time: tm})
+	ctx := appPtr.BaseApp.NewContext(false, tmproto.Header{Height: 1, ChainID: "kii-test", Time: tm})
 	wrapper := &TestWrapper{
 		App: appPtr,
 		Ctx: ctx,

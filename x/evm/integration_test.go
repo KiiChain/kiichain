@@ -298,7 +298,7 @@ func TestNonceIncrementsForInsufficientFunds(t *testing.T) {
 func TestInvalidAssociateMsg(t *testing.T) {
 	// EVM associate tx
 	k := testkeeper.EVMTestApp.EvmKeeper
-	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now()).WithChainID("sei-test").WithBlockHeight(1)
+	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now()).WithChainID("kii-test").WithBlockHeight(1)
 	privKey := testkeeper.MockPrivateKey()
 	seiAddr, _ := testkeeper.PrivateKeyToAddresses(privKey)
 	amt := sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000)))
@@ -370,7 +370,7 @@ func signTx(txBuilder client.TxBuilder, privKey cryptotypes.PrivKey, acc authtyp
 	_ = txBuilder.SetSignatures(sigsV2...)
 	sigsV2 = []signing.SignatureV2{}
 	signerData := xauthsigning.SignerData{
-		ChainID:       "sei-test",
+		ChainID:       "kii-test",
 		AccountNumber: acc.GetAccountNumber(),
 		Sequence:      acc.GetSequence(),
 	}
