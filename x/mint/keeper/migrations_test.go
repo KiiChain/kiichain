@@ -9,14 +9,15 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	typesparams "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/kiichain/kiichain3/x/mint/keeper"
-	"github.com/kiichain/kiichain3/x/mint/types"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
+
+	"github.com/kiichain/kiichain3/app/params"
+	"github.com/kiichain/kiichain3/x/mint/keeper"
+	"github.com/kiichain/kiichain3/x/mint/types"
 )
 
 type MockAccountMigrationKeeper struct {
@@ -25,7 +26,7 @@ type MockAccountMigrationKeeper struct {
 }
 
 func (m MockAccountMigrationKeeper) GetModuleAddress(name string) sdk.AccAddress {
-	address, _ := sdk.AccAddressFromBech32("sei1t4xhq2pnhnf223zr4z5lw02vsrxwf74z604kja")
+	address, _ := sdk.AccAddressFromBech32("kii1t4xhq2pnhnf223zr4z5lw02vsrxwf74zwg72zr")
 	return address
 }
 
@@ -51,7 +52,7 @@ func TestMigrate2to3(t *testing.T) {
 	registry := codectypes.NewInterfaceRegistry()
 	cdc := codec.NewProtoCodec(registry)
 
-	paramsSubspace := typesparams.NewSubspace(cdc,
+	paramsSubspace := paramstypes.NewSubspace(cdc,
 		codec.NewLegacyAmino(),
 		storeKey,
 		memStoreKey,
@@ -59,7 +60,7 @@ func TestMigrate2to3(t *testing.T) {
 	)
 	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())
 	if !paramsSubspace.HasKeyTable() {
-		paramsSubspace = paramsSubspace.WithKeyTable(paramtypes.NewKeyTable().RegisterParamSet(&types.Version2Params{}))
+		paramsSubspace = paramsSubspace.WithKeyTable(paramstypes.NewKeyTable().RegisterParamSet(&types.Version2Params{}))
 	}
 	store := ctx.KVStore(storeKey)
 
@@ -68,7 +69,7 @@ func TestMigrate2to3(t *testing.T) {
 		LastMintAmount: sdk.NewDec(1000),
 		LastMintDate:   "2021-01-01",
 		LastMintHeight: 100,
-		Denom:          sdk.DefaultBondDenom,
+		Denom:          params.DefaultBondDenom,
 	}
 
 	oldTokenReleaseSchedule := []types.Version2ScheduledTokenRelease{
@@ -83,7 +84,7 @@ func TestMigrate2to3(t *testing.T) {
 	}
 
 	// Start up post upgrade with new Param Space
-	newParamsSubspace := typesparams.NewSubspace(cdc,
+	newParamsSubspace := paramstypes.NewSubspace(cdc,
 		codec.NewLegacyAmino(),
 		storeKey,
 		memStoreKey,
@@ -101,7 +102,7 @@ func TestMigrate2to3(t *testing.T) {
 	)
 
 	oldParams := types.Version2Params{
-		MintDenom:            sdk.DefaultBondDenom,
+		MintDenom:            params.DefaultBondDenom,
 		TokenReleaseSchedule: oldTokenReleaseSchedule,
 	}
 
