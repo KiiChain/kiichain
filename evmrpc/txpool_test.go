@@ -54,7 +54,7 @@ func TestTxPoolContent(t *testing.T) {
 			// type -- can be 0
 			// acccesslist-- can be any array value
 			require.Equal(t, tx["chainId"], "0x538") // 1336
-			requireNotZeroHex(t, tx["v"].(string))
+			// v -- can be 0
 			requireNotZeroHex(t, tx["r"].(string))
 			requireNotZeroHex(t, tx["s"].(string))
 		}
