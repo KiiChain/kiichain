@@ -70,7 +70,7 @@ func (m *MockQueryClient) SeiAddressByEVMAddress(ctx context.Context, in *evmtyp
 	if in.EvmAddress == "0x0CF3Bb7Da9fea6a881987A5018740500C7d4BAaE" {
 		return &evmtypes.QuerySeiAddressByEVMAddressResponse{SeiAddress: "", Associated: false}, nil
 	}
-	return &evmtypes.QuerySeiAddressByEVMAddressResponse{SeiAddress: "sei1u8j4gaxyzhg39dk848q5w9h53tgggpcx74m762", Associated: true}, nil
+	return &evmtypes.QuerySeiAddressByEVMAddressResponse{SeiAddress: "kii1u8j4gaxyzhg39dk848q5w9h53tgggpcx2jsz25", Associated: true}, nil
 }
 
 type MockErrorQueryClient struct {
@@ -84,11 +84,11 @@ func (m *MockErrorQueryClient) SeiAddressByEVMAddress(ctx context.Context, in *e
 func Test_ParseAllowListJSON(t *testing.T) {
 	mockQueryClient := &MockQueryClient{}
 
-	seiAddr1 := sdk.AccAddress("sei1_______________").String()
-	seiAddr2 := sdk.AccAddress("sei2_______________").String()
+	seiAddr1 := sdk.AccAddress("kii1_______________").String()
+	seiAddr2 := sdk.AccAddress("kii2_______________").String()
 	evmAddr := "0x5c71b5577B9223d39ae0B7Dcb3f1BC8e1aC81f3e"
 	notAssociatedEvmAddr := "0x0CF3Bb7Da9fea6a881987A5018740500C7d4BAaE"
-	convertedSeiAddr := "sei1u8j4gaxyzhg39dk848q5w9h53tgggpcx74m762"
+	convertedSeiAddr := "kii1u8j4gaxyzhg39dk848q5w9h53tgggpcx2jsz25"
 
 	tests := []struct {
 		name    string

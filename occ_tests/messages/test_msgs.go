@@ -16,8 +16,8 @@ import (
 	"github.com/kiichain/kiichain3/x/evm/types/ethtx"
 )
 
-const instantiateMsg = `{"whitelist": ["sei1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx8s5kag"],
-    "use_whitelist":false,"admin":"sei1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx8s5kag",
+const instantiateMsg = `{"whitelist": ["kii1h9yjz89tl0dl6zu65dpxcqnxfhq60wxxnhl2dk"],
+    "use_whitelist":false,"admin":"kii1h9yjz89tl0dl6zu65dpxcqnxfhq60wxxnhl2dk",
 	"limit_order_fee":{"decimal":"0.0001","negative":false},
 	"market_order_fee":{"decimal":"0.0001","negative":false},
 	"liquidation_order_fee":{"decimal":"0.0001","negative":false},
@@ -26,10 +26,10 @@ const instantiateMsg = `{"whitelist": ["sei1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx8s5k
 	"default_base":"USDC",
 	"native_token":"USDC","denoms": ["SEI","ATOM","USDC","SOL","ETH","OSMO","AVAX","BTC"],
 	"full_denom_mapping": [["ukii","SEI","0.000001"],["uatom","ATOM","0.000001"],["uusdc","USDC","0.000001"]],
-	"funding_payment_lookback":3600,"spot_market_contract":"sei1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx8s5kag",
+	"funding_payment_lookback":3600,"spot_market_contract":"kii1h9yjz89tl0dl6zu65dpxcqnxfhq60wxxnhl2dk",
 	"supported_collateral_denoms": ["USDC"],
 	"supported_multicollateral_denoms": ["ATOM"],
-	"multicollateral_whitelist": ["sei1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx8s5kag"],
+	"multicollateral_whitelist": ["kii1h9yjz89tl0dl6zu65dpxcqnxfhq60wxxnhl2dk"],
 	"multicollateral_whitelist_enable": true,
 	"funding_payment_pairs": [["USDC","ETH"]],
 	"default_margin_ratios":{

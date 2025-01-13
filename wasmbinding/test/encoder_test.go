@@ -12,12 +12,12 @@ import (
 )
 
 const (
-	TEST_TARGET_CONTRACT = "sei14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9sh9m79m"
-	TEST_CREATOR         = "sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw"
+	TEST_TARGET_CONTRACT = "kii14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9sr8zwk6"
+	TEST_CREATOR         = "kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs"
 )
 
 func TestEncodeCreateDenom(t *testing.T) {
-	contractAddr, err := sdk.AccAddressFromBech32("sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw")
+	contractAddr, err := sdk.AccAddressFromBech32("kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs")
 	require.NoError(t, err)
 	msg := bindings.CreateDenom{
 		Subdenom: "subdenom",
@@ -30,14 +30,14 @@ func TestEncodeCreateDenom(t *testing.T) {
 	typedDecodedMsg, ok := decodedMsgs[0].(*tokenfactorytypes.MsgCreateDenom)
 	require.True(t, ok)
 	expectedMsg := tokenfactorytypes.MsgCreateDenom{
-		Sender:   "sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw",
+		Sender:   "kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs",
 		Subdenom: "subdenom",
 	}
 	require.Equal(t, expectedMsg, *typedDecodedMsg)
 }
 
 func TestEncodeMint(t *testing.T) {
-	contractAddr, err := sdk.AccAddressFromBech32("sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw")
+	contractAddr, err := sdk.AccAddressFromBech32("kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs")
 	require.NoError(t, err)
 	msg := bindings.MintTokens{
 		Amount: sdk.Coin{Amount: sdk.NewInt(100), Denom: "subdenom"},
@@ -50,14 +50,14 @@ func TestEncodeMint(t *testing.T) {
 	typedDecodedMsg, ok := decodedMsgs[0].(*tokenfactorytypes.MsgMint)
 	require.True(t, ok)
 	expectedMsg := tokenfactorytypes.MsgMint{
-		Sender: "sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw",
+		Sender: "kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs",
 		Amount: sdk.Coin{Amount: sdk.NewInt(100), Denom: "subdenom"},
 	}
 	require.Equal(t, expectedMsg, *typedDecodedMsg)
 }
 
 func TestEncodeBurn(t *testing.T) {
-	contractAddr, err := sdk.AccAddressFromBech32("sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw")
+	contractAddr, err := sdk.AccAddressFromBech32("kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs")
 	require.NoError(t, err)
 	msg := bindings.BurnTokens{
 		Amount: sdk.Coin{Amount: sdk.NewInt(10), Denom: "subdenom"},
@@ -70,18 +70,18 @@ func TestEncodeBurn(t *testing.T) {
 	typedDecodedMsg, ok := decodedMsgs[0].(*tokenfactorytypes.MsgBurn)
 	require.True(t, ok)
 	expectedMsg := tokenfactorytypes.MsgBurn{
-		Sender: "sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw",
+		Sender: "kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs",
 		Amount: sdk.Coin{Amount: sdk.NewInt(10), Denom: "subdenom"},
 	}
 	require.Equal(t, expectedMsg, *typedDecodedMsg)
 }
 
 func TestEncodeChangeAdmin(t *testing.T) {
-	contractAddr, err := sdk.AccAddressFromBech32("sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw")
+	contractAddr, err := sdk.AccAddressFromBech32("kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs")
 	require.NoError(t, err)
 	msg := bindings.ChangeAdmin{
-		Denom:           "factory/sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw/subdenom",
-		NewAdminAddress: "sei1hjfwcza3e3uzeznf3qthhakdr9juetl7g6esl4",
+		Denom:           "factory/kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs/subdenom",
+		NewAdminAddress: "kii1hjfwcza3e3uzeznf3qthhakdr9juetl7uajv0t",
 	}
 	serializedMsg, _ := json.Marshal(msg)
 
@@ -91,9 +91,9 @@ func TestEncodeChangeAdmin(t *testing.T) {
 	typedDecodedMsg, ok := decodedMsgs[0].(*tokenfactorytypes.MsgChangeAdmin)
 	require.True(t, ok)
 	expectedMsg := tokenfactorytypes.MsgChangeAdmin{
-		Sender:   "sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw",
-		Denom:    "factory/sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw/subdenom",
-		NewAdmin: "sei1hjfwcza3e3uzeznf3qthhakdr9juetl7g6esl4",
+		Sender:   "kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs",
+		Denom:    "factory/kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs/subdenom",
+		NewAdmin: "kii1hjfwcza3e3uzeznf3qthhakdr9juetl7uajv0t",
 	}
 	require.Equal(t, expectedMsg, *typedDecodedMsg)
 }

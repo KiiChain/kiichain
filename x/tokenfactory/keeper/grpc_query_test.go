@@ -17,7 +17,7 @@ func (suite *KeeperTestSuite) TestDenomMetadataRequest() {
 		req         *types.QueryDenomMetadataRequest
 		expMetadata = banktypes.Metadata{}
 	)
-	tokenFactoryDenom := "factory/sei1gxskuzvhr4s8sdm2rpruaf7yx2dnmjn0zfdu9q/NEWCOIN"
+	tokenFactoryDenom := "factory/kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs/NEWCOIN"
 	testCases := []struct {
 		msg      string
 		malleate func()
@@ -87,9 +87,9 @@ func (suite *KeeperTestSuite) TestDenomMetadataRequest() {
 
 func (suite *KeeperTestSuite) TestDenomAllowListRequest() {
 
-	tokenFactoryDenom := "factory/sei1gxskuzvhr4s8sdm2rpruaf7yx2dnmjn0zfdu9q/NEWCOIN"
+	tokenFactoryDenom := "factory/kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs/NEWCOIN"
 	allowList := banktypes.AllowList{
-		Addresses: []string{"sei1gxskuzvhr4s8sdm2rpruaf7yx2dnmjn0zfdu9q", "sei1gxskuzvhr4s8sdm2rpruaf7yx2dnmjn0zfdu8q"},
+		Addresses: []string{"kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs", "kii1k98zjg7scsmk6d4ye8hhrv3an6ppykvtwayzpy"},
 	}
 	type args struct {
 		req *types.QueryDenomAllowListRequest
