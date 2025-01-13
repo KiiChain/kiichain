@@ -56,3 +56,6 @@ contracts/artifacts
 
 # Integration tests build artifacts
 integration_test/dapp_tests/artifacts
+
+# Test profiling
+*profile.out

@@ -227,7 +227,9 @@ $(BUILDDIR)/packages.txt:$(GO_TEST_FILES) $(BUILDDIR)
 split-test-packages:$(BUILDDIR)/packages.txt
 	split -d -n l/$(NUM_SPLIT) $< $<.
 test-group-%:split-test-packages
-	cat $(BUILDDIR)/packages.txt.$* | xargs go test -parallel 4 -mod=readonly -timeout=10m -race -coverprofile=$*.profile.out -covermode=atomic
+	cat $(BUILDDIR)/packages.txt.$* | xargs go test -tags='norace' -p=2 -mod=readonly -timeout=10m -coverprofile=$*.profile.out -covermode=atomic
+test-unit:split-test-packages
+	cat $(BUILDDIR)/packages.txt | xargs go test -tags='norace' -p=2 -mod=readonly -timeout=10m -coverprofile=$*.profile.out -covermode=atomic
 
 ###############################################################################
 ###                       Upgrade using cosmovisor                          ###
