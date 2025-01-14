@@ -84,11 +84,6 @@ go.sum: go.mod
 		@echo "--> Ensure dependencies have not been modified"
 		@go mod verify
 
-lint:
-	golangci-lint run
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
-	go mod verify
-
 build:
 	go build $(BUILD_FLAGS) -o ./build/kiichaind ./cmd/kiichaind
 
@@ -206,6 +201,9 @@ docker-cluster-stop:
 	@cd docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) docker compose down
 .PHONY: localnet-stop
 
+###############################################################################
+###                               Tests                                     ###
+###############################################################################
 
 # Implements test splitting and running. This is pulled directly from
 # the github action workflows for better local reproducibility.
@@ -231,9 +229,28 @@ test-group-%:split-test-packages
 test-unit:split-test-packages
 	cat $(BUILDDIR)/packages.txt | xargs go test -tags='norace' -p=2 -mod=readonly -timeout=10m -coverprofile=$*.profile.out -covermode=atomic
 
+##############################################################################
+###                                  Lint                                  ###
+##############################################################################
+
+golangci_lint_cmd=golangci-lint
+golangci_version=v1.60.1
+govulcheck_version=latest
+
+lint:
+	@echo "--> Running linter"
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(golangci_version)
+	@$(golangci_lint_cmd) run --timeout=10m --out-format=tab
+	go mod verify
+
+vulncheck:
+	GOBIN=$(BUILDDIR) go install golang.org/x/vuln/cmd/govulncheck@$(govulcheck_version)
+	$(BUILDDIR)/govulncheck ./...
+
 ###############################################################################
 ###                       Upgrade using cosmovisor                          ###
 ###############################################################################
+
 GENESIS_BIN_PATH = /root/.kiichain3/cosmovisor/genesis/bin
 
 .PHONY: prepare-upgrade
