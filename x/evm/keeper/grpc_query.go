@@ -27,7 +27,7 @@ func NewQuerier(k *Keeper) Querier {
 	return Querier{Keeper: k}
 }
 
-func (q Querier) SeiAddressByEVMAddress(c context.Context, req *types.QuerySeiAddressByEVMAddressRequest) (*types.QuerySeiAddressByEVMAddressResponse, error) {
+func (q Querier) KiiAddressByEVMAddress(c context.Context, req *types.QueryKiiAddressByEVMAddressRequest) (*types.QueryKiiAddressByEVMAddressResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	if req.EvmAddress == "" {
 		return nil, sdkerrors.ErrInvalidRequest
@@ -35,27 +35,27 @@ func (q Querier) SeiAddressByEVMAddress(c context.Context, req *types.QuerySeiAd
 	evmAddr := common.HexToAddress(req.EvmAddress)
 	addr, found := q.Keeper.GetKiiAddress(ctx, evmAddr)
 	if !found {
-		return &types.QuerySeiAddressByEVMAddressResponse{Associated: false}, nil
+		return &types.QueryKiiAddressByEVMAddressResponse{Associated: false}, nil
 	}
 
-	return &types.QuerySeiAddressByEVMAddressResponse{SeiAddress: addr.String(), Associated: true}, nil
+	return &types.QueryKiiAddressByEVMAddressResponse{KiiAddress: addr.String(), Associated: true}, nil
 }
 
-func (q Querier) EVMAddressBySeiAddress(c context.Context, req *types.QueryEVMAddressBySeiAddressRequest) (*types.QueryEVMAddressBySeiAddressResponse, error) {
+func (q Querier) EVMAddressByKiiAddress(c context.Context, req *types.QueryEVMAddressByKiiAddressRequest) (*types.QueryEVMAddressByKiiAddressResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	if req.SeiAddress == "" {
+	if req.KiiAddress == "" {
 		return nil, sdkerrors.ErrInvalidRequest
 	}
-	seiAddr, err := sdk.AccAddressFromBech32(req.SeiAddress)
+	seiAddr, err := sdk.AccAddressFromBech32(req.KiiAddress)
 	if err != nil {
 		return nil, err
 	}
 	addr, found := q.Keeper.GetEVMAddress(ctx, seiAddr)
 	if !found {
-		return &types.QueryEVMAddressBySeiAddressResponse{Associated: false}, nil
+		return &types.QueryEVMAddressByKiiAddressResponse{Associated: false}, nil
 	}
 
-	return &types.QueryEVMAddressBySeiAddressResponse{EvmAddress: addr.Hex(), Associated: true}, nil
+	return &types.QueryEVMAddressByKiiAddressResponse{EvmAddress: addr.Hex(), Associated: true}, nil
 }
 
 func (q Querier) StaticCall(c context.Context, req *types.QueryStaticCallRequest) (*types.QueryStaticCallResponse, error) {
