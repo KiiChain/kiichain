@@ -1,5 +1,5 @@
 syntax = "proto3";
-package seiprotocol.seichain.evm;
+package kiichain.kiichain3.evm;
 
 import "gogoproto/gogo.proto";
 import "evm/params.proto";
@@ -8,7 +8,7 @@ option go_package = "github.com/kiichain/kiichain3/x/evm/types";
 
 // AddressAssociation represents an association between a Cosmos and an Ethereum address.
 message AddressAssociation {
-  string sei_address = 1;    // Sei address
+  string kii_address = 1;    // Kii address
   string eth_address = 2;    // Ethereum address
 }
 

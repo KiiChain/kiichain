@@ -1,5 +1,5 @@
 syntax = "proto3";
-package seiprotocol.seichain.tokenfactory;
+package kiichain.kiichain3.tokenfactory;
 
 option go_package = "github.com/kiichain/kiichain3/x/tokenfactory/types";
 
