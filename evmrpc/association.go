@@ -86,7 +86,7 @@ func (t *AssociationAPI) Associate(ctx context.Context, req *AssociateRequest) (
 	return err
 }
 
-func (t *AssociationAPI) GetKiiAddress(_ context.Context, ethAddress common.Address) (result string, returnErr error) {
+func (t *AssociationAPI) GetSeiAddress(_ context.Context, ethAddress common.Address) (result string, returnErr error) {
 	startTime := time.Now()
 	defer recordMetrics("sei_getSeiAddress", t.connectionType, startTime, returnErr == nil)
 	seiAddress, found := t.keeper.GetKiiAddress(t.ctxProvider(LatestCtxHeight), ethAddress)

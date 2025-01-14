@@ -55,7 +55,7 @@ var DebugTraceBlockHash = "BE17E0261E539CB7E9A91E123A6D794E0163D656FCF9B8EAC0782
 var MultiTxBlockHash = "0000000000000000000000000000000000000000000000000000000000000002"
 
 var TestCosmosTxHash = "690D39ADF56D4C811B766DFCD729A415C36C4BFFE80D63E305373B9518EBFB14"
-var TestEvmTxHash = "0xf02362077ac075a397344172496b28e913ce5294879d811bb0269b3be20a872e"
+var TestEvmTxHash = "0xc1f0d26c419dea496540ab96a3331a9a79f084d7bc9662178dcd7c0bc407dc33"
 
 var EncodingConfig = app.MakeEncodingConfig()
 var TxConfig = EncodingConfig.TxConfig
@@ -607,7 +607,7 @@ func generateTxData() {
 	)
 	EVMKeeper.SetAddressMapping(
 		Ctx,
-		sdk.MustAccAddressFromBech32("sei1mf0llhmqane5w2y8uynmghmk2w4mh0xll9seym"),
+		sdk.MustAccAddressFromBech32("kii1mf0llhmqane5w2y8uynmghmk2w4mh0xltzm959"),
 		common.HexToAddress("0x1df809C639027b465B931BD63Ce71c8E5834D9d6"),
 	)
 	EVMKeeper.SetNonce(Ctx, common.HexToAddress("0x1234567890123456789012345678901234567890"), 1)

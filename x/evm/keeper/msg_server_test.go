@@ -747,7 +747,7 @@ func TestAssociateContractAddress(t *testing.T) {
 }
 
 func TestAssociate(t *testing.T) {
-	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithChainID("sei-test").WithBlockHeight(1)
+	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithChainID("kii-test").WithBlockHeight(1)
 	privKey := testkeeper.MockPrivateKey()
 	seiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
 	acc := testkeeper.EVMTestApp.AccountKeeper.NewAccountWithAddress(ctx, seiAddr)
@@ -764,7 +764,7 @@ func TestAssociate(t *testing.T) {
 		Sequence: acc.GetSequence(),
 	})
 	signerData := authsigning.SignerData{
-		ChainID:       "sei-test",
+		ChainID:       "kii-test",
 		AccountNumber: acc.GetAccountNumber(),
 		Sequence:      acc.GetSequence(),
 	}

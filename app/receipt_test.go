@@ -36,7 +36,7 @@ var f embed.FS
 func TestEvmEventsForCw20(t *testing.T) {
 	k := testkeeper.EVMTestApp.EvmKeeper
 	wasmKeeper := k.WasmKeeper()
-	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now()).WithChainID("sei-test").WithBlockHeight(1)
+	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now()).WithChainID("kii-test").WithBlockHeight(1)
 	code, err := os.ReadFile("../contracts/wasm/cw20_base.wasm")
 	require.Nil(t, err)
 	privKey := testkeeper.MockPrivateKey()
@@ -151,7 +151,7 @@ func TestEvmEventsForCw20(t *testing.T) {
 func TestEvmEventsForCw721(t *testing.T) {
 	k := testkeeper.EVMTestApp.EvmKeeper
 	wasmKeeper := k.WasmKeeper()
-	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now()).WithChainID("sei-test").WithBlockHeight(1)
+	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now()).WithChainID("kii-test").WithBlockHeight(1)
 	code, err := os.ReadFile("../contracts/wasm/cw721_base.wasm")
 	require.Nil(t, err)
 	privKey := testkeeper.MockPrivateKey()
@@ -389,7 +389,7 @@ func signTx(txBuilder client.TxBuilder, privKey cryptotypes.PrivKey, acc authtyp
 	_ = txBuilder.SetSignatures(sigsV2...)
 	sigsV2 = []signing.SignatureV2{}
 	signerData := xauthsigning.SignerData{
-		ChainID:       "sei-test",
+		ChainID:       "kii-test",
 		AccountNumber: acc.GetAccountNumber(),
 		Sequence:      acc.GetSequence(),
 	}
