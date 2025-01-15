@@ -28,22 +28,22 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type QuerySeiAddressByEVMAddressRequest struct {
+type QueryKiiAddressByEVMAddressRequest struct {
 	EvmAddress string `protobuf:"bytes,1,opt,name=evm_address,json=evmAddress,proto3" json:"evm_address,omitempty"`
 }
 
-func (m *QuerySeiAddressByEVMAddressRequest) Reset()         { *m = QuerySeiAddressByEVMAddressRequest{} }
-func (m *QuerySeiAddressByEVMAddressRequest) String() string { return proto.CompactTextString(m) }
-func (*QuerySeiAddressByEVMAddressRequest) ProtoMessage()    {}
-func (*QuerySeiAddressByEVMAddressRequest) Descriptor() ([]byte, []int) {
+func (m *QueryKiiAddressByEVMAddressRequest) Reset()         { *m = QueryKiiAddressByEVMAddressRequest{} }
+func (m *QueryKiiAddressByEVMAddressRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryKiiAddressByEVMAddressRequest) ProtoMessage()    {}
+func (*QueryKiiAddressByEVMAddressRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_11c0d37eed5339f7, []int{0}
 }
-func (m *QuerySeiAddressByEVMAddressRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryKiiAddressByEVMAddressRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QuerySeiAddressByEVMAddressRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryKiiAddressByEVMAddressRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QuerySeiAddressByEVMAddressRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryKiiAddressByEVMAddressRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -53,42 +53,42 @@ func (m *QuerySeiAddressByEVMAddressRequest) XXX_Marshal(b []byte, deterministic
 		return b[:n], nil
 	}
 }
-func (m *QuerySeiAddressByEVMAddressRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QuerySeiAddressByEVMAddressRequest.Merge(m, src)
+func (m *QueryKiiAddressByEVMAddressRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryKiiAddressByEVMAddressRequest.Merge(m, src)
 }
-func (m *QuerySeiAddressByEVMAddressRequest) XXX_Size() int {
+func (m *QueryKiiAddressByEVMAddressRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QuerySeiAddressByEVMAddressRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QuerySeiAddressByEVMAddressRequest.DiscardUnknown(m)
+func (m *QueryKiiAddressByEVMAddressRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryKiiAddressByEVMAddressRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QuerySeiAddressByEVMAddressRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryKiiAddressByEVMAddressRequest proto.InternalMessageInfo
 
-func (m *QuerySeiAddressByEVMAddressRequest) GetEvmAddress() string {
+func (m *QueryKiiAddressByEVMAddressRequest) GetEvmAddress() string {
 	if m != nil {
 		return m.EvmAddress
 	}
 	return ""
 }
 
-type QuerySeiAddressByEVMAddressResponse struct {
-	SeiAddress string `protobuf:"bytes,1,opt,name=sei_address,json=seiAddress,proto3" json:"sei_address,omitempty"`
+type QueryKiiAddressByEVMAddressResponse struct {
+	KiiAddress string `protobuf:"bytes,1,opt,name=kii_address,json=kiiAddress,proto3" json:"kii_address,omitempty"`
 	Associated bool   `protobuf:"varint,2,opt,name=associated,proto3" json:"associated,omitempty"`
 }
 
-func (m *QuerySeiAddressByEVMAddressResponse) Reset()         { *m = QuerySeiAddressByEVMAddressResponse{} }
-func (m *QuerySeiAddressByEVMAddressResponse) String() string { return proto.CompactTextString(m) }
-func (*QuerySeiAddressByEVMAddressResponse) ProtoMessage()    {}
-func (*QuerySeiAddressByEVMAddressResponse) Descriptor() ([]byte, []int) {
+func (m *QueryKiiAddressByEVMAddressResponse) Reset()         { *m = QueryKiiAddressByEVMAddressResponse{} }
+func (m *QueryKiiAddressByEVMAddressResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryKiiAddressByEVMAddressResponse) ProtoMessage()    {}
+func (*QueryKiiAddressByEVMAddressResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_11c0d37eed5339f7, []int{1}
 }
-func (m *QuerySeiAddressByEVMAddressResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryKiiAddressByEVMAddressResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QuerySeiAddressByEVMAddressResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryKiiAddressByEVMAddressResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QuerySeiAddressByEVMAddressResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryKiiAddressByEVMAddressResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -98,48 +98,48 @@ func (m *QuerySeiAddressByEVMAddressResponse) XXX_Marshal(b []byte, deterministi
 		return b[:n], nil
 	}
 }
-func (m *QuerySeiAddressByEVMAddressResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QuerySeiAddressByEVMAddressResponse.Merge(m, src)
+func (m *QueryKiiAddressByEVMAddressResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryKiiAddressByEVMAddressResponse.Merge(m, src)
 }
-func (m *QuerySeiAddressByEVMAddressResponse) XXX_Size() int {
+func (m *QueryKiiAddressByEVMAddressResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QuerySeiAddressByEVMAddressResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QuerySeiAddressByEVMAddressResponse.DiscardUnknown(m)
+func (m *QueryKiiAddressByEVMAddressResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryKiiAddressByEVMAddressResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QuerySeiAddressByEVMAddressResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryKiiAddressByEVMAddressResponse proto.InternalMessageInfo
 
-func (m *QuerySeiAddressByEVMAddressResponse) GetKiiAddress() string {
+func (m *QueryKiiAddressByEVMAddressResponse) GetKiiAddress() string {
 	if m != nil {
-		return m.SeiAddress
+		return m.KiiAddress
 	}
 	return ""
 }
 
-func (m *QuerySeiAddressByEVMAddressResponse) GetAssociated() bool {
+func (m *QueryKiiAddressByEVMAddressResponse) GetAssociated() bool {
 	if m != nil {
 		return m.Associated
 	}
 	return false
 }
 
-type QueryEVMAddressBySeiAddressRequest struct {
-	SeiAddress string `protobuf:"bytes,1,opt,name=sei_address,json=seiAddress,proto3" json:"sei_address,omitempty"`
+type QueryEVMAddressByKiiAddressRequest struct {
+	KiiAddress string `protobuf:"bytes,1,opt,name=kii_address,json=kiiAddress,proto3" json:"kii_address,omitempty"`
 }
 
-func (m *QueryEVMAddressBySeiAddressRequest) Reset()         { *m = QueryEVMAddressBySeiAddressRequest{} }
-func (m *QueryEVMAddressBySeiAddressRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryEVMAddressBySeiAddressRequest) ProtoMessage()    {}
-func (*QueryEVMAddressBySeiAddressRequest) Descriptor() ([]byte, []int) {
+func (m *QueryEVMAddressByKiiAddressRequest) Reset()         { *m = QueryEVMAddressByKiiAddressRequest{} }
+func (m *QueryEVMAddressByKiiAddressRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryEVMAddressByKiiAddressRequest) ProtoMessage()    {}
+func (*QueryEVMAddressByKiiAddressRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_11c0d37eed5339f7, []int{2}
 }
-func (m *QueryEVMAddressBySeiAddressRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryEVMAddressByKiiAddressRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryEVMAddressBySeiAddressRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryEVMAddressByKiiAddressRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryEVMAddressBySeiAddressRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryEVMAddressByKiiAddressRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -149,42 +149,42 @@ func (m *QueryEVMAddressBySeiAddressRequest) XXX_Marshal(b []byte, deterministic
 		return b[:n], nil
 	}
 }
-func (m *QueryEVMAddressBySeiAddressRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryEVMAddressBySeiAddressRequest.Merge(m, src)
+func (m *QueryEVMAddressByKiiAddressRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryEVMAddressByKiiAddressRequest.Merge(m, src)
 }
-func (m *QueryEVMAddressBySeiAddressRequest) XXX_Size() int {
+func (m *QueryEVMAddressByKiiAddressRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryEVMAddressBySeiAddressRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryEVMAddressBySeiAddressRequest.DiscardUnknown(m)
+func (m *QueryEVMAddressByKiiAddressRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryEVMAddressByKiiAddressRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryEVMAddressBySeiAddressRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryEVMAddressByKiiAddressRequest proto.InternalMessageInfo
 
-func (m *QueryEVMAddressBySeiAddressRequest) GetKiiAddress() string {
+func (m *QueryEVMAddressByKiiAddressRequest) GetKiiAddress() string {
 	if m != nil {
-		return m.SeiAddress
+		return m.KiiAddress
 	}
 	return ""
 }
 
-type QueryEVMAddressBySeiAddressResponse struct {
+type QueryEVMAddressByKiiAddressResponse struct {
 	EvmAddress string `protobuf:"bytes,1,opt,name=evm_address,json=evmAddress,proto3" json:"evm_address,omitempty"`
 	Associated bool   `protobuf:"varint,2,opt,name=associated,proto3" json:"associated,omitempty"`
 }
 
-func (m *QueryEVMAddressBySeiAddressResponse) Reset()         { *m = QueryEVMAddressBySeiAddressResponse{} }
-func (m *QueryEVMAddressBySeiAddressResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryEVMAddressBySeiAddressResponse) ProtoMessage()    {}
-func (*QueryEVMAddressBySeiAddressResponse) Descriptor() ([]byte, []int) {
+func (m *QueryEVMAddressByKiiAddressResponse) Reset()         { *m = QueryEVMAddressByKiiAddressResponse{} }
+func (m *QueryEVMAddressByKiiAddressResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryEVMAddressByKiiAddressResponse) ProtoMessage()    {}
+func (*QueryEVMAddressByKiiAddressResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_11c0d37eed5339f7, []int{3}
 }
-func (m *QueryEVMAddressBySeiAddressResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryEVMAddressByKiiAddressResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryEVMAddressBySeiAddressResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryEVMAddressByKiiAddressResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryEVMAddressBySeiAddressResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryEVMAddressByKiiAddressResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -194,26 +194,26 @@ func (m *QueryEVMAddressBySeiAddressResponse) XXX_Marshal(b []byte, deterministi
 		return b[:n], nil
 	}
 }
-func (m *QueryEVMAddressBySeiAddressResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryEVMAddressBySeiAddressResponse.Merge(m, src)
+func (m *QueryEVMAddressByKiiAddressResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryEVMAddressByKiiAddressResponse.Merge(m, src)
 }
-func (m *QueryEVMAddressBySeiAddressResponse) XXX_Size() int {
+func (m *QueryEVMAddressByKiiAddressResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryEVMAddressBySeiAddressResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryEVMAddressBySeiAddressResponse.DiscardUnknown(m)
+func (m *QueryEVMAddressByKiiAddressResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryEVMAddressByKiiAddressResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryEVMAddressBySeiAddressResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryEVMAddressByKiiAddressResponse proto.InternalMessageInfo
 
-func (m *QueryEVMAddressBySeiAddressResponse) GetEvmAddress() string {
+func (m *QueryEVMAddressByKiiAddressResponse) GetEvmAddress() string {
 	if m != nil {
 		return m.EvmAddress
 	}
 	return ""
 }
 
-func (m *QueryEVMAddressBySeiAddressResponse) GetAssociated() bool {
+func (m *QueryEVMAddressByKiiAddressResponse) GetAssociated() bool {
 	if m != nil {
 		return m.Associated
 	}
@@ -317,7 +317,7 @@ func (m *QueryStaticCallResponse) GetData() []byte {
 }
 
 type QueryPointerRequest struct {
-	PointerType PointerType `protobuf:"varint,1,opt,name=pointer_type,json=pointerType,proto3,enum=seiprotocol.seichain.evm.PointerType" json:"pointer_type,omitempty"`
+	PointerType PointerType `protobuf:"varint,1,opt,name=pointer_type,json=pointerType,proto3,enum=kiichain.kiichain3.evm.PointerType" json:"pointer_type,omitempty"`
 	Pointee     string      `protobuf:"bytes,2,opt,name=pointee,proto3" json:"pointee,omitempty"`
 }
 
@@ -429,7 +429,7 @@ func (m *QueryPointerResponse) GetExists() bool {
 }
 
 type QueryPointerVersionRequest struct {
-	PointerType PointerType `protobuf:"varint,1,opt,name=pointer_type,json=pointerType,proto3,enum=seiprotocol.seichain.evm.PointerType" json:"pointer_type,omitempty"`
+	PointerType PointerType `protobuf:"varint,1,opt,name=pointer_type,json=pointerType,proto3,enum=kiichain.kiichain3.evm.PointerType" json:"pointer_type,omitempty"`
 }
 
 func (m *QueryPointerVersionRequest) Reset()         { *m = QueryPointerVersionRequest{} }
@@ -525,7 +525,7 @@ func (m *QueryPointerVersionResponse) GetCwCodeId() uint64 {
 }
 
 type QueryPointeeRequest struct {
-	PointerType PointerType `protobuf:"varint,1,opt,name=pointer_type,json=pointerType,proto3,enum=seiprotocol.seichain.evm.PointerType" json:"pointer_type,omitempty"`
+	PointerType PointerType `protobuf:"varint,1,opt,name=pointer_type,json=pointerType,proto3,enum=kiichain.kiichain3.evm.PointerType" json:"pointer_type,omitempty"`
 	Pointer     string      `protobuf:"bytes,2,opt,name=pointer,proto3" json:"pointer,omitempty"`
 }
 
@@ -637,66 +637,65 @@ func (m *QueryPointeeResponse) GetExists() bool {
 }
 
 func init() {
-	proto.RegisterType((*QuerySeiAddressByEVMAddressRequest)(nil), "seiprotocol.seichain.evm.QuerySeiAddressByEVMAddressRequest")
-	proto.RegisterType((*QuerySeiAddressByEVMAddressResponse)(nil), "seiprotocol.seichain.evm.QuerySeiAddressByEVMAddressResponse")
-	proto.RegisterType((*QueryEVMAddressBySeiAddressRequest)(nil), "seiprotocol.seichain.evm.QueryEVMAddressBySeiAddressRequest")
-	proto.RegisterType((*QueryEVMAddressBySeiAddressResponse)(nil), "seiprotocol.seichain.evm.QueryEVMAddressBySeiAddressResponse")
-	proto.RegisterType((*QueryStaticCallRequest)(nil), "seiprotocol.seichain.evm.QueryStaticCallRequest")
-	proto.RegisterType((*QueryStaticCallResponse)(nil), "seiprotocol.seichain.evm.QueryStaticCallResponse")
-	proto.RegisterType((*QueryPointerRequest)(nil), "seiprotocol.seichain.evm.QueryPointerRequest")
-	proto.RegisterType((*QueryPointerResponse)(nil), "seiprotocol.seichain.evm.QueryPointerResponse")
-	proto.RegisterType((*QueryPointerVersionRequest)(nil), "seiprotocol.seichain.evm.QueryPointerVersionRequest")
-	proto.RegisterType((*QueryPointerVersionResponse)(nil), "seiprotocol.seichain.evm.QueryPointerVersionResponse")
-	proto.RegisterType((*QueryPointeeRequest)(nil), "seiprotocol.seichain.evm.QueryPointeeRequest")
-	proto.RegisterType((*QueryPointeeResponse)(nil), "seiprotocol.seichain.evm.QueryPointeeResponse")
+	proto.RegisterType((*QueryKiiAddressByEVMAddressRequest)(nil), "kiichain.kiichain3.evm.QueryKiiAddressByEVMAddressRequest")
+	proto.RegisterType((*QueryKiiAddressByEVMAddressResponse)(nil), "kiichain.kiichain3.evm.QueryKiiAddressByEVMAddressResponse")
+	proto.RegisterType((*QueryEVMAddressByKiiAddressRequest)(nil), "kiichain.kiichain3.evm.QueryEVMAddressByKiiAddressRequest")
+	proto.RegisterType((*QueryEVMAddressByKiiAddressResponse)(nil), "kiichain.kiichain3.evm.QueryEVMAddressByKiiAddressResponse")
+	proto.RegisterType((*QueryStaticCallRequest)(nil), "kiichain.kiichain3.evm.QueryStaticCallRequest")
+	proto.RegisterType((*QueryStaticCallResponse)(nil), "kiichain.kiichain3.evm.QueryStaticCallResponse")
+	proto.RegisterType((*QueryPointerRequest)(nil), "kiichain.kiichain3.evm.QueryPointerRequest")
+	proto.RegisterType((*QueryPointerResponse)(nil), "kiichain.kiichain3.evm.QueryPointerResponse")
+	proto.RegisterType((*QueryPointerVersionRequest)(nil), "kiichain.kiichain3.evm.QueryPointerVersionRequest")
+	proto.RegisterType((*QueryPointerVersionResponse)(nil), "kiichain.kiichain3.evm.QueryPointerVersionResponse")
+	proto.RegisterType((*QueryPointeeRequest)(nil), "kiichain.kiichain3.evm.QueryPointeeRequest")
+	proto.RegisterType((*QueryPointeeResponse)(nil), "kiichain.kiichain3.evm.QueryPointeeResponse")
 }
 
 func init() { proto.RegisterFile("evm/query.proto", fileDescriptor_11c0d37eed5339f7) }
 
 var fileDescriptor_11c0d37eed5339f7 = []byte{
-	// 662 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0xcf, 0x6e, 0xd3, 0x4e,
-	0x10, 0xae, 0xf3, 0xeb, 0xaf, 0x7f, 0xa6, 0xa5, 0x48, 0x0b, 0x2a, 0x91, 0xa9, 0x4c, 0x65, 0xfe,
-	0xa8, 0xaa, 0x88, 0x03, 0x05, 0x6e, 0xe5, 0x40, 0xab, 0x0a, 0x38, 0x20, 0x81, 0x81, 0x1e, 0xb8,
-	0x44, 0xae, 0x3d, 0x6d, 0x57, 0x8a, 0xbd, 0xae, 0x77, 0x93, 0x36, 0x57, 0x9e, 0x00, 0x09, 0xae,
-	0x1c, 0x78, 0x04, 0x1e, 0x02, 0x89, 0x63, 0x25, 0x2e, 0x1c, 0x51, 0xcb, 0x83, 0x20, 0xaf, 0xd7,
-	0xb1, 0x9d, 0xa6, 0x76, 0x52, 0xc1, 0x6d, 0x67, 0x3d, 0xdf, 0x37, 0xdf, 0xcc, 0xac, 0x3f, 0xb8,
-	0x8c, 0x5d, 0xbf, 0x79, 0xd0, 0xc1, 0xa8, 0x67, 0x85, 0x11, 0x13, 0x8c, 0xd4, 0x39, 0x52, 0x79,
-	0x72, 0x59, 0xdb, 0xe2, 0x48, 0xdd, 0x7d, 0x87, 0x06, 0x16, 0x76, 0x7d, 0x7d, 0x69, 0x8f, 0xb1,
-	0xbd, 0x36, 0x36, 0x9d, 0x90, 0x36, 0x9d, 0x20, 0x60, 0xc2, 0x11, 0x94, 0x05, 0x3c, 0xc1, 0xe9,
-	0x92, 0x08, 0x83, 0x8e, 0xaf, 0x2e, 0xcc, 0x2d, 0x30, 0x5f, 0xc5, 0xbc, 0xaf, 0x91, 0x3e, 0xf1,
-	0xbc, 0x08, 0x39, 0xdf, 0xe8, 0x6d, 0x6d, 0xbf, 0x50, 0x67, 0x1b, 0x0f, 0x3a, 0xc8, 0x05, 0xb9,
-	0x01, 0x73, 0xd8, 0xf5, 0x5b, 0x4e, 0x72, 0x5b, 0xd7, 0x96, 0xb5, 0x95, 0x59, 0x1b, 0xb0, 0xeb,
-	0xab, 0x3c, 0x73, 0x17, 0x6e, 0x96, 0xd2, 0xf0, 0x90, 0x05, 0x1c, 0x63, 0x1e, 0x8e, 0x74, 0x90,
-	0x87, 0xf7, 0x41, 0xc4, 0x00, 0x70, 0x38, 0x67, 0x2e, 0x75, 0x04, 0x7a, 0xf5, 0xda, 0xb2, 0xb6,
-	0x32, 0x63, 0xe7, 0x6e, 0xfa, 0x72, 0x33, 0xee, 0x8d, 0x5c, 0xcd, 0x9c, 0xdc, 0xd2, 0x32, 0x7d,
-	0xb9, 0xe7, 0xd1, 0x64, 0x72, 0x4b, 0xdb, 0xae, 0x94, 0xbb, 0x0e, 0x8b, 0xc9, 0x58, 0xe2, 0x2d,
-	0xb8, 0x9b, 0x4e, 0xbb, 0x9d, 0x4a, 0x24, 0x30, 0xe9, 0x39, 0xc2, 0x91, 0x9c, 0xf3, 0xb6, 0x3c,
-	0x93, 0x05, 0xa8, 0x09, 0x26, 0x59, 0x66, 0xed, 0x9a, 0x60, 0x66, 0x03, 0xae, 0x9d, 0x41, 0x2b,
-	0x65, 0x43, 0xe0, 0x66, 0x0f, 0xae, 0xc8, 0xf4, 0x97, 0x8c, 0x06, 0x02, 0xa3, 0xb4, 0xd2, 0x33,
-	0x98, 0x0f, 0x93, 0x9b, 0x96, 0xe8, 0x85, 0x28, 0x21, 0x0b, 0x6b, 0xb7, 0xad, 0xf3, 0x5e, 0x90,
-	0xa5, 0xf0, 0x6f, 0x7a, 0x21, 0xda, 0x73, 0x61, 0x16, 0x90, 0x3a, 0x4c, 0x27, 0x21, 0x2a, 0x91,
-	0x69, 0x68, 0xee, 0xc0, 0xd5, 0x62, 0x69, 0x25, 0xb3, 0x8f, 0x88, 0xd4, 0xf0, 0xd2, 0x30, 0xfe,
-	0xd2, 0xc5, 0x88, 0x53, 0x16, 0x48, 0xae, 0x4b, 0x76, 0x1a, 0x92, 0x45, 0x98, 0xc2, 0x23, 0xca,
-	0x05, 0xaf, 0xff, 0x27, 0xe7, 0xa9, 0x22, 0x73, 0x17, 0xf4, 0x7c, 0x8d, 0xed, 0x24, 0xfd, 0xaf,
-	0x77, 0x69, 0xbe, 0x85, 0xeb, 0x43, 0xeb, 0x64, 0x2d, 0xa5, 0xc2, 0xb5, 0xa2, 0xf0, 0x25, 0x00,
-	0xf7, 0xb0, 0xe5, 0x32, 0x0f, 0x5b, 0x34, 0x79, 0x0c, 0x93, 0xf6, 0x8c, 0x7b, 0xb8, 0xc9, 0x3c,
-	0x7c, 0xee, 0x0d, 0x6c, 0x07, 0xff, 0xe1, 0x76, 0xa2, 0xe2, 0x76, 0xa2, 0x81, 0xed, 0xe0, 0xd9,
-	0xed, 0x60, 0x71, 0x3b, 0x38, 0xfe, 0x76, 0xd6, 0x3e, 0xcf, 0xc0, 0xff, 0xb2, 0x08, 0xf9, 0xa6,
-	0xc1, 0xe2, 0x70, 0x1b, 0x20, 0xeb, 0xe7, 0xb7, 0x55, 0x6d, 0x42, 0xfa, 0xe3, 0x0b, 0xa2, 0x93,
-	0x6e, 0x4d, 0xeb, 0xfd, 0x8f, 0xdf, 0x1f, 0x6b, 0x2b, 0xe4, 0x4e, 0x93, 0x23, 0x6d, 0xa4, 0x3c,
-	0xcd, 0x94, 0xa7, 0x19, 0x3b, 0x63, 0xce, 0x35, 0x64, 0x1f, 0xc3, 0xfd, 0xa1, 0xb2, 0x8f, 0x52,
-	0x77, 0xaa, 0xec, 0xa3, 0xdc, 0x94, 0x46, 0xea, 0x23, 0xe7, 0x5a, 0xe4, 0x8b, 0x06, 0x90, 0x39,
-	0x08, 0xb9, 0x57, 0x35, 0xc5, 0x41, 0xab, 0xd2, 0xef, 0x8f, 0x81, 0x18, 0x67, 0xd6, 0x12, 0xd6,
-	0x72, 0x63, 0x51, 0x9f, 0x34, 0x98, 0x56, 0x0f, 0x9b, 0x34, 0x2a, 0xca, 0x15, 0xed, 0x4d, 0xb7,
-	0x46, 0x4d, 0x57, 0xd2, 0x56, 0xa5, 0xb4, 0x5b, 0xc4, 0x2c, 0x91, 0x96, 0x9a, 0xd4, 0x57, 0x0d,
-	0x16, 0x8a, 0x36, 0x40, 0x1e, 0x8e, 0x56, 0xae, 0xe8, 0x4e, 0xfa, 0xa3, 0x31, 0x51, 0x4a, 0xeb,
-	0x9a, 0xd4, 0x7a, 0x97, 0xac, 0x56, 0x6b, 0x6d, 0xa5, 0x3f, 0x68, 0x36, 0x4a, 0x1c, 0x71, 0x94,
-	0x38, 0xde, 0x28, 0xf1, 0x02, 0xa3, 0xc4, 0x8d, 0xa7, 0xdf, 0x4f, 0x0c, 0xed, 0xf8, 0xc4, 0xd0,
-	0x7e, 0x9d, 0x18, 0xda, 0x87, 0x53, 0x63, 0xe2, 0xf8, 0xd4, 0x98, 0xf8, 0x79, 0x6a, 0x4c, 0xbc,
-	0x6b, 0xec, 0x51, 0xb1, 0xdf, 0xd9, 0xb1, 0x5c, 0xe6, 0x9f, 0xe1, 0x69, 0x24, 0x44, 0x47, 0x92,
-	0x2a, 0xf6, 0x47, 0xbe, 0x33, 0x25, 0xbf, 0x3f, 0xf8, 0x13, 0x00, 0x00, 0xff, 0xff, 0x2b, 0xa9,
-	0x46, 0xf3, 0x13, 0x09, 0x00, 0x00,
+	// 655 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x96, 0xcf, 0x4e, 0xd4, 0x50,
+	0x14, 0xc6, 0xe9, 0x88, 0xfc, 0x39, 0x20, 0x26, 0x57, 0x1d, 0xc6, 0x02, 0x05, 0x4b, 0x4c, 0x30,
+	0x6a, 0x9b, 0xc0, 0x4e, 0xdd, 0x08, 0xc1, 0xc4, 0x18, 0x13, 0xad, 0xca, 0xc2, 0xcd, 0xa4, 0xb4,
+	0x47, 0xb8, 0x81, 0xe9, 0x2d, 0xbd, 0x77, 0x06, 0x66, 0xab, 0x2f, 0x40, 0xe2, 0x0b, 0xf8, 0x10,
+	0x26, 0xbe, 0x82, 0x4b, 0x12, 0x37, 0x2e, 0x0d, 0xf8, 0x20, 0xa6, 0xb7, 0xb7, 0xd3, 0x16, 0x4a,
+	0x67, 0xc6, 0xe8, 0xae, 0xe7, 0xce, 0x39, 0xdf, 0xf9, 0xdd, 0x73, 0xda, 0x2f, 0x03, 0xd7, 0xb1,
+	0xd3, 0xb2, 0x0f, 0xda, 0x18, 0x75, 0xad, 0x30, 0x62, 0x82, 0x91, 0xfa, 0x1e, 0xa5, 0xde, 0xae,
+	0x4b, 0x03, 0x2b, 0x7d, 0x58, 0xb3, 0xb0, 0xd3, 0xd2, 0xe7, 0x77, 0x18, 0xdb, 0xd9, 0x47, 0xdb,
+	0x0d, 0xa9, 0xed, 0x06, 0x01, 0x13, 0xae, 0xa0, 0x2c, 0xe0, 0x49, 0x95, 0x2e, 0x65, 0x30, 0x68,
+	0xb7, 0xd4, 0x81, 0xb9, 0x09, 0xe6, 0xeb, 0x58, 0xf5, 0x05, 0xa5, 0x4f, 0x7d, 0x3f, 0x42, 0xce,
+	0xd7, 0xbb, 0x9b, 0x5b, 0x2f, 0xd5, 0xb3, 0x83, 0x07, 0x6d, 0xe4, 0x82, 0x2c, 0xc2, 0x14, 0x76,
+	0x5a, 0x4d, 0x37, 0x39, 0x6d, 0x68, 0x4b, 0xda, 0xca, 0xa4, 0x03, 0xd8, 0x69, 0xa9, 0x3c, 0xf3,
+	0x03, 0x2c, 0x57, 0xca, 0xf0, 0x90, 0x05, 0x1c, 0x63, 0x9d, 0x3d, 0x4a, 0xcf, 0xeb, 0xec, 0xf5,
+	0x8a, 0x88, 0x01, 0xe0, 0x72, 0xce, 0x3c, 0xea, 0x0a, 0xf4, 0x1b, 0xb5, 0x25, 0x6d, 0x65, 0xc2,
+	0xc9, 0x9d, 0xf4, 0x70, 0x33, 0xed, 0xf5, 0x5c, 0xcf, 0x1c, 0x6e, 0x65, 0x9b, 0x1e, 0xee, 0x65,
+	0x32, 0x19, 0x6e, 0xe5, 0xb5, 0xfb, 0xe2, 0x3e, 0x81, 0xba, 0xec, 0xf3, 0x26, 0xde, 0x82, 0xb7,
+	0xe1, 0xee, 0xef, 0xa7, 0x88, 0x04, 0x46, 0x7d, 0x57, 0xb8, 0x52, 0x73, 0xda, 0x91, 0xcf, 0x64,
+	0x06, 0x6a, 0x82, 0x49, 0x95, 0x49, 0xa7, 0x26, 0x98, 0xf9, 0x10, 0x66, 0x2f, 0x54, 0x2b, 0xb2,
+	0x92, 0x72, 0xf3, 0x10, 0x6e, 0xc8, 0xf4, 0x57, 0x8c, 0x06, 0x02, 0xa3, 0xb4, 0xd3, 0x33, 0x98,
+	0x0e, 0x93, 0x93, 0xa6, 0xe8, 0x86, 0x28, 0x4b, 0x66, 0x56, 0x97, 0xad, 0xf2, 0xf7, 0xc7, 0x52,
+	0xd5, 0x6f, 0xbb, 0x21, 0x3a, 0x53, 0x61, 0x16, 0x90, 0x06, 0x8c, 0x27, 0x21, 0x2a, 0xc4, 0x34,
+	0x34, 0xb7, 0xe1, 0x66, 0xb1, 0xb1, 0x82, 0xec, 0x55, 0x44, 0x6a, 0x74, 0x69, 0x18, 0xff, 0xd2,
+	0xc1, 0x88, 0x53, 0x16, 0x48, 0xad, 0x6b, 0x4e, 0x1a, 0x92, 0x3a, 0x8c, 0xe1, 0x11, 0xe5, 0x82,
+	0x37, 0xae, 0xc8, 0x69, 0xaa, 0xc8, 0xf4, 0x41, 0xcf, 0xf7, 0xd8, 0x4a, 0xd2, 0xff, 0xf1, 0x1d,
+	0xcd, 0x77, 0x30, 0x57, 0xda, 0x25, 0xbb, 0x50, 0x8a, 0xad, 0x15, 0xb1, 0xe7, 0x01, 0xbc, 0xc3,
+	0xa6, 0xc7, 0x7c, 0x6c, 0xd2, 0xe4, 0x45, 0x18, 0x75, 0x26, 0xbc, 0xc3, 0x0d, 0xe6, 0xe3, 0x73,
+	0xff, 0xdc, 0x66, 0xf0, 0xbf, 0x6d, 0x26, 0x2a, 0x6e, 0x26, 0x3a, 0xb7, 0x19, 0xbc, 0xb8, 0x19,
+	0x2c, 0x6e, 0x06, 0x87, 0xdf, 0xcc, 0xea, 0xb7, 0x71, 0xb8, 0x2a, 0x9b, 0x90, 0xaf, 0x1a, 0xd4,
+	0xcb, 0x0d, 0x80, 0x3c, 0xba, 0xec, 0x52, 0xfd, 0xcd, 0x47, 0x7f, 0xfc, 0x57, 0xb5, 0xc9, 0x4d,
+	0xcd, 0x3b, 0x1f, 0x7f, 0xfc, 0xfe, 0x5c, 0x9b, 0x23, 0xb7, 0xed, 0xb4, 0xd6, 0x8e, 0x2d, 0x30,
+	0x67, 0x0f, 0x12, 0xbb, 0xdc, 0x08, 0xfa, 0x60, 0x57, 0x9a, 0x50, 0x1f, 0xec, 0x6a, 0xe7, 0xb9,
+	0x0c, 0x3b, 0xe7, 0x46, 0xe4, 0x58, 0x03, 0xc8, 0x9c, 0x81, 0x58, 0x95, 0xed, 0x2e, 0x18, 0x90,
+	0x6e, 0x0f, 0x9c, 0x5f, 0x8d, 0xc4, 0x65, 0x66, 0xd3, 0x8b, 0x19, 0x3e, 0x69, 0x30, 0xae, 0xde,
+	0x52, 0x72, 0xbf, 0x52, 0xbf, 0xe8, 0x51, 0xfa, 0x83, 0xc1, 0x92, 0x15, 0xc9, 0x82, 0x24, 0x99,
+	0x25, 0xb7, 0x8a, 0x24, 0xa9, 0xb9, 0x7c, 0xd1, 0x60, 0xa6, 0xf8, 0x01, 0x93, 0xd5, 0x41, 0xf4,
+	0x8b, 0x9e, 0xa2, 0xaf, 0x0d, 0x55, 0xa3, 0xd0, 0xee, 0x4a, 0xb4, 0x45, 0xb2, 0x50, 0x8a, 0xd6,
+	0x4c, 0xbf, 0xa5, 0x6c, 0x50, 0x38, 0xd0, 0xa0, 0x70, 0x98, 0x41, 0xe1, 0x60, 0x83, 0xc2, 0xf5,
+	0x8d, 0xef, 0xa7, 0x86, 0x76, 0x72, 0x6a, 0x68, 0xbf, 0x4e, 0x0d, 0xed, 0xf8, 0xcc, 0x18, 0x39,
+	0x39, 0x33, 0x46, 0x7e, 0x9e, 0x19, 0x23, 0xef, 0xef, 0xed, 0x50, 0xb1, 0xdb, 0xde, 0xb6, 0x3c,
+	0xd6, 0xca, 0x4a, 0x7b, 0x0d, 0xed, 0x23, 0x29, 0x13, 0x7b, 0x16, 0xdf, 0x1e, 0x93, 0xff, 0x23,
+	0xd6, 0xfe, 0x04, 0x00, 0x00, 0xff, 0xff, 0x76, 0x66, 0x26, 0x11, 0xa1, 0x08, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -711,8 +710,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	SeiAddressByEVMAddress(ctx context.Context, in *QuerySeiAddressByEVMAddressRequest, opts ...grpc.CallOption) (*QuerySeiAddressByEVMAddressResponse, error)
-	EVMAddressBySeiAddress(ctx context.Context, in *QueryEVMAddressBySeiAddressRequest, opts ...grpc.CallOption) (*QueryEVMAddressBySeiAddressResponse, error)
+	KiiAddressByEVMAddress(ctx context.Context, in *QueryKiiAddressByEVMAddressRequest, opts ...grpc.CallOption) (*QueryKiiAddressByEVMAddressResponse, error)
+	EVMAddressByKiiAddress(ctx context.Context, in *QueryEVMAddressByKiiAddressRequest, opts ...grpc.CallOption) (*QueryEVMAddressByKiiAddressResponse, error)
 	StaticCall(ctx context.Context, in *QueryStaticCallRequest, opts ...grpc.CallOption) (*QueryStaticCallResponse, error)
 	Pointer(ctx context.Context, in *QueryPointerRequest, opts ...grpc.CallOption) (*QueryPointerResponse, error)
 	PointerVersion(ctx context.Context, in *QueryPointerVersionRequest, opts ...grpc.CallOption) (*QueryPointerVersionResponse, error)
@@ -727,18 +726,18 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) SeiAddressByEVMAddress(ctx context.Context, in *QuerySeiAddressByEVMAddressRequest, opts ...grpc.CallOption) (*QuerySeiAddressByEVMAddressResponse, error) {
-	out := new(QuerySeiAddressByEVMAddressResponse)
-	err := c.cc.Invoke(ctx, "/seiprotocol.seichain.evm.Query/SeiAddressByEVMAddress", in, out, opts...)
+func (c *queryClient) KiiAddressByEVMAddress(ctx context.Context, in *QueryKiiAddressByEVMAddressRequest, opts ...grpc.CallOption) (*QueryKiiAddressByEVMAddressResponse, error) {
+	out := new(QueryKiiAddressByEVMAddressResponse)
+	err := c.cc.Invoke(ctx, "/kiichain.kiichain3.evm.Query/KiiAddressByEVMAddress", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryClient) EVMAddressBySeiAddress(ctx context.Context, in *QueryEVMAddressBySeiAddressRequest, opts ...grpc.CallOption) (*QueryEVMAddressBySeiAddressResponse, error) {
-	out := new(QueryEVMAddressBySeiAddressResponse)
-	err := c.cc.Invoke(ctx, "/seiprotocol.seichain.evm.Query/EVMAddressBySeiAddress", in, out, opts...)
+func (c *queryClient) EVMAddressByKiiAddress(ctx context.Context, in *QueryEVMAddressByKiiAddressRequest, opts ...grpc.CallOption) (*QueryEVMAddressByKiiAddressResponse, error) {
+	out := new(QueryEVMAddressByKiiAddressResponse)
+	err := c.cc.Invoke(ctx, "/kiichain.kiichain3.evm.Query/EVMAddressByKiiAddress", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -747,7 +746,7 @@ func (c *queryClient) EVMAddressBySeiAddress(ctx context.Context, in *QueryEVMAd
 
 func (c *queryClient) StaticCall(ctx context.Context, in *QueryStaticCallRequest, opts ...grpc.CallOption) (*QueryStaticCallResponse, error) {
 	out := new(QueryStaticCallResponse)
-	err := c.cc.Invoke(ctx, "/seiprotocol.seichain.evm.Query/StaticCall", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/kiichain.kiichain3.evm.Query/StaticCall", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -756,7 +755,7 @@ func (c *queryClient) StaticCall(ctx context.Context, in *QueryStaticCallRequest
 
 func (c *queryClient) Pointer(ctx context.Context, in *QueryPointerRequest, opts ...grpc.CallOption) (*QueryPointerResponse, error) {
 	out := new(QueryPointerResponse)
-	err := c.cc.Invoke(ctx, "/seiprotocol.seichain.evm.Query/Pointer", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/kiichain.kiichain3.evm.Query/Pointer", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -765,7 +764,7 @@ func (c *queryClient) Pointer(ctx context.Context, in *QueryPointerRequest, opts
 
 func (c *queryClient) PointerVersion(ctx context.Context, in *QueryPointerVersionRequest, opts ...grpc.CallOption) (*QueryPointerVersionResponse, error) {
 	out := new(QueryPointerVersionResponse)
-	err := c.cc.Invoke(ctx, "/seiprotocol.seichain.evm.Query/PointerVersion", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/kiichain.kiichain3.evm.Query/PointerVersion", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -774,7 +773,7 @@ func (c *queryClient) PointerVersion(ctx context.Context, in *QueryPointerVersio
 
 func (c *queryClient) Pointee(ctx context.Context, in *QueryPointeeRequest, opts ...grpc.CallOption) (*QueryPointeeResponse, error) {
 	out := new(QueryPointeeResponse)
-	err := c.cc.Invoke(ctx, "/seiprotocol.seichain.evm.Query/Pointee", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/kiichain.kiichain3.evm.Query/Pointee", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -783,8 +782,8 @@ func (c *queryClient) Pointee(ctx context.Context, in *QueryPointeeRequest, opts
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	SeiAddressByEVMAddress(context.Context, *QuerySeiAddressByEVMAddressRequest) (*QuerySeiAddressByEVMAddressResponse, error)
-	EVMAddressBySeiAddress(context.Context, *QueryEVMAddressBySeiAddressRequest) (*QueryEVMAddressBySeiAddressResponse, error)
+	KiiAddressByEVMAddress(context.Context, *QueryKiiAddressByEVMAddressRequest) (*QueryKiiAddressByEVMAddressResponse, error)
+	EVMAddressByKiiAddress(context.Context, *QueryEVMAddressByKiiAddressRequest) (*QueryEVMAddressByKiiAddressResponse, error)
 	StaticCall(context.Context, *QueryStaticCallRequest) (*QueryStaticCallResponse, error)
 	Pointer(context.Context, *QueryPointerRequest) (*QueryPointerResponse, error)
 	PointerVersion(context.Context, *QueryPointerVersionRequest) (*QueryPointerVersionResponse, error)
@@ -795,11 +794,11 @@ type QueryServer interface {
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) SeiAddressByEVMAddress(ctx context.Context, req *QuerySeiAddressByEVMAddressRequest) (*QuerySeiAddressByEVMAddressResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SeiAddressByEVMAddress not implemented")
+func (*UnimplementedQueryServer) KiiAddressByEVMAddress(ctx context.Context, req *QueryKiiAddressByEVMAddressRequest) (*QueryKiiAddressByEVMAddressResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method KiiAddressByEVMAddress not implemented")
 }
-func (*UnimplementedQueryServer) EVMAddressBySeiAddress(ctx context.Context, req *QueryEVMAddressBySeiAddressRequest) (*QueryEVMAddressBySeiAddressResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method EVMAddressBySeiAddress not implemented")
+func (*UnimplementedQueryServer) EVMAddressByKiiAddress(ctx context.Context, req *QueryEVMAddressByKiiAddressRequest) (*QueryEVMAddressByKiiAddressResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EVMAddressByKiiAddress not implemented")
 }
 func (*UnimplementedQueryServer) StaticCall(ctx context.Context, req *QueryStaticCallRequest) (*QueryStaticCallResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StaticCall not implemented")
@@ -818,38 +817,38 @@ func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 	s.RegisterService(&_Query_serviceDesc, srv)
 }
 
-func _Query_SeiAddressByEVMAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QuerySeiAddressByEVMAddressRequest)
+func _Query_KiiAddressByEVMAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryKiiAddressByEVMAddressRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).SeiAddressByEVMAddress(ctx, in)
+		return srv.(QueryServer).KiiAddressByEVMAddress(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/seiprotocol.seichain.evm.Query/SeiAddressByEVMAddress",
+		FullMethod: "/kiichain.kiichain3.evm.Query/KiiAddressByEVMAddress",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).SeiAddressByEVMAddress(ctx, req.(*QuerySeiAddressByEVMAddressRequest))
+		return srv.(QueryServer).KiiAddressByEVMAddress(ctx, req.(*QueryKiiAddressByEVMAddressRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_EVMAddressBySeiAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryEVMAddressBySeiAddressRequest)
+func _Query_EVMAddressByKiiAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryEVMAddressByKiiAddressRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).EVMAddressBySeiAddress(ctx, in)
+		return srv.(QueryServer).EVMAddressByKiiAddress(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/seiprotocol.seichain.evm.Query/EVMAddressBySeiAddress",
+		FullMethod: "/kiichain.kiichain3.evm.Query/EVMAddressByKiiAddress",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).EVMAddressBySeiAddress(ctx, req.(*QueryEVMAddressBySeiAddressRequest))
+		return srv.(QueryServer).EVMAddressByKiiAddress(ctx, req.(*QueryEVMAddressByKiiAddressRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -864,7 +863,7 @@ func _Query_StaticCall_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/seiprotocol.seichain.evm.Query/StaticCall",
+		FullMethod: "/kiichain.kiichain3.evm.Query/StaticCall",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).StaticCall(ctx, req.(*QueryStaticCallRequest))
@@ -882,7 +881,7 @@ func _Query_Pointer_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/seiprotocol.seichain.evm.Query/Pointer",
+		FullMethod: "/kiichain.kiichain3.evm.Query/Pointer",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).Pointer(ctx, req.(*QueryPointerRequest))
@@ -900,7 +899,7 @@ func _Query_PointerVersion_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/seiprotocol.seichain.evm.Query/PointerVersion",
+		FullMethod: "/kiichain.kiichain3.evm.Query/PointerVersion",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).PointerVersion(ctx, req.(*QueryPointerVersionRequest))
@@ -918,7 +917,7 @@ func _Query_Pointee_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/seiprotocol.seichain.evm.Query/Pointee",
+		FullMethod: "/kiichain.kiichain3.evm.Query/Pointee",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).Pointee(ctx, req.(*QueryPointeeRequest))
@@ -927,16 +926,16 @@ func _Query_Pointee_Handler(srv interface{}, ctx context.Context, dec func(inter
 }
 
 var _Query_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "seiprotocol.seichain.evm.Query",
+	ServiceName: "kiichain.kiichain3.evm.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SeiAddressByEVMAddress",
-			Handler:    _Query_SeiAddressByEVMAddress_Handler,
+			MethodName: "KiiAddressByEVMAddress",
+			Handler:    _Query_KiiAddressByEVMAddress_Handler,
 		},
 		{
-			MethodName: "EVMAddressBySeiAddress",
-			Handler:    _Query_EVMAddressBySeiAddress_Handler,
+			MethodName: "EVMAddressByKiiAddress",
+			Handler:    _Query_EVMAddressByKiiAddress_Handler,
 		},
 		{
 			MethodName: "StaticCall",
@@ -959,7 +958,7 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	Metadata: "evm/query.proto",
 }
 
-func (m *QuerySeiAddressByEVMAddressRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryKiiAddressByEVMAddressRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -969,12 +968,12 @@ func (m *QuerySeiAddressByEVMAddressRequest) Marshal() (dAtA []byte, err error) 
 	return dAtA[:n], nil
 }
 
-func (m *QuerySeiAddressByEVMAddressRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryKiiAddressByEVMAddressRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QuerySeiAddressByEVMAddressRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryKiiAddressByEVMAddressRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -989,7 +988,7 @@ func (m *QuerySeiAddressByEVMAddressRequest) MarshalToSizedBuffer(dAtA []byte) (
 	return len(dAtA) - i, nil
 }
 
-func (m *QuerySeiAddressByEVMAddressResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryKiiAddressByEVMAddressResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -999,12 +998,12 @@ func (m *QuerySeiAddressByEVMAddressResponse) Marshal() (dAtA []byte, err error)
 	return dAtA[:n], nil
 }
 
-func (m *QuerySeiAddressByEVMAddressResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryKiiAddressByEVMAddressResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QuerySeiAddressByEVMAddressResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryKiiAddressByEVMAddressResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1019,17 +1018,17 @@ func (m *QuerySeiAddressByEVMAddressResponse) MarshalToSizedBuffer(dAtA []byte) 
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.SeiAddress) > 0 {
-		i -= len(m.SeiAddress)
-		copy(dAtA[i:], m.SeiAddress)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.SeiAddress)))
+	if len(m.KiiAddress) > 0 {
+		i -= len(m.KiiAddress)
+		copy(dAtA[i:], m.KiiAddress)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.KiiAddress)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryEVMAddressBySeiAddressRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryEVMAddressByKiiAddressRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1039,27 +1038,27 @@ func (m *QueryEVMAddressBySeiAddressRequest) Marshal() (dAtA []byte, err error) 
 	return dAtA[:n], nil
 }
 
-func (m *QueryEVMAddressBySeiAddressRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryEVMAddressByKiiAddressRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryEVMAddressBySeiAddressRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryEVMAddressByKiiAddressRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.SeiAddress) > 0 {
-		i -= len(m.SeiAddress)
-		copy(dAtA[i:], m.SeiAddress)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.SeiAddress)))
+	if len(m.KiiAddress) > 0 {
+		i -= len(m.KiiAddress)
+		copy(dAtA[i:], m.KiiAddress)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.KiiAddress)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryEVMAddressBySeiAddressResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryEVMAddressByKiiAddressResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1069,12 +1068,12 @@ func (m *QueryEVMAddressBySeiAddressResponse) Marshal() (dAtA []byte, err error)
 	return dAtA[:n], nil
 }
 
-func (m *QueryEVMAddressBySeiAddressResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryEVMAddressByKiiAddressResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryEVMAddressBySeiAddressResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryEVMAddressByKiiAddressResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1398,7 +1397,7 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *QuerySeiAddressByEVMAddressRequest) Size() (n int) {
+func (m *QueryKiiAddressByEVMAddressRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1411,13 +1410,13 @@ func (m *QuerySeiAddressByEVMAddressRequest) Size() (n int) {
 	return n
 }
 
-func (m *QuerySeiAddressByEVMAddressResponse) Size() (n int) {
+func (m *QueryKiiAddressByEVMAddressResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.SeiAddress)
+	l = len(m.KiiAddress)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
@@ -1427,20 +1426,20 @@ func (m *QuerySeiAddressByEVMAddressResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryEVMAddressBySeiAddressRequest) Size() (n int) {
+func (m *QueryEVMAddressByKiiAddressRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.SeiAddress)
+	l = len(m.KiiAddress)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
 	return n
 }
 
-func (m *QueryEVMAddressBySeiAddressResponse) Size() (n int) {
+func (m *QueryEVMAddressByKiiAddressResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1589,7 +1588,7 @@ func sovQuery(x uint64) (n int) {
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *QuerySeiAddressByEVMAddressRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryKiiAddressByEVMAddressRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1612,10 +1611,10 @@ func (m *QuerySeiAddressByEVMAddressRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QuerySeiAddressByEVMAddressRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryKiiAddressByEVMAddressRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QuerySeiAddressByEVMAddressRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryKiiAddressByEVMAddressRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1671,7 +1670,7 @@ func (m *QuerySeiAddressByEVMAddressRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QuerySeiAddressByEVMAddressResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryKiiAddressByEVMAddressResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1694,15 +1693,15 @@ func (m *QuerySeiAddressByEVMAddressResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QuerySeiAddressByEVMAddressResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryKiiAddressByEVMAddressResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QuerySeiAddressByEVMAddressResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryKiiAddressByEVMAddressResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SeiAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field KiiAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1730,7 +1729,7 @@ func (m *QuerySeiAddressByEVMAddressResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.SeiAddress = string(dAtA[iNdEx:postIndex])
+			m.KiiAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
@@ -1773,7 +1772,7 @@ func (m *QuerySeiAddressByEVMAddressResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryEVMAddressBySeiAddressRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryEVMAddressByKiiAddressRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1796,15 +1795,15 @@ func (m *QueryEVMAddressBySeiAddressRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryEVMAddressBySeiAddressRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryEVMAddressByKiiAddressRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryEVMAddressBySeiAddressRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryEVMAddressByKiiAddressRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SeiAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field KiiAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1832,7 +1831,7 @@ func (m *QueryEVMAddressBySeiAddressRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.SeiAddress = string(dAtA[iNdEx:postIndex])
+			m.KiiAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -1855,7 +1854,7 @@ func (m *QueryEVMAddressBySeiAddressRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryEVMAddressBySeiAddressResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryEVMAddressByKiiAddressResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1878,10 +1877,10 @@ func (m *QueryEVMAddressBySeiAddressResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryEVMAddressBySeiAddressResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryEVMAddressByKiiAddressResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryEVMAddressBySeiAddressResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryEVMAddressByKiiAddressResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

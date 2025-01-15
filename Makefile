@@ -287,4 +287,14 @@ upgrade:
 	@echo "Upgrade completed. The node is ready for the upgrade block."
 
 ###############################################################################
+###                                Protobuf                                 ###
+###############################################################################
 
+# Proto generation uses ignite v0.23.0 (https://github.com/ignite/cli/releases/tag/v0.23.0)
+proto-gen:
+	@echo "Generating Protobuf files"
+	ignite generate proto-go -y
+
+swagger-gen:
+	@echo "Generating Swagger files"
+	etc/update-swagger-ui-statik.sh

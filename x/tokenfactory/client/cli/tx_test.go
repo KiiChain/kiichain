@@ -66,18 +66,18 @@ type MockQueryClient struct {
 	evmtypes.QueryClient
 }
 
-func (m *MockQueryClient) SeiAddressByEVMAddress(ctx context.Context, in *evmtypes.QuerySeiAddressByEVMAddressRequest, opts ...grpc.CallOption) (*evmtypes.QuerySeiAddressByEVMAddressResponse, error) {
+func (m *MockQueryClient) KiiAddressByEVMAddress(ctx context.Context, in *evmtypes.QueryKiiAddressByEVMAddressRequest, opts ...grpc.CallOption) (*evmtypes.QueryKiiAddressByEVMAddressResponse, error) {
 	if in.EvmAddress == "0x0CF3Bb7Da9fea6a881987A5018740500C7d4BAaE" {
-		return &evmtypes.QuerySeiAddressByEVMAddressResponse{SeiAddress: "", Associated: false}, nil
+		return &evmtypes.QueryKiiAddressByEVMAddressResponse{KiiAddress: "", Associated: false}, nil
 	}
-	return &evmtypes.QuerySeiAddressByEVMAddressResponse{SeiAddress: "kii1u8j4gaxyzhg39dk848q5w9h53tgggpcx2jsz25", Associated: true}, nil
+	return &evmtypes.QueryKiiAddressByEVMAddressResponse{KiiAddress: "kii1u8j4gaxyzhg39dk848q5w9h53tgggpcx2jsz25", Associated: true}, nil
 }
 
 type MockErrorQueryClient struct {
 	evmtypes.QueryClient
 }
 
-func (m *MockErrorQueryClient) SeiAddressByEVMAddress(ctx context.Context, in *evmtypes.QuerySeiAddressByEVMAddressRequest, opts ...grpc.CallOption) (*evmtypes.QuerySeiAddressByEVMAddressResponse, error) {
+func (m *MockErrorQueryClient) KiiAddressByEVMAddress(ctx context.Context, in *evmtypes.QueryKiiAddressByEVMAddressRequest, opts ...grpc.CallOption) (*evmtypes.QueryKiiAddressByEVMAddressResponse, error) {
 	return nil, fmt.Errorf("address is not associated")
 }
 

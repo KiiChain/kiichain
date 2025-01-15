@@ -1,5 +1,5 @@
 syntax = "proto3";
-package seiprotocol.seichain.evm;
+package kiichain.kiichain3.evm;
 
 import "gogoproto/gogo.proto";
 
@@ -9,7 +9,7 @@ option go_package = "github.com/kiichain/kiichain3/x/evm/types";
 *
 XXTime fields indicate upgrade timestamps. For example, a ShanghaiTime
 of 42198537129 means the chain upgraded to the Shanghai version at timestamp 42198537129.
-A value of 0 means the upgrade is included in the genesis of the EVM on Sei.
+A value of 0 means the upgrade is included in the genesis of the EVM on Kii.
 -1 means upgrade not reached yet.
 */
 message ChainConfig {

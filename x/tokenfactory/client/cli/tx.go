@@ -335,14 +335,14 @@ func ParseAllowListJSON(allowListFile string, queryClient evmtypes.QueryClient) 
 		addressMap[addr] = struct{}{}
 
 		if common.IsHexAddress(addr) {
-			res, err := queryClient.SeiAddressByEVMAddress(context.Background(), &evmtypes.QuerySeiAddressByEVMAddressRequest{EvmAddress: addr})
+			res, err := queryClient.KiiAddressByEVMAddress(context.Background(), &evmtypes.QueryKiiAddressByEVMAddressRequest{EvmAddress: addr})
 			if res != nil && !res.Associated {
 				return allowList, fmt.Errorf("address %s is not associated", addr)
 			}
 			if err != nil {
 				return allowList, err
 			}
-			uniqueAddresses = append(uniqueAddresses, res.SeiAddress)
+			uniqueAddresses = append(uniqueAddresses, res.KiiAddress)
 			continue
 		}
 		if _, err := sdk.AccAddressFromBech32(addr); err != nil {

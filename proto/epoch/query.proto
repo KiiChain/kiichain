@@ -1,5 +1,5 @@
 syntax = "proto3";
-package seiprotocol.seichain.epoch;
+package kiichain.kiichain3.epoch;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
@@ -14,11 +14,11 @@ option go_package = "github.com/kiichain/kiichain3/x/epoch/types";
 service Query {
   // Query the epoch in the chain
   rpc Epoch(QueryEpochRequest) returns (QueryEpochResponse) {
-    option (google.api.http).get = "/sei-protocol/seichain/epoch/epoch";
+    option (google.api.http).get = "/kiichain/epoch/epoch";
   }
   // Parameters queries the parameters of the module.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/sei-protocol/seichain/epoch/params";
+    option (google.api.http).get = "/kiichain/epoch/params";
   }
   // this line is used by starport scaffolding # 2
 }

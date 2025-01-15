@@ -1,5 +1,5 @@
 syntax = "proto3";
-package seiprotocol.seichain.evm;
+package kiichain.kiichain3.evm;
 
 import "google/api/annotations.proto";
 import "evm/enums.proto";
@@ -8,45 +8,45 @@ option go_package = "github.com/kiichain/kiichain3/x/evm/types";
 
 // Query defines the gRPC querier service.
 service Query {
-    rpc SeiAddressByEVMAddress(QuerySeiAddressByEVMAddressRequest) returns (QuerySeiAddressByEVMAddressResponse) {
-        option (google.api.http).get = "/sei-protocol/seichain/evm/sei_address";
+    rpc KiiAddressByEVMAddress(QueryKiiAddressByEVMAddressRequest) returns (QueryKiiAddressByEVMAddressResponse) {
+        option (google.api.http).get = "/kiichain/evm/kii_address";
     }
 
-    rpc EVMAddressBySeiAddress(QueryEVMAddressBySeiAddressRequest) returns (QueryEVMAddressBySeiAddressResponse) {
-        option (google.api.http).get = "/sei-protocol/seichain/evm/evm_address";
+    rpc EVMAddressByKiiAddress(QueryEVMAddressByKiiAddressRequest) returns (QueryEVMAddressByKiiAddressResponse) {
+        option (google.api.http).get = "/kiichain/evm/evm_address";
     }
 
     rpc StaticCall(QueryStaticCallRequest) returns (QueryStaticCallResponse) {
-        option (google.api.http).get = "/sei-protocol/seichain/evm/static_call";
+        option (google.api.http).get = "/kiichain/evm/static_call";
     }
 
     rpc Pointer(QueryPointerRequest) returns (QueryPointerResponse) {
-        option (google.api.http).get = "/sei-protocol/seichain/evm/pointer";
+        option (google.api.http).get = "/kiichain/evm/pointer";
     }
 
     rpc PointerVersion(QueryPointerVersionRequest) returns (QueryPointerVersionResponse) {
-        option (google.api.http).get = "/sei-protocol/seichain/evm/pointer_version";
+        option (google.api.http).get = "/kiichain/evm/pointer_version";
     }
 
     rpc Pointee(QueryPointeeRequest) returns (QueryPointeeResponse) {
-        option (google.api.http).get = "/sei-protocol/seichain/evm/pointee";
+        option (google.api.http).get = "/kiichain/evm/pointee";
     }
 }
 
-message QuerySeiAddressByEVMAddressRequest {
+message QueryKiiAddressByEVMAddressRequest {
     string evm_address = 1;
 }
 
-message QuerySeiAddressByEVMAddressResponse {
-    string sei_address = 1;
+message QueryKiiAddressByEVMAddressResponse {
+    string kii_address = 1;
     bool associated = 2;
 }
 
-message QueryEVMAddressBySeiAddressRequest {
-    string sei_address = 1;
+message QueryEVMAddressByKiiAddressRequest {
+    string kii_address = 1;
 }
 
-message QueryEVMAddressBySeiAddressResponse {
+message QueryEVMAddressByKiiAddressResponse {
     string evm_address = 1;
     bool associated = 2;
 }

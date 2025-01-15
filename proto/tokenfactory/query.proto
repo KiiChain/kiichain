@@ -1,5 +1,5 @@
 syntax = "proto3";
-package seiprotocol.seichain.tokenfactory;
+package kiichain.kiichain3.tokenfactory;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
@@ -15,7 +15,7 @@ service Query {
   // Params defines a gRPC query method that returns the tokenfactory module's
   // parameters.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/sei-protocol/seichain/tokenfactory/params";
+    option (google.api.http).get = "/kiichain/tokenfactory/params";
   }
 
   // DenomAuthorityMetadata defines a gRPC query method for fetching
@@ -23,13 +23,13 @@ service Query {
   rpc DenomAuthorityMetadata(QueryDenomAuthorityMetadataRequest)
       returns (QueryDenomAuthorityMetadataResponse) {
     option (google.api.http).get =
-        "/sei-protocol/seichain/tokenfactory/denoms/{denom}/authority_metadata";
+        "/kiichain/tokenfactory/denoms/{denom}/authority_metadata";
   }
 
   // DenomsMetadata defines a gRPC query method for fetching
   //  DenomMetadata for a particular denom.
   rpc DenomMetadata(QueryDenomMetadataRequest) returns (QueryDenomMetadataResponse) {
-    option (google.api.http).get = "/sei-protocol/seichain/tokenfactory/denoms/metadata";
+    option (google.api.http).get = "/kiichain/tokenfactory/denoms/metadata";
   }
 
   // DenomsFromCreator defines a gRPC query method for fetching all
@@ -37,12 +37,12 @@ service Query {
   rpc DenomsFromCreator(QueryDenomsFromCreatorRequest)
       returns (QueryDenomsFromCreatorResponse) {
     option (google.api.http).get =
-        "/sei-protocol/seichain/tokenfactory/denoms_from_creator/{creator}";
+        "/kiichain/tokenfactory/denoms_from_creator/{creator}";
   }
 
   // DenomAllowList defines a gRPC query method for fetching the denom allow list
   rpc DenomAllowList(QueryDenomAllowListRequest) returns (QueryDenomAllowListResponse) {
-    option (google.api.http).get = "/sei-protocol/seichain/tokenfactory/denoms/allow_list";
+    option (google.api.http).get = "/kiichain/tokenfactory/denoms/allow_list";
   }
 
 }

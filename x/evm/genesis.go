@@ -14,7 +14,7 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, genState types.GenesisState)
 	k.InitGenesis(ctx, genState)
 	k.SetParams(ctx, genState.Params)
 	for _, aa := range genState.AddressAssociations {
-		k.SetAddressMapping(ctx, sdk.MustAccAddressFromBech32(aa.SeiAddress), common.HexToAddress(aa.EthAddress))
+		k.SetAddressMapping(ctx, sdk.MustAccAddressFromBech32(aa.KiiAddress), common.HexToAddress(aa.EthAddress))
 	}
 	for _, code := range genState.Codes {
 		k.SetCode(ctx, common.HexToAddress(code.Address), code.Code)
@@ -39,7 +39,7 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 	genesis.Params = k.GetParams(ctx)
 	k.IterateSeiAddressMapping(ctx, func(evmAddr common.Address, seiAddr sdk.AccAddress) bool {
 		genesis.AddressAssociations = append(genesis.AddressAssociations, &types.AddressAssociation{
-			SeiAddress: seiAddr.String(),
+			KiiAddress: seiAddr.String(),
 			EthAddress: evmAddr.Hex(),
 		})
 		return false
@@ -101,7 +101,7 @@ func ExportGenesisStream(ctx sdk.Context, k *keeper.Keeper) <-chan *types.Genesi
 			var genesis types.GenesisState
 			genesis.Params = k.GetParams(ctx)
 			genesis.AddressAssociations = append(genesis.AddressAssociations, &types.AddressAssociation{
-				SeiAddress: seiAddr.String(),
+				KiiAddress: seiAddr.String(),
 				EthAddress: evmAddr.Hex(),
 			})
 			ch <- &genesis

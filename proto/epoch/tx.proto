@@ -1,5 +1,5 @@
 syntax = "proto3";
-package seiprotocol.seichain.epoch;
+package kiichain.kiichain3.epoch;
 
 // this line is used by starport scaffolding # proto/tx/import
 

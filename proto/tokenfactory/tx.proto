@@ -1,5 +1,5 @@
 syntax = "proto3";
-package seiprotocol.seichain.tokenfactory;
+package kiichain.kiichain3.tokenfactory;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";

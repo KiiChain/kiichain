@@ -64,7 +64,7 @@ func CmdQuerySeiAddress() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.SeiAddressByEVMAddress(context.Background(), &types.QuerySeiAddressByEVMAddressRequest{EvmAddress: args[0]})
+			res, err := queryClient.KiiAddressByEVMAddress(context.Background(), &types.QueryKiiAddressByEVMAddressRequest{EvmAddress: args[0]})
 			if err != nil {
 				return err
 			}
@@ -90,7 +90,7 @@ func CmdQueryEVMAddress() *cobra.Command {
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.EVMAddressBySeiAddress(context.Background(), &types.QueryEVMAddressBySeiAddressRequest{SeiAddress: args[0]})
+			res, err := queryClient.EVMAddressByKiiAddress(context.Background(), &types.QueryEVMAddressByKiiAddressRequest{KiiAddress: args[0]})
 			if err != nil {
 				return err
 			}
