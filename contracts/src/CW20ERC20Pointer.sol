@@ -35,7 +35,7 @@ contract CW20ERC20Pointer is ERC20 {
 
     function balanceOf(address owner) public view override returns (uint256) {
         require(owner != address(0), "ERC20: balance query for the zero address");
-        string memory ownerAddr = _formatPayload("address", _doubleQuotes(AddrPrecompile.getSeiAddr(owner)));
+        string memory ownerAddr = _formatPayload("address", _doubleQuotes(AddrPrecompile.getKiiAddr(owner)));
         string memory req = _curlyBrace(_formatPayload("balance", _curlyBrace(ownerAddr)));
         bytes memory response = WasmdPrecompile.query(Cw20Address, bytes(req));
         return JsonPrecompile.extractAsUint256(response, "balance");
@@ -48,8 +48,8 @@ contract CW20ERC20Pointer is ERC20 {
     }
 
     function allowance(address owner, address spender) public view override returns (uint256) {
-        string memory o = _formatPayload("owner", _doubleQuotes(AddrPrecompile.getSeiAddr(owner)));
-        string memory s = _formatPayload("spender", _doubleQuotes(AddrPrecompile.getSeiAddr(spender)));
+        string memory o = _formatPayload("owner", _doubleQuotes(AddrPrecompile.getKiiAddr(owner)));
+        string memory s = _formatPayload("spender", _doubleQuotes(AddrPrecompile.getKiiAddr(spender)));
         string memory req = _curlyBrace(_formatPayload("allowance", _curlyBrace(_join(o, s, ","))));
         bytes memory response = WasmdPrecompile.query(Cw20Address, bytes(req));
         return JsonPrecompile.extractAsUint256(response, "allowance");
@@ -63,12 +63,12 @@ contract CW20ERC20Pointer is ERC20 {
         }
         uint256 currentAllowance = allowance(msg.sender, spender);
         if (currentAllowance > amount) {
-            string memory spenderAddr = _formatPayload("spender", _doubleQuotes(AddrPrecompile.getSeiAddr(spender)));
+            string memory spenderAddr = _formatPayload("spender", _doubleQuotes(AddrPrecompile.getKiiAddr(spender)));
             string memory amt = _formatPayload("amount", _doubleQuotes(Strings.toString(currentAllowance - amount)));
             string memory req = _curlyBrace(_formatPayload("decrease_allowance", _curlyBrace(_join(spenderAddr, amt, ","))));
             _execute(bytes(req));
         } else if (currentAllowance < amount) {
-            string memory spenderAddr = _formatPayload("spender", _doubleQuotes(AddrPrecompile.getSeiAddr(spender)));
+            string memory spenderAddr = _formatPayload("spender", _doubleQuotes(AddrPrecompile.getKiiAddr(spender)));
             string memory amt = _formatPayload("amount", _doubleQuotes(Strings.toString(amount - currentAllowance)));
             string memory req = _curlyBrace(_formatPayload("increase_allowance", _curlyBrace(_join(spenderAddr, amt, ","))));
             _execute(bytes(req));
@@ -78,7 +78,7 @@ contract CW20ERC20Pointer is ERC20 {
 
     function transfer(address to, uint256 amount) public override returns (bool) {
         require(to != address(0), "ERC20: transfer to the zero address");
-        string memory recipient = _formatPayload("recipient", _doubleQuotes(AddrPrecompile.getSeiAddr(to)));
+        string memory recipient = _formatPayload("recipient", _doubleQuotes(AddrPrecompile.getKiiAddr(to)));
         string memory amt = _formatPayload("amount", _doubleQuotes(Strings.toString(amount)));
         string memory req = _curlyBrace(_formatPayload("transfer", _curlyBrace(_join(recipient, amt, ","))));
         _execute(bytes(req));
@@ -87,8 +87,8 @@ contract CW20ERC20Pointer is ERC20 {
 
     function transferFrom(address from, address to, uint256 amount) public override returns (bool) {
         require(to != address(0), "ERC20: transfer to the zero address");
-        string memory sender = _formatPayload("owner", _doubleQuotes(AddrPrecompile.getSeiAddr(from)));
-        string memory recipient = _formatPayload("recipient", _doubleQuotes(AddrPrecompile.getSeiAddr(to)));
+        string memory sender = _formatPayload("owner", _doubleQuotes(AddrPrecompile.getKiiAddr(from)));
+        string memory recipient = _formatPayload("recipient", _doubleQuotes(AddrPrecompile.getKiiAddr(to)));
         string memory amt = _formatPayload("amount", _doubleQuotes(Strings.toString(amount)));
         string memory req = _curlyBrace(_formatPayload("transfer_from", _curlyBrace(_join(_join(sender, recipient, ","), amt, ","))));
         _execute(bytes(req));

@@ -9,6 +9,6 @@ IAddr constant ADDR_CONTRACT = IAddr(
 
 interface IAddr {
     // Queries
-    function getSeiAddr(address addr) external view returns (string memory response);
+    function getKiiAddr(address addr) external view returns (string memory response);
     function getEvmAddr(string memory addr) external view returns (address response);
 }
