@@ -32,26 +32,26 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Initial should be zero", func(t *testing.T) {
-		seiApp := keepertest.TestApp()
-		ctx := seiApp.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
+		kiiApp := keepertest.TestApp()
+		ctx := kiiApp.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
 
 		header := tmproto.Header{
-			Height: seiApp.LastBlockHeight() + 1,
+			Height: kiiApp.LastBlockHeight() + 1,
 			Time:   time.Now().UTC(),
 		}
-		seiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
-		require.Equal(t, int64(0), seiApp.MintKeeper.GetMinter(ctx).GetLastMintAmountCoin().Amount.Int64())
+		kiiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
+		require.Equal(t, int64(0), kiiApp.MintKeeper.GetMinter(ctx).GetLastMintAmountCoin().Amount.Int64())
 	})
 
 	t.Run("even full release", func(t *testing.T) {
-		seiApp := keepertest.TestApp()
-		ctx := seiApp.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
+		kiiApp := keepertest.TestApp()
+		ctx := kiiApp.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
 
 		header := tmproto.Header{
-			Height: seiApp.LastBlockHeight() + 1,
+			Height: kiiApp.LastBlockHeight() + 1,
 			Time:   time.Now().UTC(),
 		}
-		seiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
+		kiiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
 		genesisTime := header.Time
 		tokenReleaseSchedle := []minttypes.ScheduledTokenRelease{
 			{
@@ -64,18 +64,18 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 			"ukii",
 			tokenReleaseSchedle,
 		)
-		seiApp.MintKeeper.SetParams(ctx, mintParams)
+		kiiApp.MintKeeper.SetParams(ctx, mintParams)
 
 		for i := 0; i < 25; i++ {
 			currTime := genesisTime.AddDate(0, 0, i)
 			currEpoch := getEpoch(genesisTime, currTime)
-			seiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
-			seiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
-			mintParams = seiApp.MintKeeper.GetParams(ctx)
+			kiiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
+			kiiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
+			mintParams = kiiApp.MintKeeper.GetParams(ctx)
 
 			// 250k / 25 days = 100000 per day
 			expectedAmount := int64(100000)
-			newMinter := seiApp.MintKeeper.GetMinter(ctx)
+			newMinter := kiiApp.MintKeeper.GetMinter(ctx)
 
 			if i == 24 {
 				require.Zero(t, newMinter.GetRemainingMintAmount(), "Remaining amount should be zero")
@@ -89,14 +89,14 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 	})
 
 	t.Run("uneven full release", func(t *testing.T) {
-		seiApp := keepertest.TestApp()
-		ctx := seiApp.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
+		kiiApp := keepertest.TestApp()
+		ctx := kiiApp.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
 
 		header := tmproto.Header{
-			Height: seiApp.LastBlockHeight() + 1,
+			Height: kiiApp.LastBlockHeight() + 1,
 			Time:   time.Now().UTC(),
 		}
-		seiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
+		kiiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
 		genesisTime := header.Time
 
 		tokenReleaseSchedle := []minttypes.ScheduledTokenRelease{
@@ -110,17 +110,17 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 			"ukii",
 			tokenReleaseSchedle,
 		)
-		seiApp.MintKeeper.SetParams(ctx, mintParams)
+		kiiApp.MintKeeper.SetParams(ctx, mintParams)
 
 		for i := 0; i < 25; i++ {
 			currTime := genesisTime.AddDate(0, 0, i)
 			currEpoch := getEpoch(genesisTime, currTime)
-			seiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
-			seiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
-			mintParams = seiApp.MintKeeper.GetParams(ctx)
+			kiiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
+			kiiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
+			mintParams = kiiApp.MintKeeper.GetParams(ctx)
 
 			expectedAmount := int64(104166)
-			newMinter := seiApp.MintKeeper.GetMinter(ctx)
+			newMinter := kiiApp.MintKeeper.GetMinter(ctx)
 
 			// Uneven distribution still results in 250k total distributed
 			if i == 24 {
@@ -135,14 +135,14 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 	})
 
 	t.Run("multiple full releases", func(t *testing.T) {
-		seiApp := keepertest.TestApp()
-		ctx := seiApp.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
+		kiiApp := keepertest.TestApp()
+		ctx := kiiApp.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
 
 		header := tmproto.Header{
-			Height: seiApp.LastBlockHeight() + 1,
+			Height: kiiApp.LastBlockHeight() + 1,
 			Time:   time.Now().UTC(),
 		}
-		seiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
+		kiiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
 		genesisTime := header.Time
 
 		tokenReleaseSchedle := []minttypes.ScheduledTokenRelease{
@@ -171,16 +171,16 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 			"ukii",
 			tokenReleaseSchedle,
 		)
-		seiApp.MintKeeper.SetParams(ctx, mintParams)
+		kiiApp.MintKeeper.SetParams(ctx, mintParams)
 
 		for i := 0; i < 50; i++ {
 			currTime := genesisTime.AddDate(0, 0, i)
 			currEpoch := getEpoch(genesisTime, currTime)
-			seiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
-			seiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
-			mintParams = seiApp.MintKeeper.GetParams(ctx)
+			kiiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
+			kiiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
+			mintParams = kiiApp.MintKeeper.GetParams(ctx)
 
-			newMinter := seiApp.MintKeeper.GetMinter(ctx)
+			newMinter := kiiApp.MintKeeper.GetMinter(ctx)
 
 			// Should be zero by the end of each release and when there's no release scheduled
 			if i == 23 || i == 29 || i == 39 || i == 49 || (i >= 40 && i < 45) {
@@ -193,14 +193,14 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 	})
 
 	t.Run("outage during release", func(t *testing.T) {
-		seiApp := keepertest.TestApp()
-		ctx := seiApp.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
+		kiiApp := keepertest.TestApp()
+		ctx := kiiApp.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
 
 		header := tmproto.Header{
-			Height: seiApp.LastBlockHeight() + 1,
+			Height: kiiApp.LastBlockHeight() + 1,
 			Time:   time.Now().UTC(),
 		}
-		seiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
+		kiiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
 		genesisTime := header.Time
 
 		tokenReleaseSchedle := []minttypes.ScheduledTokenRelease{
@@ -214,16 +214,16 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 			"ukii",
 			tokenReleaseSchedle,
 		)
-		seiApp.MintKeeper.SetParams(ctx, mintParams)
+		kiiApp.MintKeeper.SetParams(ctx, mintParams)
 
 		for i := 0; i < 13; i++ {
 			currTime := genesisTime.AddDate(0, 0, i)
 			currEpoch := getEpoch(genesisTime, currTime)
-			seiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
-			seiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
-			mintParams = seiApp.MintKeeper.GetParams(ctx)
+			kiiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
+			kiiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
+			mintParams = kiiApp.MintKeeper.GetParams(ctx)
 
-			newMinter := seiApp.MintKeeper.GetMinter(ctx)
+			newMinter := kiiApp.MintKeeper.GetMinter(ctx)
 			expectedAmount := int64(104166)
 
 			require.Equal(t, currTime.Format(minttypes.TokenReleaseDateFormat), newMinter.GetLastMintDate(), "Last mint date should be correct")
@@ -234,11 +234,11 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 		// 3 day outage
 		postOutageTime := genesisTime.AddDate(0, 0, 15)
 		currEpoch := getEpoch(genesisTime, postOutageTime)
-		seiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
-		seiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
-		mintParams = seiApp.MintKeeper.GetParams(ctx)
+		kiiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
+		kiiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
+		mintParams = kiiApp.MintKeeper.GetParams(ctx)
 
-		newMinter := seiApp.MintKeeper.GetMinter(ctx)
+		newMinter := kiiApp.MintKeeper.GetMinter(ctx)
 		require.Equal(t, postOutageTime.Format(minttypes.TokenReleaseDateFormat), newMinter.GetLastMintDate(), "Last mint date should be correct")
 		require.InDelta(t, 127315, newMinter.GetLastMintAmountCoin().Amount.Int64(), 1, "Minted amount should be correct")
 		require.InDelta(t, int64(1018522), int64(newMinter.GetRemainingMintAmount()), 24, "Remaining amount should be correct")
@@ -247,11 +247,11 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 		for i := 16; i < 25; i++ {
 			currTime := genesisTime.AddDate(0, 0, i)
 			currEpoch := getEpoch(genesisTime, currTime)
-			seiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
-			seiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
-			mintParams = seiApp.MintKeeper.GetParams(ctx)
+			kiiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
+			kiiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
+			mintParams = kiiApp.MintKeeper.GetParams(ctx)
 
-			newMinter := seiApp.MintKeeper.GetMinter(ctx)
+			newMinter := kiiApp.MintKeeper.GetMinter(ctx)
 			expectedAmount := int64(127315)
 
 			if i == 24 {
@@ -267,29 +267,29 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 }
 
 func TestNoEpochPassedNoDistribution(t *testing.T) {
-	seiApp := keepertest.TestApp()
-	ctx := seiApp.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
+	kiiApp := keepertest.TestApp()
+	ctx := kiiApp.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
 
-	header := tmproto.Header{Height: seiApp.LastBlockHeight() + 1}
-	seiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
+	header := tmproto.Header{Height: kiiApp.LastBlockHeight() + 1}
+	kiiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
 	// Get mint params
-	mintParams := seiApp.MintKeeper.GetParams(ctx)
+	mintParams := kiiApp.MintKeeper.GetParams(ctx)
 	genesisTime := time.Date(2022, time.Month(7), 18, 10, 0, 0, 0, time.UTC)
-	presupply := seiApp.BankKeeper.GetSupply(ctx, mintParams.MintDenom)
-	startLastMintAmount := seiApp.MintKeeper.GetMinter(ctx).GetLastMintAmountCoin()
+	presupply := kiiApp.BankKeeper.GetSupply(ctx, mintParams.MintDenom)
+	startLastMintAmount := kiiApp.MintKeeper.GetMinter(ctx).GetLastMintAmountCoin()
 	// Loops through epochs under a year
 	for i := 0; i < 60*24*7*52-1; i++ {
 		currTime := genesisTime.Add(time.Minute)
 		currEpoch := getEpoch(genesisTime, currTime)
 		// Run hooks
-		seiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
-		seiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
+		kiiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
+		kiiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
 		// Verify supply is the same and no coins have been minted
-		currSupply := seiApp.BankKeeper.GetSupply(ctx, mintParams.MintDenom)
+		currSupply := kiiApp.BankKeeper.GetSupply(ctx, mintParams.MintDenom)
 		require.True(t, currSupply.IsEqual(presupply))
 	}
 	// Ensure that EpochProvision hasn't changed
-	endLastMintAmount := seiApp.MintKeeper.GetMinter(ctx).GetLastMintAmountCoin()
+	endLastMintAmount := kiiApp.MintKeeper.GetMinter(ctx).GetLastMintAmountCoin()
 	require.True(t, startLastMintAmount.Equal(endLastMintAmount))
 }
 

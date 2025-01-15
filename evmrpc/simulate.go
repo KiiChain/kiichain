@@ -336,13 +336,13 @@ func (b *Backend) StateAtTransaction(ctx context.Context, block *ethtypes.Block,
 		// at all then its association must be present in the latest height
 		_, associated := b.keeper.GetKiiAddress(statedb.Ctx(), msg.From)
 		if !associated {
-			seiAddr, associatedNow := b.keeper.GetKiiAddress(b.ctxProvider(LatestCtxHeight), msg.From)
+			kiiAddr, associatedNow := b.keeper.GetKiiAddress(b.ctxProvider(LatestCtxHeight), msg.From)
 			if !associatedNow {
 				err := types.NewAssociationMissingErr(msg.From.Hex())
 				metrics.IncrementAssociationError("state_at_tx", err)
 				return nil, vm.BlockContext{}, nil, nil, err
 			}
-			if err := helpers.NewAssociationHelper(b.keeper, b.keeper.BankKeeper(), b.keeper.AccountKeeper()).AssociateAddresses(statedb.Ctx(), seiAddr, msg.From, nil); err != nil {
+			if err := helpers.NewAssociationHelper(b.keeper, b.keeper.BankKeeper(), b.keeper.AccountKeeper()).AssociateAddresses(statedb.Ctx(), kiiAddr, msg.From, nil); err != nil {
 				return nil, vm.BlockContext{}, nil, nil, err
 			}
 		}
@@ -376,13 +376,13 @@ func (b *Backend) StateAtBlock(ctx context.Context, block *ethtypes.Block, reexe
 		// at all then its association must be present in the latest height
 		_, associated := b.keeper.GetKiiAddress(statedb.Ctx(), msg.From)
 		if !associated {
-			seiAddr, associatedNow := b.keeper.GetKiiAddress(b.ctxProvider(LatestCtxHeight), msg.From)
+			kiiAddr, associatedNow := b.keeper.GetKiiAddress(b.ctxProvider(LatestCtxHeight), msg.From)
 			if !associatedNow {
 				err := types.NewAssociationMissingErr(msg.From.Hex())
 				metrics.IncrementAssociationError("state_at_block", err)
 				return nil, emptyRelease, err
 			}
-			if err := helpers.NewAssociationHelper(b.keeper, b.keeper.BankKeeper(), b.keeper.AccountKeeper()).AssociateAddresses(statedb.Ctx(), seiAddr, msg.From, nil); err != nil {
+			if err := helpers.NewAssociationHelper(b.keeper, b.keeper.BankKeeper(), b.keeper.AccountKeeper()).AssociateAddresses(statedb.Ctx(), kiiAddr, msg.From, nil); err != nil {
 				return nil, emptyRelease, err
 			}
 		}

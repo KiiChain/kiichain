@@ -134,7 +134,7 @@ The association between the kiichain address and the eth address will also be cr
 				return fmt.Errorf("failed to unmarshal genesis state: %w", err)
 			}
 			if keyringBackend == keyring.BackendTest {
-				// associate the eth address with the sei address through the genesis file
+				// associate the eth address with the kii address through the genesis file
 				evmGenState := evm.GetGenesisStateFromAppState(depCdc, appState)
 				kiichainEthAddrAssociation := evmtypes.AddressAssociation{
 					KiiAddress: addr.String(),

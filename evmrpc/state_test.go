@@ -58,7 +58,7 @@ func TestGetBalance(t *testing.T) {
 			wantAmount: "0x38d7ea4c68000",
 		},
 		{
-			name:       "evm address with sei address mapping",
+			name:       "evm address with kii address mapping",
 			addr:       common.HexToAddress(common.Bytes2Hex([]byte("evmAddr"))).String(),
 			blockNr:    "latest",
 			wantErr:    false,

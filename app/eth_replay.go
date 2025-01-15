@@ -125,8 +125,8 @@ func BlockTest(a *App, bt *ethtests.BlockTest) {
 
 	for addr, genesisAccount := range a.EvmKeeper.BlockTest.Json.Pre {
 		ukii, wei := state.SplitUkiiWeiAmount(genesisAccount.Balance)
-		seiAddr := a.EvmKeeper.GetKiiAddressOrDefault(a.GetContextForDeliverTx([]byte{}), addr)
-		err := a.EvmKeeper.BankKeeper().AddCoins(a.GetContextForDeliverTx([]byte{}), seiAddr, sdk.NewCoins(sdk.NewCoin("ukii", ukii)), true)
+		kiiAddr := a.EvmKeeper.GetKiiAddressOrDefault(a.GetContextForDeliverTx([]byte{}), addr)
+		err := a.EvmKeeper.BankKeeper().AddCoins(a.GetContextForDeliverTx([]byte{}), kiiAddr, sdk.NewCoins(sdk.NewCoin("ukii", ukii)), true)
 		if err != nil {
 			panic(err)
 		}

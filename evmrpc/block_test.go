@@ -29,13 +29,13 @@ func TestGetBlockByHash(t *testing.T) {
 	verifyBlockResult(t, resObj)
 }
 
-func TestGetSeiBlockByHash(t *testing.T) {
-	resObj := sendSeiRequestGood(t, "getBlockByHash", "0x0000000000000000000000000000000000000000000000000000000000000001", true)
+func TestGetKiiBlockByHash(t *testing.T) {
+	resObj := sendKiiRequestGood(t, "getBlockByHash", "0x0000000000000000000000000000000000000000000000000000000000000001", true)
 	verifyBlockResult(t, resObj)
 }
 
 func TestGetBlockByNumber(t *testing.T) {
-	resObjEarliest := sendSeiRequestGood(t, "getBlockByNumber", "earliest", true)
+	resObjEarliest := sendKiiRequestGood(t, "getBlockByNumber", "earliest", true)
 	verifyGenesisBlockResult(t, resObjEarliest)
 	for _, num := range []string{"0x8", "latest", "pending", "finalized", "safe"} {
 		resObj := sendRequestGood(t, "getBlockByNumber", num, true)
@@ -46,15 +46,15 @@ func TestGetBlockByNumber(t *testing.T) {
 	require.Equal(t, "invalid argument 0: hex string without 0x prefix", resObj["error"].(map[string]interface{})["message"])
 }
 
-func TestGetSeiBlockByNumber(t *testing.T) {
-	resObjEarliest := sendSeiRequestGood(t, "getBlockByNumber", "earliest", true)
+func TestGetKiiBlockByNumber(t *testing.T) {
+	resObjEarliest := sendKiiRequestGood(t, "getBlockByNumber", "earliest", true)
 	verifyGenesisBlockResult(t, resObjEarliest)
 	for _, num := range []string{"0x8", "latest", "pending", "finalized", "safe"} {
-		resObj := sendSeiRequestGood(t, "getBlockByNumber", num, true)
+		resObj := sendKiiRequestGood(t, "getBlockByNumber", num, true)
 		verifyBlockResult(t, resObj)
 	}
 
-	resObj := sendSeiRequestBad(t, "getBlockByNumber", "bad_num", true)
+	resObj := sendKiiRequestBad(t, "getBlockByNumber", "bad_num", true)
 	require.Equal(t, "invalid argument 0: hex string without 0x prefix", resObj["error"].(map[string]interface{})["message"])
 }
 
@@ -230,10 +230,10 @@ func TestEncodeTmBlock_EmptyTransactions(t *testing.T) {
 func TestEncodeBankMsg(t *testing.T) {
 	k := &testkeeper.EVMTestApp.EvmKeeper
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
-	fromSeiAddr, _ := testkeeper.MockAddressPair()
-	toSeiAddr, _ := testkeeper.MockAddressPair()
+	fromKiiAddr, _ := testkeeper.MockAddressPair()
+	toKiiAddr, _ := testkeeper.MockAddressPair()
 	b := TxConfig.NewTxBuilder()
-	b.SetMsgs(banktypes.NewMsgSend(fromSeiAddr, toSeiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10)))))
+	b.SetMsgs(banktypes.NewMsgSend(fromKiiAddr, toKiiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10)))))
 	tx := b.GetTx()
 	resBlock := coretypes.ResultBlock{
 		BlockID: MockBlockID,
@@ -275,11 +275,11 @@ func TestEncodeBankMsg(t *testing.T) {
 func TestEncodeWasmExecuteMsg(t *testing.T) {
 	k := &testkeeper.EVMTestApp.EvmKeeper
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx(nil)
-	fromSeiAddr, fromEvmAddr := testkeeper.MockAddressPair()
+	fromKiiAddr, fromEvmAddr := testkeeper.MockAddressPair()
 	toKiiAddr, _ := testkeeper.MockAddressPair()
 	b := TxConfig.NewTxBuilder()
 	b.SetMsgs(&wasmtypes.MsgExecuteContract{
-		Sender:   fromSeiAddr.String(),
+		Sender:   fromKiiAddr.String(),
 		Contract: toKiiAddr.String(),
 		Msg:      []byte{1, 2, 3},
 	})

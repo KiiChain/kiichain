@@ -26,7 +26,7 @@ const (
 	FlagAllowList            = "allow-list"
 	FlagAllowListDescription = "Path to the allow list JSON file with an array of addresses " +
 		"that are allowed to send/receive the token. The file should have the following format: {\"addresses\": " +
-		"[\"addr1\", \"addr2\"]}, where addr1 and addr2 are bech32 Sei native addresses or EVM addresses."
+		"[\"addr1\", \"addr2\"]}, where addr1 and addr2 are bech32 Kii native addresses or EVM addresses."
 )
 
 // GetTxCmd returns the transaction commands for this module
@@ -247,7 +247,7 @@ func NewSetDenomMetadataCmd() *cobra.Command {
 		Long: strings.TrimSpace(
 			`
 Example:
-$ seid tx tokenfactory set-denom-metadata <path/to/metadata.json> --from=<key_or_address>
+$ kiichaind tx tokenfactory set-denom-metadata <path/to/metadata.json> --from=<key_or_address>
 
 Where metadata.json contains:
 

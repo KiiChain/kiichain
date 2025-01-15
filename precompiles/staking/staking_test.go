@@ -75,11 +75,11 @@ func TestStaking(t *testing.T) {
 	req, err := evmtypes.NewMsgEVMTransaction(txwrapper)
 	require.Nil(t, err)
 
-	seiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
-	k.SetAddressMapping(ctx, seiAddr, evmAddr)
+	kiiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
+	k.SetAddressMapping(ctx, kiiAddr, evmAddr)
 	amt := sdk.NewCoins(sdk.NewCoin(k.GetBaseDenom(ctx), sdk.NewInt(200000000)))
 	require.Nil(t, k.BankKeeper().MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewCoin(k.GetBaseDenom(ctx), sdk.NewInt(200000000)))))
-	require.Nil(t, k.BankKeeper().SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, seiAddr, amt))
+	require.Nil(t, k.BankKeeper().SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, kiiAddr, amt))
 
 	msgServer := keeper.NewMsgServerImpl(k)
 
@@ -88,7 +88,7 @@ func TestStaking(t *testing.T) {
 	require.Nil(t, err)
 	require.Empty(t, res.VmError)
 
-	d, found := testApp.StakingKeeper.GetDelegation(ctx, seiAddr, val)
+	d, found := testApp.StakingKeeper.GetDelegation(ctx, kiiAddr, val)
 	require.True(t, found)
 	require.Equal(t, int64(100), d.Shares.RoundInt().Int64())
 
@@ -115,7 +115,7 @@ func TestStaking(t *testing.T) {
 	require.Nil(t, err)
 	require.Empty(t, res.VmError)
 
-	d, found = testApp.StakingKeeper.GetDelegation(ctx, seiAddr, val)
+	d, found = testApp.StakingKeeper.GetDelegation(ctx, kiiAddr, val)
 	require.True(t, found)
 	require.Equal(t, int64(50), d.Shares.RoundInt().Int64())
 
@@ -142,7 +142,7 @@ func TestStaking(t *testing.T) {
 	require.Nil(t, err)
 	require.Empty(t, res.VmError)
 
-	d, found = testApp.StakingKeeper.GetDelegation(ctx, seiAddr, val)
+	d, found = testApp.StakingKeeper.GetDelegation(ctx, kiiAddr, val)
 	require.True(t, found)
 	require.Equal(t, int64(20), d.Shares.RoundInt().Int64())
 }
@@ -267,17 +267,17 @@ func (tq *TestStakingQuerier) Delegation(c context.Context, _ *stakingtypes.Quer
 }
 
 func TestPrecompile_Run_Delegation(t *testing.T) {
-	callerSeiAddress, callerEvmAddress := testkeeper.MockAddressPair()
+	callerKiiAddress, callerEvmAddress := testkeeper.MockAddressPair()
 	_, unassociatedEvmAddress := testkeeper.MockAddressPair()
 	_, contractEvmAddress := testkeeper.MockAddressPair()
-	validatorAddress := "seivaloper134ykhqrkyda72uq7f463ne77e4tn99steprmz7"
+	validatorAddress := "kiivaloper134ykhqrkyda72uq7f463ne77e4tn99steprmz7"
 	pre, _ := staking.NewPrecompile(nil, nil, nil, nil)
 	delegationMethod, _ := pre.ABI.MethodById(pre.GetExecutor().(*staking.PrecompileExecutor).DelegationID)
 	shares := 100
 	delegationResponse := &stakingtypes.QueryDelegationResponse{
 		DelegationResponse: &stakingtypes.DelegationResponse{
 			Delegation: stakingtypes.Delegation{
-				DelegatorAddress: callerSeiAddress.String(),
+				DelegatorAddress: callerKiiAddress.String(),
 				ValidatorAddress: validatorAddress,
 				Shares:           sdk.NewDec(int64(shares)),
 			},
@@ -292,7 +292,7 @@ func TestPrecompile_Run_Delegation(t *testing.T) {
 			Denom:  "ukii",
 		},
 		Delegation: staking.DelegationDetails{
-			DelegatorAddress: callerSeiAddress.String(),
+			DelegatorAddress: callerKiiAddress.String(),
 			Shares:           hundredSharesValue,
 			Decimals:         big.NewInt(sdk.Precision),
 			ValidatorAddress: validatorAddress,
@@ -396,7 +396,7 @@ func TestPrecompile_Run_Delegation(t *testing.T) {
 			name: "should return error if delegation not found",
 			fields: fields{
 				stakingQuerier: &TestStakingQuerier{
-					Err: fmt.Errorf("delegation with delegator %s not found for validator", callerSeiAddress.String()),
+					Err: fmt.Errorf("delegation with delegator %s not found for validator", callerKiiAddress.String()),
 				},
 			},
 			args: args{
@@ -406,7 +406,7 @@ func TestPrecompile_Run_Delegation(t *testing.T) {
 				callingContract:  callerEvmAddress,
 			},
 			wantErr:    true,
-			wantErrMsg: fmt.Sprintf("delegation with delegator %s not found for validator", callerSeiAddress.String()),
+			wantErrMsg: fmt.Sprintf("delegation with delegator %s not found for validator", callerKiiAddress.String()),
 		},
 		{
 			name: "should return delegation details",
@@ -447,7 +447,7 @@ func TestPrecompile_Run_Delegation(t *testing.T) {
 			testApp := testkeeper.EVMTestApp
 			ctx := testApp.NewContext(false, tmtypes.Header{}).WithBlockHeight(2)
 			k := &testApp.EvmKeeper
-			k.SetAddressMapping(ctx, callerSeiAddress, callerEvmAddress)
+			k.SetAddressMapping(ctx, callerKiiAddress, callerEvmAddress)
 			stateDb := state.NewDBImpl(ctx, k, true)
 			evm := vm.EVM{
 				StateDB:   stateDb,

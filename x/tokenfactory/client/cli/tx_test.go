@@ -84,11 +84,11 @@ func (m *MockErrorQueryClient) KiiAddressByEVMAddress(ctx context.Context, in *e
 func Test_ParseAllowListJSON(t *testing.T) {
 	mockQueryClient := &MockQueryClient{}
 
-	seiAddr1 := sdk.AccAddress("kii1_______________").String()
-	seiAddr2 := sdk.AccAddress("kii2_______________").String()
+	kiiAddr1 := sdk.AccAddress("kii1_______________").String()
+	kiiAddr2 := sdk.AccAddress("kii2_______________").String()
 	evmAddr := "0x5c71b5577B9223d39ae0B7Dcb3f1BC8e1aC81f3e"
 	notAssociatedEvmAddr := "0x0CF3Bb7Da9fea6a881987A5018740500C7d4BAaE"
-	convertedSeiAddr := "kii1u8j4gaxyzhg39dk848q5w9h53tgggpcx2jsz25"
+	convertedKiiAddr := "kii1u8j4gaxyzhg39dk848q5w9h53tgggpcx2jsz25"
 
 	tests := []struct {
 		name    string
@@ -98,14 +98,14 @@ func Test_ParseAllowListJSON(t *testing.T) {
 		errMock bool
 	}{
 		{
-			name: "valid allow list with Sei addresses",
-			json: fmt.Sprintf(`{"addresses": ["%s", "%s"]}`, seiAddr1, seiAddr2),
-			want: banktypes.AllowList{Addresses: []string{seiAddr1, seiAddr2}},
+			name: "valid allow list with Kii addresses",
+			json: fmt.Sprintf(`{"addresses": ["%s", "%s"]}`, kiiAddr1, kiiAddr2),
+			want: banktypes.AllowList{Addresses: []string{kiiAddr1, kiiAddr2}},
 		},
 		{
-			name: "valid allow list with Sei and EVM addresses",
-			json: fmt.Sprintf(`{"addresses": ["%s", "%s", "%s"]}`, seiAddr1, seiAddr2, evmAddr),
-			want: banktypes.AllowList{Addresses: []string{seiAddr1, seiAddr2, convertedSeiAddr}},
+			name: "valid allow list with Kii and EVM addresses",
+			json: fmt.Sprintf(`{"addresses": ["%s", "%s", "%s"]}`, kiiAddr1, kiiAddr2, evmAddr),
+			want: banktypes.AllowList{Addresses: []string{kiiAddr1, kiiAddr2, convertedKiiAddr}},
 		},
 		{
 			name:    "invalid JSON",
@@ -113,9 +113,9 @@ func Test_ParseAllowListJSON(t *testing.T) {
 			wantErr: "invalid character '[' looking for beginning of object key string",
 		},
 		{
-			name:    "invalid Sei address",
-			json:    `{"addresses": ["invalid_sei_address"]}`,
-			wantErr: "invalid address invalid_sei_address: decoding bech32 failed: invalid separator index -1",
+			name:    "invalid Kii address",
+			json:    `{"addresses": ["invalid_kii_address"]}`,
+			wantErr: "invalid address invalid_kii_address: decoding bech32 failed: invalid separator index -1",
 		},
 		{
 			name:    "invalid EVM address",
@@ -123,7 +123,7 @@ func Test_ParseAllowListJSON(t *testing.T) {
 			wantErr: "invalid address 0xinvalid_evm_address: decoding bech32 failed: invalid separator index -1",
 		},
 		{
-			name:    "EVM address error on getting Sei address",
+			name:    "EVM address error on getting Kii address",
 			json:    fmt.Sprintf(`{"addresses": ["%s"]}`, evmAddr),
 			wantErr: "address is not associated",
 			errMock: true,
@@ -140,8 +140,8 @@ func Test_ParseAllowListJSON(t *testing.T) {
 		},
 		{
 			name: "duplicate addresses",
-			json: fmt.Sprintf(`{"addresses": ["%s", "%s", "%s"]}`, seiAddr1, seiAddr1, seiAddr2),
-			want: banktypes.AllowList{Addresses: []string{seiAddr1, seiAddr2}},
+			json: fmt.Sprintf(`{"addresses": ["%s", "%s", "%s"]}`, kiiAddr1, kiiAddr1, kiiAddr2),
+			want: banktypes.AllowList{Addresses: []string{kiiAddr1, kiiAddr2}},
 		},
 	}
 

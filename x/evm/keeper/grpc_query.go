@@ -46,11 +46,11 @@ func (q Querier) EVMAddressByKiiAddress(c context.Context, req *types.QueryEVMAd
 	if req.KiiAddress == "" {
 		return nil, sdkerrors.ErrInvalidRequest
 	}
-	seiAddr, err := sdk.AccAddressFromBech32(req.KiiAddress)
+	kiiAddr, err := sdk.AccAddressFromBech32(req.KiiAddress)
 	if err != nil {
 		return nil, err
 	}
-	addr, found := q.Keeper.GetEVMAddress(ctx, seiAddr)
+	addr, found := q.Keeper.GetEVMAddress(ctx, kiiAddr)
 	if !found {
 		return &types.QueryEVMAddressByKiiAddressResponse{Associated: false}, nil
 	}

@@ -17,7 +17,7 @@ func MigrateCmd() *cobra.Command {
 		Short: "A tool to migrate full IAVL data store to SeiDB. Use this tool to migrate IAVL to SeiDB SC and SS database.",
 		Run:   execute,
 	}
-	cmd.PersistentFlags().String("home-dir", "/root/.sei", "Sei home directory")
+	cmd.PersistentFlags().String("home-dir", "/root/.kiichain3", "Kii home directory")
 	cmd.PersistentFlags().String("target-db", "", "Available options: [SS, SC]")
 	return cmd
 }
@@ -68,7 +68,7 @@ func VerifyMigrationCmd() *cobra.Command {
 	}
 
 	cmd.PersistentFlags().Int64("version", -1, "Version to run migration verification on")
-	cmd.PersistentFlags().String("home-dir", "/root/.sei", "Sei home directory")
+	cmd.PersistentFlags().String("home-dir", "/root/.kiichain3", "Kii home directory")
 
 	return cmd
 }

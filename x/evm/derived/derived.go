@@ -15,7 +15,7 @@ const (
 
 type Derived struct {
 	SenderEVMAddr common.Address
-	SenderSeiAddr sdk.AccAddress
+	SenderKiiAddr sdk.AccAddress
 	PubKey        *secp256k1.PubKey
 	IsAssociate   bool
 	Version       SignerVersion

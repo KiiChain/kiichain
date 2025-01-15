@@ -59,7 +59,6 @@ func (s *DBImpl) SetTransientState(addr common.Address, key, val common.Hash) {
 }
 
 // debits account's balance. The corresponding credit happens here:
-// https://github.com/sei-protocol/go-ethereum/blob/master/core/vm/instructions.go#L825
 // clear account's state except the transient state (in Ethereum transient states are
 // still available even after self destruction in the same tx)
 func (s *DBImpl) SelfDestruct(acc common.Address) {

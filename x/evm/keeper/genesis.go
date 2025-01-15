@@ -28,8 +28,8 @@ func (k *Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 
 	k.SetParams(ctx, genState.Params)
 
-	seiAddrFc := k.accountKeeper.GetModuleAddress(authtypes.FeeCollectorName) // feeCollector == coinbase
-	k.SetAddressMapping(ctx, seiAddrFc, GetCoinbaseAddress())
+	kiiAddrFc := k.accountKeeper.GetModuleAddress(authtypes.FeeCollectorName) // feeCollector == coinbase
+	k.SetAddressMapping(ctx, kiiAddrFc, GetCoinbaseAddress())
 
 	for _, addr := range genState.AddressAssociations {
 		k.SetAddressMapping(ctx, sdk.MustAccAddressFromBech32(addr.KiiAddress), common.HexToAddress(addr.EthAddress))

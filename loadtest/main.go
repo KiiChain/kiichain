@@ -478,7 +478,7 @@ func (c *LoadTestClient) generateMessage(key cryptotypes.PrivKey, msgType string
 		for x := 0; x < num_values; x++ {
 			values = append(values, []uint64{uint64(indices[x]), rand.Uint64() % 12345})
 		}
-		contract := config.SeiTesterAddress
+		contract := config.KiiTesterAddress
 		msgData := WasmIteratorWriteMsg{
 			Values: values,
 		}
@@ -492,7 +492,7 @@ func (c *LoadTestClient) generateMessage(key cryptotypes.PrivKey, msgType string
 			Msg:      wasmtypes.RawContractMessage([]byte(fmt.Sprintf("{\"test_occ_iterator_write\":%s}", jsonData))),
 		}}
 	case WasmOccIteratorRange:
-		contract := config.SeiTesterAddress
+		contract := config.KiiTesterAddress
 		start := rand.Uint32() % 100
 		end := rand.Uint32() % 100
 		if start > end {
@@ -504,7 +504,7 @@ func (c *LoadTestClient) generateMessage(key cryptotypes.PrivKey, msgType string
 			Msg:      wasmtypes.RawContractMessage([]byte(fmt.Sprintf("{\"test_occ_iterator_range\":{\"start\": %d, \"end\": %d}}", start, end))),
 		}}
 	case WasmOccParallelWrite:
-		contract := config.SeiTesterAddress
+		contract := config.KiiTesterAddress
 		// generate random value
 		value := rand.Uint64()
 		msgs = []sdk.Msg{&wasmtypes.MsgExecuteContract{

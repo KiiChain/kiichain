@@ -21,5 +21,5 @@ func (e AssociationMissingErr) AddressType() string {
 	if strings.HasPrefix(e.Address, "0x") {
 		return "evm"
 	}
-	return "sei"
+	return "kii"
 }

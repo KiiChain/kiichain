@@ -32,8 +32,8 @@ func MockEVMKeeperWithPrecompiles() (*evmkeeper.Keeper, sdk.Context) {
 	k := EVMTestApp.EvmKeeper
 	k.InitGenesis(ctx, *evmtypes.DefaultGenesis())
 
-	// mint some coins to a sei address
-	seiAddr, err := sdk.AccAddressFromHex(common.Bytes2Hex([]byte("seiAddr")))
+	// mint some coins to a kii address
+	kiiAddr, err := sdk.AccAddressFromHex(common.Bytes2Hex([]byte("kiiAddr")))
 	if err != nil {
 		panic(err)
 	}
@@ -41,7 +41,7 @@ func MockEVMKeeperWithPrecompiles() (*evmkeeper.Keeper, sdk.Context) {
 	if err != nil {
 		panic(err)
 	}
-	err = EVMTestApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", seiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10))))
+	err = EVMTestApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", kiiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10))))
 	if err != nil {
 		panic(err)
 	}
@@ -56,8 +56,8 @@ func MockEVMKeeper() (*evmkeeper.Keeper, sdk.Context) {
 	k := testApp.EvmKeeper
 	k.InitGenesis(ctx, *evmtypes.DefaultGenesis())
 
-	// mint some coins to a sei address
-	seiAddr, err := sdk.AccAddressFromHex(common.Bytes2Hex([]byte("seiAddr")))
+	// mint some coins to a kii address
+	kiiAddr, err := sdk.AccAddressFromHex(common.Bytes2Hex([]byte("kiiAddr")))
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +65,7 @@ func MockEVMKeeper() (*evmkeeper.Keeper, sdk.Context) {
 	if err != nil {
 		panic(err)
 	}
-	err = testApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", seiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10))))
+	err = testApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", kiiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10))))
 	if err != nil {
 		panic(err)
 	}
@@ -77,7 +77,7 @@ func MockAddressPair() (sdk.AccAddress, common.Address) {
 }
 
 func MockPrivateKey() cryptotypes.PrivKey {
-	// Generate a new Sei private key
+	// Generate a new Kii private key
 	entropySeed, _ := bip39.NewEntropy(256)
 	mnemonic, _ := bip39.NewMnemonic(entropySeed)
 	algo := hd.Secp256k1

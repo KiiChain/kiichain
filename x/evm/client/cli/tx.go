@@ -59,7 +59,7 @@ func GetTxCmd() *cobra.Command {
 	cmd.AddCommand(CmdSend())
 	cmd.AddCommand(CmdDeployContract())
 	cmd.AddCommand(CmdCallContract())
-	cmd.AddCommand(CmdDeployWSEI())
+	cmd.AddCommand(CmdDeployWKII())
 	cmd.AddCommand(CmdERC20Send())
 	cmd.AddCommand(CmdCallPrecompile())
 	cmd.AddCommand(NativeSendTxCmd())
@@ -75,7 +75,7 @@ func GetTxCmd() *cobra.Command {
 func CmdAssociateAddress() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "associate-address [optional priv key hex] --rpc=<url> --from=<sender>",
-		Short: "associate EVM and Sei address for the sender",
+		Short: "associate EVM and Kii address for the sender",
 		Long:  "",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
@@ -126,7 +126,7 @@ func CmdAssociateAddress() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			body := fmt.Sprintf("{\"jsonrpc\": \"2.0\",\"method\": \"sei_associate\",\"params\":[%s],\"id\":\"associate_addr\"}", string(bz))
+			body := fmt.Sprintf("{\"jsonrpc\": \"2.0\",\"method\": \"kii_associate\",\"params\":[%s],\"id\":\"associate_addr\"}", string(bz))
 			rpc, err := cmd.Flags().GetString(FlagRPC)
 			if err != nil {
 				return err
@@ -509,10 +509,10 @@ func CmdCallPrecompile() *cobra.Command {
 	return cmd
 }
 
-func CmdDeployWSEI() *cobra.Command {
+func CmdDeployWKII() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deploy-wsei --from=<sender> --gas-fee-cap=<cap> --gas-limt=<limit> --evm-rpc=<url>",
-		Short: "Deploy ERC20 contract for a native Sei token",
+		Use:   "deploy-wkii --from=<sender> --gas-fee-cap=<cap> --gas-limt=<limit> --evm-rpc=<url>",
+		Short: "Deploy ERC20 contract for a native Kii token",
 		Long:  "",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) (err error) {

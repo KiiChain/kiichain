@@ -29,20 +29,20 @@ func TestAssociatePubKey(t *testing.T) {
 	targetPrivKey := testkeeper.MockPrivateKey()
 	targetPubKey := targetPrivKey.PubKey()
 	targetPubKeyHex := hex.EncodeToString(targetPubKey.Bytes())
-	targetSeiAddress, targetEvmAddress := testkeeper.PrivateKeyToAddresses(targetPrivKey)
+	targetKiiAddress, targetEvmAddress := testkeeper.PrivateKeyToAddresses(targetPrivKey)
 
 	// Caller refers to the party calling the precompile.
 	callerPrivKey := testkeeper.MockPrivateKey()
-	callerSeiAddress, callerEvmAddress := testkeeper.PrivateKeyToAddresses(callerPrivKey)
+	callerKiiAddress, callerEvmAddress := testkeeper.PrivateKeyToAddresses(callerPrivKey)
 	callerPubKey := callerPrivKey.PubKey()
 	callerPubKeyHex := hex.EncodeToString(callerPubKey.Bytes())
 
 	// Associate these addresses, so we can use them to test the case where addresses are already associated association.
-	k.SetAddressMapping(ctx, callerSeiAddress, callerEvmAddress)
+	k.SetAddressMapping(ctx, callerKiiAddress, callerEvmAddress)
 
 	require.Nil(t, err)
 
-	happyPathOutput, _ := associatePubKey.Outputs.Pack(targetSeiAddress.String(), targetEvmAddress)
+	happyPathOutput, _ := associatePubKey.Outputs.Pack(targetKiiAddress.String(), targetEvmAddress)
 
 	type args struct {
 		evm      *vm.EVM
@@ -114,7 +114,7 @@ func TestAssociatePubKey(t *testing.T) {
 				value:  big.NewInt(0),
 			},
 			wantErr:    true,
-			wantErrMsg: fmt.Sprintf("address %s is already associated with evm address %s", callerSeiAddress, callerEvmAddress),
+			wantErrMsg: fmt.Sprintf("address %s is already associated with evm address %s", callerKiiAddress, callerEvmAddress),
 		},
 		{
 			name: "happy path - associates addresses if signature is correct",
@@ -165,12 +165,12 @@ func TestAssociate(t *testing.T) {
 	k := &testApp.EvmKeeper
 
 	pre, _ := addr.NewPrecompile(k, k.BankKeeper(), k.AccountKeeper())
-	associate, err := pre.ABI.MethodById(pre.GetExecutor().(*addr.PrecompileExecutor).AssociateID)
+	associate, _ := pre.ABI.MethodById(pre.GetExecutor().(*addr.PrecompileExecutor).AssociateID)
 
 	// Target refers to the address that the caller is trying to associate.
 	targetPrivKey := testkeeper.MockPrivateKey()
 	targetPrivHex := hex.EncodeToString(targetPrivKey.Bytes())
-	targetSeiAddress, targetEvmAddress := testkeeper.PrivateKeyToAddresses(targetPrivKey)
+	targetKiiAddress, targetEvmAddress := testkeeper.PrivateKeyToAddresses(targetPrivKey)
 	targetKey, _ := crypto.HexToECDSA(targetPrivHex)
 
 	// Create the inputs
@@ -186,18 +186,18 @@ func TestAssociate(t *testing.T) {
 
 	// Caller refers to the party calling the precompile.
 	callerPrivKey := testkeeper.MockPrivateKey()
-	callerSeiAddress, callerEvmAddress := testkeeper.PrivateKeyToAddresses(callerPrivKey)
+	callerKiiAddress, callerEvmAddress := testkeeper.PrivateKeyToAddresses(callerPrivKey)
 	callerPrivHex := hex.EncodeToString(callerPrivKey.Bytes())
 	callerKey, _ := crypto.HexToECDSA(callerPrivHex)
 
 	// Associate these addresses, so we can use them to test the case where addresses are already associated association.
-	k.SetAddressMapping(ctx, callerSeiAddress, callerEvmAddress)
+	k.SetAddressMapping(ctx, callerKiiAddress, callerEvmAddress)
 	callerSig, err := crypto.Sign(hash.Bytes(), callerKey)
 	callerR := fmt.Sprintf("0x%v", new(big.Int).SetBytes(callerSig[:32]).Text(16))
 	callerS := fmt.Sprintf("0x%v", new(big.Int).SetBytes(callerSig[32:64]).Text(16))
 	callerV := fmt.Sprintf("0x%v", new(big.Int).SetBytes([]byte{callerSig[64]}).Text(16))
 
-	happyPathOutput, _ := associate.Outputs.Pack(targetSeiAddress.String(), targetEvmAddress)
+	happyPathOutput, _ := associate.Outputs.Pack(targetKiiAddress.String(), targetEvmAddress)
 
 	type args struct {
 		evm      *vm.EVM
@@ -284,7 +284,7 @@ func TestAssociate(t *testing.T) {
 				value:  big.NewInt(0),
 			},
 			wantErr:    true,
-			wantErrMsg: fmt.Sprintf("address %s is already associated with evm address %s", callerSeiAddress, callerEvmAddress),
+			wantErrMsg: fmt.Sprintf("address %s is already associated with evm address %s", callerKiiAddress, callerEvmAddress),
 		},
 		{
 			name: "associates wrong address if invalid signature (different message)",

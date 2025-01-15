@@ -48,7 +48,7 @@ func (k *Keeper) DeleteTransientReceipt(ctx sdk.Context, txHash common.Hash) {
 
 // GetReceipt returns a data structure that stores EVM specific transaction metadata.
 // Many EVM applications (e.g. MetaMask) relies on being on able to query receipt
-// by EVM transaction hash (not Sei transaction hash) to function properly.
+// by EVM transaction hash (not Kii transaction hash) to function properly.
 func (k *Keeper) GetReceipt(ctx sdk.Context, txHash common.Hash) (*types.Receipt, error) {
 
 	// receipts are immutable, use latest version

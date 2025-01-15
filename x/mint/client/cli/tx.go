@@ -41,7 +41,7 @@ func MsgUpdateMinterProposalCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Short: "Submit an UpdateMinter proposal",
 		Long: "Submit a proposal to update the current minter. \n" +
-			"E.g. $ seid tx gov submit-proposal update-minter [proposal-file]\n" +
+			"E.g. $ kiichaind tx gov submit-proposal update-minter [proposal-file]\n" +
 			"The proposal file should contain the following:\n" +
 			"{\n" +
 			"\t title: [title],\n" +

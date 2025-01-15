@@ -95,7 +95,7 @@ func IsTxGasless(tx sdk.Tx, ctx sdk.Context, evmKeeper *evmkeeper.Keeper) (bool,
 
 func evmAssociateIsGasless(msg *evmtypes.MsgAssociate, ctx sdk.Context, keeper *evmkeeper.Keeper) bool {
 	// not gasless if already associated
-	seiAddr := sdk.MustAccAddressFromBech32(msg.Sender)
-	_, associated := keeper.GetEVMAddress(ctx, seiAddr)
+	kiiAddr := sdk.MustAccAddressFromBech32(msg.Sender)
+	_, associated := keeper.GetEVMAddress(ctx, kiiAddr)
 	return !associated
 }

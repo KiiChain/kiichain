@@ -34,7 +34,7 @@ var upgradesList = []string{
 	"1.2.1beta",
 	"1.2.2beta",
 	"1.2.2beta-postfix",
-	// 2.x.x versions use forked sei-tendermint and forked sei-cosmos
+	// 2.x.x versions use forked kii-tendermint and forked kii-cosmos
 	"2.0.29beta",
 	"2.0.32beta",
 	"2.0.36beta",

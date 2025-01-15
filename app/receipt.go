@@ -272,9 +272,9 @@ func (app *App) translateCW721Event(ctx sdk.Context, wasmEvent abci.Event, point
 func (app *App) GetEvmAddressAttribute(ctx sdk.Context, event abci.Event, attribute string) common.Hash {
 	addrStr, found := GetAttributeValue(event, attribute)
 	if found {
-		seiAddr, err := sdk.AccAddressFromBech32(addrStr)
+		kiiAddr, err := sdk.AccAddressFromBech32(addrStr)
 		if err == nil {
-			evmAddr := app.EvmKeeper.GetEVMAddressOrDefault(ctx, seiAddr)
+			evmAddr := app.EvmKeeper.GetEVMAddressOrDefault(ctx, kiiAddr)
 			return common.BytesToHash(evmAddr[:])
 		}
 	}

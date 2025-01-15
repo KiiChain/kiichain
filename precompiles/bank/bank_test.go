@@ -63,8 +63,8 @@ func TestRun(t *testing.T) {
 	require.Nil(t, err)
 
 	// Setup receiving addresses
-	seiAddr, evmAddr := testkeeper.MockAddressPair()
-	k.SetAddressMapping(ctx, seiAddr, evmAddr)
+	kiiAddr, evmAddr := testkeeper.MockAddressPair()
+	k.SetAddressMapping(ctx, kiiAddr, evmAddr)
 	p, err := bank.NewPrecompile(k.BankKeeper(), k, k.AccountKeeper())
 	require.Nil(t, err)
 	statedb := state.NewDBImpl(ctx, k, true)
@@ -84,8 +84,8 @@ func TestRun(t *testing.T) {
 	// Precompile sendNative test error
 	sendNative, err := p.ABI.MethodById(p.GetExecutor().(*bank.PrecompileExecutor).SendNativeID)
 	require.Nil(t, err)
-	seiAddrString := seiAddr.String()
-	argsNativeError, err := sendNative.Inputs.Pack(seiAddrString)
+	kiiAddrString := kiiAddr.String()
+	argsNativeError, err := sendNative.Inputs.Pack(kiiAddrString)
 	require.Nil(t, err)
 	// 0 amount disallowed
 	_, err = p.Run(&evm, senderEVMAddr, senderEVMAddr, append(p.GetExecutor().(*bank.PrecompileExecutor).SendNativeID, argsNativeError...), big.NewInt(0), false, false)
@@ -106,7 +106,7 @@ func TestRun(t *testing.T) {
 	// Send native 10_000_000_000_100, split into 10 ukii 100wei
 	// Test payable with eth LegacyTx
 	abi := pcommon.MustGetABI(f, "abi.json")
-	argsNative, err := abi.Pack(bank.SendNativeMethod, seiAddr.String())
+	argsNative, err := abi.Pack(bank.SendNativeMethod, kiiAddr.String())
 	require.Nil(t, err)
 	require.Nil(t, err)
 	key, _ := crypto.HexToECDSA(testPrivHex)
@@ -158,19 +158,19 @@ func TestRun(t *testing.T) {
 		banktypes.NewCoinSpentEvent(senderAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(200000)))),
 		// wei events
 		banktypes.NewWeiSpentEvent(senderAddr, sdk.NewInt(100)),
-		banktypes.NewWeiReceivedEvent(seiAddr, sdk.NewInt(100)),
+		banktypes.NewWeiReceivedEvent(kiiAddr, sdk.NewInt(100)),
 		sdk.NewEvent(
 			banktypes.EventTypeWeiTransfer,
-			sdk.NewAttribute(banktypes.AttributeKeyRecipient, seiAddr.String()),
+			sdk.NewAttribute(banktypes.AttributeKeyRecipient, kiiAddr.String()),
 			sdk.NewAttribute(banktypes.AttributeKeySender, senderAddr.String()),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewInt(100).String()),
 		),
 		// sender sends coin to the receiver
 		banktypes.NewCoinSpentEvent(senderAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10)))),
-		banktypes.NewCoinReceivedEvent(seiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10)))),
+		banktypes.NewCoinReceivedEvent(kiiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10)))),
 		sdk.NewEvent(
 			banktypes.EventTypeTransfer,
-			sdk.NewAttribute(banktypes.AttributeKeyRecipient, seiAddr.String()),
+			sdk.NewAttribute(banktypes.AttributeKeyRecipient, kiiAddr.String()),
 			sdk.NewAttribute(banktypes.AttributeKeySender, senderAddr.String()),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, sdk.NewCoin("ukii", sdk.NewInt(10)).String()),
 		),
@@ -197,14 +197,14 @@ func TestRun(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, 1, len(is))
 	require.Equal(t, big.NewInt(10), is[0].(*big.Int))
-	weiBalance := k.BankKeeper().GetWeiBalance(ctx, seiAddr)
+	weiBalance := k.BankKeeper().GetWeiBalance(ctx, kiiAddr)
 	require.Equal(t, big.NewInt(100), weiBalance.BigInt())
 
 	newAddr, _ := testkeeper.MockAddressPair()
 	require.Nil(t, k.AccountKeeper().GetAccount(ctx, newAddr))
 	argsNewAccount, err := sendNative.Inputs.Pack(newAddr.String())
 	require.Nil(t, err)
-	require.Nil(t, k.BankKeeper().SendCoins(ctx, seiAddr, k.GetKiiAddressOrDefault(ctx, p.Address()), sdk.NewCoins(sdk.NewCoin("ukii", sdk.OneInt()))))
+	require.Nil(t, k.BankKeeper().SendCoins(ctx, kiiAddr, k.GetKiiAddressOrDefault(ctx, p.Address()), sdk.NewCoins(sdk.NewCoin("ukii", sdk.OneInt()))))
 	_, err = p.Run(&evm, evmAddr, evmAddr, append(p.GetExecutor().(*bank.PrecompileExecutor).SendNativeID, argsNewAccount...), big.NewInt(1), false, false)
 	require.Nil(t, err)
 	// should create account if not exists
@@ -341,7 +341,7 @@ func TestSendForUnlinkedReceiver(t *testing.T) {
 func TestMetadata(t *testing.T) {
 	k := &testkeeper.EVMTestApp.EvmKeeper
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
-	k.BankKeeper().SetDenomMetaData(ctx, banktypes.Metadata{Name: "SEI", Symbol: "ukii", Base: "ukii"})
+	k.BankKeeper().SetDenomMetaData(ctx, banktypes.Metadata{Name: "KII", Symbol: "ukii", Base: "ukii"})
 	p, err := bank.NewPrecompile(k.BankKeeper(), k, k.AccountKeeper())
 	require.Nil(t, err)
 	statedb := state.NewDBImpl(ctx, k, true)
@@ -356,7 +356,7 @@ func TestMetadata(t *testing.T) {
 	require.Nil(t, err)
 	outputs, err := name.Outputs.Unpack(res)
 	require.Nil(t, err)
-	require.Equal(t, "SEI", outputs[0])
+	require.Equal(t, "KII", outputs[0])
 
 	symbol, err := p.ABI.MethodById(p.GetExecutor().(*bank.PrecompileExecutor).SymbolID)
 	require.Nil(t, err)

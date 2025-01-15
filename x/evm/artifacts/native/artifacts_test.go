@@ -53,13 +53,13 @@ func TestSimple(t *testing.T) {
 	req, err := types.NewMsgEVMTransaction(txwrapper)
 	require.Nil(t, err)
 
-	seiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
-	k.SetAddressMapping(ctx, seiAddr, evmAddr)
+	kiiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
+	k.SetAddressMapping(ctx, kiiAddr, evmAddr)
 	amt := sdk.NewCoins(sdk.NewCoin(k.GetBaseDenom(ctx), sdk.NewInt(200000000)))
 	require.Nil(t, k.BankKeeper().MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewCoin(k.GetBaseDenom(ctx), sdk.NewInt(200000000)))))
-	require.Nil(t, k.BankKeeper().SendCoinsFromModuleToAccount(ctx, types.ModuleName, seiAddr, amt))
+	require.Nil(t, k.BankKeeper().SendCoinsFromModuleToAccount(ctx, types.ModuleName, kiiAddr, amt))
 	require.Nil(t, k.BankKeeper().MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewCoin("test", sdk.NewInt(200000000)))))
-	require.Nil(t, k.BankKeeper().SendCoinsFromModuleToAccount(ctx, types.ModuleName, seiAddr, sdk.NewCoins(sdk.NewCoin("test", sdk.NewInt(200000000)))))
+	require.Nil(t, k.BankKeeper().SendCoinsFromModuleToAccount(ctx, types.ModuleName, kiiAddr, sdk.NewCoins(sdk.NewCoin("test", sdk.NewInt(200000000)))))
 
 	msgServer := keeper.NewMsgServerImpl(k)
 

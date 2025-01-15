@@ -277,33 +277,33 @@ func TestHandleERC721RoyaltyInfo(t *testing.T) {
 func TestGetAddress(t *testing.T) {
 	k := &testkeeper.EVMTestApp.EvmKeeper
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx(nil)
-	seiAddr1, evmAddr1 := testkeeper.MockAddressPair()
-	k.SetAddressMapping(ctx, seiAddr1, evmAddr1)
-	seiAddr2, evmAddr2 := testkeeper.MockAddressPair()
-	k.SetAddressMapping(ctx, seiAddr2, evmAddr2)
+	kiiAddr1, evmAddr1 := testkeeper.MockAddressPair()
+	k.SetAddressMapping(ctx, kiiAddr1, evmAddr1)
+	kiiAddr2, evmAddr2 := testkeeper.MockAddressPair()
+	k.SetAddressMapping(ctx, kiiAddr2, evmAddr2)
 	h := wasm.NewEVMQueryHandler(k)
 	getEvmAddrResp := &bindings.GetEvmAddressResponse{}
-	res, err := h.HandleGetEvmAddress(ctx, seiAddr1.String())
+	res, err := h.HandleGetEvmAddress(ctx, kiiAddr1.String())
 	require.Nil(t, err)
 	require.Nil(t, json.Unmarshal(res, getEvmAddrResp))
 	require.True(t, getEvmAddrResp.Associated)
 	require.Equal(t, evmAddr1.Hex(), getEvmAddrResp.EvmAddress)
 	getEvmAddrResp = &bindings.GetEvmAddressResponse{}
-	res, err = h.HandleGetEvmAddress(ctx, seiAddr2.String())
+	res, err = h.HandleGetEvmAddress(ctx, kiiAddr2.String())
 	require.Nil(t, err)
 	require.Nil(t, json.Unmarshal(res, getEvmAddrResp))
 	require.True(t, getEvmAddrResp.Associated)
-	getSeiAddrResp := &bindings.GetSeiAddressResponse{}
-	res, err = h.HandleGetSeiAddress(ctx, evmAddr1.Hex())
+	getKiiAddrResp := &bindings.GetKiiAddressResponse{}
+	res, err = h.HandleGetKiiAddress(ctx, evmAddr1.Hex())
 	require.Nil(t, err)
-	require.Nil(t, json.Unmarshal(res, getSeiAddrResp))
-	require.True(t, getSeiAddrResp.Associated)
-	require.Equal(t, seiAddr1.String(), getSeiAddrResp.SeiAddress)
-	getSeiAddrResp = &bindings.GetSeiAddressResponse{}
-	res, err = h.HandleGetSeiAddress(ctx, evmAddr2.Hex())
+	require.Nil(t, json.Unmarshal(res, getKiiAddrResp))
+	require.True(t, getKiiAddrResp.Associated)
+	require.Equal(t, kiiAddr1.String(), getKiiAddrResp.KiiAddress)
+	getKiiAddrResp = &bindings.GetKiiAddressResponse{}
+	res, err = h.HandleGetKiiAddress(ctx, evmAddr2.Hex())
 	require.Nil(t, err)
-	require.Nil(t, json.Unmarshal(res, getSeiAddrResp))
-	require.True(t, getSeiAddrResp.Associated)
+	require.Nil(t, json.Unmarshal(res, getKiiAddrResp))
+	require.True(t, getKiiAddrResp.Associated)
 }
 
 type mockTx struct {

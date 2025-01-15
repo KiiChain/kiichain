@@ -281,8 +281,8 @@ func SetupWithSc(isCheckTx bool, enableEVMCustomPrecompiles bool, baseAppOptions
 }
 
 func SetupTestingAppWithLevelDb(isCheckTx bool, enableEVMCustomPrecompiles bool) (*App, func()) {
-	dir := "sei_testing"
-	db, err := sdk.NewLevelDB("sei_leveldb_testing", dir)
+	dir := "kii_testing"
+	db, err := sdk.NewLevelDB("kii_leveldb_testing", dir)
 	if err != nil {
 		panic(err)
 	}

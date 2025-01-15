@@ -95,21 +95,21 @@ func (a *BlockAPI) GetBlockByNumber(ctx context.Context, number rpc.BlockNumber,
 			"number":           (*hexutil.Big)(big.NewInt(0)),
 			"hash":             common.HexToHash("F9D3845DF25B43B1C6926F3CEDA6845C17F5624E12212FD8847D0BA01DA1AB9E"),
 			"parentHash":       common.Hash{},
-			"nonce":            ethtypes.BlockNonce{},   // inapplicable to Sei
-			"mixHash":          common.Hash{},           // inapplicable to Sei
-			"sha3Uncles":       ethtypes.EmptyUncleHash, // inapplicable to Sei
+			"nonce":            ethtypes.BlockNonce{},   // inapplicable to Kii
+			"mixHash":          common.Hash{},           // inapplicable to Kii
+			"sha3Uncles":       ethtypes.EmptyUncleHash, // inapplicable to Kii
 			"logsBloom":        ethtypes.Bloom{},
 			"stateRoot":        common.Hash{},
 			"miner":            common.Address{},
-			"difficulty":       (*hexutil.Big)(big.NewInt(0)), // inapplicable to Sei
-			"extraData":        hexutil.Bytes{},               // inapplicable to Sei
+			"difficulty":       (*hexutil.Big)(big.NewInt(0)), // inapplicable to Kii
+			"extraData":        hexutil.Bytes{},               // inapplicable to Kii
 			"gasLimit":         hexutil.Uint64(0),
 			"gasUsed":          hexutil.Uint64(0),
 			"timestamp":        hexutil.Uint64(0),
 			"transactionsRoot": common.Hash{},
 			"receiptsRoot":     common.Hash{},
 			"size":             hexutil.Uint64(0),
-			"uncles":           []common.Hash{}, // inapplicable to Sei
+			"uncles":           []common.Hash{}, // inapplicable to Kii
 			"transactions":     []interface{}{},
 			"baseFeePerGas":    (*hexutil.Big)(big.NewInt(0)),
 		}, nil
@@ -288,26 +288,26 @@ func EncodeTmBlock(
 		"number":           (*hexutil.Big)(number),
 		"hash":             blockhash,
 		"parentHash":       lastHash,
-		"nonce":            ethtypes.BlockNonce{},   // inapplicable to Sei
-		"mixHash":          common.Hash{},           // inapplicable to Sei
-		"sha3Uncles":       ethtypes.EmptyUncleHash, // inapplicable to Sei
+		"nonce":            ethtypes.BlockNonce{},   // inapplicable to Kii
+		"mixHash":          common.Hash{},           // inapplicable to Kii
+		"sha3Uncles":       ethtypes.EmptyUncleHash, // inapplicable to Kii
 		"logsBloom":        blockBloom,
 		"stateRoot":        appHash,
 		"miner":            miner,
-		"difficulty":       (*hexutil.Big)(big.NewInt(0)), // inapplicable to Sei
-		"extraData":        hexutil.Bytes{},               // inapplicable to Sei
+		"difficulty":       (*hexutil.Big)(big.NewInt(0)), // inapplicable to Kii
+		"extraData":        hexutil.Bytes{},               // inapplicable to Kii
 		"gasLimit":         hexutil.Uint64(gasLimit),
 		"gasUsed":          hexutil.Uint64(blockGasUsed),
 		"timestamp":        hexutil.Uint64(block.Block.Time.Unix()),
 		"transactionsRoot": txHash,
 		"receiptsRoot":     resultHash,
 		"size":             hexutil.Uint64(block.Block.Size()),
-		"uncles":           []common.Hash{}, // inapplicable to Sei
+		"uncles":           []common.Hash{}, // inapplicable to Kii
 		"transactions":     transactions,
 		"baseFeePerGas":    (*hexutil.Big)(baseFeePerGas),
 	}
 	if fullTx {
-		result["totalDifficulty"] = (*hexutil.Big)(big.NewInt(0)) // inapplicable to Sei
+		result["totalDifficulty"] = (*hexutil.Big)(big.NewInt(0)) // inapplicable to Kii
 	}
 	return result, nil
 }

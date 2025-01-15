@@ -10,22 +10,22 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestEVMAddressToSeiAddressKey(t *testing.T) {
+func TestEVMAddressToKiiAddressKey(t *testing.T) {
 	evmAddr := common.HexToAddress("0x1234567890abcdef1234567890abcdef12345678")
-	expectedPrefix := types.EVMAddressToSeiAddressKeyPrefix
-	key := types.EVMAddressToSeiAddressKey(evmAddr)
+	expectedPrefix := types.EVMAddressToKiiAddressKeyPrefix
+	key := types.EVMAddressToKiiAddressKey(evmAddr)
 
-	require.Equal(t, expectedPrefix[0], key[0], "Key prefix for evm address to sei address key is incorrect")
+	require.Equal(t, expectedPrefix[0], key[0], "Key prefix for evm address to kii address key is incorrect")
 	require.Equal(t, append(expectedPrefix, evmAddr.Bytes()...), key, "Generated key format is incorrect")
 }
 
-func TestSeiAddressToEVMAddressKey(t *testing.T) {
-	seiAddr := sdk.AccAddress("kii1234567890abcdef1234567890abcdef12345678")
-	expectedPrefix := types.SeiAddressToEVMAddressKeyPrefix
-	key := types.SeiAddressToEVMAddressKey(seiAddr)
+func TestKiiAddressToEVMAddressKey(t *testing.T) {
+	kiiAddr := sdk.AccAddress("kii1234567890abcdef1234567890abcdef12345678")
+	expectedPrefix := types.KiiAddressToEVMAddressKeyPrefix
+	key := types.KiiAddressToEVMAddressKey(kiiAddr)
 
-	require.Equal(t, expectedPrefix[0], key[0], "Key prefix for sei address to evm address key is incorrect")
-	require.Equal(t, append(expectedPrefix, seiAddr...), key, "Generated key format is incorrect")
+	require.Equal(t, expectedPrefix[0], key[0], "Key prefix for kii address to evm address key is incorrect")
+	require.Equal(t, append(expectedPrefix, kiiAddr...), key, "Generated key format is incorrect")
 }
 
 func TestStateKey(t *testing.T) {

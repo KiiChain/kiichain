@@ -5,7 +5,7 @@ const (
 	EventTypePointerRegistered = "pointer_registered"
 	EventTypeSigner            = "signer"
 
-	AttributeKeySeiAddress     = "sei_addr"
+	AttributeKeyKiiAddress     = "kii_addr"
 	AttributeKeyEvmAddress     = "evm_addr"
 	AttributeKeyPointerType    = "pointer_type"
 	AttributeKeyPointee        = "pointee"

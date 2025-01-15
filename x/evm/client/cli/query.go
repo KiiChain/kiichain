@@ -37,7 +37,7 @@ func GetQueryCmd(_ string) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(CmdQuerySeiAddress())
+	cmd.AddCommand(CmdQueryKiiAddress())
 	cmd.AddCommand(CmdQueryEVMAddress())
 	cmd.AddCommand(CmdQueryERC20Payload())
 	cmd.AddCommand(CmdQueryERC721Payload())
@@ -51,10 +51,10 @@ func GetQueryCmd(_ string) *cobra.Command {
 	return cmd
 }
 
-func CmdQuerySeiAddress() *cobra.Command {
+func CmdQueryKiiAddress() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "sei-addr",
-		Short: "gets sei address (sei...) by EVM address (0x...) if account has association set",
+		Use:   "kii-addr",
+		Short: "gets kii address (kii...) by EVM address (0x...) if account has association set",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -81,7 +81,7 @@ func CmdQuerySeiAddress() *cobra.Command {
 func CmdQueryEVMAddress() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "evm-addr",
-		Short: "gets evm address (0x...) by Sei address (sei...) if account has association set",
+		Short: "gets evm address (0x...) by Kii address (kii...) if account has association set",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -217,21 +217,21 @@ func CmdQueryERC20Payload() *cobra.Command {
 			switch args[0] {
 			case "transfer":
 				if len(args) != 3 {
-					return errors.New("expected usage: `seid tx evm erc20-payload transfer [to] [amount]`")
+					return errors.New("expected usage: `kiichaind tx evm erc20-payload transfer [to] [amount]`")
 				}
 				to := common.HexToAddress(args[1])
 				amt, _ := sdk.NewIntFromString(args[2])
 				bz, err = abi.Pack(args[0], to, amt.BigInt())
 			case "approve":
 				if len(args) != 3 {
-					return errors.New("expected usage: `seid tx evm erc20-payload approve [spender] [amount]`")
+					return errors.New("expected usage: `kiichaind tx evm erc20-payload approve [spender] [amount]`")
 				}
 				spender := common.HexToAddress(args[1])
 				amt, _ := sdk.NewIntFromString(args[2])
 				bz, err = abi.Pack(args[0], spender, amt.BigInt())
 			case "transferFrom":
 				if len(args) != 4 {
-					return errors.New("expected usage: `seid tx evm erc20-payload transferFrom [from] [to] [amount]`")
+					return errors.New("expected usage: `kiichaind tx evm erc20-payload transferFrom [from] [to] [amount]`")
 				}
 				from := common.HexToAddress(args[1])
 				to := common.HexToAddress(args[2])

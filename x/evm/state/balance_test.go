@@ -17,12 +17,12 @@ func TestAddBalance(t *testing.T) {
 	k := &testkeeper.EVMTestApp.EvmKeeper
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
 	db := state.NewDBImpl(ctx, k, false)
-	seiAddr, evmAddr := testkeeper.MockAddressPair()
+	kiiAddr, evmAddr := testkeeper.MockAddressPair()
 	require.Equal(t, big.NewInt(0), db.GetBalance(evmAddr))
 	db.AddBalance(evmAddr, big.NewInt(0), tracing.BalanceChangeUnspecified)
 
 	// set association
-	k.SetAddressMapping(db.Ctx(), seiAddr, evmAddr)
+	k.SetAddressMapping(db.Ctx(), kiiAddr, evmAddr)
 	require.Equal(t, big.NewInt(0), db.GetBalance(evmAddr))
 	db.AddBalance(evmAddr, big.NewInt(10000000000000), tracing.BalanceChangeUnspecified)
 	require.Nil(t, db.Err())
@@ -45,16 +45,16 @@ func TestSubBalance(t *testing.T) {
 	k := &testkeeper.EVMTestApp.EvmKeeper
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
 	db := state.NewDBImpl(ctx, k, false)
-	seiAddr, evmAddr := testkeeper.MockAddressPair()
+	kiiAddr, evmAddr := testkeeper.MockAddressPair()
 	require.Equal(t, big.NewInt(0), db.GetBalance(evmAddr))
 	db.SubBalance(evmAddr, big.NewInt(0), tracing.BalanceChangeUnspecified)
 
 	// set association
-	k.SetAddressMapping(db.Ctx(), seiAddr, evmAddr)
+	k.SetAddressMapping(db.Ctx(), kiiAddr, evmAddr)
 	require.Equal(t, big.NewInt(0), db.GetBalance(evmAddr))
 	amt := sdk.NewCoins(sdk.NewCoin(k.GetBaseDenom(ctx), sdk.NewInt(20)))
 	k.BankKeeper().MintCoins(db.Ctx(), types.ModuleName, amt)
-	k.BankKeeper().SendCoinsFromModuleToAccount(db.Ctx(), types.ModuleName, seiAddr, amt)
+	k.BankKeeper().SendCoinsFromModuleToAccount(db.Ctx(), types.ModuleName, kiiAddr, amt)
 	db.SubBalance(evmAddr, big.NewInt(10000000000000), tracing.BalanceChangeUnspecified)
 	require.Nil(t, db.Err())
 	require.Equal(t, db.GetBalance(evmAddr), big.NewInt(10000000000000))
@@ -88,8 +88,8 @@ func TestSetBalance(t *testing.T) {
 	db.SetBalance(evmAddr, big.NewInt(10000000000000), tracing.BalanceChangeUnspecified)
 	require.Equal(t, big.NewInt(10000000000000), db.GetBalance(evmAddr))
 
-	seiAddr2, evmAddr2 := testkeeper.MockAddressPair()
-	k.SetAddressMapping(db.Ctx(), seiAddr2, evmAddr2)
+	kiiAddr2, evmAddr2 := testkeeper.MockAddressPair()
+	k.SetAddressMapping(db.Ctx(), kiiAddr2, evmAddr2)
 	db.SetBalance(evmAddr2, big.NewInt(10000000000000), tracing.BalanceChangeUnspecified)
 	require.Equal(t, big.NewInt(10000000000000), db.GetBalance(evmAddr2))
 }

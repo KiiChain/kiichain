@@ -32,8 +32,8 @@ func (h *EVMQueryHandler) HandleStaticCall(ctx sdk.Context, from string, to stri
 	}
 	var toAddr *common.Address
 	if to != "" {
-		toSeiAddr := common.HexToAddress(to)
-		toAddr = &toSeiAddr
+		toKiiAddr := common.HexToAddress(to)
+		toAddr = &toKiiAddr
 	}
 	res, err := h.k.StaticCallEVM(ctx, fromAddr, toAddr, data)
 	if err != nil {
@@ -516,8 +516,8 @@ func (h *EVMQueryHandler) HandleERC721Uri(ctx sdk.Context, caller string, contra
 	return json.Marshal(response)
 }
 
-func (h *EVMQueryHandler) HandleGetEvmAddress(ctx sdk.Context, seiAddr string) ([]byte, error) {
-	addr, err := sdk.AccAddressFromBech32(seiAddr)
+func (h *EVMQueryHandler) HandleGetEvmAddress(ctx sdk.Context, kiiAddr string) ([]byte, error) {
+	addr, err := sdk.AccAddressFromBech32(kiiAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -526,10 +526,10 @@ func (h *EVMQueryHandler) HandleGetEvmAddress(ctx sdk.Context, seiAddr string) (
 	return json.Marshal(response)
 }
 
-func (h *EVMQueryHandler) HandleGetSeiAddress(ctx sdk.Context, evmAddr string) ([]byte, error) {
+func (h *EVMQueryHandler) HandleGetKiiAddress(ctx sdk.Context, evmAddr string) ([]byte, error) {
 	addr := common.HexToAddress(evmAddr)
-	seiAddr, associated := h.k.GetKiiAddress(ctx, addr)
-	response := bindings.GetSeiAddressResponse{SeiAddress: seiAddr.String(), Associated: associated}
+	kiiAddr, associated := h.k.GetKiiAddress(ctx, addr)
+	response := bindings.GetKiiAddressResponse{KiiAddress: kiiAddr.String(), Associated: associated}
 	return json.Marshal(response)
 }
 
