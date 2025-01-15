@@ -1,5 +1,5 @@
-# Sei Tools
-This page provides an overview of a couple of built-in tools provided by seid command line. 
+# kii Tools
+This page provides an overview of a couple of built-in tools provided by kiichaind command line. 
 
 ## TX-Scanner 
 TX-Scanner is a tool that helps to scan transactions that are missing or failed 
@@ -17,7 +17,7 @@ later on you can reindex all the missing transactions to make them queryable aga
 It is recommended to run this tool as a background daemon process:
 ```
 # Run in the background
-seid tools scan-tx --start-height 1 --state-dir ./ > scan.log &
+kiichaind tools scan-tx --start-height 1 --state-dir ./ > scan.log &
 ```
 The tool will keep scanning from the start height, if there's already
 a state file exist in `state-dir`, it will instead start from the previous height.
@@ -40,7 +40,7 @@ blocks_missing_txs: []int64, represent all the block heights that is missing tra
 ### ReIndex Transactions
 Once you finish scanning and found some missing transactions, you can
 use the tendermint cli tool to reindex these blocks. You need to stop
-the seid process before running the below command:
+the kiichaind process before running the below command:
 ```
-seid tendermint reindex-event --start-height 2124542 --end-height 2124543
+kiichaind tendermint reindex-event --start-height 2124542 --end-height 2124543
 ```

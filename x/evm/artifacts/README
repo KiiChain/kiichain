@@ -1,4 +1,4 @@
-The source files are under contracts/src. The artifacts should be updated whenever the source files change. To update run the following (with NativeKiiTokensERC20 as an example):
+The source files are under contracts/src. The artifacts should be updated whenever the source files change. To update run the following:
 
 ```bash
 make compile-evm-all
