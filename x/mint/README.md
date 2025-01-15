@@ -26,7 +26,7 @@ Every day, at a configured time (typically the start of the day), the daily mint
 
 The minting schedule, including the start date, end date, and `total_mint_amount`, can be updated through a governance proposal. This feature allows network participants to adjust the minting parameters as necessary in response to the network's needs and conditions.
 
-This flexibility ensures that the minting process can be adjusted and managed effectively over time, supporting the growth and sustainability of the Sei-chain network.
+This flexibility ensures that the minting process can be adjusted and managed effectively over time, supporting the growth and sustainability of the kii-chain network.
 
 Note: Changes to the `total_mint_amount` or `remaining_mint_amont` after the start date will not impact tokens already minted.
 
@@ -103,7 +103,7 @@ First, prepare a proposal in JSON format, like the minter_prop.json file below:
 Then, submit the proposal with the following command:
 
 ```bash
-seid tx gov submit-proposal update-minter ./minter_prop.json --deposit 20sei --from admin -b block -y --gas 200000 --fees 2000ukii
+kiichaind tx gov submit-proposal update-minter ./minter_prop.json --deposit 20kii --from admin -b block -y --gas 200000 --fees 2000ukii
 ```
 
 This command submits a proposal to update the minter. The --deposit flag is used to provide the initial deposit. The proposal is submitted by the address provided with the --from flag.
@@ -111,7 +111,7 @@ This command submits a proposal to update the minter. The --deposit flag is used
 Before the proposal, the Minter parameters might look like this:
 
 ```**bash**
-> seid q mint minter
+> kiichaind q mint minter
 denom: ukii
 end_date: "2023-04-30"
 last_mint_amount: "333333333333"
@@ -125,7 +125,7 @@ total_mint_amount: "999999999999"
 After the proposal is passed, the Minter parameters would be updated as per the proposal:
 
 ```bash
-> seid q mint minter
+> kiichaind q mint minter
 denom: ukii
 end_date: "2023-11-22"
 last_mint_amount: "0"
@@ -175,7 +175,7 @@ Here is an example for updating the params for the mint module
 Submit the proposal
 
 ```bash
-seid tx gov submit-proposal param-change ./param_change_prop.json --from admin -b block -y --gas 200000 --fees 200000ukii
+kiichaind tx gov submit-proposal param-change ./param_change_prop.json --from admin -b block -y --gas 200000 --fees 200000ukii
 ```
 
 ## Begin-Block
@@ -193,4 +193,4 @@ At the end of each epoch (defaults to 60s), the chain checks if it's the minting
 
 ### Metrics
 
-The minting module emits a `sei_mint_coins{denom}` each time there's a successful minting event.
+The minting module emits a `kii_mint_coins{denom}` each time there's a successful minting event.

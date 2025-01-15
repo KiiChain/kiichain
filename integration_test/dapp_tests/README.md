@@ -7,15 +7,15 @@ In each test scenario, we deploy the dapp contracts, fund wallets, then go throu
 ## Setup
 To run the dapp tests, simply run the script at `/integration_test/dapp_tests/dapp_tests.sh <chain>`
 
-3 chain types are supported, `seilocal`, `devnet` (arctic-1) and `testnet` (atlantic-2). The configs for each chain are stored in `./hardhat.config.js`.
+3 chain types are supported, `local`, and `testnet`. The configs for each chain are stored in `./hardhat.config.js`.
 
-If running on `seilocal`, the script assumes that a local instance of the chain is running by running `/scripts/initialize_local_chain.sh`.
+If running on `local`, the script assumes that a local instance of the chain is running by running `/scripts/initialize_local_chain.sh`.
 A well funded `admin` account must be available on the local keyring.
 
 If running on the live chains, the tests rely on a `deployer` account, which has to have sufficient funds on the chain the test is running on.
 The deployer mnemonic must be stored as an environment variable: DAPP_TESTS_MNEMONIC.
 On the test pipelines, the account used is:
-- Deployer Sei address: `sei1rtpakm7w9egh0n7xngzm6vrln0szv6yeva6hhn`
+- Deployer kii address: `kii1rtpakm7w9egh0n7xngzm6vrln0szv6yec63t8d`
 - Deployer EVM address: `0x4D952b770C3a0B096e739399B40263D0b516d406`
 
 ## Tests

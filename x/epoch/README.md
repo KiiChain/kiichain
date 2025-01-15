@@ -1,8 +1,8 @@
 # x/epoch
 
-The `x/epoch` module is engineered to manage epochs within the sei-chain ecosystem. An epoch is defined as a fixed period of time, defaulting to one minute, relative to the Genesis time. At the commencement of each epoch, registered actions by other modules are triggered.
+The `x/epoch` module is engineered to manage epochs within the kii-chain ecosystem. An epoch is defined as a fixed period of time, defaulting to one minute, relative to the Genesis time. At the commencement of each epoch, registered actions by other modules are triggered.
 
-This functionality enables time-centric actions and state transitions to be orchestrated throughout the sei-chain. Other modules can effortlessly register hooks via a simplistic interface provided by x/epoch, which are then executed at the onset of each epoch. This allows modules to carry out actions such as validator set updates, reward distributions, or parameter adjustments based on the progression of time.
+This functionality enables time-centric actions and state transitions to be orchestrated throughout the kii-chain. Other modules can effortlessly register hooks via a simplistic interface provided by x/epoch, which are then executed at the onset of each epoch. This allows modules to carry out actions such as validator set updates, reward distributions, or parameter adjustments based on the progression of time.
 
 **Example usage:**
 The Mint module's end blocker employs the epoch hook to distribute inflation rewards to validators on specified dates.
@@ -12,7 +12,7 @@ The Mint module's end blocker employs the epoch hook to distribute inflation rew
 The x/epoch module upholds the following state:
 
 ```bash
-> seid q epoch epoch --output json
+> kiichaind q epoch epoch --output json
 {
   "epoch": {
     "genesis_time": "2023-04-27T19:08:11.958027Z",
@@ -24,7 +24,7 @@ The x/epoch module upholds the following state:
 }
 ```
 
-GenesisTime: The sei-chain's Genesis time.
+GenesisTime: The kii-chain's Genesis time.
 EpochDuration: Duration of an epoch, denoted in seconds.
 CurrentEpoch: Current epoch number.
 EpochStartTime: Current epoch's start time.
