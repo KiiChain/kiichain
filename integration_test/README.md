@@ -27,7 +27,7 @@ A typical yaml test case would look like this:
     # Add comments for what this command is doing
     - cmd: <Replace with bash command>
       env: <Add if you want to store the output as an env variable>
-      node: <Optional, default is sei-node-0>
+      node: <Optional, default is kii-node-0>
     # Add comments for what this command is doing
     - cmd: <Replace with bash command>
       env: RESULT
@@ -45,7 +45,7 @@ One simple example for verify chain is started and running fine:
 - name: Test number of validators should be equal to 4
   inputs:
     # Query num of validators
-    - cmd: seid q tendermint-validator-set |grep address |wc -l
+    - cmd: kiichaind q tendermint-validator-set |grep address |wc -l
       env: RESULT
   verifiers:
   - type: eval
@@ -58,9 +58,9 @@ One simple example for verify chain is started and running fine:
 |------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------|
 | name       | Yes      | Defines the purpose of the test case .                                                                                                        |
 | inputs     | Yes      | Contains a list of command inputs to run one by one.                                                                                          |
-| cmd        | Yes      | Exact seid or bash command to run.                                                                                                            |
+| cmd        | Yes      | Exact kiichaind or bash command to run.                                                                                                            |
 | env        | No       | If given, the command output will be persisted to this env variable, which can be referenced by all below commands                            |
-| node       | No       | If given, the command will be executed on a specific container, default to sei-node-0                                                         |
+| node       | No       | If given, the command will be executed on a specific container, default to kii-node-0                                                         |
 | verifiers  | Yes      | Contains a list of verify functions to check correctness                                                                                      |
 | type       | Yes      | Currently support either `eval` or `regex`.                                                                                                   |
 | result     | Yes      | Pick any env variables you want to pass in for regex match                                                                                    |

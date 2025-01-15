@@ -2,7 +2,12 @@
 
 ![Banner!](assets/kii.png)
 
-Kiichain Version 3 - Forked from Sei Chain
+Kiichain Version 3 - Forked from [Sei Chain](https://github.com/sei-protocol/sei-chain).
+
+# Documentation
+
+Our documentation can be found at:
+- [Kiichain docs](https://docs.kiiglobal.io)
 
 # Run Single Local Node (Docker)
 
@@ -159,3 +164,25 @@ For instance upgrading the blockchain to the v2.0.0, running in a container call
 ```
 $ make upgrade UPGRADE_NAME=v2.0.0 CONTAINER_NAME=kiichain-rpc-node
 ```
+
+# Contributing
+
+All contributions are very welcome! Remember, contribution is not only PRs and code, but any help with docs or helping other developers solve their issues are very appreciated!
+
+Read below to learn how you can take part in the Kiichain.
+
+### Code of Conduct
+
+Please be sure to read and follow our [Code of Conduct][coc]. By participating, you are expected to uphold this code.
+
+### Issues, Questions and Discussions
+
+We use [GitHub Issues][issues] for tracking requests and bugs, and for general questions and discussion.
+
+# License
+
+The Kiichain is licensed under [Apache License 2.0][license].
+
+[coc]: ./CODE_OF_CONDUCT.md
+[issues]: https://github.com/KiiChain/kiichain3/issues
+[license]: ./LICENSE

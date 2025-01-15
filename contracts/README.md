@@ -1,8 +1,8 @@
 ## Running hardhat tests locally
- * start up a local instance of sei: `./scripts/initialize_local_chain.sh`
+ * start up a local instance of kii: `./scripts/initialize_local_chain.sh`
  * run a hardhat tests:
     * `cd contracts`
-    * `npx hardhat test --network seilocal test/ERC20toCW20PointerTest.js`
+    * `npx hardhat test --network local test/ERC20toCW20PointerTest.js`
 
 ## Compile and build contracts with Foundry
  * run: `forge install` and `forge build`
@@ -11,4 +11,4 @@
 ## Updating Pointer contracts across codebase
  * Follow instructions above to compile and build the contracts
  * copy the binary under the corresponding `bytecode:object` into `x/evm/contracts` `.bin` file
- * restart seid
+ * restart kiichaind
