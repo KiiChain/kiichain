@@ -298,3 +298,48 @@ proto-gen:
 swagger-gen:
 	@echo "Generating Swagger files"
 	etc/update-swagger-ui-statik.sh
+
+################################################################################
+###                                Contracts                                 ###
+################################################################################
+
+# Paths and Tools
+CONTRACTS_SRC_DIR = contracts/src
+ARTIFACTS_DIR = x/evm/artifacts
+OPENZEPPELIN_PATH = contracts/lib/openzeppelin-contracts
+SOLC = solc
+ABIGEN = abigen
+
+# Check if solc and abigen are installed
+check-evm-tools:
+	@which $(SOLC) > /dev/null || (echo "Error: solc is not installed." && exit 1)
+	@which $(ABIGEN) > /dev/null || (echo "Error: abigen is not installed." && exit 1)
+
+# Compile a single contract
+define compile_evm_contract
+	git submodule update --init --recursive
+	$(SOLC) --overwrite @openzeppelin=$(OPENZEPPELIN_PATH) --bin -o $(ARTIFACTS_DIR)/$(1) $(CONTRACTS_SRC_DIR)/$(2)
+	$(SOLC) --overwrite @openzeppelin=$(OPENZEPPELIN_PATH) --abi -o $(ARTIFACTS_DIR)/$(1) $(CONTRACTS_SRC_DIR)/$(2)
+	find $(ARTIFACTS_DIR)/$(1) -type f -name "*.bin" ! -name "$(3).bin" ! -name "legacy.bin" -delete
+	find $(ARTIFACTS_DIR)/$(1) -type f -name "*.abi" ! -name "$(3).abi" ! -name "legacy.abi" -delete
+	$(ABIGEN) --abi=$(ARTIFACTS_DIR)/$(1)/$(3).abi --pkg=$(1) --out=$(ARTIFACTS_DIR)/$(1)/$(1).go
+endef
+
+# Compile EVM artifacts
+compile-evm-cw20: check-evm-tools
+	$(call compile_evm_contract,cw20,CW20ERC20Pointer.sol,CW20ERC20Pointer)
+
+compile-evm-cw721: check-evm-tools
+	$(call compile_evm_contract,cw721,CW721ERC721Pointer.sol,CW721ERC721Pointer)
+
+compile-evm-native: check-evm-tools
+	$(call compile_evm_contract,native,NativeKiiTokensERC20.sol,NativeKiiTokensERC20)
+
+compile-evm-wkii: check-evm-tools
+	$(call compile_evm_contract,wkii,WKII.sol,WKII)
+
+# Compile all contracts
+compile-evm-all: compile-evm-cw20 compile-evm-cw721 compile-evm-native compile-evm-wkii
+	@echo "All contracts compiled successfully."
+
+.PHONY: check-evm-tools compile-evm-cw20 compile-evm-cw721 compile-evm-native compile-evm-wkii compile-evm-all

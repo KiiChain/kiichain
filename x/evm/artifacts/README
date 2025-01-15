@@ -1,28 +1,5 @@
 The source files are under contracts/src. The artifacts should be updated whenever the source files change. To update run the following (with NativeKiiTokensERC20 as an example):
 
 ```bash
-# cw20
-solc --overwrite @openzeppelin=contracts/lib/openzeppelin-contracts --bin -o x/evm/artifacts/cw20 contracts/src/CW20ERC20Pointer.sol
-solc --overwrite @openzeppelin=contracts/lib/openzeppelin-contracts --abi -o x/evm/artifacts/cw20 contracts/src/CW20ERC20Pointer.sol
-find x/evm/artifacts/cw20 -type f -name "*.bin" ! -name "CW20ERC20Pointer.bin" ! -name "legacy.bin" -delete
-find x/evm/artifacts/cw20 -type f -name "*.abi" ! -name "CW20ERC20Pointer.abi" ! -name "legacy.abi" -delete
-abigen --abi=x/evm/artifacts/cw20/CW20ERC20Pointer.abi --pkg=cw20 --out=x/evm/artifacts/cw20/cw20.go
-# cw721
-solc --overwrite @openzeppelin=contracts/lib/openzeppelin-contracts --bin -o x/evm/artifacts/cw721 contracts/src/CW721ERC721Pointer.sol
-solc --overwrite @openzeppelin=contracts/lib/openzeppelin-contracts --abi -o x/evm/artifacts/cw721 contracts/src/CW721ERC721Pointer.sol
-find x/evm/artifacts/cw721 -type f -name "*.bin" ! -name "CW721ERC721Pointer.bin" ! -name "legacy.bin" -delete
-find x/evm/artifacts/cw721 -type f -name "*.abi" ! -name "CW721ERC721Pointer.abi" ! -name "legacy.abi" -delete
-abigen --abi=x/evm/artifacts/cw721/CW721ERC721Pointer.abi --pkg=cw721 --out=x/evm/artifacts/cw721/cw721.go
-# native
-solc --overwrite @openzeppelin=contracts/lib/openzeppelin-contracts --bin -o x/evm/artifacts/native contracts/src/NativeKiiTokensERC20.sol
-solc --overwrite @openzeppelin=contracts/lib/openzeppelin-contracts --abi -o x/evm/artifacts/native contracts/src/NativeKiiTokensERC20.sol
-find x/evm/artifacts/native -type f -name "*.bin" ! -name "NativeUnicornTokensERC20.bin" ! -name "legacy.bin" -delete
-find x/evm/artifacts/native -type f -name "*.abi" ! -name "NativeUnicornTokensERC20.abi" ! -name "legacy.abi" -delete
-abigen --abi=x/evm/artifacts/native/NativeUnicornTokensERC20.abi --pkg=native --out=x/evm/artifacts/native/native.go
-# wkii
-solc --overwrite @openzeppelin=contracts/lib/openzeppelin-contracts --bin -o x/evm/artifacts/wkii contracts/src/WKII.sol
-solc --overwrite @openzeppelin=contracts/lib/openzeppelin-contracts --abi -o x/evm/artifacts/wkii contracts/src/WKII.sol
-find x/evm/artifacts/wkii -type f -name "*.bin" ! -name "WKII.bin" ! -name "legacy.bin" -delete
-find x/evm/artifacts/wkii -type f -name "*.abi" ! -name "WKII.abi" ! -name "legacy.abi" -delete
-abigen --abi=x/evm/artifacts/wkii/WKII.abi --pkg=wkii --out=x/evm/artifacts/wkii/wkii.go
+make compile-evm-all
 ```
