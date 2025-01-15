@@ -32,7 +32,7 @@ import (
 	"github.com/kiichain/kiichain3/precompiles"
 	"github.com/kiichain/kiichain3/utils"
 	"github.com/kiichain/kiichain3/x/evm/artifacts/native"
-	"github.com/kiichain/kiichain3/x/evm/artifacts/wsei"
+	"github.com/kiichain/kiichain3/x/evm/artifacts/wkii"
 	"github.com/kiichain/kiichain3/x/evm/types"
 	"github.com/kiichain/kiichain3/x/evm/types/ethtx"
 )
@@ -516,7 +516,7 @@ func CmdDeployWKII() *cobra.Command {
 		Long:  "",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			contractData := wsei.GetBin()
+			contractData := wkii.GetBin()
 
 			key, err := getPrivateKey(cmd)
 			if err != nil {

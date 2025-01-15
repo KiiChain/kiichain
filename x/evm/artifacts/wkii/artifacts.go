@@ -1,4 +1,4 @@
-package wsei
+package wkii
 
 import (
 	"embed"
@@ -10,17 +10,17 @@ import (
 
 const CurrentVersion uint16 = 1
 
-//go:embed WSEI.abi
-//go:embed WSEI.bin
+//go:embed WKII.abi
+//go:embed WKII.bin
 var f embed.FS
 
 var cachedBin []byte
 var cachedABI *abi.ABI
 
 func GetABI() []byte {
-	bz, err := f.ReadFile("WSEI.abi")
+	bz, err := f.ReadFile("WKII.abi")
 	if err != nil {
-		panic("failed to read WSEI contract ABI")
+		panic("failed to read WKII contract ABI")
 	}
 	return bz
 }
@@ -41,13 +41,13 @@ func GetBin() []byte {
 	if cachedBin != nil {
 		return cachedBin
 	}
-	code, err := f.ReadFile("WSEI.bin")
+	code, err := f.ReadFile("WKII.bin")
 	if err != nil {
-		panic("failed to read WSEI contract binary")
+		panic("failed to read WKII contract binary")
 	}
 	bz, err := hex.DecodeString(string(code))
 	if err != nil {
-		panic("failed to decode WSEI contract binary")
+		panic("failed to decode WKII contract binary")
 	}
 	cachedBin = bz
 	return bz
