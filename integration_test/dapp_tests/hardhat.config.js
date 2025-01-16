@@ -24,6 +24,8 @@ module.exports = {
         initialIndex: 0,
         count: 1
       },
+      gas: 350000,
+      gasPrice: 2000000000,
     },
     testnet: {
       url: "https://json-rpc.uno.sentry.testnet.v3.kiivalidator.com",
