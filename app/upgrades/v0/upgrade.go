@@ -56,7 +56,7 @@ func (h HardForkUpgradeHandler) migrateGringotts(ctx sdk.Context, govKeeper *was
 	)
 
 	switch h.TargetChainID {
-	case upgrades.ChainIDSeiHardForkTest:
+	case upgrades.ChainIDKiiHardForkTest:
 		// TODO: Fill in the appropriate fields (contractAddr, newCodeID, and msg) here!
 
 	default:

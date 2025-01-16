@@ -69,8 +69,8 @@ func (k *Keeper) ChainID(ctx sdk.Context) *big.Int {
 
 /*
 *
-sei gas = evm gas * multiplier
-sei gas price = fee / sei gas = fee / (evm gas * multiplier) = evm gas / multiplier
+kii gas = evm gas * multiplier
+kii gas price = fee / kii gas = fee / (evm gas * multiplier) = evm gas / multiplier
 */
 func (k *Keeper) GetEVMGasLimitFromCtx(ctx sdk.Context) uint64 {
 	return k.getEvmGasLimitFromCtx(ctx)

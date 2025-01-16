@@ -117,12 +117,12 @@ func (p PrecompileExecutor) getKiiAddr(ctx sdk.Context, method *abi.Method, args
 		return nil, err
 	}
 
-	seiAddr, found := p.evmKeeper.GetKiiAddress(ctx, args[0].(common.Address))
+	kiiAddr, found := p.evmKeeper.GetKiiAddress(ctx, args[0].(common.Address))
 	if !found {
 		metrics.IncrementAssociationError("getKiiAddr", types.NewAssociationMissingErr(args[0].(common.Address).Hex()))
 		return nil, fmt.Errorf("EVM address %s is not associated", args[0].(common.Address).Hex())
 	}
-	return method.Outputs.Pack(seiAddr.String())
+	return method.Outputs.Pack(kiiAddr.String())
 }
 
 func (p PrecompileExecutor) getEvmAddr(ctx sdk.Context, method *abi.Method, args []interface{}, value *big.Int) ([]byte, error) {
@@ -134,15 +134,15 @@ func (p PrecompileExecutor) getEvmAddr(ctx sdk.Context, method *abi.Method, args
 		return nil, err
 	}
 
-	seiAddr, err := sdk.AccAddressFromBech32(args[0].(string))
+	kiiAddr, err := sdk.AccAddressFromBech32(args[0].(string))
 	if err != nil {
 		return nil, err
 	}
 
-	evmAddr, found := p.evmKeeper.GetEVMAddress(ctx, seiAddr)
+	evmAddr, found := p.evmKeeper.GetEVMAddress(ctx, kiiAddr)
 	if !found {
 		metrics.IncrementAssociationError("getEvmAddr", types.NewAssociationMissingErr(args[0].(string)))
-		return nil, fmt.Errorf("sei address %s is not associated", args[0].(string))
+		return nil, fmt.Errorf("kii address %s is not associated", args[0].(string))
 	}
 	return method.Outputs.Pack(evmAddr)
 }
@@ -184,12 +184,12 @@ func (p PrecompileExecutor) associate(ctx sdk.Context, method *abi.Method, args 
 	vBig = new(big.Int).Add(vBig, utils.Big27)
 
 	customMessageHash := crypto.Keccak256Hash([]byte(customMessage))
-	evmAddr, seiAddr, pubkey, err := helpers.GetAddresses(vBig, rBig, sBig, customMessageHash)
+	evmAddr, kiiAddr, pubkey, err := helpers.GetAddresses(vBig, rBig, sBig, customMessageHash)
 	if err != nil {
 		return nil, err
 	}
 
-	return p.associateAddresses(ctx, method, evmAddr, seiAddr, pubkey)
+	return p.associateAddresses(ctx, method, evmAddr, kiiAddr, pubkey)
 }
 
 func (p PrecompileExecutor) associatePublicKey(ctx sdk.Context, method *abi.Method, args []interface{}, value *big.Int) ([]byte, error) {
@@ -218,29 +218,29 @@ func (p PrecompileExecutor) associatePublicKey(ctx sdk.Context, method *abi.Meth
 	// Convert to uncompressed public key
 	uncompressedPubKey := pubKey.SerializeUncompressed()
 
-	evmAddr, seiAddr, pubkey, err := helpers.GetAddressesFromPubkeyBytes(uncompressedPubKey)
+	evmAddr, kiiAddr, pubkey, err := helpers.GetAddressesFromPubkeyBytes(uncompressedPubKey)
 	if err != nil {
 		return nil, err
 	}
 
-	return p.associateAddresses(ctx, method, evmAddr, seiAddr, pubkey)
+	return p.associateAddresses(ctx, method, evmAddr, kiiAddr, pubkey)
 }
 
-func (p PrecompileExecutor) associateAddresses(ctx sdk.Context, method *abi.Method, evmAddr common.Address, seiAddr sdk.AccAddress, pubkey cryptotypes.PubKey) ([]byte, error) {
+func (p PrecompileExecutor) associateAddresses(ctx sdk.Context, method *abi.Method, evmAddr common.Address, kiiAddr sdk.AccAddress, pubkey cryptotypes.PubKey) ([]byte, error) {
 	// Check that address is not already associated
-	_, found := p.evmKeeper.GetEVMAddress(ctx, seiAddr)
+	_, found := p.evmKeeper.GetEVMAddress(ctx, kiiAddr)
 	if found {
-		return nil, fmt.Errorf("address %s is already associated with evm address %s", seiAddr, evmAddr)
+		return nil, fmt.Errorf("address %s is already associated with evm address %s", kiiAddr, evmAddr)
 	}
 
 	// Associate Addresses:
 	associationHelper := helpers.NewAssociationHelper(p.evmKeeper, p.bankKeeper, p.accountKeeper)
-	err := associationHelper.AssociateAddresses(ctx, seiAddr, evmAddr, pubkey)
+	err := associationHelper.AssociateAddresses(ctx, kiiAddr, evmAddr, pubkey)
 	if err != nil {
 		return nil, err
 	}
 
-	return method.Outputs.Pack(seiAddr.String(), evmAddr)
+	return method.Outputs.Pack(kiiAddr.String(), evmAddr)
 }
 
 func (PrecompileExecutor) IsTransaction(method string) bool {

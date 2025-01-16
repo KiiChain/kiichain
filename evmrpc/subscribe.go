@@ -262,28 +262,28 @@ func encodeTmHeader(
 		gasWanted += txRes.GasUsed
 	}
 	result := map[string]interface{}{
-		"difficulty":            (*hexutil.Big)(utils.Big0), // inapplicable to Sei
-		"extraData":             hexutil.Bytes{},            // inapplicable to Sei
+		"difficulty":            (*hexutil.Big)(utils.Big0), // inapplicable to Kii
+		"extraData":             hexutil.Bytes{},            // inapplicable to Kii
 		"gasLimit":              hexutil.Uint64(gasLimit),
 		"gasUsed":               hexutil.Uint64(gasWanted),
-		"logsBloom":             ethtypes.Bloom{}, // inapplicable to Sei
+		"logsBloom":             ethtypes.Bloom{}, // inapplicable to Kii
 		"miner":                 miner,
-		"nonce":                 ethtypes.BlockNonce{}, // inapplicable to Sei
+		"nonce":                 ethtypes.BlockNonce{}, // inapplicable to Kii
 		"number":                (*hexutil.Big)(number),
 		"parentHash":            lastHash,
 		"receiptsRoot":          resultHash,
-		"sha3Uncles":            common.Hash{}, // inapplicable to Sei
+		"sha3Uncles":            common.Hash{}, // inapplicable to Kii
 		"stateRoot":             appHash,
 		"timestamp":             hexutil.Uint64(header.Header.Time.Unix()),
 		"transactionsRoot":      txHash,
-		"mixHash":               common.Hash{},     // inapplicable to Sei
-		"excessBlobGas":         hexutil.Uint64(0), // inapplicable to Sei
-		"parentBeaconBlockRoot": common.Hash{},     // inapplicable to Sei
+		"mixHash":               common.Hash{},     // inapplicable to Kii
+		"excessBlobGas":         hexutil.Uint64(0), // inapplicable to Kii
+		"parentBeaconBlockRoot": common.Hash{},     // inapplicable to Kii
 		"hash":                  blockHash,
-		"withdrawlsRoot":        common.Hash{},     // inapplicable to Sei
-		"baseFeePerGas":         hexutil.Uint64(0), // inapplicable to Sei
-		"withdrawalsRoot":       common.Hash{},     // inapplicable to Sei
-		"blobGasUsed":           hexutil.Uint64(0), // inapplicable to Sei
+		"withdrawlsRoot":        common.Hash{},     // inapplicable to Kii
+		"baseFeePerGas":         hexutil.Uint64(0), // inapplicable to Kii
+		"withdrawalsRoot":       common.Hash{},     // inapplicable to Kii
+		"blobGasUsed":           hexutil.Uint64(0), // inapplicable to Kii
 	}
 	return result, nil
 }

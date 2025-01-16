@@ -43,7 +43,7 @@ func TransactionDependencyGenerator(_ aclkeeper.Keeper, evmKeeper evmkeeper.Keep
 	}
 	ops := []sdkacltypes.AccessOperation{}
 	ops = appendRWBalanceOps(ops, state.GetCoinbaseAddress(ctx.TxIndex()))
-	sender := evmMsg.Derived.SenderSeiAddr
+	sender := evmMsg.Derived.SenderKiiAddr
 	ops = appendRWBalanceOps(ops, sender)
 	ops = append(ops,
 		sdkacltypes.AccessOperation{
@@ -56,12 +56,12 @@ func TransactionDependencyGenerator(_ aclkeeper.Keeper, evmKeeper evmkeeper.Keep
 	tx, _ := evmMsg.AsTransaction()
 	toAddress := tx.To()
 	if toAddress != nil {
-		seiAddress := evmKeeper.GetKiiAddressOrDefault(ctx, *toAddress)
-		ops = appendRWBalanceOps(ops, seiAddress)
+		kiiAddress := evmKeeper.GetKiiAddressOrDefault(ctx, *toAddress)
+		ops = appendRWBalanceOps(ops, kiiAddress)
 		ops = append(ops, sdkacltypes.AccessOperation{
 			AccessType:         sdkacltypes.AccessType_READ,
 			ResourceType:       sdkacltypes.ResourceType_KV_EVM_E2S,
-			IdentifierTemplate: hex.EncodeToString(evmtypes.EVMAddressToSeiAddressKey(*toAddress)),
+			IdentifierTemplate: hex.EncodeToString(evmtypes.EVMAddressToKiiAddressKey(*toAddress)),
 		}, sdkacltypes.AccessOperation{
 			AccessType:         sdkacltypes.AccessType_READ,
 			ResourceType:       sdkacltypes.ResourceType_KV_EVM_CODE_HASH,
@@ -101,17 +101,17 @@ func TransactionDependencyGenerator(_ aclkeeper.Keeper, evmKeeper evmkeeper.Keep
 		{
 			AccessType:         sdkacltypes.AccessType_READ,
 			ResourceType:       sdkacltypes.ResourceType_KV_EVM_S2E,
-			IdentifierTemplate: hex.EncodeToString(evmtypes.SeiAddressToEVMAddressKey(evmKeeper.AccountKeeper().GetModuleAddress(authtypes.FeeCollectorName))),
+			IdentifierTemplate: hex.EncodeToString(evmtypes.KiiAddressToEVMAddressKey(evmKeeper.AccountKeeper().GetModuleAddress(authtypes.FeeCollectorName))),
 		},
 		{
 			AccessType:         sdkacltypes.AccessType_READ,
 			ResourceType:       sdkacltypes.ResourceType_KV_EVM_E2S,
-			IdentifierTemplate: hex.EncodeToString(evmtypes.EVMAddressToSeiAddressKey(evmAddr)),
+			IdentifierTemplate: hex.EncodeToString(evmtypes.EVMAddressToKiiAddressKey(evmAddr)),
 		},
 		{
 			AccessType:         sdkacltypes.AccessType_READ,
 			ResourceType:       sdkacltypes.ResourceType_KV_EVM_S2E,
-			IdentifierTemplate: hex.EncodeToString(evmtypes.SeiAddressToEVMAddressKey(evmMsg.Derived.SenderSeiAddr)),
+			IdentifierTemplate: hex.EncodeToString(evmtypes.KiiAddressToEVMAddressKey(evmMsg.Derived.SenderKiiAddr)),
 		},
 		{
 			AccessType:         sdkacltypes.AccessType_READ,

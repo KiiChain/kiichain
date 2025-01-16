@@ -81,11 +81,11 @@ func TestWithdraw(t *testing.T) {
 	req, err := evmtypes.NewMsgEVMTransaction(txwrapper)
 	require.Nil(t, err)
 
-	seiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
-	k.SetAddressMapping(ctx, seiAddr, evmAddr)
+	kiiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
+	k.SetAddressMapping(ctx, kiiAddr, evmAddr)
 	amt := sdk.NewCoins(sdk.NewCoin(k.GetBaseDenom(ctx), sdk.NewInt(200000000)))
 	require.Nil(t, k.BankKeeper().MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewCoin(k.GetBaseDenom(ctx), sdk.NewInt(200000000)))))
-	require.Nil(t, k.BankKeeper().SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, seiAddr, amt))
+	require.Nil(t, k.BankKeeper().SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, kiiAddr, amt))
 
 	msgServer := keeper.NewMsgServerImpl(k)
 
@@ -94,13 +94,13 @@ func TestWithdraw(t *testing.T) {
 	require.Nil(t, err)
 	require.Empty(t, res.VmError)
 
-	d, found := testApp.StakingKeeper.GetDelegation(ctx, seiAddr, val)
+	d, found := testApp.StakingKeeper.GetDelegation(ctx, kiiAddr, val)
 	require.True(t, found)
 	require.Equal(t, int64(100), d.Shares.RoundInt().Int64())
 
 	// set withdraw addr
-	withdrawSeiAddr, withdrawAddr := testkeeper.MockAddressPair()
-	k.SetAddressMapping(ctx, withdrawSeiAddr, withdrawAddr)
+	withdrawKiiAddr, withdrawAddr := testkeeper.MockAddressPair()
+	k.SetAddressMapping(ctx, withdrawKiiAddr, withdrawAddr)
 	abi = pcommon.MustGetABI(f, "abi.json")
 	args, err = abi.Pack("setWithdrawAddress", withdrawAddr)
 	require.Nil(t, err)
@@ -124,7 +124,7 @@ func TestWithdraw(t *testing.T) {
 	res, err = msgServer.EVMTransaction(sdk.WrapSDKContext(ctx), req)
 	require.Nil(t, err)
 	require.Empty(t, res.VmError)
-	require.Equal(t, withdrawSeiAddr.String(), testApp.DistrKeeper.GetDelegatorWithdrawAddr(ctx, seiAddr).String())
+	require.Equal(t, withdrawKiiAddr.String(), testApp.DistrKeeper.GetDelegatorWithdrawAddr(ctx, kiiAddr).String())
 
 	// withdraw
 	args, err = abi.Pack("withdrawDelegationRewards", val.String())
@@ -151,7 +151,7 @@ func TestWithdraw(t *testing.T) {
 	require.Equal(t, uint64(64124), res.GasUsed)
 
 	// reinitialized
-	d, found = testApp.StakingKeeper.GetDelegation(ctx, seiAddr, val)
+	d, found = testApp.StakingKeeper.GetDelegation(ctx, kiiAddr, val)
 	require.True(t, found)
 }
 
@@ -176,8 +176,8 @@ func TestWithdrawMultipleDelegationRewards(t *testing.T) {
 	blockNum := big.NewInt(ctx.BlockHeight())
 	signer := ethtypes.MakeSigner(ethCfg, blockNum, uint64(ctx.BlockTime().Unix()))
 	msgServer := keeper.NewMsgServerImpl(k)
-	seiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
-	k.SetAddressMapping(ctx, seiAddr, evmAddr)
+	kiiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
+	k.SetAddressMapping(ctx, kiiAddr, evmAddr)
 
 	// delegate
 	for _, val := range validators {
@@ -219,17 +219,17 @@ func delegate(ctx sdk.Context,
 	req, err := evmtypes.NewMsgEVMTransaction(txwrapper)
 	require.Nil(t, err)
 
-	seiAddr, _ := testkeeper.PrivateKeyToAddresses(privKey)
+	kiiAddr, _ := testkeeper.PrivateKeyToAddresses(privKey)
 	amt := sdk.NewCoins(sdk.NewCoin(k.GetBaseDenom(ctx), sdk.NewInt(200000000)))
 	require.Nil(t, k.BankKeeper().MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewCoin(k.GetBaseDenom(ctx), sdk.NewInt(200000000)))))
-	require.Nil(t, k.BankKeeper().SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, seiAddr, amt))
+	require.Nil(t, k.BankKeeper().SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, kiiAddr, amt))
 
 	ante.Preprocess(ctx, req)
 	res, err := msgServer.EVMTransaction(sdk.WrapSDKContext(ctx), req)
 	require.Nil(t, err)
 	require.Empty(t, res.VmError)
 
-	d, found := testApp.StakingKeeper.GetDelegation(ctx, seiAddr, val)
+	d, found := testApp.StakingKeeper.GetDelegation(ctx, kiiAddr, val)
 	require.True(t, found)
 	require.Equal(t, int64(100), d.Shares.RoundInt().Int64())
 }
@@ -245,8 +245,8 @@ func setWithdrawAddressAndWithdraw(
 	signer ethtypes.Signer,
 	msgServer evmtypes.MsgServer,
 ) {
-	withdrawSeiAddr, withdrawAddr := testkeeper.MockAddressPair()
-	k.SetAddressMapping(ctx, withdrawSeiAddr, withdrawAddr)
+	withdrawKiiAddr, withdrawAddr := testkeeper.MockAddressPair()
+	k.SetAddressMapping(ctx, withdrawKiiAddr, withdrawAddr)
 	abi := pcommon.MustGetABI(f, "abi.json")
 	args, err := abi.Pack("setWithdrawAddress", withdrawAddr)
 	require.Nil(t, err)
@@ -272,8 +272,8 @@ func setWithdrawAddressAndWithdraw(
 	res, err := msgServer.EVMTransaction(sdk.WrapSDKContext(ctx), req)
 	require.Nil(t, err)
 	require.Empty(t, res.VmError)
-	seiAddr, _ := testkeeper.PrivateKeyToAddresses(privKey)
-	require.Equal(t, withdrawSeiAddr.String(), testApp.DistrKeeper.GetDelegatorWithdrawAddr(ctx, seiAddr).String())
+	kiiAddr, _ := testkeeper.PrivateKeyToAddresses(privKey)
+	require.Equal(t, withdrawKiiAddr.String(), testApp.DistrKeeper.GetDelegatorWithdrawAddr(ctx, kiiAddr).String())
 
 	var validators []string
 	for _, val := range vals {
@@ -305,7 +305,7 @@ func setWithdrawAddressAndWithdraw(
 
 	// reinitialized
 	for _, val := range vals {
-		_, found := testApp.StakingKeeper.GetDelegation(ctx, seiAddr, val)
+		_, found := testApp.StakingKeeper.GetDelegation(ctx, kiiAddr, val)
 		require.True(t, found)
 	}
 }
@@ -354,7 +354,7 @@ func setupValidator(t *testing.T, ctx sdk.Context, a *app.App, bondStatus stakin
 func TestPrecompile_RunAndCalculateGas_WithdrawDelegationRewards(t *testing.T) {
 	_, notAssociatedCallerEvmAddress := testkeeper.MockAddressPair()
 	_, contractEvmAddress := testkeeper.MockAddressPair()
-	validatorAddress := "seivaloper1reedlc9w8p7jrpqfky4c5k90nea4p6dhk5yqgd"
+	validatorAddress := "kiivaloper1reedlc9w8p7jrpqfky4c5k90nea4p6dhk5yqgd"
 
 	type fields struct {
 		Precompile                          pcommon.Precompile
@@ -512,7 +512,7 @@ func TestPrecompile_RunAndCalculateGas_WithdrawDelegationRewards(t *testing.T) {
 func TestPrecompile_RunAndCalculateGas_WithdrawMultipleDelegationRewards(t *testing.T) {
 	_, notAssociatedCallerEvmAddress := testkeeper.MockAddressPair()
 	_, contractEvmAddress := testkeeper.MockAddressPair()
-	validatorAddresses := []string{"seivaloper1reedlc9w8p7jrpqfky4c5k90nea4p6dhk5yqgd"}
+	validatorAddresses := []string{"kiivaloper1reedlc9w8p7jrpqfky4c5k90nea4p6dhk5yqgd"}
 
 	type fields struct {
 		Precompile                          pcommon.Precompile
@@ -668,7 +668,7 @@ func TestPrecompile_RunAndCalculateGas_WithdrawMultipleDelegationRewards(t *test
 
 func TestPrecompile_RunAndCalculateGas_SetWithdrawAddress(t *testing.T) {
 	_, notAssociatedCallerEvmAddress := testkeeper.MockAddressPair()
-	callerSeiAddress, callerEvmAddress := testkeeper.MockAddressPair()
+	callerKiiAddress, callerEvmAddress := testkeeper.MockAddressPair()
 	_, contractEvmAddress := testkeeper.MockAddressPair()
 
 	type fields struct {
@@ -810,7 +810,7 @@ func TestPrecompile_RunAndCalculateGas_SetWithdrawAddress(t *testing.T) {
 			testApp := testkeeper.EVMTestApp
 			ctx := testApp.NewContext(false, tmtypes.Header{}).WithBlockHeight(2)
 			k := &testApp.EvmKeeper
-			k.SetAddressMapping(ctx, callerSeiAddress, callerEvmAddress)
+			k.SetAddressMapping(ctx, callerKiiAddress, callerEvmAddress)
 			stateDb := state.NewDBImpl(ctx, k, true)
 			evm := vm.EVM{
 				StateDB:   stateDb,
@@ -855,14 +855,14 @@ func (tk *TestDistributionKeeper) DelegationTotalRewards(ctx context.Context, re
 	val2ukiiCoins := 7
 	rewards := []distrtypes.DelegationDelegatorReward{
 		{
-			ValidatorAddress: "seivaloper1wuj3xg3yrw4ryxn9vygwuz0necs4klj7j9nay6",
+			ValidatorAddress: "kiivaloper1wuj3xg3yrw4ryxn9vygwuz0necs4klj7j9nay6",
 			Reward: sdk.NewDecCoins(
 				sdk.NewDecCoin("uatom", sdk.NewInt(int64(uatomCoins))),
 				sdk.NewDecCoin("ukii", sdk.NewInt(int64(val1ukiiCoins))),
 			),
 		},
 		{
-			ValidatorAddress: "seivaloper16znh8ktn33dwnxxc9q0jmxmjf6hsz4tl0s6vxh",
+			ValidatorAddress: "kiivaloper16znh8ktn33dwnxxc9q0jmxmjf6hsz4tl0s6vxh",
 			Reward:           sdk.NewDecCoins(sdk.NewDecCoin("ukii", sdk.NewInt(int64(val2ukiiCoins)))),
 		},
 	}
@@ -891,7 +891,7 @@ func (tk *TestEmptyRewardsDistributionKeeper) DelegationTotalRewards(ctx context
 }
 
 func TestPrecompile_RunAndCalculateGas_Rewards(t *testing.T) {
-	callerSeiAddress, callerEvmAddress := testkeeper.MockAddressPair()
+	callerKiiAddress, callerEvmAddress := testkeeper.MockAddressPair()
 	_, notAssociatedCallerEvmAddress := testkeeper.MockAddressPair()
 	_, contractEvmAddress := testkeeper.MockAddressPair()
 	pre, _ := distribution.NewPrecompile(nil, nil)
@@ -915,11 +915,11 @@ func TestPrecompile_RunAndCalculateGas_Rewards(t *testing.T) {
 	coinsVal1 := []distribution.Coin{coin1, coin2}
 	coinsVal2 := []distribution.Coin{coin3}
 	rewardVal1 := distribution.Reward{
-		ValidatorAddress: "seivaloper1wuj3xg3yrw4ryxn9vygwuz0necs4klj7j9nay6",
+		ValidatorAddress: "kiivaloper1wuj3xg3yrw4ryxn9vygwuz0necs4klj7j9nay6",
 		Coins:            coinsVal1,
 	}
 	rewardVal2 := distribution.Reward{
-		ValidatorAddress: "seivaloper16znh8ktn33dwnxxc9q0jmxmjf6hsz4tl0s6vxh",
+		ValidatorAddress: "kiivaloper16znh8ktn33dwnxxc9q0jmxmjf6hsz4tl0s6vxh",
 		Coins:            coinsVal2,
 	}
 	rewards := []distribution.Reward{rewardVal1, rewardVal2}
@@ -1088,7 +1088,7 @@ func TestPrecompile_RunAndCalculateGas_Rewards(t *testing.T) {
 			testApp := testkeeper.EVMTestApp
 			ctx := testApp.NewContext(false, tmtypes.Header{}).WithBlockHeight(2)
 			k := &testApp.EvmKeeper
-			k.SetAddressMapping(ctx, callerSeiAddress, callerEvmAddress)
+			k.SetAddressMapping(ctx, callerKiiAddress, callerEvmAddress)
 			stateDb := state.NewDBImpl(ctx, k, true)
 			evm := vm.EVM{
 				StateDB:   stateDb,

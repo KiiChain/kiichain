@@ -158,7 +158,7 @@ func (p PrecompileExecutor) instantiate(ctx sdk.Context, method *abi.Method, cal
 		return
 	}
 
-	// Run basic validation, can also just expose validateLabel and validate validateWasmCode in sei-wasmd
+	// Run basic validation, can also just expose validateLabel and validate validateWasmCode in kii-wasmd
 	msgInstantiate := wasmtypes.MsgInstantiateContract{
 		Sender: creatorAddr.String(),
 		CodeID: codeID,
@@ -299,7 +299,7 @@ func (p PrecompileExecutor) executeBatch(ctx sdk.Context, method *abi.Method, ca
 				return
 			}
 		}
-		// Run basic validation, can also just expose validateLabel and validate validateWasmCode in sei-wasmd
+		// Run basic validation, can also just expose validateLabel and validate validateWasmCode in kii-wasmd
 		msgExecute := wasmtypes.MsgExecuteContract{
 			Sender:   senderAddr.String(),
 			Contract: contractAddr.String(),
@@ -378,7 +378,7 @@ func (p PrecompileExecutor) execute(ctx sdk.Context, method *abi.Method, caller 
 		return
 	}
 
-	// Run basic validation, can also just expose validateLabel and validate validateWasmCode in sei-wasmd
+	// Run basic validation, can also just expose validateLabel and validate validateWasmCode in kii-wasmd
 	msgExecute := wasmtypes.MsgExecuteContract{
 		Sender:   senderAddr.String(),
 		Contract: contractAddr.String(),

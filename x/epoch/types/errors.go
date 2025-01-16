@@ -8,8 +8,8 @@ import (
 
 // x/epoch module sentinel errors
 var (
-	ErrParsingSeiEpochQuery = sdkerrors.Register(ModuleName, 2, "Error parsing SeiEpochQuery")
+	ErrParsingKiiEpochQuery = sdkerrors.Register(ModuleName, 2, "Error parsing KiiEpochQuery")
 	ErrGettingEpoch         = sdkerrors.Register(ModuleName, 3, "Error while getting epoch")
 	ErrEncodingEpoch        = sdkerrors.Register(ModuleName, 4, "Error encoding epoch as JSON")
-	ErrUnknownSeiEpochQuery = sdkerrors.Register(ModuleName, 6, "Error unknown sei epoch query")
+	ErrUnknownKiiEpochQuery = sdkerrors.Register(ModuleName, 6, "Error unknown kii epoch query")
 )

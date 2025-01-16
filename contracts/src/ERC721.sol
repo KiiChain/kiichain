@@ -220,7 +220,7 @@ contract MyNFT is ERC721 {
 
     function tokenURI(uint256 tokenId) external pure returns (string memory) {
         string memory numAsString = uintToString(tokenId);
-        return string(abi.encodePacked("https://sei.io/token/", numAsString));
+        return string(abi.encodePacked("https://kii.io/token/", numAsString));
     }
 
     function mint(address to, uint id) external {

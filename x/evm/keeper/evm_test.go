@@ -37,7 +37,7 @@ func TestInternalCallCreateContract(t *testing.T) {
 	// circular interop call
 	ctx = ctx.WithIsEVM(true)
 	_, err = k.HandleInternalEVMCall(ctx, req)
-	require.Equal(t, "sei does not support EVM->CW->EVM call pattern", err.Error())
+	require.Equal(t, "kii does not support EVM->CW->EVM call pattern", err.Error())
 	ctx = ctx.WithIsEVM(false)
 	oldBaseFee := k.GetDynamicBaseFeePerGas(ctx)
 	k.SetDynamicBaseFeePerGas(ctx, sdk.ZeroDec())
@@ -71,7 +71,7 @@ func TestInternalCall(t *testing.T) {
 	}
 	ctx = ctx.WithIsEVM(true)
 	_, err = k.HandleInternalEVMCall(ctx, req)
-	require.Equal(t, "sei does not support EVM->CW->EVM call pattern", err.Error())
+	require.Equal(t, "kii does not support EVM->CW->EVM call pattern", err.Error())
 	ctx = ctx.WithIsEVM(false)
 	ret, err := k.HandleInternalEVMCall(ctx, req)
 	require.Nil(t, err)

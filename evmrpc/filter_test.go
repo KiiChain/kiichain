@@ -192,12 +192,12 @@ func TestFilterGetLogs(t *testing.T) {
 	testFilterGetLogs(t, "eth", getCommonFilterLogTests())
 }
 
-func TestSeiFilterGetLogs(t *testing.T) {
+func TestKiiFilterGetLogs(t *testing.T) {
 	// make sure we pass all the eth_ namespace tests
-	testFilterGetLogs(t, "sei", getCommonFilterLogTests())
+	testFilterGetLogs(t, "kii", getCommonFilterLogTests())
 
 	// test where we get a synthetic log
-	testFilterGetLogs(t, "sei", []GetFilterLogTests{
+	testFilterGetLogs(t, "kii", []GetFilterLogTests{
 		{
 			name:      "filter by single synthetic address",
 			fromBlock: "0x8",
@@ -253,8 +253,8 @@ func testFilterGetLogs(t *testing.T, namespace string, tests []GetFilterLogTests
 			var resObj map[string]interface{}
 			if namespace == "eth" {
 				resObj = sendRequestGood(t, "getLogs", filterCriteria)
-			} else if namespace == "sei" {
-				resObj = sendSeiRequestGood(t, "getLogs", filterCriteria)
+			} else if namespace == "kii" {
+				resObj = sendKiiRequestGood(t, "getLogs", filterCriteria)
 			} else {
 				panic("unknown namespace")
 			}

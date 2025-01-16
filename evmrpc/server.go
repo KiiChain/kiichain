@@ -58,8 +58,8 @@ func NewEVMHTTPServer(
 			Service:   NewBlockAPI(tmClient, k, ctxProvider, txConfig, ConnectionTypeHTTP, "eth"),
 		},
 		{
-			Namespace: "sei",
-			Service:   NewBlockAPI(tmClient, k, ctxProvider, txConfig, ConnectionTypeHTTP, "sei"),
+			Namespace: "kii",
+			Service:   NewBlockAPI(tmClient, k, ctxProvider, txConfig, ConnectionTypeHTTP, "kii"),
 		},
 		{
 			Namespace: "eth",
@@ -90,11 +90,11 @@ func NewEVMHTTPServer(
 			Service:   NewFilterAPI(tmClient, k, ctxProvider, &FilterConfig{timeout: config.FilterTimeout, maxLog: config.MaxLogNoBlock, maxBlock: config.MaxBlocksForLog}, ConnectionTypeHTTP, "eth"),
 		},
 		{
-			Namespace: "sei",
-			Service:   NewFilterAPI(tmClient, k, ctxProvider, &FilterConfig{timeout: config.FilterTimeout, maxLog: config.MaxLogNoBlock, maxBlock: config.MaxBlocksForLog}, ConnectionTypeHTTP, "sei"),
+			Namespace: "kii",
+			Service:   NewFilterAPI(tmClient, k, ctxProvider, &FilterConfig{timeout: config.FilterTimeout, maxLog: config.MaxLogNoBlock, maxBlock: config.MaxBlocksForLog}, ConnectionTypeHTTP, "kii"),
 		},
 		{
-			Namespace: "sei",
+			Namespace: "kii",
 			Service:   NewAssociationAPI(tmClient, k, ctxProvider, txConfig.TxDecoder(), sendAPI, ConnectionTypeHTTP),
 		},
 		{

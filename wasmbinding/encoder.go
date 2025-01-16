@@ -11,7 +11,7 @@ import (
 	tokenfactorywasm "github.com/kiichain/kiichain3/x/tokenfactory/client/wasm"
 )
 
-type SeiWasmMessage struct {
+type KiiWasmMessage struct {
 	CreateDenom     json.RawMessage `json:"create_denom,omitempty"`
 	MintTokens      json.RawMessage `json:"mint_tokens,omitempty"`
 	BurnTokens      json.RawMessage `json:"burn_tokens,omitempty"`
@@ -22,9 +22,9 @@ type SeiWasmMessage struct {
 }
 
 func CustomEncoder(sender sdk.AccAddress, msg json.RawMessage, info wasmvmtypes.MessageInfo, codeInfo wasmtypes.CodeInfo) ([]sdk.Msg, error) {
-	var parsedMessage SeiWasmMessage
+	var parsedMessage KiiWasmMessage
 	if err := json.Unmarshal(msg, &parsedMessage); err != nil {
-		return []sdk.Msg{}, sdkerrors.Wrap(err, "Error parsing Sei Wasm Message")
+		return []sdk.Msg{}, sdkerrors.Wrap(err, "Error parsing Kii Wasm Message")
 	}
 	switch {
 	case parsedMessage.CreateDenom != nil:
@@ -42,6 +42,6 @@ func CustomEncoder(sender sdk.AccAddress, msg json.RawMessage, info wasmvmtypes.
 	case parsedMessage.DelegateCallEVM != nil:
 		return evmwasm.EncodeDelegateCallEVM(parsedMessage.DelegateCallEVM, sender, info, codeInfo)
 	default:
-		return []sdk.Msg{}, wasmvmtypes.UnsupportedRequest{Kind: "Unknown Sei Wasm Message"}
+		return []sdk.Msg{}, wasmvmtypes.UnsupportedRequest{Kind: "Unknown Kii Wasm Message"}
 	}
 }

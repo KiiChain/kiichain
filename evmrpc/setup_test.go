@@ -422,7 +422,7 @@ func init() {
 	MultiTxCtx, _ = Ctx.CacheContext()
 	EVMKeeper = &testApp.EvmKeeper
 	EVMKeeper.InitGenesis(Ctx, *evmtypes.DefaultGenesis())
-	seiAddr, err := sdk.AccAddressFromHex(common.Bytes2Hex([]byte("seiAddr")))
+	kiiAddr, err := sdk.AccAddressFromHex(common.Bytes2Hex([]byte("kiiAddr")))
 	if err != nil {
 		panic(err)
 	}
@@ -430,7 +430,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	err = testApp.BankKeeper.SendCoinsFromModuleToAccount(Ctx, "evm", seiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10))))
+	err = testApp.BankKeeper.SendCoinsFromModuleToAccount(Ctx, "evm", kiiAddr, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(10))))
 	if err != nil {
 		panic(err)
 	}
@@ -583,12 +583,12 @@ func generateTxData() {
 	}); err != nil {
 		panic(err)
 	}
-	seiAddr, err := sdk.AccAddressFromHex(common.Bytes2Hex([]byte("seiAddr")))
+	kiiAddr, err := sdk.AccAddressFromHex(common.Bytes2Hex([]byte("kiiAddr")))
 	if err != nil {
 		panic(err)
 	}
 	evmAddr := common.HexToAddress(common.Bytes2Hex([]byte("evmAddr")))
-	EVMKeeper.SetAddressMapping(Ctx, seiAddr, evmAddr)
+	EVMKeeper.SetAddressMapping(Ctx, kiiAddr, evmAddr)
 	unassociatedAddr := common.HexToAddress("0x1234567890123456789023456789012345678901")
 	debugTraceAddr := common.HexToAddress("0x5B4eba929F3811980f5AE0c5D04fa200f837DF4E")
 	amts := sdk.NewCoins(sdk.NewCoin(EVMKeeper.GetBaseDenom(Ctx), sdk.NewInt(1000000)))
@@ -782,8 +782,8 @@ func sendRequestGood(t *testing.T, method string, params ...interface{}) map[str
 }
 
 //nolint:deadcode
-func sendSeiRequestGood(t *testing.T, method string, params ...interface{}) map[string]interface{} {
-	return sendSeiRequest(t, TestPort, method, params...)
+func sendKiiRequestGood(t *testing.T, method string, params ...interface{}) map[string]interface{} {
+	return sendKiiRequest(t, TestPort, method, params...)
 }
 
 //nolint:deadcode
@@ -792,8 +792,8 @@ func sendRequestBad(t *testing.T, method string, params ...interface{}) map[stri
 }
 
 //nolint:deadcode
-func sendSeiRequestBad(t *testing.T, method string, params ...interface{}) map[string]interface{} {
-	return sendSeiRequest(t, TestBadPort, method, params...)
+func sendKiiRequestBad(t *testing.T, method string, params ...interface{}) map[string]interface{} {
+	return sendKiiRequest(t, TestBadPort, method, params...)
 }
 
 // nolint:deadcode
@@ -805,8 +805,8 @@ func sendRequest(t *testing.T, port int, method string, params ...interface{}) m
 	return sendRequestWithNamespace(t, "eth", port, method, params...)
 }
 
-func sendSeiRequest(t *testing.T, port int, method string, params ...interface{}) map[string]interface{} {
-	return sendRequestWithNamespace(t, "sei", port, method, params...)
+func sendKiiRequest(t *testing.T, port int, method string, params ...interface{}) map[string]interface{} {
+	return sendRequestWithNamespace(t, "kii", port, method, params...)
 }
 
 func sendRequestWithNamespace(t *testing.T, namespace string, port int, method string, params ...interface{}) map[string]interface{} {

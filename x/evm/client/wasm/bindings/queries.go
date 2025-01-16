@@ -26,11 +26,11 @@ const (
 	ERC721UriType              EVMQueryType = "evm_query_erc721_uri"
 	ERC721RoyaltyInfoType      EVMQueryType = "evm_query_erc721_royalty_info"
 	GetEvmAddressType          EVMQueryType = "evm_query_get_evm_address"
-	GetSeiAddressType          EVMQueryType = "evm_query_get_sei_address"
+	GetKiiAddressType          EVMQueryType = "evm_query_get_kii_address"
 	SupportsInterfaceType      EVMQueryType = "evm_query_supports_interface"
 )
 
-func (q *SeiEVMQuery) GetQueryType() EVMQueryType {
+func (q *KiiEVMQuery) GetQueryType() EVMQueryType {
 	if q.StaticCall != nil {
 		return StaticCallType
 	}
@@ -86,7 +86,7 @@ func (q *SeiEVMQuery) GetQueryType() EVMQueryType {
 		return GetEvmAddressType
 	}
 	if q.GetKiiAddress != nil {
-		return GetSeiAddressType
+		return GetKiiAddressType
 	}
 	if q.SupportsInterface != nil {
 		return SupportsInterfaceType
@@ -94,7 +94,7 @@ func (q *SeiEVMQuery) GetQueryType() EVMQueryType {
 	return ""
 }
 
-type SeiEVMQuery struct {
+type KiiEVMQuery struct {
 	StaticCall                  *StaticCallRequest                  `json:"static_call,omitempty"`
 	ERC20TransferPayload        *ERC20TransferPayloadRequest        `json:"erc20_transfer_payload,omitempty"`
 	ERC20TransferFromPayload    *ERC20TransferFromPayloadRequest    `json:"erc20_transfer_from_payload,omitempty"`
@@ -113,7 +113,7 @@ type SeiEVMQuery struct {
 	ERC721Uri                   *ERC721UriRequest                   `json:"erc721_uri,omitempty"`
 	ERC721RoyaltyInfo           *ERC721RoyaltyInfoRequest           `json:"erc721_royalty_info,omitempty"`
 	GetEvmAddress               *GetEvmAddressRequest               `json:"get_evm_address,omitempty"`
-	GetKiiAddress               *GetSeiAddressRequest               `json:"get_sei_address,omitempty"`
+	GetKiiAddress               *GetKiiAddressRequest               `json:"get_kii_address,omitempty"`
 	SupportsInterface           *SupportsInterfaceRequest           `json:"supports_interface,omitempty"`
 }
 
@@ -214,10 +214,10 @@ type ERC721RoyaltyInfoRequest struct {
 }
 
 type GetEvmAddressRequest struct {
-	SeiAddress string `json:"sei_address"`
+	KiiAddress string `json:"kii_address"`
 }
 
-type GetSeiAddressRequest struct {
+type GetKiiAddressRequest struct {
 	EvmAddress string `json:"evm_address"`
 }
 
@@ -285,8 +285,8 @@ type GetEvmAddressResponse struct {
 	Associated bool   `json:"associated"`
 }
 
-type GetSeiAddressResponse struct {
-	SeiAddress string `json:"sei_address"`
+type GetKiiAddressResponse struct {
+	KiiAddress string `json:"kii_address"`
 	Associated bool   `json:"associated"`
 }
 

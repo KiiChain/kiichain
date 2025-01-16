@@ -68,7 +68,7 @@ type Config struct {
 	PerMessageConfigs  MessageConfigs        `json:"message_configs"`
 	MetricsPort        uint64                `json:"metrics_port"`
 	TLS                bool                  `json:"tls"`
-	SeiTesterAddress   string                `json:"sei_tester_address"`
+	KiiTesterAddress   string                `json:"kii_tester_address"`
 	PostTxEvmQueries   PostTxEvmQueries      `json:"post_tx_evm_queries"`
 	Ticks              uint64                `json:"ticks"`
 	EvmUseEip1559Txs   bool                  `json:"evm_use_eip1559_txs"` // setting this to true could make gas go up to infinity

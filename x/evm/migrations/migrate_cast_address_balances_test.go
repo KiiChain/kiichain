@@ -16,22 +16,22 @@ func TestMigrateCastAddressBalances(t *testing.T) {
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
 	require.Nil(t, k.BankKeeper().MintCoins(ctx, types.ModuleName, testkeeper.UkiiCoins(100)))
 	// unassociated account with funds
-	seiAddr1, evmAddr1 := testkeeper.MockAddressPair()
+	kiiAddr1, evmAddr1 := testkeeper.MockAddressPair()
 	require.Nil(t, k.BankKeeper().SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.AccAddress(evmAddr1[:]), testkeeper.UkiiCoins(10)))
 	// associated account without funds
-	seiAddr2, evmAddr2 := testkeeper.MockAddressPair()
-	k.SetAddressMapping(ctx, seiAddr2, evmAddr2)
+	kiiAddr2, evmAddr2 := testkeeper.MockAddressPair()
+	k.SetAddressMapping(ctx, kiiAddr2, evmAddr2)
 	// associated account with funds
-	seiAddr3, evmAddr3 := testkeeper.MockAddressPair()
+	kiiAddr3, evmAddr3 := testkeeper.MockAddressPair()
 	require.Nil(t, k.BankKeeper().SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.AccAddress(evmAddr3[:]), testkeeper.UkiiCoins(10)))
-	k.SetAddressMapping(ctx, seiAddr3, evmAddr3)
+	k.SetAddressMapping(ctx, kiiAddr3, evmAddr3)
 
 	require.Nil(t, migrations.MigrateCastAddressBalances(ctx, &k))
 
 	require.Equal(t, sdk.NewInt(10), k.BankKeeper().GetBalance(ctx, sdk.AccAddress(evmAddr1[:]), "ukii").Amount)
-	require.Equal(t, sdk.ZeroInt(), k.BankKeeper().GetBalance(ctx, seiAddr1, "ukii").Amount)
+	require.Equal(t, sdk.ZeroInt(), k.BankKeeper().GetBalance(ctx, kiiAddr1, "ukii").Amount)
 	require.Equal(t, sdk.ZeroInt(), k.BankKeeper().GetBalance(ctx, sdk.AccAddress(evmAddr2[:]), "ukii").Amount)
-	require.Equal(t, sdk.ZeroInt(), k.BankKeeper().GetBalance(ctx, seiAddr2, "ukii").Amount)
+	require.Equal(t, sdk.ZeroInt(), k.BankKeeper().GetBalance(ctx, kiiAddr2, "ukii").Amount)
 	require.Equal(t, sdk.ZeroInt(), k.BankKeeper().GetBalance(ctx, sdk.AccAddress(evmAddr3[:]), "ukii").Amount)
-	require.Equal(t, sdk.NewInt(10), k.BankKeeper().GetBalance(ctx, seiAddr3, "ukii").Amount)
+	require.Equal(t, sdk.NewInt(10), k.BankKeeper().GetBalance(ctx, kiiAddr3, "ukii").Amount)
 }

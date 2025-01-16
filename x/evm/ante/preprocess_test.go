@@ -33,7 +33,7 @@ func TestPreprocessAnteHandler(t *testing.T) {
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx(nil)
 	handler := ante.NewEVMPreprocessDecorator(k, k.AccountKeeper())
 	privKey := testkeeper.MockPrivateKey()
-	seiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
+	kiiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
 	require.Nil(t, k.BankKeeper().AddCoins(ctx, sdk.AccAddress(evmAddr[:]), sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(100))), true))
 	require.Nil(t, k.BankKeeper().AddWei(ctx, sdk.AccAddress(evmAddr[:]), sdk.NewInt(10)))
 	testPrivHex := hex.EncodeToString(privKey.Bytes())
@@ -63,9 +63,9 @@ func TestPreprocessAnteHandler(t *testing.T) {
 		return ctx, nil
 	})
 	require.Nil(t, err)
-	require.Equal(t, sdk.AccAddress(privKey.PubKey().Address()), sdk.AccAddress(msg.Derived.SenderSeiAddr))
-	require.Equal(t, sdk.NewInt(100), k.BankKeeper().GetBalance(ctx, seiAddr, "ukii").Amount)
-	require.Equal(t, sdk.NewInt(10), k.BankKeeper().GetWeiBalance(ctx, seiAddr))
+	require.Equal(t, sdk.AccAddress(privKey.PubKey().Address()), sdk.AccAddress(msg.Derived.SenderKiiAddr))
+	require.Equal(t, sdk.NewInt(100), k.BankKeeper().GetBalance(ctx, kiiAddr, "ukii").Amount)
+	require.Equal(t, sdk.NewInt(10), k.BankKeeper().GetWeiBalance(ctx, kiiAddr))
 	require.Equal(t, sdk.ZeroInt(), k.BankKeeper().GetBalance(ctx, sdk.AccAddress(evmAddr[:]), "ukii").Amount)
 	require.Equal(t, sdk.ZeroInt(), k.BankKeeper().GetWeiBalance(ctx, sdk.AccAddress(evmAddr[:])))
 }
@@ -123,16 +123,16 @@ func TestPreprocessAssociateTx(t *testing.T) {
 	})
 	// not enough balance
 	require.NotNil(t, err)
-	seiAddr := sdk.AccAddress(privKey.PubKey().Address())
+	kiiAddr := sdk.AccAddress(privKey.PubKey().Address())
 	evmAddr := crypto.PubkeyToAddress(key.PublicKey)
 	amt := sdk.NewCoins(sdk.NewCoin(k.GetBaseDenom(ctx), sdk.NewInt(int64(ante.BalanceThreshold))))
 	k.BankKeeper().MintCoins(ctx, types.ModuleName, amt)
-	k.BankKeeper().SendCoinsFromModuleToAccount(ctx, types.ModuleName, seiAddr, amt)
+	k.BankKeeper().SendCoinsFromModuleToAccount(ctx, types.ModuleName, kiiAddr, amt)
 	ctx, err = handler.AnteHandle(ctx, mockTx{msgs: []sdk.Msg{msg}}, false, func(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
 		panic("should not be called")
 	})
 	require.Nil(t, err)
-	associated, ok := k.GetEVMAddress(ctx, seiAddr)
+	associated, ok := k.GetEVMAddress(ctx, kiiAddr)
 	require.True(t, ok)
 	require.Equal(t, evmAddr, associated)
 
@@ -162,18 +162,18 @@ func TestPreprocessAssociateTxWithWeiBalance(t *testing.T) {
 	txData := ethtx.AssociateTx{V: V.Bytes(), R: R.Bytes(), S: S.Bytes(), CustomMessage: prefixedMessage}
 	msg, err := types.NewMsgEVMTransaction(&txData)
 	require.Nil(t, err)
-	seiAddr := sdk.AccAddress(privKey.PubKey().Address())
+	kiiAddr := sdk.AccAddress(privKey.PubKey().Address())
 	evmAddr := crypto.PubkeyToAddress(key.PublicKey)
 	ctx, err = handler.AnteHandle(ctx, mockTx{msgs: []sdk.Msg{msg}}, false, func(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
 		panic("should not be called")
 	})
 	require.NotNil(t, err)
-	k.BankKeeper().AddWei(ctx, seiAddr, sdk.OneInt())
+	k.BankKeeper().AddWei(ctx, kiiAddr, sdk.OneInt())
 	ctx, err = handler.AnteHandle(ctx, mockTx{msgs: []sdk.Msg{msg}}, false, func(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
 		panic("should not be called")
 	})
 	require.Nil(t, err)
-	associated, ok := k.GetEVMAddress(ctx, seiAddr)
+	associated, ok := k.GetEVMAddress(ctx, kiiAddr)
 	require.True(t, ok)
 	require.Equal(t, evmAddr, associated)
 }
@@ -197,7 +197,7 @@ func TestAnteDeps(t *testing.T) {
 	msg, _ := types.NewMsgEVMTransaction(&ethtx.LegacyTx{GasLimit: 100})
 	msg.Derived = &derived.Derived{
 		SenderEVMAddr: common.BytesToAddress([]byte("senderevm")),
-		SenderSeiAddr: []byte("sendersei"),
+		SenderKiiAddr: []byte("senderkii"),
 		PubKey:        &secp256k1.PubKey{Key: []byte("pubkey")},
 	}
 	deps, err := handler.AnteDeps(nil, mockTx{msgs: []sdk.Msg{msg}}, 0, func(txDeps []sdkacltypes.AccessOperation, tx sdk.Tx, txIndex int) ([]sdkacltypes.AccessOperation, error) {
@@ -304,7 +304,7 @@ func TestMigrateBalance(t *testing.T) {
 	k := &testkeeper.EVMTestApp.EvmKeeper
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx(nil)
 	admin, _ := testkeeper.MockAddressPair()
-	seiAddr, evmAddr := testkeeper.MockAddressPair()
+	kiiAddr, evmAddr := testkeeper.MockAddressPair()
 	k.BankKeeper().AddCoins(ctx, sdk.AccAddress(evmAddr[:]), sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(2))), false)
 	// set a vesting account of 1
 	k.AccountKeeper().SetAccount(ctx, vestingtypes.NewDelayedVestingAccountRaw(
@@ -313,9 +313,9 @@ func TestMigrateBalance(t *testing.T) {
 			sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1))), math.MaxInt64, admin),
 	))
 	associateHelper := helpers.NewAssociationHelper(k, k.BankKeeper(), k.AccountKeeper())
-	require.Nil(t, associateHelper.MigrateBalance(ctx, evmAddr, seiAddr))
-	require.Equal(t, int64(1), k.BankKeeper().SpendableCoins(ctx, seiAddr).AmountOf("ukii").Int64())
-	require.Equal(t, int64(0), k.BankKeeper().LockedCoins(ctx, seiAddr).AmountOf("ukii").Int64())
+	require.Nil(t, associateHelper.MigrateBalance(ctx, evmAddr, kiiAddr))
+	require.Equal(t, int64(1), k.BankKeeper().SpendableCoins(ctx, kiiAddr).AmountOf("ukii").Int64())
+	require.Equal(t, int64(0), k.BankKeeper().LockedCoins(ctx, kiiAddr).AmountOf("ukii").Int64())
 	require.Equal(t, int64(0), k.BankKeeper().SpendableCoins(ctx, sdk.AccAddress(evmAddr[:])).AmountOf("ukii").Int64())
 	require.Equal(t, int64(1), k.BankKeeper().LockedCoins(ctx, sdk.AccAddress(evmAddr[:])).AmountOf("ukii").Int64())
 }

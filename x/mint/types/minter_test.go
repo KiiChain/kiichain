@@ -18,7 +18,7 @@ func TestParamsUkii(t *testing.T) {
 	err := params.Validate()
 	require.Nil(t, err)
 
-	params.MintDenom = "sei"
+	params.MintDenom = "kii"
 	err = params.Validate()
 	require.NotNil(t, err)
 }

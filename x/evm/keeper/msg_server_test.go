@@ -515,19 +515,19 @@ func TestEVMBlockEnv(t *testing.T) {
 
 func TestSend(t *testing.T) {
 	k, ctx := testkeeper.MockEVMKeeper()
-	seiFrom, evmFrom := testkeeper.MockAddressPair()
-	seiTo, evmTo := testkeeper.MockAddressPair()
-	k.SetAddressMapping(ctx, seiFrom, evmFrom)
-	k.SetAddressMapping(ctx, seiTo, evmTo)
-	k.BankKeeper().AddCoins(ctx, seiFrom, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000))), true)
+	kiiFrom, evmFrom := testkeeper.MockAddressPair()
+	kiiTo, evmTo := testkeeper.MockAddressPair()
+	k.SetAddressMapping(ctx, kiiFrom, evmFrom)
+	k.SetAddressMapping(ctx, kiiTo, evmTo)
+	k.BankKeeper().AddCoins(ctx, kiiFrom, sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(1000000))), true)
 	_, err := keeper.NewMsgServerImpl(k).Send(sdk.WrapSDKContext(ctx), &types.MsgSend{
-		FromAddress: seiFrom.String(),
+		FromAddress: kiiFrom.String(),
 		ToAddress:   evmTo.Hex(),
 		Amount:      sdk.NewCoins(sdk.NewCoin("ukii", sdk.NewInt(500000))),
 	})
 	require.Nil(t, err)
-	require.Equal(t, sdk.NewInt(500000), k.BankKeeper().GetBalance(ctx, seiFrom, "ukii").Amount)
-	require.Equal(t, sdk.NewInt(500000), k.BankKeeper().GetBalance(ctx, seiTo, "ukii").Amount)
+	require.Equal(t, sdk.NewInt(500000), k.BankKeeper().GetBalance(ctx, kiiFrom, "ukii").Amount)
+	require.Equal(t, sdk.NewInt(500000), k.BankKeeper().GetBalance(ctx, kiiTo, "ukii").Amount)
 }
 
 func TestRegisterPointer(t *testing.T) {
@@ -712,35 +712,35 @@ func TestEvmError(t *testing.T) {
 func TestAssociateContractAddress(t *testing.T) {
 	k, ctx := testkeeper.MockEVMKeeper()
 	msgServer := keeper.NewMsgServerImpl(k)
-	dummySeiAddr, dummyEvmAddr := testkeeper.MockAddressPair()
+	dummyKiiAddr, dummyEvmAddr := testkeeper.MockAddressPair()
 	res, err := msgServer.RegisterPointer(sdk.WrapSDKContext(ctx), &types.MsgRegisterPointer{
-		Sender:      dummySeiAddr.String(),
+		Sender:      dummyKiiAddr.String(),
 		PointerType: types.PointerType_ERC20,
 		ErcAddress:  dummyEvmAddr.Hex(),
 	})
 	require.Nil(t, err)
 	_, err = msgServer.AssociateContractAddress(sdk.WrapSDKContext(ctx), &types.MsgAssociateContractAddress{
-		Sender:  dummySeiAddr.String(),
+		Sender:  dummyKiiAddr.String(),
 		Address: res.PointerAddress,
 	})
 	require.Nil(t, err)
 	associatedEvmAddr, found := k.GetEVMAddress(ctx, sdk.MustAccAddressFromBech32(res.PointerAddress))
 	require.True(t, found)
 	require.Equal(t, common.BytesToAddress(sdk.MustAccAddressFromBech32(res.PointerAddress)), associatedEvmAddr)
-	associatedSeiAddr, found := k.GetKiiAddress(ctx, associatedEvmAddr)
+	associatedKiiAddr, found := k.GetKiiAddress(ctx, associatedEvmAddr)
 	require.True(t, found)
-	require.Equal(t, res.PointerAddress, associatedSeiAddr.String())
+	require.Equal(t, res.PointerAddress, associatedKiiAddr.String())
 	// setting for an associated address would fail
 	_, err = msgServer.AssociateContractAddress(sdk.WrapSDKContext(ctx), &types.MsgAssociateContractAddress{
-		Sender:  dummySeiAddr.String(),
+		Sender:  dummyKiiAddr.String(),
 		Address: res.PointerAddress,
 	})
 	require.NotNil(t, err)
 	require.Contains(t, err.Error(), "contract already has an associated address")
 	// setting for a non-contract would fail
 	_, err = msgServer.AssociateContractAddress(sdk.WrapSDKContext(ctx), &types.MsgAssociateContractAddress{
-		Sender:  dummySeiAddr.String(),
-		Address: dummySeiAddr.String(),
+		Sender:  dummyKiiAddr.String(),
+		Address: dummyKiiAddr.String(),
 	})
 	require.NotNil(t, err)
 	require.Contains(t, err.Error(), "no wasm contract found at the given address")
@@ -749,10 +749,10 @@ func TestAssociateContractAddress(t *testing.T) {
 func TestAssociate(t *testing.T) {
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithChainID("kii-test").WithBlockHeight(1)
 	privKey := testkeeper.MockPrivateKey()
-	seiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
-	acc := testkeeper.EVMTestApp.AccountKeeper.NewAccountWithAddress(ctx, seiAddr)
+	kiiAddr, evmAddr := testkeeper.PrivateKeyToAddresses(privKey)
+	acc := testkeeper.EVMTestApp.AccountKeeper.NewAccountWithAddress(ctx, kiiAddr)
 	testkeeper.EVMTestApp.AccountKeeper.SetAccount(ctx, acc)
-	msg := types.NewMsgAssociate(seiAddr, "test")
+	msg := types.NewMsgAssociate(kiiAddr, "test")
 	tb := testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	tb.SetMsgs(msg)
 	tb.SetSignatures(signing.SignatureV2{

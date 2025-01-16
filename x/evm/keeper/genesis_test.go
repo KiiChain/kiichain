@@ -13,7 +13,7 @@ func TestInitGenesis(t *testing.T) {
 	k := &testkeeper.EVMTestApp.EvmKeeper
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{})
 	// coinbase address must be associated
-	coinbaseSeiAddr, associated := k.GetKiiAddress(ctx, keeper.GetCoinbaseAddress())
+	coinbaseKiiAddr, associated := k.GetKiiAddress(ctx, keeper.GetCoinbaseAddress())
 	require.True(t, associated)
-	require.True(t, bytes.Equal(coinbaseSeiAddr, k.AccountKeeper().GetModuleAddress("fee_collector")))
+	require.True(t, bytes.Equal(coinbaseKiiAddr, k.AccountKeeper().GetModuleAddress("fee_collector")))
 }

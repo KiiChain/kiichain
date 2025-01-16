@@ -219,14 +219,14 @@ func (p PrecompileExecutor) delegation(ctx sdk.Context, method *abi.Method, args
 		return nil, err
 	}
 
-	seiDelegatorAddress, err := pcommon.GetKiiAddressFromArg(ctx, args[0], p.evmKeeper)
+	kiiDelegatorAddress, err := pcommon.GetKiiAddressFromArg(ctx, args[0], p.evmKeeper)
 	if err != nil {
 		return nil, err
 	}
 
 	validatorBech32 := args[1].(string)
 	delegationRequest := &stakingtypes.QueryDelegationRequest{
-		DelegatorAddr: seiDelegatorAddress.String(),
+		DelegatorAddr: kiiDelegatorAddress.String(),
 		ValidatorAddr: validatorBech32,
 	}
 

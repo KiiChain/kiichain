@@ -75,7 +75,7 @@ func (k *Keeper) HandleInternalEVMDelegateCall(ctx sdk.Context, req *types.MsgIn
 
 func (k *Keeper) CallEVM(ctx sdk.Context, from common.Address, to *common.Address, val *sdk.Int, data []byte) (retdata []byte, reterr error) {
 	if ctx.IsEVM() && !ctx.EVMEntryViaWasmdPrecompile() {
-		return nil, errors.New("sei does not support EVM->CW->EVM call pattern")
+		return nil, errors.New("kii does not support EVM->CW->EVM call pattern")
 	}
 	if to == nil && len(data) > params.MaxInitCodeSize {
 		return nil, fmt.Errorf("%w: code size %v, limit %v", core.ErrMaxInitCodeSizeExceeded, len(data), params.MaxInitCodeSize)
@@ -185,11 +185,11 @@ func (k *Keeper) createReadOnlyEVM(ctx sdk.Context, from sdk.AccAddress) (*vm.EV
 }
 
 func (k *Keeper) getEvmGasLimitFromCtx(ctx sdk.Context) uint64 {
-	seiGasRemaining := ctx.GasMeter().Limit() - ctx.GasMeter().GasConsumedToLimit()
+	kiiGasRemaining := ctx.GasMeter().Limit() - ctx.GasMeter().GasConsumedToLimit()
 	if ctx.GasMeter().Limit() <= 0 {
 		return math.MaxUint64
 	}
-	evmGasBig := sdk.NewDecFromInt(sdk.NewIntFromUint64(seiGasRemaining)).Quo(k.GetPriorityNormalizer(ctx)).TruncateInt().BigInt()
+	evmGasBig := sdk.NewDecFromInt(sdk.NewIntFromUint64(kiiGasRemaining)).Quo(k.GetPriorityNormalizer(ctx)).TruncateInt().BigInt()
 	if evmGasBig.Cmp(MaxUint64BigInt) > 0 {
 		evmGasBig = MaxUint64BigInt
 	}

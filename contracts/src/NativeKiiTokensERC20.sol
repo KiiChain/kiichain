@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IBank} from "./precompiles/IBank.sol";
 
-contract NativeSeiTokensERC20 is ERC20 {
+contract NativeKiiTokensERC20 is ERC20 {
 
     address constant BANK_PRECOMPILE_ADDRESS = 0x0000000000000000000000000000000000001001;
 

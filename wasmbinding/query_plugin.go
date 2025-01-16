@@ -15,7 +15,7 @@ const (
 	EVMRoute          = "evm"
 )
 
-type SeiQueryWrapper struct {
+type KiiQueryWrapper struct {
 	// specifies which module handler should handle the query
 	Route string `json:"route,omitempty"`
 	// The query data that should be parsed into the module query
@@ -24,7 +24,7 @@ type SeiQueryWrapper struct {
 
 func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
 	return func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
-		var contractQuery SeiQueryWrapper
+		var contractQuery KiiQueryWrapper
 		if err := json.Unmarshal(request, &contractQuery); err != nil {
 			return nil, sdkerrors.Wrap(err, "Error parsing request data")
 		}
@@ -36,7 +36,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 		case EVMRoute:
 			return qp.HandleEVMQuery(ctx, contractQuery.QueryData)
 		default:
-			return nil, wasmvmtypes.UnsupportedRequest{Kind: "Unknown Sei Query Route"}
+			return nil, wasmvmtypes.UnsupportedRequest{Kind: "Unknown Kii Query Route"}
 		}
 	}
 }

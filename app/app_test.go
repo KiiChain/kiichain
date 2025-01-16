@@ -434,8 +434,8 @@ func TestApp_RegisterAPIRoutes(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			seiApp := &app.App{}
-			seiApp.RegisterAPIRoutes(tt.args.apiSvr, tt.args.apiConfig)
+			kiiApp := &app.App{}
+			kiiApp.RegisterAPIRoutes(tt.args.apiSvr, tt.args.apiConfig)
 			routes := tt.args.apiSvr.Router
 			gotSwagger := isSwaggerRouteAdded(routes)
 

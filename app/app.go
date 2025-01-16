@@ -241,8 +241,8 @@ var (
 	// EmptyWasmOpts defines a type alias for a list of wasm options.
 	EmptyWasmOpts []wasm.Option
 
-	// Boolean to only emit seid version and git commit metric once per chain initialization
-	EmittedSeidVersionMetric = false
+	// Boolean to only emit kiichaind version and git commit metric once per chain initialization
+	EmittedKiichaindVersionMetric = false
 	// EmptyAclmOpts defines a type alias for a list of wasm options.
 	EmptyACLOpts []aclkeeper.Option
 	// EnableOCC allows tests to override default OCC enablement behavior
@@ -944,7 +944,7 @@ func New(
 	//
 	// example: app.HardForkManager.RegisterHandler(myHandler)
 	app.HardForkManager = upgrades.NewHardForkManager(app.ChainID)
-	app.HardForkManager.RegisterHandler(v0upgrade.NewHardForkUpgradeHandler(100_000, upgrades.ChainIDSeiHardForkTest, app.WasmKeeper))
+	app.HardForkManager.RegisterHandler(v0upgrade.NewHardForkUpgradeHandler(100_000, upgrades.ChainIDKiiHardForkTest, app.WasmKeeper))
 
 	app.RegisterDeliverTxHook(app.AddCosmosEventsToEVMReceiptIfApplicable)
 
@@ -1033,7 +1033,7 @@ func (app App) GetBaseApp() *baseapp.BaseApp { return app.BaseApp }
 
 // BeginBlocker application updates every begin block
 func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	metrics.GaugeSeidVersionAndCommit(app.versionInfo.Version, app.versionInfo.GitCommit)
+	metrics.GaugeKiichaindVersionAndCommit(app.versionInfo.Version, app.versionInfo.GitCommit)
 	// check if we've reached a target height, if so, execute any applicable handlers
 	if app.HardForkManager.TargetHeightReached(ctx) {
 		app.HardForkManager.ExecuteForTargetHeight(ctx)
@@ -1222,7 +1222,7 @@ func (app *App) CacheContext(ctx sdk.Context) (sdk.Context, sdk.CacheMultiStore)
 
 // TODO: (occ) this is the roughly analogous to the execution + validation tasks for OCC, but this one performs validation in isolation
 // rather than comparing against a multi-version store
-// The validation happens immediately after execution all part of DeliverTx (which is a path that goes through sei-cosmos to runTx eventually)
+// The validation happens immediately after execution all part of DeliverTx (which is a path that goes through kii-cosmos to runTx eventually)
 func (app *App) ProcessTxConcurrent(
 	ctx sdk.Context,
 	txIndex int,

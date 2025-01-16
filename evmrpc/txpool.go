@@ -34,7 +34,7 @@ func NewTxPoolAPI(tmClient rpcclient.Client, k *keeper.Keeper, ctxProvider func(
 // For now, we put all unconfirmed txs in pending and none in queued
 func (t *TxPoolAPI) Content(ctx context.Context) (result map[string]map[string]map[string]*ethapi.RPCTransaction, returnErr error) {
 	startTime := time.Now()
-	defer recordMetrics("sei_content", t.connectionType, startTime, returnErr == nil)
+	defer recordMetrics("kii_content", t.connectionType, startTime, returnErr == nil)
 	content := map[string]map[string]map[string]*ethapi.RPCTransaction{
 		"pending": make(map[string]map[string]*ethapi.RPCTransaction),
 		"queued":  make(map[string]map[string]*ethapi.RPCTransaction),

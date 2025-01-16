@@ -27,7 +27,7 @@ func (s *DBImpl) SubBalance(evmAddr common.Address, amt *big.Int, reason tracing
 	}
 
 	ukii, wei := SplitUkiiWeiAmount(amt)
-	addr := s.getSeiAddress(evmAddr)
+	addr := s.getKiiAddress(evmAddr)
 	err := s.k.BankKeeper().SubUnlockedCoins(ctx, addr, sdk.NewCoins(sdk.NewCoin(s.k.GetBaseDenom(s.ctx), ukii)), true)
 	if err != nil {
 		s.err = err
@@ -67,7 +67,7 @@ func (s *DBImpl) AddBalance(evmAddr common.Address, amt *big.Int, reason tracing
 	}
 
 	ukii, wei := SplitUkiiWeiAmount(amt)
-	addr := s.getSeiAddress(evmAddr)
+	addr := s.getKiiAddress(evmAddr)
 	err := s.k.BankKeeper().AddCoins(ctx, addr, sdk.NewCoins(sdk.NewCoin(s.k.GetBaseDenom(s.ctx), ukii)), true)
 	if err != nil {
 		s.err = err
@@ -92,8 +92,8 @@ func (s *DBImpl) AddBalance(evmAddr common.Address, amt *big.Int, reason tracing
 
 func (s *DBImpl) GetBalance(evmAddr common.Address) *big.Int {
 	s.k.PrepareReplayedAddr(s.ctx, evmAddr)
-	seiAddr := s.getSeiAddress(evmAddr)
-	return s.k.GetBalance(s.ctx, seiAddr)
+	kiiAddr := s.getKiiAddress(evmAddr)
+	return s.k.GetBalance(s.ctx, kiiAddr)
 }
 
 // should only be called during simulation
@@ -101,9 +101,9 @@ func (s *DBImpl) SetBalance(evmAddr common.Address, amt *big.Int, reason tracing
 	if !s.simulation {
 		panic("should never call SetBalance in a non-simulation setting")
 	}
-	seiAddr := s.getSeiAddress(evmAddr)
+	kiiAddr := s.getKiiAddress(evmAddr)
 	moduleAddr := s.k.AccountKeeper().GetModuleAddress(types.ModuleName)
-	s.send(seiAddr, moduleAddr, s.GetBalance(evmAddr))
+	s.send(kiiAddr, moduleAddr, s.GetBalance(evmAddr))
 	if s.err != nil {
 		panic(s.err)
 	}
@@ -112,13 +112,13 @@ func (s *DBImpl) SetBalance(evmAddr common.Address, amt *big.Int, reason tracing
 	if err := s.k.BankKeeper().MintCoins(s.ctx, types.ModuleName, coinsAmt); err != nil {
 		panic(err)
 	}
-	s.send(moduleAddr, seiAddr, amt)
+	s.send(moduleAddr, kiiAddr, amt)
 	if s.err != nil {
 		panic(s.err)
 	}
 }
 
-func (s *DBImpl) getSeiAddress(evmAddr common.Address) sdk.AccAddress {
+func (s *DBImpl) getKiiAddress(evmAddr common.Address) sdk.AccAddress {
 	if s.coinbaseEvmAddress.Cmp(evmAddr) == 0 {
 		return s.coinbaseAddress
 	}

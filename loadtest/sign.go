@@ -88,7 +88,7 @@ func (sc *SignerClient) GetTestAccountsKeys(maxAccounts int) []cryptotypes.PrivK
 
 func (sc *SignerClient) GetAdminAccountKeyPath() string {
 	userHomeDir, _ := os.UserHomeDir()
-	return filepath.Join(userHomeDir, ".sei", "config", "admin_key.json")
+	return filepath.Join(userHomeDir, ".kiichain3", "config", "admin_key.json")
 }
 
 func (sc *SignerClient) GetAdminKey() cryptotypes.PrivKey {
@@ -114,7 +114,7 @@ func (sc *SignerClient) GetKey(accountID, backend, accountKeyFilePath string) cr
 	if err := json.Unmarshal(byteVal, &accountInfo); err != nil {
 		panic(err)
 	}
-	kr, _ := keyring.New(sdk.KeyringServiceName(), backend, filepath.Join(userHomeDir, ".sei"), os.Stdin)
+	kr, _ := keyring.New(sdk.KeyringServiceName(), backend, filepath.Join(userHomeDir, ".kiichain3"), os.Stdin)
 	keyringAlgos, _ := kr.SupportedAlgorithms()
 	algoStr := string(hd.Secp256k1Type)
 	algo, _ := keyring.NewSigningAlgoFromString(algoStr, keyringAlgos)
@@ -220,7 +220,7 @@ func (sc *SignerClient) GetAccountNumberSequenceNumber(privKey cryptotypes.PrivK
 	context = context.WithClient(cl)
 	context = context.WithInterfaceRegistry(TestConfig.InterfaceRegistry)
 	userHomeDir, _ := os.UserHomeDir()
-	kr, _ := keyring.New(sdk.KeyringServiceName(), "test", filepath.Join(userHomeDir, ".sei"), os.Stdin)
+	kr, _ := keyring.New(sdk.KeyringServiceName(), "test", filepath.Join(userHomeDir, ".kiichain3"), os.Stdin)
 	context = context.WithKeyring(kr)
 	account, seq, err := accountRetriever.GetAccountNumberSequence(context, address)
 	if err != nil {

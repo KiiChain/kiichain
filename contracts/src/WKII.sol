@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract WSEI {
-    string public name     = "Wrapped Sei";
-    string public symbol   = "WSEI";
+contract WKII {
+    string public name     = "Wrapped Kii";
+    string public symbol   = "WKII";
     uint8  public decimals = 18;
 
     event  Approval(address indexed src, address indexed guy, uint wad);

@@ -24,7 +24,7 @@ func TestAssociationMissingErr(t *testing.T) {
 			name:            "KII address",
 			address:         "kii1234567890abcdef",
 			wantError:       "address kii1234567890abcdef is not linked",
-			wantAddressType: "sei",
+			wantAddressType: "kii",
 		},
 	}
 

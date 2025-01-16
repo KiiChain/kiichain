@@ -29,7 +29,7 @@ import (
 	"github.com/kiichain/kiichain3/x/evm/types/ethtx"
 )
 
-// Accounts need to have at least 1Sei to force association. Note that account won't be charged.
+// Accounts need to have at least 1Kii to force association. Note that account won't be charged.
 const BalanceThreshold uint64 = 1000000
 
 var BigBalanceThreshold *big.Int = new(big.Int).SetUint64(BalanceThreshold)
@@ -64,24 +64,24 @@ func (p *EVMPreprocessDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate
 	ctx = ctx.WithGasMeter(sdk.NewInfiniteGasMeterWithMultiplier(ctx))
 
 	derived := msg.Derived
-	seiAddr := derived.SenderSeiAddr
+	kiiAddr := derived.SenderKiiAddr
 	evmAddr := derived.SenderEVMAddr
 	ctx.EventManager().EmitEvent(sdk.NewEvent(evmtypes.EventTypeSigner,
 		sdk.NewAttribute(evmtypes.AttributeKeyEvmAddress, evmAddr.Hex()),
-		sdk.NewAttribute(evmtypes.AttributeKeySeiAddress, seiAddr.String())))
+		sdk.NewAttribute(evmtypes.AttributeKeyKiiAddress, kiiAddr.String())))
 	pubkey := derived.PubKey
 	isAssociateTx := derived.IsAssociate
 	associateHelper := helpers.NewAssociationHelper(p.evmKeeper, p.evmKeeper.BankKeeper(), p.accountKeeper)
-	_, isAssociated := p.evmKeeper.GetEVMAddress(ctx, seiAddr)
+	_, isAssociated := p.evmKeeper.GetEVMAddress(ctx, kiiAddr)
 	if isAssociateTx && isAssociated {
 		return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "account already has association set")
 	} else if isAssociateTx {
 		// check if the account has enough balance (without charging)
-		if !p.IsAccountBalancePositive(ctx, seiAddr, evmAddr) {
-			metrics.IncrementAssociationError("associate_tx_insufficient_funds", evmtypes.NewAssociationMissingErr(seiAddr.String()))
+		if !p.IsAccountBalancePositive(ctx, kiiAddr, evmAddr) {
+			metrics.IncrementAssociationError("associate_tx_insufficient_funds", evmtypes.NewAssociationMissingErr(kiiAddr.String()))
 			return ctx, sdkerrors.Wrap(sdkerrors.ErrInsufficientFunds, "account needs to have at least 1 wei to force association")
 		}
-		if err := associateHelper.AssociateAddresses(ctx, seiAddr, evmAddr, pubkey); err != nil {
+		if err := associateHelper.AssociateAddresses(ctx, kiiAddr, evmAddr, pubkey); err != nil {
 			return ctx, err
 		}
 
@@ -90,7 +90,7 @@ func (p *EVMPreprocessDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate
 		// noop; for readability
 	} else {
 		// not associatedTx and not already associated
-		if err := associateHelper.AssociateAddresses(ctx, seiAddr, evmAddr, pubkey); err != nil {
+		if err := associateHelper.AssociateAddresses(ctx, kiiAddr, evmAddr, pubkey); err != nil {
 			return ctx, err
 		}
 		if p.evmKeeper.EthReplayConfig.Enabled {
@@ -101,15 +101,15 @@ func (p *EVMPreprocessDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate
 	return next(ctx, tx, simulate)
 }
 
-func (p *EVMPreprocessDecorator) IsAccountBalancePositive(ctx sdk.Context, seiAddr sdk.AccAddress, evmAddr common.Address) bool {
+func (p *EVMPreprocessDecorator) IsAccountBalancePositive(ctx sdk.Context, kiiAddr sdk.AccAddress, evmAddr common.Address) bool {
 	baseDenom := p.evmKeeper.GetBaseDenom(ctx)
-	if amt := p.evmKeeper.BankKeeper().GetBalance(ctx, seiAddr, baseDenom).Amount; amt.IsPositive() {
+	if amt := p.evmKeeper.BankKeeper().GetBalance(ctx, kiiAddr, baseDenom).Amount; amt.IsPositive() {
 		return true
 	}
 	if amt := p.evmKeeper.BankKeeper().GetBalance(ctx, sdk.AccAddress(evmAddr[:]), baseDenom).Amount; amt.IsPositive() {
 		return true
 	}
-	if amt := p.evmKeeper.BankKeeper().GetWeiBalance(ctx, seiAddr); amt.IsPositive() {
+	if amt := p.evmKeeper.BankKeeper().GetWeiBalance(ctx, kiiAddr); amt.IsPositive() {
 		return true
 	}
 	return p.evmKeeper.BankKeeper().GetWeiBalance(ctx, sdk.AccAddress(evmAddr[:])).IsPositive()
@@ -135,13 +135,13 @@ func Preprocess(ctx sdk.Context, msgEVMTransaction *evmtypes.MsgEVMTransaction) 
 		V = new(big.Int).Add(V, utils.Big27)
 		// Hash custom message passed in
 		customMessageHash := crypto.Keccak256Hash([]byte(atx.CustomMessage))
-		evmAddr, seiAddr, pubkey, err := helpers.GetAddresses(V, R, S, customMessageHash)
+		evmAddr, kiiAddr, pubkey, err := helpers.GetAddresses(V, R, S, customMessageHash)
 		if err != nil {
 			return err
 		}
 		msgEVMTransaction.Derived = &derived.Derived{
 			SenderEVMAddr: evmAddr,
-			SenderSeiAddr: seiAddr,
+			SenderKiiAddr: kiiAddr,
 			PubKey:        &secp256k1.PubKey{Key: pubkey.Bytes()},
 			Version:       derived.Cancun,
 			IsAssociate:   true,
@@ -167,14 +167,14 @@ func Preprocess(ctx sdk.Context, msgEVMTransaction *evmtypes.MsgEVMTransaction) 
 	} else {
 		txHash = ethtypes.FrontierSigner{}.Hash(ethTx)
 	}
-	evmAddr, seiAddr, seiPubkey, err := helpers.GetAddresses(V, R, S, txHash)
+	evmAddr, kiiAddr, kiiPubkey, err := helpers.GetAddresses(V, R, S, txHash)
 	if err != nil {
 		return err
 	}
 	msgEVMTransaction.Derived = &derived.Derived{
 		SenderEVMAddr: evmAddr,
-		SenderSeiAddr: seiAddr,
-		PubKey:        &secp256k1.PubKey{Key: seiPubkey.Bytes()},
+		SenderKiiAddr: kiiAddr,
+		PubKey:        &secp256k1.PubKey{Key: kiiPubkey.Bytes()},
 		Version:       version,
 		IsAssociate:   false,
 	}
@@ -186,23 +186,23 @@ func (p *EVMPreprocessDecorator) AnteDeps(txDeps []sdkacltypes.AccessOperation, 
 	return next(append(txDeps, sdkacltypes.AccessOperation{
 		AccessType:         sdkacltypes.AccessType_READ,
 		ResourceType:       sdkacltypes.ResourceType_KV_EVM_S2E,
-		IdentifierTemplate: hex.EncodeToString(evmtypes.SeiAddressToEVMAddressKey(msg.Derived.SenderSeiAddr)),
+		IdentifierTemplate: hex.EncodeToString(evmtypes.KiiAddressToEVMAddressKey(msg.Derived.SenderKiiAddr)),
 	}, sdkacltypes.AccessOperation{
 		AccessType:         sdkacltypes.AccessType_WRITE,
 		ResourceType:       sdkacltypes.ResourceType_KV_EVM_S2E,
-		IdentifierTemplate: hex.EncodeToString(evmtypes.SeiAddressToEVMAddressKey(msg.Derived.SenderSeiAddr)),
+		IdentifierTemplate: hex.EncodeToString(evmtypes.KiiAddressToEVMAddressKey(msg.Derived.SenderKiiAddr)),
 	}, sdkacltypes.AccessOperation{
 		AccessType:         sdkacltypes.AccessType_WRITE,
 		ResourceType:       sdkacltypes.ResourceType_KV_EVM_E2S,
-		IdentifierTemplate: hex.EncodeToString(evmtypes.EVMAddressToSeiAddressKey(msg.Derived.SenderEVMAddr)),
+		IdentifierTemplate: hex.EncodeToString(evmtypes.EVMAddressToKiiAddressKey(msg.Derived.SenderEVMAddr)),
 	}, sdkacltypes.AccessOperation{
 		AccessType:         sdkacltypes.AccessType_READ,
 		ResourceType:       sdkacltypes.ResourceType_KV_BANK_BALANCES,
-		IdentifierTemplate: hex.EncodeToString(banktypes.CreateAccountBalancesPrefix(msg.Derived.SenderSeiAddr)),
+		IdentifierTemplate: hex.EncodeToString(banktypes.CreateAccountBalancesPrefix(msg.Derived.SenderKiiAddr)),
 	}, sdkacltypes.AccessOperation{
 		AccessType:         sdkacltypes.AccessType_WRITE,
 		ResourceType:       sdkacltypes.ResourceType_KV_BANK_BALANCES,
-		IdentifierTemplate: hex.EncodeToString(banktypes.CreateAccountBalancesPrefix(msg.Derived.SenderSeiAddr)),
+		IdentifierTemplate: hex.EncodeToString(banktypes.CreateAccountBalancesPrefix(msg.Derived.SenderKiiAddr)),
 	}, sdkacltypes.AccessOperation{
 		AccessType:         sdkacltypes.AccessType_READ,
 		ResourceType:       sdkacltypes.ResourceType_KV_BANK_BALANCES,
@@ -214,11 +214,11 @@ func (p *EVMPreprocessDecorator) AnteDeps(txDeps []sdkacltypes.AccessOperation, 
 	}, sdkacltypes.AccessOperation{
 		AccessType:         sdkacltypes.AccessType_READ,
 		ResourceType:       sdkacltypes.ResourceType_KV_AUTH_ADDRESS_STORE,
-		IdentifierTemplate: hex.EncodeToString(authtypes.AddressStoreKey(msg.Derived.SenderSeiAddr)),
+		IdentifierTemplate: hex.EncodeToString(authtypes.AddressStoreKey(msg.Derived.SenderKiiAddr)),
 	}, sdkacltypes.AccessOperation{
 		AccessType:         sdkacltypes.AccessType_WRITE,
 		ResourceType:       sdkacltypes.ResourceType_KV_AUTH_ADDRESS_STORE,
-		IdentifierTemplate: hex.EncodeToString(authtypes.AddressStoreKey(msg.Derived.SenderSeiAddr)),
+		IdentifierTemplate: hex.EncodeToString(authtypes.AddressStoreKey(msg.Derived.SenderKiiAddr)),
 	}, sdkacltypes.AccessOperation{
 		AccessType:         sdkacltypes.AccessType_READ,
 		ResourceType:       sdkacltypes.ResourceType_KV_AUTH_ADDRESS_STORE,
@@ -285,33 +285,33 @@ func (p *EVMAddressDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 		if evmAddr, associated := p.evmKeeper.GetEVMAddress(ctx, signer); associated {
 			ctx.EventManager().EmitEvent(sdk.NewEvent(evmtypes.EventTypeSigner,
 				sdk.NewAttribute(evmtypes.AttributeKeyEvmAddress, evmAddr.Hex()),
-				sdk.NewAttribute(evmtypes.AttributeKeySeiAddress, signer.String())))
+				sdk.NewAttribute(evmtypes.AttributeKeyKiiAddress, signer.String())))
 			continue
 		}
 		acc := p.accountKeeper.GetAccount(ctx, signer)
 		if acc.GetPubKey() == nil {
 			ctx.Logger().Error(fmt.Sprintf("missing pubkey for %s", signer.String()))
 			ctx.EventManager().EmitEvent(sdk.NewEvent(evmtypes.EventTypeSigner,
-				sdk.NewAttribute(evmtypes.AttributeKeySeiAddress, signer.String())))
+				sdk.NewAttribute(evmtypes.AttributeKeyKiiAddress, signer.String())))
 			continue
 		}
 		pk, err := btcec.ParsePubKey(acc.GetPubKey().Bytes(), btcec.S256())
 		if err != nil {
 			ctx.Logger().Debug(fmt.Sprintf("failed to parse pubkey for %s, likely due to the fact that it isn't on secp256k1 curve", acc.GetPubKey()), "err", err)
 			ctx.EventManager().EmitEvent(sdk.NewEvent(evmtypes.EventTypeSigner,
-				sdk.NewAttribute(evmtypes.AttributeKeySeiAddress, signer.String())))
+				sdk.NewAttribute(evmtypes.AttributeKeyKiiAddress, signer.String())))
 			continue
 		}
 		evmAddr, err := helpers.PubkeyToEVMAddress(pk.SerializeUncompressed())
 		if err != nil {
 			ctx.Logger().Error(fmt.Sprintf("failed to get EVM address from pubkey due to %s", err))
 			ctx.EventManager().EmitEvent(sdk.NewEvent(evmtypes.EventTypeSigner,
-				sdk.NewAttribute(evmtypes.AttributeKeySeiAddress, signer.String())))
+				sdk.NewAttribute(evmtypes.AttributeKeyKiiAddress, signer.String())))
 			continue
 		}
 		ctx.EventManager().EmitEvent(sdk.NewEvent(evmtypes.EventTypeSigner,
 			sdk.NewAttribute(evmtypes.AttributeKeyEvmAddress, evmAddr.Hex()),
-			sdk.NewAttribute(evmtypes.AttributeKeySeiAddress, signer.String())))
+			sdk.NewAttribute(evmtypes.AttributeKeyKiiAddress, signer.String())))
 		p.evmKeeper.SetAddressMapping(ctx, signer, evmAddr)
 		associationHelper := helpers.NewAssociationHelper(p.evmKeeper, p.evmKeeper.BankKeeper(), p.accountKeeper)
 		if err := associationHelper.MigrateBalance(ctx, evmAddr, signer); err != nil {
