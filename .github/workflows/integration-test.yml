@@ -25,7 +25,6 @@ jobs:
       fail-fast: false
       matrix:
         test: [
-        test: [
           {
             name: "Wasm Module",
             scripts: [
