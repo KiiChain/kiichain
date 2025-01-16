@@ -98,28 +98,29 @@ jobs:
               "python3 integration_test/scripts/runner.py integration_test/seidb/state_store_test.yaml",
             ],
           },
-          {
-            name: "EVM Module",
-            scripts: [
-              "./integration_test/evm_module/scripts/evm_tests.sh",
-            ]
-          },
-          {
-            name: "EVM Interoperability",
-            scripts: [
-              "./integration_test/evm_module/scripts/evm_interoperability_tests.sh"
-            ]
-          },
-          {
-            name: "dApp Tests",
-            scripts: [
-              "docker exec kii-node-0 integration_test/contracts/fund_daap_account.sh",
-              "./integration_test/dapp_tests/dapp_tests.sh local uniswap",
-              # This contract doesn't run with ukii
-              # "./integration_test/dapp_tests/dapp_tests.sh local steak",
-              "./integration_test/dapp_tests/dapp_tests.sh local nft"
-            ]
-          },
+          # We must run these tests by hand before releases
+          # {
+          #   name: "EVM Module",
+          #   scripts: [
+          #     "./integration_test/evm_module/scripts/evm_tests.sh",
+          #   ]
+          # },
+          # {
+          #   name: "EVM Interoperability",
+          #   scripts: [
+          #     "./integration_test/evm_module/scripts/evm_interoperability_tests.sh"
+          #   ]
+          # },
+          # {
+          #   name: "dApp Tests",
+          #   scripts: [
+          #     "docker exec kii-node-0 integration_test/contracts/fund_daap_account.sh",
+          #     "./integration_test/dapp_tests/dapp_tests.sh local uniswap",
+          #     # This contract doesn't run with ukii
+          #     # "./integration_test/dapp_tests/dapp_tests.sh local steak",
+          #     "./integration_test/dapp_tests/dapp_tests.sh local nft"
+          #   ]
+          # },
         ]
     steps:
       - uses: actions/checkout@v3
