@@ -165,55 +165,56 @@ describe("EVM Precompile Tester", function () {
         });
     });
 
-    describe("EVM Oracle Precompile Tester", function () {
-        const OraclePrecompileContract = '0x0000000000000000000000000000000000001008';
-        let oracle;
-        let twapsJSON;
-        let exchangeRatesJSON;
+    // TODO: Enable me after we have the oracle module
+    // describe("EVM Oracle Precompile Tester", function () {
+    //     const OraclePrecompileContract = '0x0000000000000000000000000000000000001008';
+    //     let oracle;
+    //     let twapsJSON;
+    //     let exchangeRatesJSON;
 
-        before(async function() {
-            // this requires an oracle to run which does not happen outside of an integration test
-            if(!await isDocker()) {
-                this.skip()
-                return;
-            }
-            const exchangeRatesContent = await execute("kiichaind q oracle exchange-rates -o json")
-            const twapsContent = await execute("kiichaind q oracle twaps 3600 -o json")
+    //     before(async function() {
+    //         // this requires an oracle to run which does not happen outside of an integration test
+    //         if(!await isDocker()) {
+    //             this.skip()
+    //             return;
+    //         }
+    //         const exchangeRatesContent = await execute("kiichaind q oracle exchange-rates -o json")
+    //         const twapsContent = await execute("kiichaind q oracle twaps 3600 -o json")
 
-            exchangeRatesJSON = JSON.parse(exchangeRatesContent).denom_oracle_exchange_rate_pairs;
-            twapsJSON = JSON.parse(twapsContent).oracle_twaps;
+    //         exchangeRatesJSON = JSON.parse(exchangeRatesContent).denom_oracle_exchange_rate_pairs;
+    //         twapsJSON = JSON.parse(twapsContent).oracle_twaps;
 
-            const contractABIPath = '../../precompiles/oracle/abi.json';
-            const contractABI = require(contractABIPath);
-            // Get a contract instance
-            oracle = new ethers.Contract(OraclePrecompileContract, contractABI, accounts[0].signer);
-        });
+    //         const contractABIPath = '../../precompiles/oracle/abi.json';
+    //         const contractABI = require(contractABIPath);
+    //         // Get a contract instance
+    //         oracle = new ethers.Contract(OraclePrecompileContract, contractABI, accounts[0].signer);
+    //     });
 
-        it("Oracle Exchange Rates", async function () {
-            const exchangeRates = await oracle.getExchangeRates();
-            const exchangeRatesLen = exchangeRatesJSON.length;
-            expect(exchangeRates.length).to.equal(exchangeRatesLen);
+    //     it("Oracle Exchange Rates", async function () {
+    //         const exchangeRates = await oracle.getExchangeRates();
+    //         const exchangeRatesLen = exchangeRatesJSON.length;
+    //         expect(exchangeRates.length).to.equal(exchangeRatesLen);
 
-            for (let i = 0; i < exchangeRatesLen; i++) {
-                expect(exchangeRates[i].denom).to.equal(exchangeRatesJSON[i].denom);
-                expect(exchangeRates[i].oracleExchangeRateVal.exchangeRate).to.be.a('string').and.to.not.be.empty;
-                expect(exchangeRates[i].oracleExchangeRateVal.exchangeRate).to.be.a('string').and.to.not.be.empty;
-                expect(exchangeRates[i].oracleExchangeRateVal.lastUpdateTimestamp).to.exist.and.to.be.gt(0);
-            }
-        });
+    //         for (let i = 0; i < exchangeRatesLen; i++) {
+    //             expect(exchangeRates[i].denom).to.equal(exchangeRatesJSON[i].denom);
+    //             expect(exchangeRates[i].oracleExchangeRateVal.exchangeRate).to.be.a('string').and.to.not.be.empty;
+    //             expect(exchangeRates[i].oracleExchangeRateVal.exchangeRate).to.be.a('string').and.to.not.be.empty;
+    //             expect(exchangeRates[i].oracleExchangeRateVal.lastUpdateTimestamp).to.exist.and.to.be.gt(0);
+    //         }
+    //     });
 
-        it("Oracle Twaps", async function () {
-            const twaps = await oracle.getOracleTwaps(3600);
-            const twapsLen = twapsJSON.length
-            expect(twaps.length).to.equal(twapsLen);
+    //     it("Oracle Twaps", async function () {
+    //         const twaps = await oracle.getOracleTwaps(3600);
+    //         const twapsLen = twapsJSON.length
+    //         expect(twaps.length).to.equal(twapsLen);
 
-            for (let i = 0; i < twapsLen; i++) {
-                expect(twaps[i].denom).to.equal(twapsJSON[i].denom);
-                expect(twaps[i].twap).to.be.a('string').and.to.not.be.empty;
-                expect(twaps[i].lookbackSeconds).to.exist.and.to.be.gt(0);
-            }
-        });
-    });
+    //         for (let i = 0; i < twapsLen; i++) {
+    //             expect(twaps[i].denom).to.equal(twapsJSON[i].denom);
+    //             expect(twaps[i].twap).to.be.a('string').and.to.not.be.empty;
+    //             expect(twaps[i].lookbackSeconds).to.exist.and.to.be.gt(0);
+    //         }
+    //     });
+    // });
 
     describe("EVM Wasm Precompile Tester", function () {
         const WasmPrecompileContract = '0x0000000000000000000000000000000000001002';
