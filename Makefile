@@ -202,6 +202,23 @@ docker-cluster-stop:
 .PHONY: localnet-stop
 
 ###############################################################################
+###                        Integration Docker                               ###
+###############################################################################
+
+build-docker-integration:
+	@cd integration_test/docker && docker build --tag kiichain3/integration localnode --platform linux/x86_64
+.PHONY: build-docker-integration
+
+docker-cluster-stop-integration:
+	@cd integration_test/docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) docker compose down
+
+docker-cluster-start-integration: docker-cluster-stop-integration build-docker-integration
+	@rm -rf $(PROJECT_HOME)/build/generated
+	@mkdir -p $(shell go env GOPATH)/pkg/mod
+	@mkdir -p $(shell go env GOCACHE)
+	@cd integration_test/docker && PROJECT_HOME=$(PROJECT_HOME) USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) NUM_ACCOUNTS=10 INVARIANT_CHECK_INTERVAL=${INVARIANT_CHECK_INTERVAL} UPGRADE_VERSION_LIST=${UPGRADE_VERSION_LIST} docker compose up
+
+###############################################################################
 ###                               Tests                                     ###
 ###############################################################################
 
