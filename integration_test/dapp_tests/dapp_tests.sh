@@ -2,7 +2,7 @@
 
 # Check if a configuration argument is passed
 if [ -z "$1" ]; then
-  echo "Please provide a chain (seilocal, devnet, or testnet)."
+  echo "Please provide a chain (local, or testnet)."
   exit 1
 fi
 

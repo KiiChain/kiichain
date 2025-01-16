@@ -1,6 +1,6 @@
 const {v4: uuidv4} = require("uuid");
 const hre = require("hardhat");
-const { ABI, deployErc20PointerForCw20, deployErc721PointerForCw721, getSeiAddress, deployWasm, execute, delay, isDocker } = require("../../contracts/test/lib.js");
+const { ABI, deployErc20PointerForCw20, deployErc721PointerForCw721, getKiiAddress, deployWasm, execute, delay, isDocker } = require("../../contracts/test/lib.js");
 const path = require('path')
 
 async function deployTokenPool(managerContract, firstTokenAddr, secondTokenAddr, swapRatio=1, fee=3000) {
@@ -60,33 +60,33 @@ function tokenOrder(firstTokenAddr, secondTokenAddr, firstTokenAmount=0, secondT
   return [token0, token1]
 }
 
-async function deployCw20WithPointer(deployerSeiAddr, signer, time, evmRpc="") {
+async function deployCw20WithPointer(deployerKiiAddr, signer, time, evmRpc="") {
   const CW20_BASE_PATH = (await isDocker()) ? '../integration_test/dapp_tests/uniswap/cw20_base.wasm' : path.resolve(__dirname, '../dapp_tests/uniswap/cw20_base.wasm')
-  const cw20Address = await deployWasm(CW20_BASE_PATH, deployerSeiAddr, "cw20", {
+  const cw20Address = await deployWasm(CW20_BASE_PATH, deployerKiiAddr, "cw20", {
     name: `testCw20${time}`,
     symbol: "TEST",
     decimals: 6,
     initial_balances: [
-      { address: deployerSeiAddr, amount: hre.ethers.utils.parseEther("1000000").toString() }
+      { address: deployerKiiAddr, amount: hre.ethers.utils.parseEther("1000000").toString() }
     ],
     mint: {
-      "minter": deployerSeiAddr, "cap": hre.ethers.utils.parseEther("10000000").toString()
+      "minter": deployerKiiAddr, "cap": hre.ethers.utils.parseEther("10000000").toString()
     }
-  }, deployerSeiAddr);
-  const pointerAddr = await deployErc20PointerForCw20(hre.ethers.provider, cw20Address, 10, deployerSeiAddr, evmRpc);
+  }, deployerKiiAddr);
+  const pointerAddr = await deployErc20PointerForCw20(hre.ethers.provider, cw20Address, 10, deployerKiiAddr, evmRpc);
   const pointerContract = new hre.ethers.Contract(pointerAddr, ABI.ERC20, signer);
   return {"pointerContract": pointerContract, "cw20Address": cw20Address}
 }
 
-async function deployCw721WithPointer(deployerSeiAddr, signer, time, evmRpc="") {
+async function deployCw721WithPointer(deployerKiiAddr, signer, time, evmRpc="") {
   const CW721_BASE_PATH = (await isDocker()) ? '../integration_test/dapp_tests/nftMarketplace/cw721_base.wasm' : path.resolve(__dirname, '../dapp_tests/nftMarketplace/cw721_base.wasm')
-  const cw721Address = await deployWasm(CW721_BASE_PATH, deployerSeiAddr, "cw721", {
+  const cw721Address = await deployWasm(CW721_BASE_PATH, deployerKiiAddr, "cw721", {
     "name": `testCw721${time}`,
     "symbol": "TESTNFT",
-    "minter": deployerSeiAddr,
-    "withdraw_address": deployerSeiAddr,
-  }, deployerSeiAddr);
-  const pointerAddr = await deployErc721PointerForCw721(hre.ethers.provider, cw721Address, deployerSeiAddr, evmRpc);
+    "minter": deployerKiiAddr,
+    "withdraw_address": deployerKiiAddr,
+  }, deployerKiiAddr);
+  const pointerAddr = await deployErc721PointerForCw721(hre.ethers.provider, cw721Address, deployerKiiAddr, evmRpc);
   const pointerContract = new hre.ethers.Contract(pointerAddr, ABI.ERC721, signer);
   return {"pointerContract": pointerContract, "cw721Address": cw721Address}
 }
@@ -103,22 +103,22 @@ async function deployEthersContract(name, abi, bytecode, deployer, deployParams=
 }
 
 async function doesTokenFactoryDenomExist(denom) {
-  const output = await execute(`seid q tokenfactory denom-authority-metadata ${denom} --output json`);
+  const output = await execute(`kiichaind q tokenfactory denom-authority-metadata ${denom} --output json`);
   const parsed = JSON.parse(output);
 
   return parsed.authority_metadata.admin !== "";
 }
 
-async function sendFunds(amountSei, recipient, signer) {
+async function sendFunds(amountKii, recipient, signer) {
 
   const bal = await signer.getBalance();
-  if (bal.lt(hre.ethers.utils.parseEther(amountSei))) {
-    throw new Error(`Signer has insufficient balance. Want ${hre.ethers.utils.parseEther(amountSei)}, has ${bal}`);
+  if (bal.lt(hre.ethers.utils.parseEther(amountKii))) {
+    throw new Error(`Signer has insufficient balance. Want ${hre.ethers.utils.parseEther(amountKii)}, has ${bal}`);
   }
 
   const gasLimit = await signer.estimateGas({
     to: recipient,
-    value: hre.ethers.utils.parseEther(amountSei)
+    value: hre.ethers.utils.parseEther(amountKii)
   })
 
   // Get current gas price from the network
@@ -126,7 +126,7 @@ async function sendFunds(amountSei, recipient, signer) {
 
   const fundUser = await signer.sendTransaction({
     to: recipient,
-    value: hre.ethers.utils.parseEther(amountSei),
+    value: hre.ethers.utils.parseEther(amountKii),
     gasLimit: gasLimit.mul(12).div(10),
     gasPrice: gasPrice,
   })
@@ -169,7 +169,7 @@ const mintCw721 = async (contractAddress, address, id) => {
     },
   };
   const jsonString = JSON.stringify(msg).replace(/"/g, '\\"');
-  const command = `seid tx wasm execute ${contractAddress} "${jsonString}" --from=${address} --gas=500000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
+  const command = `kiichaind tx wasm execute ${contractAddress} "${jsonString}" --from=${address} --gas=500000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   if (response.code !== 0) {
@@ -198,14 +198,14 @@ const encodeBase64 = (obj) => {
 };
 
 const getValidators = async () => {
-  const command = `seid q staking validators --output json`;
+  const command = `kiichaind q staking validators --output json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   return response.validators.map((v) => v.operator_address);
 };
 
 const getCodeIdFromContractAddress = async (contractAddress) => {
-  const command = `seid q wasm contract ${contractAddress} --output json`;
+  const command = `kiichaind q wasm contract ${contractAddress} --output json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   return response.contract_info.code_id;
@@ -220,7 +220,7 @@ const instantiateHubContract = async (
   label
 ) => {
   const jsonString = JSON.stringify(instantiateMsg).replace(/"/g, '\\"');
-  const command = `seid tx wasm instantiate ${codeId} "${jsonString}" --label ${label} --admin ${adminAddress} --from ${adminAddress} --gas=5000000 --fees=1000000ukii -y --broadcast-mode block -o json`;
+  const command = `kiichaind tx wasm instantiate ${codeId} "${jsonString}" --label ${label} --admin ${adminAddress} --from ${adminAddress} --gas=5000000 --fees=1000000ukii -y --broadcast-mode block -o json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   // Get all attributes with _contractAddress
@@ -256,7 +256,7 @@ const bond = async (contractAddress, address, amount) => {
     bond: {},
   };
   const jsonString = JSON.stringify(msg).replace(/"/g, '\\"');
-  const command = `seid tx wasm execute ${contractAddress} "${jsonString}" --amount=${amount}ukii --from=${address} --gas=500000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
+  const command = `kiichaind tx wasm execute ${contractAddress} "${jsonString}" --amount=${amount}ukii --from=${address} --gas=500000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   if (response.code !== 0) {
@@ -276,7 +276,7 @@ const unbond = async (hubAddress, tokenAddress, address, amount) => {
     },
   };
   const jsonString = JSON.stringify(msg).replace(/"/g, '\\"');
-  const command = `seid tx wasm execute ${tokenAddress} "${jsonString}" --from=${address} --gas=500000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
+  const command = `kiichaind tx wasm execute ${tokenAddress} "${jsonString}" --from=${address} --gas=500000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   if (response.code !== 0) {
@@ -290,7 +290,7 @@ const harvest = async (contractAddress, address) => {
     harvest: {},
   };
   const jsonString = JSON.stringify(msg).replace(/"/g, '\\"');
-  const command = `seid tx wasm execute ${contractAddress} "${jsonString}" --from=${address} --gas=500000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
+  const command = `kiichaind tx wasm execute ${contractAddress} "${jsonString}" --from=${address} --gas=500000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   if (response.code !== 0) {
@@ -306,14 +306,14 @@ const queryTokenBalance = async (contractAddress, address) => {
     },
   };
   const jsonString = JSON.stringify(msg).replace(/"/g, '\\"');
-  const command = `seid q wasm contract-state smart ${contractAddress} "${jsonString}" --output=json`;
+  const command = `kiichaind q wasm contract-state smart ${contractAddress} "${jsonString}" --output=json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   return response.data.balance;
 };
 
 const addAccount = async (accountName) => {
-  const command = `seid keys add ${accountName}-${Date.now()} --output=json --keyring-backend test`;
+  const command = `kiichaind keys add ${accountName}-${Date.now()} --output=json --keyring-backend test`;
   const output = await execute(command);
   return JSON.parse(output);
 };
@@ -326,7 +326,7 @@ const transferTokens = async (tokenAddress, sender, destination, amount) => {
     },
   };
   const jsonString = JSON.stringify(msg).replace(/"/g, '\\"');
-  const command = `seid tx wasm execute ${tokenAddress} "${jsonString}" --from=${sender} --gas=200000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
+  const command = `kiichaind tx wasm execute ${tokenAddress} "${jsonString}" --from=${sender} --gas=200000 --gas-prices=0.1ukii --broadcast-mode=block -y --output=json`;
   const output = await execute(command);
   const response = JSON.parse(output);
   if (response.code !== 0) {
@@ -337,7 +337,7 @@ const transferTokens = async (tokenAddress, sender, destination, amount) => {
 
 async function setupAccountWithMnemonic(baseName, mnemonic, deployer) {
   const uniqueName = `${baseName}-${uuidv4()}`;
-  const address = await getSeiAddress(deployer.address)
+  const address = await getKiiAddress(deployer.address)
 
   return await addDeployerAccount(uniqueName, address, mnemonic)
 }
@@ -345,7 +345,7 @@ async function setupAccountWithMnemonic(baseName, mnemonic, deployer) {
 async function addDeployerAccount(keyName, address, mnemonic) {
   // First try to retrieve by address
   try {
-    const output = await execute(`seid keys show ${address} --output json --keyring-backend test`);
+    const output = await execute(`kiichaind keys show ${address} --output json --keyring-backend test`);
     return JSON.parse(output);
   } catch (e) {}
 
@@ -354,15 +354,15 @@ async function addDeployerAccount(keyName, address, mnemonic) {
     let output;
     if (await isDocker()) {
       // NOTE: The path here is assumed to be "m/44'/118'/0'/0/0"
-      output = await execute(`seid keys add ${keyName} --recover --keyring-backend test`,`printf "${mnemonic}"`)
+      output = await execute(`kiichaind keys add ${keyName} --recover --keyring-backend test`,`printf "${mnemonic}"`)
     } else {
-      output = await execute(`printf "${mnemonic}" | seid keys add ${keyName} --recover --keyring-backend test`)
+      output = await execute(`printf "${mnemonic}" | kiichaind keys add ${keyName} --recover --keyring-backend test`)
     }
   }
   catch (e) {}
 
   // If both of the calls above fail, this one will fail.
-  const output = await execute(`seid keys show ${keyName} --output json --keyring-backend test`);
+  const output = await execute(`kiichaind keys show ${keyName} --output json --keyring-backend test`);
   return JSON.parse(output);
 }
 

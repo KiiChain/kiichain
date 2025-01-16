@@ -6,7 +6,7 @@ const { abi: DESCRIPTOR_ABI, bytecode: DESCRIPTOR_BYTECODE } = require("@uniswap
 const { abi: MANAGER_ABI, bytecode: MANAGER_BYTECODE } = require("@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json");
 const { abi: SWAP_ROUTER_ABI, bytecode: SWAP_ROUTER_BYTECODE } = require("@uniswap/v3-periphery/artifacts/contracts/SwapRouter.sol/SwapRouter.json");
 const {exec} = require("child_process");
-const { fundAddress, createTokenFactoryTokenAndMint, deployErc20PointerNative, execute, getSeiAddress, queryWasm, getSeiBalance, isDocker, ABI } = require("../../../contracts/test/lib.js");
+const { fundAddress, createTokenFactoryTokenAndMint, deployErc20PointerNative, execute, getKiiAddress, queryWasm, getKiiBalance, isDocker, ABI } = require("../../../contracts/test/lib.js");
 const { deployTokenPool, supplyLiquidity, deployCw20WithPointer, deployEthersContract, sendFunds, pollBalance, setupAccountWithMnemonic, estimateAndCall } = require("../utils")
 const { rpcUrls, chainIds, evmRpcUrls} = require("../constants")
 const { expect } = require("chai");
@@ -25,25 +25,25 @@ describe("Uniswap Test", function () {
     let manager;
     let deployer;
     let user;
-    let originalSeidConfig;
+    let originalKiichaindConfig;
     before(async function () {
         const accounts = hre.config.networks[testChain].accounts
         const deployerWallet = hre.ethers.Wallet.fromMnemonic(accounts.mnemonic, accounts.path);
         deployer = deployerWallet.connect(hre.ethers.provider);
 
-        const seidConfig = await execute('seid config');
-        originalSeidConfig = JSON.parse(seidConfig);
+        const kiichaindConfig = await execute('kiichaind config');
+        originalKiichaindConfig = JSON.parse(kiichaindConfig);
 
-        if (testChain === 'seilocal') {
+        if (testChain === 'local') {
             await fundAddress(deployer.address, amount="2000000000000000000000");
         } else {
-            // Set default seid config to the specified rpc url.
-            await execute(`seid config chain-id ${chainIds[testChain]}`)
-            await execute(`seid config node ${rpcUrls[testChain]}`)
+            // Set default kiichaind config to the specified rpc url.
+            await execute(`kiichaind config chain-id ${chainIds[testChain]}`)
+            await execute(`kiichaind config node ${rpcUrls[testChain]}`)
         }
 
         // Set the config keyring to 'test' since we're using the key added to test from here.
-        await execute(`seid config keyring-backend test`)
+        await execute(`kiichaind config keyring-backend test`)
 
         await sendFunds('0.01', deployer.address, deployer)
         await setupAccountWithMnemonic("dapptest", accounts.mnemonic, deployer);
@@ -55,21 +55,21 @@ describe("Uniswap Test", function () {
 
         await sendFunds("1", user.address, deployer)
 
-        const deployerSeiAddr = await getSeiAddress(deployer.address);
+        const deployerKiiAddr = await getKiiAddress(deployer.address);
 
         // Deploy Required Tokens
         const time = Date.now().toString();
 
         // Deploy TokenFactory token with ERC20 pointer
         const tokenName = `dappTests${time}`
-        tokenFactoryDenom = await createTokenFactoryTokenAndMint(tokenName, hre.ethers.utils.parseEther("1000000").toString(), deployerSeiAddr, deployerSeiAddr)
+        tokenFactoryDenom = await createTokenFactoryTokenAndMint(tokenName, hre.ethers.utils.parseEther("1000000").toString(), deployerKiiAddr, deployerKiiAddr)
         console.log("DENOM", tokenFactoryDenom)
-        const pointerAddr = await deployErc20PointerNative(hre.ethers.provider, tokenFactoryDenom, deployerSeiAddr, evmRpcUrls[testChain])
+        const pointerAddr = await deployErc20PointerNative(hre.ethers.provider, tokenFactoryDenom, deployerKiiAddr, evmRpcUrls[testChain])
         console.log("Pointer Addr", pointerAddr);
         erc20TokenFactory = new hre.ethers.Contract(pointerAddr, ABI.ERC20, deployer);
 
         // Deploy CW20 token with ERC20 pointer
-        const cw20Details = await deployCw20WithPointer(deployerSeiAddr, deployer, time, evmRpcUrls[testChain])
+        const cw20Details = await deployCw20WithPointer(deployerKiiAddr, deployer, time, evmRpcUrls[testChain])
         erc20cw20 = cw20Details.pointerContract;
         cw20Address = cw20Details.cw20Address;
 
@@ -96,7 +96,7 @@ describe("Uniswap Test", function () {
 
         const amountETH = hre.ethers.utils.parseEther("3")
 
-        // Gets the amount of WETH9 required to instantiate pools by depositing Sei to the contract
+        // Gets the amount of WETH9 required to instantiate pools by depositing Kii to the contract
         let gasEstimate = await weth9.estimateGas.deposit({ value: amountETH })
         let gasPrice = await deployer.getGasPrice();
         const txWrap = await weth9.deposit({ value: amountETH, gasPrice, gasLimit: gasEstimate });
@@ -227,9 +227,9 @@ describe("Uniswap Test", function () {
 
         it("Associated account should swap erc20-tokenfactory successfully", async function () {
             await basicSwapTestAssociated(weth9, erc20TokenFactory);
-            const userSeiAddr = await getSeiAddress(user.address);
+            const userKiiAddr = await getKiiAddress(user.address);
 
-            const userBal = await getSeiBalance(userSeiAddr, tokenFactoryDenom)
+            const userBal = await getKiiBalance(userKiiAddr, tokenFactoryDenom)
             expect(Number(userBal)).to.be.greaterThan(0);
         });
 
@@ -237,8 +237,8 @@ describe("Uniswap Test", function () {
             await basicSwapTestAssociated(weth9, erc20cw20);
 
             // Also check on the cw20 side that the token balance has been updated.
-            const userSeiAddr = await getSeiAddress(user.address);
-            const result = await queryWasm(cw20Address, "balance", {address: userSeiAddr});
+            const userKiiAddr = await getKiiAddress(user.address);
+            const result = await queryWasm(cw20Address, "balance", {address: userKiiAddr});
             expect(Number(result.data.balance)).to.be.greaterThan(0);
         });
 
@@ -251,9 +251,9 @@ describe("Uniswap Test", function () {
 
             // Send funds to associate accounts.
             await sendFunds("0.001", deployer.address, unassocUser)
-            const userSeiAddr = await getSeiAddress(unassocUser.address);
+            const userKiiAddr = await getKiiAddress(unassocUser.address);
 
-            const userBal = await getSeiBalance(userSeiAddr, tokenFactoryDenom)
+            const userBal = await getKiiBalance(userKiiAddr, tokenFactoryDenom)
             expect(Number(userBal)).to.be.greaterThan(0);
         })
 
@@ -298,8 +298,8 @@ describe("Uniswap Test", function () {
     after(async function () {
         // Set the chain back to regular state
         console.log("Resetting")
-        await execute(`seid config chain-id ${originalSeidConfig["chain-id"]}`)
-        await execute(`seid config node ${originalSeidConfig["node"]}`)
-        await execute(`seid config keyring-backend ${originalSeidConfig["keyring-backend"]}`)
+        await execute(`kiichaind config chain-id ${originalKiichaindConfig["chain-id"]}`)
+        await execute(`kiichaind config node ${originalKiichaindConfig["node"]}`)
+        await execute(`kiichaind config keyring-backend ${originalKiichaindConfig["keyring-backend"]}`)
     })
 })

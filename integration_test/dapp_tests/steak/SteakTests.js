@@ -3,7 +3,7 @@ const {
   deployErc20PointerForCw20,
   ABI,
   getEvmAddress,
-  fundSeiAddress,
+  fundKiiAddress,
   associateKey,
   execute,
   isDocker,
@@ -33,13 +33,13 @@ describe("Steak", async function () {
   let hubAddress;
   let tokenAddress;
   let tokenPointer;
-  let originalSeidConfig;
+  let originalKiichaindConfig;
 
   async function setupAccount(baseName, associate = true, amount="100000000000", denom="ukii", funder='admin') {
     const uniqueName = `${baseName}-${uuidv4()}`;
 
     const account = await addAccount(uniqueName);
-    await fundSeiAddress(account.address, amount, denom, funder);
+    await fundKiiAddress(account.address, amount, denom, funder);
     if (associate) {
       await associateKey(account.address);
     }
@@ -118,16 +118,16 @@ describe("Steak", async function () {
 
   before(async function () {
 
-    const seidConfig = await execute('seid config');
-    originalSeidConfig = JSON.parse(seidConfig);
+    const kiichaindConfig = await execute('kiichaind config');
+    originalKiichaindConfig = JSON.parse(kiichaindConfig);
 
     // Set up the owner account
-    if (testChain === 'seilocal') {
+    if (testChain === 'local') {
       owner = await setupAccount("steak-owner");
     } else {
-      // Set default seid config to the specified rpc url.
-      await execute(`seid config chain-id ${chainIds[testChain]}`)
-      await execute(`seid config node ${rpcUrls[testChain]}`)
+      // Set default kiichaind config to the specified rpc url.
+      await execute(`kiichaind config chain-id ${chainIds[testChain]}`)
+      await execute(`kiichaind config node ${rpcUrls[testChain]}`)
 
       const accounts = hre.config.networks[testChain].accounts
       const deployerWallet = hre.ethers.Wallet.fromMnemonic(accounts.mnemonic, accounts.path);
@@ -138,7 +138,7 @@ describe("Steak", async function () {
       owner = await setupAccountWithMnemonic("steak-owner", accounts.mnemonic, deployer)
     }
 
-    await execute(`seid config keyring-backend test`);
+    await execute(`kiichaind config keyring-backend test`);
 
     // Store and deploy contracts
     ({ hubAddress, tokenAddress, tokenPointer } = await deployContracts(
@@ -198,9 +198,9 @@ describe("Steak", async function () {
 
   after(async function () {
     // Set the chain back to regular state
-    console.log(`Resetting to ${originalSeidConfig}`)
-    await execute(`seid config chain-id ${originalSeidConfig["chain-id"]}`)
-    await execute(`seid config node ${originalSeidConfig["node"]}`)
-    await execute(`seid config keyring-backend ${originalSeidConfig["keyring-backend"]}`)
+    console.log(`Resetting to ${originalKiichaindConfig}`)
+    await execute(`kiichaind config chain-id ${originalKiichaindConfig["chain-id"]}`)
+    await execute(`kiichaind config node ${originalKiichaindConfig["node"]}`)
+    await execute(`kiichaind config keyring-backend ${originalKiichaindConfig["keyring-backend"]}`)
   })
 });
