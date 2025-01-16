@@ -11,3 +11,5 @@ cd $kiihome || exit
 echo "Funding dApp account..."
 
 $kiichaindbin tx bank send $keyname $DAPP_ACCOUNT 100000000000ukii -b block --fees 2000ukii --chain-id kii -y --output json
+
+echo "dApp account funded with 100000000000ukii"
