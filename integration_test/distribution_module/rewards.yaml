@@ -6,10 +6,8 @@
       env: NODE_ADMIN_ACC
     - cmd: kiichaind keys show -a distribution-test --keyring-backend test
       env: DISTRIBUTION_TEST_ACC
-    # Simple tx to increase rewards
-    - cmd: printf "12345678\n" | kiichaind tx bank send $NODE_ADMIN_ACC $DISTRIBUTION_TEST_ACC 1kii -b block --fees 2000ukii --chain-id kii -y
-    # Wait a couple seconds before querying to reduce likelihood of flaky test results
-    - cmd: sleep 2
+    # Withdraw all rewards (this is need due to a bug on evaluate with multiple digits, "450.000000000000000000" < "1800.000000000000000000" fails)
+    - cmd: printf "12345678\n" | kiichaind tx distribution withdraw-all-rewards -b block --fees 2000ukii --chain-id kii -y --from node_admin
     # Get current rewards
     - cmd: kiichaind q distribution rewards $NODE_ADMIN_ACC -o json | jq -r ".total[0].amount | tonumber"
       env: REWARDS_START
