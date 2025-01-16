@@ -20,6 +20,8 @@ jobs:
     name: Integration Test (${{ matrix.test.name }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      DAPP_TESTS_MNEMONIC: "minimum frequent idea maid chase palm cargo repair inform cloud sense drift episode vintage parrot memory found earn relax scrap spider valve volume athlete"
     strategy:
       # other jobs should run even if one integration test fails
       fail-fast: false
@@ -111,6 +113,7 @@ jobs:
           {
             name: "dApp Tests",
             scripts: [
+              "docker exec kii-node-0 integration_test/contracts/fund_daap_account.sh",
               "./integration_test/dapp_tests/dapp_tests.sh local"
             ]
           },
