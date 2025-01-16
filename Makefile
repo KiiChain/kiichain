@@ -146,8 +146,8 @@ run-rpc-node: build-rpc-node
 	docker run --rm \
 	--name kiichain-rpc-node \
 	-v $(PROJECT_HOME):/kiichain/kiichain3:Z \
-	-v $(PROJECT_HOME)/../sei-tendermint:/kiichain/kiichain-tendermint:Z \
-    -v $(PROJECT_HOME)/../sei-cosmos:/kiichain/kiichain-cosmos:Z \
+	-v $(PROJECT_HOME)/../kii-tendermint:/kiichain/kiichain-tendermint:Z \
+    -v $(PROJECT_HOME)/../kii-cosmos:/kiichain/kiichain-cosmos:Z \
     -v $(PROJECT_HOME)/../sei-db:/kiichain/kiichain-db:Z \
 	-v $(GO_PKG_PATH)/mod:/root/go/pkg/mod:Z \
 	-v $(shell go env GOCACHE):/root/.cache/go-build:Z \
@@ -164,8 +164,8 @@ run-rpc-node-skipbuild: build-rpc-node
 	--network docker_localnet \
 	--user="$(shell id -u):$(shell id -g)" \
 	-v $(PROJECT_HOME):/kiichain/kiichain3:Z \
-	-v $(PROJECT_HOME)/../sei-tendermint:/kiichain/kiichain-tendermint:Z \
-    -v $(PROJECT_HOME)/../sei-cosmos:/kiichain/kiichain-cosmos:Z \
+	-v $(PROJECT_HOME)/../kii-tendermint:/kiichain/kiichain-tendermint:Z \
+    -v $(PROJECT_HOME)/../kii-cosmos:/kiichain/kiichain-cosmos:Z \
     -v $(PROJECT_HOME)/../sei-db:/kiichain/kiichain-db:Z \
 	-v $(GO_PKG_PATH)/mod:/root/go/pkg/mod:Z \
 	-v $(shell go env GOCACHE):/root/.cache/go-build:Z \
@@ -334,7 +334,7 @@ proto-gen:
 
 swagger-gen:
 	@echo "Generating Swagger files"
-	etc/update-swagger-ui-statik.sh
+	scripts/update-swagger-ui-statik.sh
 
 ################################################################################
 ###                                Contracts                                 ###

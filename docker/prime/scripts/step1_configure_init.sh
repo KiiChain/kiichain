@@ -13,9 +13,9 @@ mkdir -p build/generated/gentx/
 mkdir -p build/generated/exported_keys/
 mkdir -p build/generated/node_"$NODE_ID"
 
-# Testing whether seid works or not
+# Testing whether kiichaind works or not
 kiichaind version # Uncomment the below line if there are any dependency issues
-# ldd build/seid
+# ldd build/kiichaind
 
 # Initialize validator node
 MONIKER="kiichain-node-$NODE_ID"
@@ -67,7 +67,7 @@ cp ~/.kiichain3/config/gentx/* build/generated/gentx/
 # python3 loadtest/scripts/populate_genesis_accounts.py "$NUM_ACCOUNTS" loc >/dev/null 2>&1
 # echo "Finished $NUM_ACCOUNTS accounts creation"
 
-# Set node seivaloper info
+# Set node kiivaloper info
 KIICHAINVALOPER_INFO=$(printf "12345678\n" | kiichaind keys show "$ACCOUNT_NAME" --bech=val -a)
 PRIV_KEY=$(printf "12345678\n12345678\n" | kiichaind keys export "$ACCOUNT_NAME")
 echo "$PRIV_KEY" >> build/generated/exported_keys/"$KIICHAINVALOPER_INFO".txt

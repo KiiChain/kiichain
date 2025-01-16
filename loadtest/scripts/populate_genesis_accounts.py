@@ -16,9 +16,9 @@ home_path = os.path.expanduser('~')
 
 def add_key(account_name, local=False):
     if local:
-        add_key_cmd = f"yes | ~/go/bin/seid keys add {account_name} --keyring-backend test"
+        add_key_cmd = f"yes | ~/go/bin/kiichaind keys add {account_name} --keyring-backend test"
     else:
-        add_key_cmd = f"printf '12345678\n' | ~/go/bin/seid keys add {account_name}"
+        add_key_cmd = f"printf '12345678\n' | ~/go/bin/kiichaind keys add {account_name}"
     add_key_output = subprocess.check_output(
         [add_key_cmd],
         stderr=subprocess.STDOUT,
@@ -94,7 +94,7 @@ def main():
     if len(args) > 1 and args[1] == "loc":
         is_local = True
 
-    genesis_json_file_path = f"{home_path}/.sei/config/genesis.json"
+    genesis_json_file_path = f"{home_path}/.kiichain3/config/genesis.json"
     genesis_file = read_genesis_file(genesis_json_file_path)
 
     num_threads = max(1, number_of_accounts // PARALLEISM)

@@ -30,8 +30,8 @@ sudo rm -r state_$HEIGHT
 mkdir state_$HEIGHT
 for key in wasm accesscontrol oracle epoch mint acc bank crisis feegrant staking distribution slashing gov params ibc upgrade evidence transfer tokenfactory
 do
-    $HOME/go/bin/iaviewer data $HOME/.sei/data/application.db "s/k:"$key"/" $HEIGHT > $HOME/state_$HEIGHT/$key.data
-    $HOME/go/bin/iaviewer shape $HOME/.sei/data/application.db "s/k:"$key"/" $HEIGHT > $HOME/state_$HEIGHT/$key.shape
+    $HOME/go/bin/iaviewer data $HOME/.kiichain3/data/application.db "s/k:"$key"/" $HEIGHT > $HOME/state_$HEIGHT/$key.data
+    $HOME/go/bin/iaviewer shape $HOME/.kiichain3/data/application.db "s/k:"$key"/" $HEIGHT > $HOME/state_$HEIGHT/$key.shape
 done
 
 # zip

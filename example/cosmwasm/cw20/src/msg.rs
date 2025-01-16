@@ -14,7 +14,7 @@ pub struct InstantiateMsg {
 #[cw_serde]
 pub struct MigrateMsg {}
 
-/// SeiRoute is enum type to represent sei query route path
+/// KiiRoute is enum type to represent kii query route path
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum Route {

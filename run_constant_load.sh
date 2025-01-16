@@ -1,1 +1,1 @@
-/home/ubuntu/sei-chain/build/loadtest
+/home/ubuntu/kiichain3/build/loadtest
