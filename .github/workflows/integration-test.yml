@@ -114,7 +114,10 @@ jobs:
             name: "dApp Tests",
             scripts: [
               "docker exec kii-node-0 integration_test/contracts/fund_daap_account.sh",
-              "./integration_test/dapp_tests/dapp_tests.sh local"
+              "./integration_test/dapp_tests/dapp_tests.sh local uniswap",
+              # This contract doesn't run with ukii
+              # "./integration_test/dapp_tests/dapp_tests.sh local steak",
+              "./integration_test/dapp_tests/dapp_tests.sh local nft"
             ]
           },
         ]

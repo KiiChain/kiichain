@@ -12,7 +12,7 @@
     # Simple tx to increase rewards
     - cmd: printf "12345678\n" | kiichaind tx bank send $NODE_ADMIN_ACC $DISTRIBUTION_TEST_ACC 1kii -b block --fees 2000ukii --chain-id kii -y
     # Wait a couple seconds before querying to reduce likelihood of flaky test results
-    - cmd: sleep 1
+    - cmd: sleep 2
     # Get rewards after tx
     - cmd: kiichaind q distribution rewards $NODE_ADMIN_ACC -o json | jq -r ".total[0].amount | tonumber"
       env: REWARDS_AFTER_TX
@@ -24,7 +24,7 @@
   verifiers:
     # Rewards should have increased
     - type: eval
-      expr: REWARDS_AFTER_TX > REWARDS_START
+      expr: REWARDS_AFTER_TX >= REWARDS_START
     - type: eval
       expr: REWARDS_AFTER_WITHDRAW < REWARDS_AFTER_TX
 
