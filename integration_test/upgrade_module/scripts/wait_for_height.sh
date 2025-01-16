@@ -19,13 +19,13 @@ STUCK_COUNTER=0
 # Loop until the target block height is reached or the service dies, or it gets stuck on target-1 block
 while true; do
    # Check if the service is running (it might panic at the height and not let us reach it)
-   if ! pgrep -f "seid start --chain-id sei" > /dev/null; then
-      echo "Seid no longer running (panic)"
+   if ! pgrep -f "kiichaind start --chain-id kii" > /dev/null; then
+      echo "kiichaind no longer running (panic)"
       break
    fi
 
    # Query the current block height of the node
-   CURRENT_BLOCK_HEIGHT=$(seid status | jq '.SyncInfo.latest_block_height' -r)
+   CURRENT_BLOCK_HEIGHT=$(kiichaind status | jq '.SyncInfo.latest_block_height' -r)
 
    if [[ "$CURRENT_BLOCK_HEIGHT" -ge "$TARGET_BLOCK_HEIGHT" ]]; then
        echo "Block height reached at $CURRENT_BLOCK_HEIGHT"

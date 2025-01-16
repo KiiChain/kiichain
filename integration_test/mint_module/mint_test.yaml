@@ -3,24 +3,24 @@
     # Sleep 65 seconds to ensure that the mint event happens in the epoch end hook
     - cmd: sleep 65
     # At this point there should be one mint event
-    - cmd: seid q mint minter --output --json | jq -r ".denom"
+    - cmd: kiichaind q mint minter --output --json | jq -r ".denom"
       env: DENOM
-    - cmd: seid q mint minter --output --json | jq ".start_date" -r
+    - cmd: kiichaind q mint minter --output --json | jq ".start_date" -r
       env: START_DATE
-    - cmd: seid q mint minter --output --json | jq ".end_date" -r
+    - cmd: kiichaind q mint minter --output --json | jq ".end_date" -r
       env: END_DATE
-    - cmd: seid q mint minter --output --json | jq ".total_mint_amount" -r
+    - cmd: kiichaind q mint minter --output --json | jq ".total_mint_amount" -r
       env: TOTAL_MINT_AMOUNT
-    - cmd: seid q mint minter --output --json | jq ".remaining_mint_amount" -r
+    - cmd: kiichaind q mint minter --output --json | jq ".remaining_mint_amount" -r
       env: REMAINING_MINT_AMOUNT
-    - cmd: seid q mint minter --output --json | jq ".last_mint_amount" -r
+    - cmd: kiichaind q mint minter --output --json | jq ".last_mint_amount" -r
       env: LAST_MINT_AMOUNT
-    - cmd: seid q mint minter --output --json | jq ".last_mint_date" -r
+    - cmd: kiichaind q mint minter --output --json | jq ".last_mint_date" -r
       env: LAST_MINT_DATE
-    - cmd: seid q mint minter --output --json | jq ".last_mint_height" -r
+    - cmd: kiichaind q mint minter --output --json | jq ".last_mint_height" -r
       env: LAST_MINT_HEIGHT
     # Compare the total supply and make sure that it increased
-    - cmd: seid q bank total --output json | jq -r -M ".supply[] | select(.denom==\"ukii\").amount"
+    - cmd: kiichaind q bank total --output json | jq -r -M ".supply[] | select(.denom==\"ukii\").amount"
       env: TOTAL_SUPPLY
   verifiers:
     - type: eval

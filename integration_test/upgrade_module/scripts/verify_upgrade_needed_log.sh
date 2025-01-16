@@ -20,7 +20,7 @@ if [ -z "$VERSION" ]; then
 fi
 
 # Check the logs for the upgrade needed message
-if grep -q "UPGRADE \"$VERSION\" NEEDED at height: $TARGET_BLOCK_HEIGHT" "build/generated/logs/seid-$NODE_ID.log"; then
+if grep -q "UPGRADE \"$VERSION\" NEEDED at height: $TARGET_BLOCK_HEIGHT" "build/generated/logs/kiichaind-$NODE_ID.log"; then
    echo "PASS"
    exit 0
 fi

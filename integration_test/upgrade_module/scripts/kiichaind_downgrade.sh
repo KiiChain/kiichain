@@ -8,10 +8,10 @@ INVARIANT_CHECK_INTERVAL=${INVARIANT_CHECK_INTERVAL:-0}
 LOG_DIR="build/generated/logs"
 
 # kill the existing service
-pkill -f "seid start"
+pkill -f "kiichaind start"
 
 # start the service with a different UPGRADE_VERSION_LIST
-UPGRADE_VERSION_LIST=$UPGRADE_VERSION_LIST seid start --chain-id sei --inv-check-period ${INVARIANT_CHECK_INTERVAL} > "$LOG_DIR/seid-$NODE_ID.log" 2>&1 &
+UPGRADE_VERSION_LIST=$UPGRADE_VERSION_LIST kiichaind start --chain-id kii --inv-check-period ${INVARIANT_CHECK_INTERVAL} > "$LOG_DIR/kiichaind-$NODE_ID.log" 2>&1 &
 
 echo "PASS"
 exit 0
