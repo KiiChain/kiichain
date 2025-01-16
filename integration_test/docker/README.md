@@ -25,7 +25,7 @@ Detailed instruction: see the `Makefile`.
 This will start a 4 node kii chain cluster as well as having the oracle price feeder run for each node.
 ```sh
 # If this is the first time or you want to rebuild the binary:
-sudo make docker-cluster-start
+sudo make docker-cluster-start-integration
 ```
 All the logs and genesis files will be generated under the temporary build/generated folder.
 
@@ -40,6 +40,19 @@ tail -f build/generated/logs/kiichaind-0.log
 docker ps -a
 # SSH into a running container
 docker exec -it [container_name] /bin/bash
+```
+
+## State Sync RPC Node
+
+Requirement: Follow the above steps to start a 4 node docker cluster before starting any state sync node
+
+```sh
+# Be sure to start up a 4-node cluster before you start a state sync node
+make docker-cluster-start-integration
+# Wait for at least a few minutes till the latest block height exceed 500 (this can be changed via app.toml)
+kiichaind status |jq
+# Start up a state sync node
+make run-rpc-node-skipbuild-integration
 ```
 
 ## Local Debugging & Testing
