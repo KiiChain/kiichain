@@ -12,7 +12,7 @@ on your local machine for development and testing purposes.
 - Docker and docker compose installed and running
 
 ### Usage
-1. Ensure docker containers are up and running: `make docker-cluster-start`
+1. Ensure docker containers are up and running: `make docker-cluster-start-integration`
 2. Execute the tests with this command: `python3 integration_test/scripts/runner.py test.yaml`
 
 ## Writing Tests
