@@ -39,17 +39,17 @@ describe("CW721 to ERC721 Pointer", function () {
         it("should query the owner of a token", async function () {
             const result = await queryWasm(pointer, "owner_of", { token_id: "1" });
             expect(result).to.deep.equal({data:{
-                owner:accounts[0].seiAddress,
+                owner:accounts[0].kiiAddress,
                 approvals:[
-                    {spender:accounts[1].seiAddress,expires:{never:{}}}
+                    {spender:accounts[1].kiiAddress,expires:{never:{}}}
                 ]
             }});
         });
 
         it("should confirm an approval exists for a specific spender and token", async function () {
-            const result = await queryWasm(pointer, "approval", { token_id: "1", spender: accounts[1].seiAddress });
+            const result = await queryWasm(pointer, "approval", { token_id: "1", spender: accounts[1].kiiAddress });
             expect(result).to.deep.equal({data:{
-                approval:{spender:accounts[1].seiAddress, expires:{never:{}}}
+                approval:{spender:accounts[1].kiiAddress, expires:{never:{}}}
             }});
         });
 
@@ -57,16 +57,16 @@ describe("CW721 to ERC721 Pointer", function () {
             const result = await queryWasm(pointer, "approvals", { token_id: "1" });
             expect(result).to.deep.equal({data:{
                 approvals:[
-                    {spender: accounts[1].seiAddress, expires:{never:{}}}
+                    {spender: accounts[1].kiiAddress, expires:{never:{}}}
                 ]}});
         });
 
         it("should verify if an operator is approved for all tokens of an owner", async function () {
-            const result = await queryWasm(pointer, "operator", { owner: accounts[0].seiAddress, operator: admin.seiAddress });
+            const result = await queryWasm(pointer, "operator", { owner: accounts[0].kiiAddress, operator: admin.kiiAddress });
             expect(result).to.deep.equal({
                 data: {
                     approval: {
-                        spender: admin.seiAddress,
+                        spender: admin.kiiAddress,
                         expires: {never:{}}
                     }
                 }
@@ -86,19 +86,19 @@ describe("CW721 to ERC721 Pointer", function () {
         it("should fetch all information about an NFT", async function () {
             const result = await queryWasm(pointer, "all_nft_info", { token_id: "1" });
             expect(result.data.access).to.deep.equal({
-                owner: accounts[0].seiAddress,
+                owner: accounts[0].kiiAddress,
                 approvals: [
                     {
-                        spender: accounts[1].seiAddress,
+                        spender: accounts[1].kiiAddress,
                         expires: {
                             never: {}
                         }
                     }
                 ]
             });
-            expect(result.data.info.token_uri).to.equal('https://sei.io/token/1');
+            expect(result.data.info.token_uri).to.equal('https://kii.io/token/1');
             expect(result.data.info.extension.royalty_percentage).to.equal(5);
-            expect(result.data.info.extension.royalty_payment_address).to.include("sei1");
+            expect(result.data.info.extension.royalty_payment_address).to.include("kii1");
         });
 
         it("should retrieve all minted NFT token ids", async function () {
@@ -112,39 +112,39 @@ describe("CW721 to ERC721 Pointer", function () {
         });
 
         it("should retrieve list of NFT token ids owned by admin", async function () {
-            const result = await queryWasm(pointer, "tokens", { owner: admin.seiAddress });
+            const result = await queryWasm(pointer, "tokens", { owner: admin.kiiAddress });
             expect(result).to.deep.equal({data:{tokens:["3"]}});
         });
     })
 
     describe("execute operations", function () {
         it("should transfer an NFT to another address", async function () {
-            await executeWasm(pointer, { transfer_nft: { recipient: accounts[1].seiAddress, token_id: "3" }});
+            await executeWasm(pointer, { transfer_nft: { recipient: accounts[1].kiiAddress, token_id: "3" }});
             const ownerResult = await queryWasm(pointer, "owner_of", { token_id: "3" });
-            expect(ownerResult).to.deep.equal({ data: { owner: accounts[1].seiAddress, approvals: [] } });
+            expect(ownerResult).to.deep.equal({ data: { owner: accounts[1].kiiAddress, approvals: [] } });
             await (await erc721.connect(accounts[1].signer).transferFrom(accounts[1].evmAddress, admin.evmAddress, 3)).wait();
             const ownerResult2 = await queryWasm(pointer, "owner_of", { token_id: "3" });
-            expect(ownerResult2).to.deep.equal({ data: { owner: admin.seiAddress, approvals: [] } });
+            expect(ownerResult2).to.deep.equal({ data: { owner: admin.kiiAddress, approvals: [] } });
         });
 
         it("should not transfer an NFT if not owned", async function () {
-            await executeWasm(pointer, { transfer_nft: { recipient: accounts[1].seiAddress, token_id: "2" }});
+            await executeWasm(pointer, { transfer_nft: { recipient: accounts[1].kiiAddress, token_id: "2" }});
             const ownerResult = await queryWasm(pointer, "owner_of", { token_id: "2" });
-            expect(ownerResult).to.deep.equal({ data: { owner: accounts[1].seiAddress, approvals: [] } });
+            expect(ownerResult).to.deep.equal({ data: { owner: accounts[1].kiiAddress, approvals: [] } });
         });
 
         it("should approve a spender for a specific token", async function () {
             // Approve accounts[1] to manage token ID 3
-            await executeWasm(pointer, { approve: { spender: accounts[1].seiAddress, token_id: "3" }});
-            const approvalResult = await queryWasm(pointer, "approval", { token_id: "3", spender: accounts[1].seiAddress });
-            expect(approvalResult).to.deep.equal({ data: { approval: { spender: accounts[1].seiAddress, expires: { never: {} } } } });
+            await executeWasm(pointer, { approve: { spender: accounts[1].kiiAddress, token_id: "3" }});
+            const approvalResult = await queryWasm(pointer, "approval", { token_id: "3", spender: accounts[1].kiiAddress });
+            expect(approvalResult).to.deep.equal({ data: { approval: { spender: accounts[1].kiiAddress, expires: { never: {} } } } });
             // allowed to transfer (does not revert)
             await (await erc721.connect(accounts[1].signer).transferFrom(admin.evmAddress, accounts[1].evmAddress, 3)).wait();
             // transfer back to try with approval revocation (has to go back to admin first)
             await (await erc721.connect(accounts[1].signer).transferFrom(accounts[1].evmAddress, admin.evmAddress, 3)).wait();
 
             // Revoke approval to reset the state
-            await executeWasm(pointer, { revoke: { spender: accounts[1].seiAddress, token_id: "3" }});
+            await executeWasm(pointer, { revoke: { spender: accounts[1].kiiAddress, token_id: "3" }});
             const result = await queryWasm(pointer, "approvals", { token_id: "3" });
             expect(result).to.deep.equal({data: { approvals:[]}});
 
@@ -153,9 +153,9 @@ describe("CW721 to ERC721 Pointer", function () {
         });
 
         it("should set an operator for all tokens of an owner", async function () {
-            await executeWasm(pointer, { approve_all: { operator: accounts[1].seiAddress }});
+            await executeWasm(pointer, { approve_all: { operator: accounts[1].kiiAddress }});
             expect(await erc721.isApprovedForAll(admin.evmAddress, accounts[1].evmAddress)).to.be.true
-            await executeWasm(pointer, { revoke_all: { operator: accounts[1].seiAddress }});
+            await executeWasm(pointer, { revoke_all: { operator: accounts[1].kiiAddress }});
             expect(await erc721.isApprovedForAll(admin.evmAddress, accounts[1].evmAddress)).to.be.false;
         });
 

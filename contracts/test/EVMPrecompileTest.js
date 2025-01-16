@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const { expectRevert } = require('@openzeppelin/test-helpers');
-const { setupSigners, getAdmin, deployWasm, storeWasm, execute, isDocker, ABI, createTokenFactoryTokenAndMint, getSeiBalance} = require("./lib");
+const { setupSigners, getAdmin, deployWasm, storeWasm, execute, isDocker, ABI, createTokenFactoryTokenAndMint, getKiiBalance} = require("./lib");
 
 
 describe("EVM Precompile Tester", function () {
@@ -32,13 +32,13 @@ describe("EVM Precompile Tester", function () {
         it("Associates successfully", async function () {
             const unassociatedWallet = hre.ethers.Wallet.createRandom();
             try {
-                await addr.getSeiAddr(unassociatedWallet.address);
+                await addr.getKiiAddr(unassociatedWallet.address);
                 expect.fail("Expected an error here since we look up an unassociated address");
             } catch (error) {
                 expect(error).to.have.property('message').that.includes('execution reverted');
             }
             
-            const message = `Please sign this message to link your EVM and Sei addresses. No SEI will be spent as a result of this signature.\n\n`;
+            const message = `Please sign this message to link your EVM and Kii addresses. No KII will be spent as a result of this signature.\n\n`;
             const messageLength = Buffer.from(message, 'utf8').length;
             const signatureHex = await unassociatedWallet.signMessage(message);
 
@@ -50,14 +50,14 @@ describe("EVM Precompile Tester", function () {
             expect(addrs).to.not.be.null;
 
             // Verify that addresses are now associated.
-            const seiAddr = await addr.getSeiAddr(unassociatedWallet.address);
-            expect(seiAddr).to.not.be.null;
+            const kiiAddr = await addr.getKiiAddr(unassociatedWallet.address);
+            expect(kiiAddr).to.not.be.null;
         });
 
         it("Associates with Public Key successfully", async function () {
             const unassociatedWallet = hre.ethers.Wallet.createRandom();
             try {
-                await addr.getSeiAddr(unassociatedWallet.address);
+                await addr.getKiiAddr(unassociatedWallet.address);
                 expect.fail("Expected an error here since we look up an unassociated address");
             } catch (error) {
                 expect(error).to.have.property('message').that.includes('execution reverted');
@@ -69,8 +69,8 @@ describe("EVM Precompile Tester", function () {
             expect(addrs).to.not.be.null;
 
             // Verify that addresses are now associated.
-            const seiAddr = await addr.getSeiAddr(unassociatedWallet.address);
-            expect(seiAddr).to.not.be.null;
+            const kiiAddr = await addr.getKiiAddr(unassociatedWallet.address);
+            expect(kiiAddr).to.not.be.null;
         });
     });
 
@@ -80,7 +80,7 @@ describe("EVM Precompile Tester", function () {
         let govProposal;
 
         before(async function () {
-            const govProposalResponse = JSON.parse(await execute(`seid tx gov submit-proposal param-change ../contracts/test/param_change_proposal.json --from admin --fees 20000ukii -b block -y -o json`))
+            const govProposalResponse = JSON.parse(await execute(`kiichaind tx gov submit-proposal param-change ../contracts/test/param_change_proposal.json --from admin --fees 20000ukii -b block -y -o json`))
             govProposal = govProposalResponse.logs[0].events[3].attributes[1].value;
 
             const signer = accounts[0].signer
@@ -131,7 +131,7 @@ describe("EVM Precompile Tester", function () {
         let staking;
 
         before(async function () {
-            validatorAddr = JSON.parse(await execute("seid q staking validators -o json")).validators[0].operator_address
+            validatorAddr = JSON.parse(await execute("kiichaind q staking validators -o json")).validators[0].operator_address
             signer = accounts[0].signer;
 
             const contractABIPath = '../../precompiles/staking/abi.json';
@@ -177,8 +177,8 @@ describe("EVM Precompile Tester", function () {
                 this.skip()
                 return;
             }
-            const exchangeRatesContent = await execute("seid q oracle exchange-rates -o json")
-            const twapsContent = await execute("seid q oracle twaps 3600 -o json")
+            const exchangeRatesContent = await execute("kiichaind q oracle exchange-rates -o json")
+            const twapsContent = await execute("kiichaind q oracle twaps 3600 -o json")
 
             exchangeRatesJSON = JSON.parse(exchangeRatesContent).denom_oracle_exchange_rate_pairs;
             twapsJSON = JSON.parse(twapsContent).oracle_twaps;
@@ -229,7 +229,7 @@ describe("EVM Precompile Tester", function () {
             wasmCodeID = await storeWasm(counterWasm);
 
             const counterParallelWasm = '../integration_test/contracts/counter_parallel.wasm'
-            wasmContractAddress = await deployWasm(counterParallelWasm, accounts[0].seiAddress, "counter", {count: 0});
+            wasmContractAddress = await deployWasm(counterParallelWasm, accounts[0].kiiAddress, "counter", {count: 0});
             owner = accounts[0].signer;
 
             const contractABIPath = '../../precompiles/wasmd/abi.json';
@@ -240,7 +240,7 @@ describe("EVM Precompile Tester", function () {
             accounts = await setupSigners(await hre.ethers.getSigners())
             admin = await getAdmin()
             const random_num = Math.floor(Math.random() * 10000)
-            denom = await createTokenFactoryTokenAndMint(`native-pointer-test-${random_num}`, 1000, accounts[0].seiAddress);
+            denom = await createTokenFactoryTokenAndMint(`native-pointer-test-${random_num}`, 1000, accounts[0].kiiAddress);
         });
 
         it("Wasm Precompile Instantiate", async function () {
@@ -354,23 +354,23 @@ describe("EVM Precompile Tester", function () {
             const coinsStr = JSON.stringify(coins);
             const coinsBz = encoder.encode(coinsStr);
 
-            const oldBalance = await getSeiBalance(wasmContractAddress);
-            const oldTokenBalance = await getSeiBalance(wasmContractAddress, denom);
+            const oldBalance = await getKiiBalance(wasmContractAddress);
+            const oldTokenBalance = await getKiiBalance(wasmContractAddress, denom);
 
-            const oldUserTokenBalance = await getSeiBalance(accounts[0].seiAddress, denom);
+            const oldUserTokenBalance = await getKiiBalance(accounts[0].kiiAddress, denom);
 
             const response = await wasmd.execute(wasmContractAddress, incrementBz, coinsBz, {value: ethers.parseUnits('1.0', 18)});
             const receipt = await response.wait();
             expect(receipt.status).to.equal(1);
 
             // ukii assertions
-            const ukiiBalance = await getSeiBalance(wasmContractAddress);
+            const ukiiBalance = await getKiiBalance(wasmContractAddress);
             expect(ukiiBalance).to.equal(oldBalance + 1000000);
 
             // token assertions
-            const contractTokenBalance = await getSeiBalance(wasmContractAddress, denom);
+            const contractTokenBalance = await getKiiBalance(wasmContractAddress, denom);
             expect(contractTokenBalance).to.equal(oldTokenBalance + 10);
-            const userTokenBalance = await getSeiBalance(accounts[0].seiAddress, denom);
+            const userTokenBalance = await getKiiBalance(accounts[0].kiiAddress, denom);
             expect(userTokenBalance).to.equal(oldUserTokenBalance - 10);
 
         });
@@ -395,10 +395,10 @@ describe("EVM Precompile Tester", function () {
             const coinsStr = JSON.stringify(coins);
             const coinsBz = encoder.encode(coinsStr);
 
-            const oldBalance = await getSeiBalance(wasmContractAddress);
-            const oldTokenBalance = await getSeiBalance(wasmContractAddress, denom);
+            const oldBalance = await getKiiBalance(wasmContractAddress);
+            const oldTokenBalance = await getKiiBalance(wasmContractAddress, denom);
 
-            const oldUserTokenBalance = await getSeiBalance(accounts[0].seiAddress, denom);
+            const oldUserTokenBalance = await getKiiBalance(accounts[0].kiiAddress, denom);
 
             const executeBatch = [
                 {
@@ -428,13 +428,13 @@ describe("EVM Precompile Tester", function () {
             expect(receipt.status).to.equal(1);
 
             // ukii assertions
-            const ukiiBalance = await getSeiBalance(wasmContractAddress);
+            const ukiiBalance = await getKiiBalance(wasmContractAddress);
             expect(ukiiBalance).to.equal(oldBalance + 4000000);
 
             // token assertions
-            const contractTokenBalance = await getSeiBalance(wasmContractAddress, denom);
+            const contractTokenBalance = await getKiiBalance(wasmContractAddress, denom);
             expect(contractTokenBalance).to.equal(oldTokenBalance + 40);
-            const userTokenBalance = await getSeiBalance(accounts[0].seiAddress, denom);
+            const userTokenBalance = await getKiiBalance(accounts[0].kiiAddress, denom);
             expect(userTokenBalance).to.equal(oldUserTokenBalance - 40);
 
         });

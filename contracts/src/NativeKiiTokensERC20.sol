@@ -44,7 +44,7 @@ contract NativeKiiTokensERC20 is ERC20 {
 
     function _update(address from, address to, uint256 value) internal override {
         bool success = BankPrecompile.send(from, to, denom, value);
-        require(success, "NativeSeiTokensERC20: transfer failed");
+        require(success, "NativeKiiTokensERC20: transfer failed");
         emit Transfer(from, to, value);
     }
 }

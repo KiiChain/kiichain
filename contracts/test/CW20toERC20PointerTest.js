@@ -76,12 +76,12 @@ describe("CW20 to ERC20 Pointer", function () {
                 });
 
                 it("should return balance", async function(){
-                    const result = await queryWasm(pointer, "balance", {address: accounts[0].seiAddress});
+                    const result = await queryWasm(pointer, "balance", {address: accounts[0].kiiAddress});
                     expect(result).to.deep.equal({ data: { balance: balances[0].toString() } });
                 });
 
                 it("should return allowance", async function(){
-                    const result = await queryWasm(pointer, "allowance", {owner: accounts[0].seiAddress, spender: accounts[0].seiAddress});
+                    const result = await queryWasm(pointer, "allowance", {owner: accounts[0].kiiAddress, spender: accounts[0].kiiAddress});
                     expect(result).to.deep.equal({ data: { allowance: '0', expires: { never: {} } } });
                 });
 
@@ -89,17 +89,17 @@ describe("CW20 to ERC20 Pointer", function () {
                     await assertUnsupported(pointer, "minter", {});
                     await assertUnsupported(pointer, "marketing_info", {});
                     await assertUnsupported(pointer, "download_logo", {});
-                    await assertUnsupported(pointer, "all_allowances", { owner: accounts[0].seiAddress });
+                    await assertUnsupported(pointer, "all_allowances", { owner: accounts[0].kiiAddress });
                     await assertUnsupported(pointer, "all_accounts", {});
                 });
             });
 
             describe("execute", function() {
                 it("should transfer token", async function() {
-                    const respBefore = await queryWasm(pointer, "balance", {address: accounts[1].seiAddress});
+                    const respBefore = await queryWasm(pointer, "balance", {address: accounts[1].kiiAddress});
                     const balanceBefore = respBefore.data.balance;
 
-                    const res = await executeWasm(pointer,  { transfer: { recipient: accounts[1].seiAddress, amount: "100" } });
+                    const res = await executeWasm(pointer,  { transfer: { recipient: accounts[1].kiiAddress, amount: "100" } });
                     const txHash = res["txhash"];
                     const receipt = await ethers.provider.getTransactionReceipt(`0x${txHash}`); 
                     expect(receipt).not.to.be.null;
@@ -115,22 +115,22 @@ describe("CW20 to ERC20 Pointer", function () {
                     const ethlogs = await ethers.provider.send('eth_getLogs', [filter]);
                     expect(ethlogs.length).to.equal(0);
 
-                    // send via sei_ endpoint - synthetic event shows up
-                    const seilogs = await ethers.provider.send('sei_getLogs', [filter]);
-                    expect(seilogs.length).to.equal(1);
-                    expect(seilogs[0]["topics"][0]).to.equal(ethers.id("Transfer(address,address,uint256)"));
-                    const respAfter = await queryWasm(pointer, "balance", {address: accounts[1].seiAddress});
+                    // send via kii_ endpoint - synthetic event shows up
+                    const kiilogs = await ethers.provider.send('kii_getLogs', [filter]);
+                    expect(kiilogs.length).to.equal(1);
+                    expect(kiilogs[0]["topics"][0]).to.equal(ethers.id("Transfer(address,address,uint256)"));
+                    const respAfter = await queryWasm(pointer, "balance", {address: accounts[1].kiiAddress});
                     const balanceAfter = respAfter.data.balance;
                     expect(balanceAfter).to.equal((parseInt(balanceBefore) + 100).toString());
                 });
 
                 it("transfer to unassociated address should fail", async function() {
-                    const unassociatedSeiAddr = "kii14jekmh7yruasqx4k372mrktsd7hwz454snw0us";
-                    const respBefore = await queryWasm(pointer, "balance", {address: accounts[1].seiAddress});
+                    const unassociatedKiiAddr = "kii14jekmh7yruasqx4k372mrktsd7hwz454snw0us";
+                    const respBefore = await queryWasm(pointer, "balance", {address: accounts[1].kiiAddress});
                     const balanceBefore = respBefore.data.balance;
 
-                    await executeWasm(pointer,  { transfer: { recipient: unassociatedSeiAddr, amount: "100" } });
-                    const respAfter = await queryWasm(pointer, "balance", {address: accounts[1].seiAddress});
+                    await executeWasm(pointer,  { transfer: { recipient: unassociatedKiiAddr, amount: "100" } });
+                    const respAfter = await queryWasm(pointer, "balance", {address: accounts[1].kiiAddress});
                     const balanceAfter = respAfter.data.balance;
 
                     expect(balanceAfter).to.equal(balanceBefore);
@@ -138,36 +138,36 @@ describe("CW20 to ERC20 Pointer", function () {
 
                 it("transfer to contract address should succeed", async function() {
                     await associateWasm(pointer);
-                    const respBefore = await queryWasm(pointer, "balance", {address: admin.seiAddress});
+                    const respBefore = await queryWasm(pointer, "balance", {address: admin.kiiAddress});
                     const balanceBefore = respBefore.data.balance;
 
                     await executeWasm(pointer,  { transfer: { recipient: pointer, amount: "100" } });
-                    const respAfter = await queryWasm(pointer, "balance", {address: admin.seiAddress});
+                    const respAfter = await queryWasm(pointer, "balance", {address: admin.kiiAddress});
                     const balanceAfter = respAfter.data.balance;
 
                     expect(balanceAfter).to.equal((parseInt(balanceBefore) - 100).toString());
                 });
 
                 it("should increase and decrease allowance for a spender", async function() {
-                    const spender = accounts[0].seiAddress;
+                    const spender = accounts[0].kiiAddress;
                     await executeWasm(pointer, { increase_allowance: { spender: spender, amount: "300" } });
 
-                    let allowance = await queryWasm(pointer, "allowance", { owner: admin.seiAddress, spender: spender });
+                    let allowance = await queryWasm(pointer, "allowance", { owner: admin.kiiAddress, spender: spender });
                     expect(allowance.data.allowance).to.equal("300");
 
                     await executeWasm(pointer, { decrease_allowance: { spender: spender, amount: "300" } });
 
-                    allowance = await queryWasm(pointer, "allowance", { owner: admin.seiAddress, spender: spender });
+                    allowance = await queryWasm(pointer, "allowance", { owner: admin.kiiAddress, spender: spender });
                     expect(allowance.data.allowance).to.equal("0");
                 });
 
                 it("should transfer token using transferFrom", async function() {
                     const resp = await testToken.approve(admin.evmAddress, 100);
                     await resp.wait();
-                    const respBefore = await queryWasm(pointer, "balance", {address: accounts[0].seiAddress});
+                    const respBefore = await queryWasm(pointer, "balance", {address: accounts[0].kiiAddress});
                     const balanceBefore = respBefore.data.balance;
-                    await executeWasm(pointer,  { transfer_from: { owner: accounts[0].seiAddress, recipient: accounts[1].seiAddress, amount: "100" } });
-                    const respAfter = await queryWasm(pointer, "balance", {address: accounts[0].seiAddress});
+                    await executeWasm(pointer,  { transfer_from: { owner: accounts[0].kiiAddress, recipient: accounts[1].kiiAddress, amount: "100" } });
+                    const respAfter = await queryWasm(pointer, "balance", {address: accounts[0].kiiAddress});
                     const balanceAfter = respAfter.data.balance;
                     expect(balanceAfter).to.equal((parseInt(balanceBefore) - 100).toString());
                 });
@@ -180,7 +180,7 @@ describe("CW20 to ERC20 Pointer", function () {
 
                     const encoder = new TextEncoder();
 
-                    const transferMsg = { transfer: { recipient: accounts[1].seiAddress, amount: "100" } };
+                    const transferMsg = { transfer: { recipient: accounts[1].kiiAddress, amount: "100" } };
                     const transferStr = JSON.stringify(transferMsg);
                     const transferBz = encoder.encode(transferStr);
 
@@ -217,8 +217,8 @@ describe("CW20 to ERC20 Pointer", function () {
             1: 1000000000000
         });
 
-        // Pointer version is going to be coupled with seid version going forward (as in,
-        // given a seid version, it's impossible to have multiple versions of pointer).
+        // Pointer version is going to be coupled with kiichaind version going forward (as in,
+        // given a kiichaind version, it's impossible to have multiple versions of pointer).
         // We need to recreate the equivalent of the following test once we have a framework
         // for simulating chain-level upgrade.
         describe.skip("Pointer Upgrade", function () {
@@ -226,7 +226,7 @@ describe("CW20 to ERC20 Pointer", function () {
 
             before(async function () {
                const tokenAddr = await testToken.getAddress();
-               newPointer = await deployWasm(WASM.POINTER_CW20, accounts[0].seiAddress, "cw20-erc20", {erc20_address: tokenAddr })
+               newPointer = await deployWasm(WASM.POINTER_CW20, accounts[0].kiiAddress, "cw20-erc20", {erc20_address: tokenAddr })
                await proposeCW20toERC20Upgrade(tokenAddr, newPointer)
             });
 

@@ -14,17 +14,17 @@ describe("ERC20 to CW20 Pointer", function () {
         accounts = await setupSigners(await hre.ethers.getSigners());
         admin = await getAdmin();
 
-        cw20Address = await deployWasm(WASM.CW20, accounts[0].seiAddress, "cw20", {
+        cw20Address = await deployWasm(WASM.CW20, accounts[0].kiiAddress, "cw20", {
             name: "Test",
             symbol: "TEST",
             decimals: 6,
             initial_balances: [
-                { address: admin.seiAddress, amount: "1000000" },
-                { address: accounts[0].seiAddress, amount: "2000000" },
-                { address: accounts[1].seiAddress, amount: "3000000" }
+                { address: admin.kiiAddress, amount: "1000000" },
+                { address: accounts[0].kiiAddress, amount: "2000000" },
+                { address: accounts[1].kiiAddress, amount: "3000000" }
             ],
             mint: {
-                "minter": admin.seiAddress, "cap": "99900000000"
+                "minter": admin.kiiAddress, "cap": "99900000000"
             }
         });
     });
@@ -112,11 +112,11 @@ describe("ERC20 to CW20 Pointer", function () {
                     const ethlogs = await ethers.provider.send('eth_getLogs', [filter]);
                     expect(ethlogs.length).to.equal(1);
 
-                    // send via sei_ endpoint - synthetic event shows up
-                    const seilogs = await ethers.provider.send('sei_getLogs', [filter]);
-                    expect(seilogs.length).to.equal(1);
+                    // send via kii_ endpoint - synthetic event shows up
+                    const kiilogs = await ethers.provider.send('kii_getLogs', [filter]);
+                    expect(kiilogs.length).to.equal(1);
                     
-                    const logs = [...ethlogs, ...seilogs];
+                    const logs = [...ethlogs, ...kiilogs];
                     logs.forEach(async (log) => {
                         expect(log["address"].toLowerCase()).to.equal((await pointer.getAddress()).toLowerCase());
                         expect(log["topics"][0]).to.equal(ethers.id("Transfer(address,address,uint256)"));
@@ -125,15 +125,15 @@ describe("ERC20 to CW20 Pointer", function () {
                     });
 
                     const ethBlock = await ethers.provider.send('eth_getBlockByNumber', ['0x' + blockNumber.toString(16), false]);
-                    const seiBlock = await ethers.provider.send('sei_getBlockByNumber', ['0x' + blockNumber.toString(16), false]);
+                    const kiiBlock = await ethers.provider.send('kii_getBlockByNumber', ['0x' + blockNumber.toString(16), false]);
                     expect(ethBlock.transactions.length).to.equal(1);
-                    expect(seiBlock.transactions.length).to.equal(1);
+                    expect(kiiBlock.transactions.length).to.equal(1);
 
                     const ethReceipts = await ethers.provider.send('eth_getBlockReceipts', ['0x' + blockNumber.toString(16)]);
-                    const seiReceipts = await ethers.provider.send('sei_getBlockReceipts', ['0x' + blockNumber.toString(16)]);
+                    const kiiReceipts = await ethers.provider.send('kii_getBlockReceipts', ['0x' + blockNumber.toString(16)]);
                     expect(ethReceipts.length).to.equal(1);
-                    expect(seiReceipts.length).to.equal(1);
-                    expect(ethReceipts[0].transactionHash).to.equal(seiReceipts[0].transactionHash);
+                    expect(kiiReceipts.length).to.equal(1);
+                    expect(ethReceipts[0].transactionHash).to.equal(kiiReceipts[0].transactionHash);
 
                     const ethTx = await ethers.provider.send('eth_getTransactionReceipt', [receipt.hash]);
                     expect(ethTx.logs.length).to.equal(1); // check for transfer event
@@ -186,9 +186,9 @@ describe("ERC20 to CW20 Pointer", function () {
                     expect(ethlogs[0]["topics"][1].substring(26)).to.equal(owner.substring(2).toLowerCase());
                     expect(ethlogs[0]["topics"][2].substring(26)).to.equal(spender.substring(2).toLowerCase());
 
-                    // send via sei_ endpoint - synthetic event shows up
-                    const seilogs = await ethers.provider.send('sei_getLogs', [filter]);
-                    expect(seilogs.length).to.equal(1);
+                    // send via kii_ endpoint - synthetic event shows up
+                    const kiilogs = await ethers.provider.send('kii_getLogs', [filter]);
+                    expect(kiilogs.length).to.equal(1);
                 });
 
                 it("should lower approval", async function () {
@@ -305,8 +305,8 @@ describe("ERC20 to CW20 Pointer", function () {
             account1: 3000000
         });
 
-        // Pointer version is going to be coupled with seid version going forward (as in,
-        // given a seid version, it's impossible to have multiple versions of pointer).
+        // Pointer version is going to be coupled with kiichaind version going forward (as in,
+        // given a kiichaind version, it's impossible to have multiple versions of pointer).
         // We need to recreate the equivalent of the following test once we have a framework
         // for simulating chain-level upgrade.
         describe.skip("Pointer Upgrade", function () {
