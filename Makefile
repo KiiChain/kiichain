@@ -236,7 +236,7 @@ run-rpc-node-skipbuild-integration: build-rpc-node-integration
 	-p 26668-26670:26656-26658 \
 	--platform linux/x86_64 \
 	--env SKIP_BUILD=true \
-	kii-chain/rpcnode
+	kiichain3/rpcnode
 
 ###############################################################################
 ###                               Tests                                     ###
