@@ -1,0 +1,88 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Docker Integration Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  integration-tests:
+    name: Integration Test (${{ matrix.test.name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      # other jobs should run even if one integration test fails
+      fail-fast: false
+      matrix:
+        test: [
+          {
+            name: "EVM Module",
+            scripts: [
+              "./integration_test/evm_module/scripts/evm_tests.sh",
+            ]
+          },
+          {
+            name: "EVM Interoperability",
+            scripts: [
+              "./integration_test/evm_module/scripts/evm_interoperability_tests.sh"
+            ]
+          },
+        ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Pyyaml
+        run: |
+          pip3 install pyyaml
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.22
+
+      - name: Start 4 node docker cluster
+        run: make clean && INVARIANT_CHECK_INTERVAL=10 ${{matrix.test.env}} make docker-cluster-start-integration &
+
+      - name: Wait for docker cluster to start
+        run: |
+          until [ $(cat build/generated/launch.complete |wc -l) = 4 ]
+          do
+            sleep 10
+          done
+          sleep 10
+
+      - name: Start rpc node
+        run: make run-rpc-node-skipbuild-integration &
+
+      - name: Verify Kii Chain is running
+        run: python3 integration_test/scripts/runner.py integration_test/startup/startup_test.yaml
+
+      - name: ${{ matrix.test.name }}
+        run: |
+          scripts=$(echo '${{ toJson(matrix.test.scripts) }}' | jq -r '.[]')
+          IFS=$'\n'   # change the internal field separator to newline
+          echo $scripts
+          for script in $scripts
+          do
+            bash -c "${script}"
+          done
+          unset IFS  # revert the internal field separator back to default
