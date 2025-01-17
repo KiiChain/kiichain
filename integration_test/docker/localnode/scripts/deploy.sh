@@ -14,6 +14,10 @@ echo "export PATH=$GOBIN:$PATH:/usr/local/go/bin:$BUILD_PATH:$HOME/.foundry/bin"
 rm -rf build/generated
 /bin/bash -c "source $HOME/.bashrc"
 mkdir -p $GOBIN
+
+# Install the dependencies
+go mod download
+
 # Step 0: Build on node 0
 if [ "$NODE_ID" = 0 ] && [ -z "$SKIP_BUILD" ]
 then
