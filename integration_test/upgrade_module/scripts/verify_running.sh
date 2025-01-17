@@ -5,7 +5,7 @@ attempt=0
 
 # Try for 1 minute to see if the service is running
 while [ $attempt -lt $max_attempts ]; do
-    if pgrep -f "seid start --chain-id sei" > /dev/null; then
+    if pgrep -f "kiichaind start --chain-id kii" > /dev/null; then
         echo "PASS"
         exit 0
     fi

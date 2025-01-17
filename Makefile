@@ -202,6 +202,43 @@ docker-cluster-stop:
 .PHONY: localnet-stop
 
 ###############################################################################
+###                        Integration Docker                               ###
+###############################################################################
+
+build-docker-integration:
+	@cd integration_test/docker && docker build --tag kiichain3/integration localnode --platform linux/x86_64
+.PHONY: build-docker-integration
+
+docker-cluster-stop-integration:
+	@cd integration_test/docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) docker compose down
+
+docker-cluster-start-integration: docker-cluster-stop-integration build-docker-integration
+	@rm -rf $(PROJECT_HOME)/build/generated
+	@mkdir -p $(shell go env GOPATH)/pkg/mod
+	@mkdir -p $(shell go env GOCACHE)
+	@cd integration_test/docker && PROJECT_HOME=$(PROJECT_HOME) USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) NUM_ACCOUNTS=10 INVARIANT_CHECK_INTERVAL=${INVARIANT_CHECK_INTERVAL} UPGRADE_VERSION_LIST=${UPGRADE_VERSION_LIST} docker compose up
+
+build-rpc-node-integration:
+	@cd integration_test/docker && docker build --tag kiichain3/rpcnode rpcnode --platform linux/x86_64
+.PHONY: build-rpc-node
+
+run-rpc-node-skipbuild-integration: build-rpc-node-integration
+	docker run --rm \
+	--name kii-rpc-node \
+	--network docker_localnet \
+	--user="$(shell id -u):$(shell id -g)" \
+	-v $(PROJECT_HOME):/kiichain/kiichain3:Z \
+	-v $(PROJECT_HOME)/../kii-tendermint:/kiichain/kii-tendermint:Z \
+    -v $(PROJECT_HOME)/../kii-cosmos:/kiichain/kii-cosmos:Z \
+    -v $(PROJECT_HOME)/../kii-db:/kiichain/kii-db:Z \
+	-v $(GO_PKG_PATH)/mod:/root/go/pkg/mod:Z \
+	-v $(shell go env GOCACHE):/root/.cache/go-build:Z \
+	-p 26668-26670:26656-26658 \
+	--platform linux/x86_64 \
+	--env SKIP_BUILD=true \
+	kiichain3/rpcnode
+
+###############################################################################
 ###                               Tests                                     ###
 ###############################################################################
 

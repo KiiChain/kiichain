@@ -16,10 +16,10 @@ if [ -z "UPGRADE_VERSION_LIST" ]; then
 fi
 
 # kill the existing service
-pkill -f "seid start"
+pkill -f "kiichaind start"
 
 # start the service with a different UPGRADE_VERSION_LIST
-UPGRADE_VERSION_LIST=$NEW_LIST seid start --chain-id sei --inv-check-period ${INVARIANT_CHECK_INTERVAL} > "$LOG_DIR/seid-$NODE_ID.log" 2>&1 &
+UPGRADE_VERSION_LIST=$NEW_LIST kiichaind start --chain-id kii --inv-check-period ${INVARIANT_CHECK_INTERVAL} > "$LOG_DIR/kiichaind-$NODE_ID.log" 2>&1 &
 
 echo "PASS"
 exit 0

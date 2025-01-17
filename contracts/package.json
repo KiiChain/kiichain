@@ -1,7 +1,7 @@
 {
-  "name": "sei-chain",
+  "name": "kii-chain",
   "version": "1.0.0",
-  "description": "\"Contracts for Sei Chain\"",
+  "description": "\"Contracts for Kii Chain\"",
   "main": "index.js",
   "directories": {
     "lib": "lib",

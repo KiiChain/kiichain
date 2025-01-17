@@ -7,6 +7,6 @@ NUMBER_OF_SECONDS=$1
 NUMBER_OF_BLOCKS=$((NUMBER_OF_SECONDS * 1000 / 300))
 
 # Get the current height and add the calculated number of blocks
-HEIGHT=$(seid status | jq -r '.SyncInfo.latest_block_height' | awk -v blocks="$NUMBER_OF_BLOCKS" '{print $1 + blocks}')
+HEIGHT=$(kiichaind status | jq -r '.SyncInfo.latest_block_height' | awk -v blocks="$NUMBER_OF_BLOCKS" '{print $1 + blocks}')
 
 echo $HEIGHT

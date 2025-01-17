@@ -3,7 +3,7 @@
     # Add comments for what this command is doing
     - cmd: <Replace with bash command>
       env: <Add if you want to store the output as an env variable>
-      node: <Optional, default is sei-node-0>
+      node: <Optional, default is kii-node-0>
     # Add comments for what this command is doing
     - cmd: <Replace with bash command>
       env: RESULT

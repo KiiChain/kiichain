@@ -7,7 +7,7 @@ TRIES=$((TIMEOUT / INTERVAL))  # number of tries
 
 # Loop until the proposal status is PROPOSAL_STATUS_PASSED or we timeout
 for ((i=1; i<=TRIES; i++)); do
-    STATUS=$(seid query gov proposal $PROPOSAL_ID --output json | jq -r ".status")
+    STATUS=$(kiichaind query gov proposal $PROPOSAL_ID --output json | jq -r ".status")
 
     if [ "$STATUS" == "PROPOSAL_STATUS_PASSED" ]; then
         echo "Proposal $PROPOSAL_ID has passed!"

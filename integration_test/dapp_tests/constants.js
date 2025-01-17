@@ -1,16 +1,13 @@
 const rpcUrls = {
-    "testnet": "https://rpc-testnet.sei-apis.com",
-    "devnet": "https://rpc-arctic-1.sei-apis.com"
+    "testnet": "https://rpc.uno.sentry.testnet.v3.kiivalidator.com",
 }
 
 const evmRpcUrls = {
-    "testnet": "https://evm-rpc-testnet.sei-apis.com",
-    "devnet": "https://evm-rpc-arctic-1.sei-apis.com"
+    "testnet": "https://json-rpc.uno.sentry.testnet.v3.kiivalidator.com",
 }
 
 const chainIds = {
-    "testnet": "atlantic-2",
-    "devnet": "arctic-1"
+    "testnet": "kiichain3",
 }
 
 module.exports = {

@@ -33,12 +33,12 @@ echo "Building..."
 #install kiichaind
 make install
 # initialize chain with chain ID and add the first key
-~/go/bin/kiichaind init demo --chain-id kiichain3
-~/go/bin/kiichaind keys add $keyname --keyring-backend test
+kiichaind init demo --chain-id kiichain3
+kiichaind keys add $keyname --keyring-backend test
 # add the key as a genesis account with massive balances of several different tokens
-~/go/bin/kiichaind add-genesis-account $(~/go/bin/kiichaind keys show $keyname -a --keyring-backend test) 100000000000000000000ukii,100000000000000000000uusdc,100000000000000000000uatom --keyring-backend test
+kiichaind add-genesis-account $(kiichaind keys show $keyname -a --keyring-backend test) 100000000000000000000ukii,100000000000000000000uusdc,100000000000000000000uatom --keyring-backend test
 # gentx for account
-~/go/bin/kiichaind gentx $keyname 7000000000000000ukii --chain-id kiichain3 --keyring-backend test
+kiichaind gentx $keyname 7000000000000000ukii --chain-id kiichain3 --keyring-backend test
 # add validator information to genesis file
 KEY=$(jq '.pub_key' ~/.kiichain3/config/priv_validator_key.json -c)
 jq '.validators = [{}]' ~/.kiichain3/config/genesis.json > ~/.kiichain3/config/tmp_genesis.json
@@ -50,7 +50,7 @@ echo "Creating Accounts"
 # create 10 test accounts + fund them
 python3  loadtest/scripts/populate_genesis_accounts.py 20 loc
 
-~/go/bin/kiichaind collect-gentxs
+kiichaind collect-gentxs
 # update some params in genesis file for easier use of the chain localls (make gov props faster)
 cat ~/.kiichain3/config/genesis.json | jq '.app_state["gov"]["deposit_params"]["max_deposit_period"]="60s"' > ~/.kiichain3/config/tmp_genesis.json && mv ~/.kiichain3/config/tmp_genesis.json ~/.kiichain3/config/genesis.json
 cat ~/.kiichain3/config/genesis.json | jq '.app_state["gov"]["voting_params"]["voting_period"]="30s"' > ~/.kiichain3/config/tmp_genesis.json && mv ~/.kiichain3/config/tmp_genesis.json ~/.kiichain3/config/genesis.json
@@ -122,7 +122,7 @@ else
   exit 1
 fi
 
-~/go/bin/kiichaind config keyring-backend test
+kiichaind config keyring-backend test
 
 if [ $NO_RUN = 1 ]; then
   echo "No run flag set, exiting without starting the chain"
@@ -130,4 +130,4 @@ if [ $NO_RUN = 1 ]; then
 fi
 
 # start the chain with log tracing
-GORACE="log_path=/tmp/race/kiichaind_race" ~/go/bin/kiichaind start --trace --chain-id kiichain3
+GORACE="log_path=/tmp/race/kiichaind_race" kiichaind start --trace --chain-id kiichain3
