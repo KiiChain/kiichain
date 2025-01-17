@@ -1,0 +1,104 @@
+
+- name: Test Compatibility
+  inputs:
+    # Confirm no panic before upgrade and block height
+    - cmd: verify_running.sh
+      node: kii-node-0
+      env: RUNNING_BEFORE_UPGRADE_NODE_0
+    - cmd: verify_running.sh
+      node: kii-node-1
+      env: RUNNING_BEFORE_UPGRADE_NODE_1
+    - cmd: verify_running.sh
+      node: kii-node-2
+      env: RUNNING_BEFORE_UPGRADE_NODE_2
+    - cmd: verify_running.sh
+      node: kii-node-3
+      env: RUNNING_BEFORE_UPGRADE_NODE_3
+
+    # Get the current binary version
+    - cmd: kiichaind version
+      node: kii-node-0
+      env: BEFORE_UPGRADE_BINARY_VERSION_0
+    - cmd: kiichaind version
+      node: kii-node-1
+      env: BEFORE_UPGRADE_BINARY_VERSION_1
+
+    # Rebuild the binary
+    - cmd: kiichaind_rebuild.sh
+      node: kii-node-0
+      env: BUILD_WAS_COMPLETED
+
+    # Upgrade the binary for note 0 and 1
+    - cmd: kiichaind_upgrade_bin.sh
+      node: kii-node-0
+      env: UPGRADE_COMPLETE_0
+    - cmd: kiichaind_upgrade_bin.sh
+      node: kii-node-1
+      env: UPGRADE_COMPLETE_1
+
+    # Confirm no panic after upgrade and block height
+    - cmd: verify_running.sh
+      node: kii-node-0
+      env: RUNNING_AFTER_UPGRADE_NODE_0
+    - cmd: verify_running.sh
+      node: kii-node-1
+      env: RUNNING_AFTER_UPGRADE_NODE_1
+    - cmd: verify_running.sh
+      node: kii-node-2
+      env: RUNNING_AFTER_UPGRADE_NODE_2
+    - cmd: verify_running.sh
+      node: kii-node-3
+      env: RUNNING_AFTER_UPGRADE_NODE_3
+
+    # Get the new binary version
+    - cmd: kiichaind version
+      node: kii-node-0
+      env: AFTER_UPGRADE_BINARY_VERSION_0
+    - cmd: kiichaind version
+      node: kii-node-1
+      env: AFTER_UPGRADE_BINARY_VERSION_1
+    - cmd: kiichaind version
+      node: kii-node-2
+      env: AFTER_UPGRADE_BINARY_VERSION_2
+
+  verifiers:
+    # Nodes are running before upgrade
+    - type: eval
+      expr: RUNNING_BEFORE_UPGRADE_NODE_0 == "PASS"
+    - type: eval
+      expr: RUNNING_BEFORE_UPGRADE_NODE_1 == "PASS"
+    - type: eval
+      expr: RUNNING_BEFORE_UPGRADE_NODE_2 == "PASS"
+    - type: eval
+      expr: RUNNING_BEFORE_UPGRADE_NODE_3 == "PASS"
+
+    # Check if build was completed
+    - type: eval
+      expr: BUILD_WAS_COMPLETED == "PASS"
+
+    # Check if upgrade was complete
+    - type: eval
+      expr: UPGRADE_COMPLETE_0 == "PASS"
+    - type: eval
+      expr: UPGRADE_COMPLETE_1 == "PASS"
+
+    # Nodes are running after upgrade
+    - type: eval
+      expr: RUNNING_AFTER_UPGRADE_NODE_0 == "PASS"
+    - type: eval
+      expr: RUNNING_AFTER_UPGRADE_NODE_1 == "PASS"
+    - type: eval
+      expr: RUNNING_AFTER_UPGRADE_NODE_2 == "PASS"
+    - type: eval
+      expr: RUNNING_AFTER_UPGRADE_NODE_3 == "PASS"
+    
+    # Check if the binary version have changed
+    # Binaries must have changed on nodes 0 and 1 (before and after upgrades)
+    - type: eval
+      expr: BEFORE_UPGRADE_BINARY_VERSION_0 != AFTER_UPGRADE_BINARY_VERSION_0
+    - type: eval
+      expr: BEFORE_UPGRADE_BINARY_VERSION_1 != AFTER_UPGRADE_BINARY_VERSION_1
+    
+    # Binaries must be different after the upgrade between nodes 0 and 2
+    - type: eval
+      expr: BEFORE_UPGRADE_BINARY_VERSION_0 != AFTER_UPGRADE_BINARY_VERSION_2
