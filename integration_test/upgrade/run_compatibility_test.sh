@@ -18,7 +18,6 @@ trap teardown EXIT
 # - It's started to skip build and use the old binary
 # - It will wait for liveness on the containers
 
-
 # 1. Preparation
 echo "Preparing the old binary"
 mkdir -p build/
@@ -40,3 +39,12 @@ sleep 10
 # 2. Run the compatibility test
 echo "Starting the compatibility test..."
 python3 integration_test/scripts/runner.py integration_test/upgrade/compatibility_test.yaml
+
+# HERE YOU CAN APPLY OTHER TESTS BEFORE THE TEAR DOWN
+# python3 integration_test/scripts/runner.py integration_test/authz_module/send_authorization_test.yaml
+# python3 integration_test/scripts/runner.py integration_test/bank_module/send_funds_test.yaml
+# python3 integration_test/scripts/runner.py integration_test/staking_module/staking_test.yaml
+
+# Start the RPC node
+sudo make run-rpc-node-skipbuild-integration > /dev/null 2>&1 &
+integration_test/evm_module/scripts/evm_tests.sh

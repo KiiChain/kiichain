@@ -29,6 +29,8 @@
       env: BUILD_WAS_COMPLETED
 
     # Upgrade the binary for note 0 and 1
+    - cmd: sleep 20
+      node: kii-node-0
     - cmd: kiichaind_upgrade_bin.sh
       node: kii-node-0
       env: UPGRADE_COMPLETE_0
@@ -60,6 +62,14 @@
     - cmd: kiichaind version
       node: kii-node-2
       env: AFTER_UPGRADE_BINARY_VERSION_2
+
+    # Upgrade the upgrade for the remaining nodes
+    - cmd: kiichaind_upgrade_bin.sh
+      node: kii-node-2
+      env: UPGRADE_COMPLETE_2
+    - cmd: kiichaind_upgrade_bin.sh
+      node: kii-node-3
+      env: UPGRADE_COMPLETE_3
 
   verifiers:
     # Nodes are running before upgrade
@@ -101,4 +111,10 @@
     
     # Binaries must be different after the upgrade between nodes 0 and 2
     - type: eval
-      expr: BEFORE_UPGRADE_BINARY_VERSION_0 != AFTER_UPGRADE_BINARY_VERSION_2
+      expr: AFTER_UPGRADE_BINARY_VERSION_0 != AFTER_UPGRADE_BINARY_VERSION_2
+
+    # Check if upgrade was complete
+    - type: eval
+      expr: UPGRADE_COMPLETE_2 == "PASS"
+    - type: eval
+      expr: UPGRADE_COMPLETE_3 == "PASS"
