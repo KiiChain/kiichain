@@ -23,7 +23,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
 	github.com/rs/cors v1.8.2
-	github.com/sei-protocol/goutils v0.0.2
 	github.com/sei-protocol/sei-db v0.0.27-0.20240123064153-d6dfa112e760
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
@@ -219,11 +218,11 @@ require (
 )
 
 replace (
-	github.com/CosmWasm/wasmd => github.com/sei-protocol/sei-wasmd v0.2.4
+	github.com/CosmWasm/wasmd => github.com/kiichain/kii-wasmd v0.2.4
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 	github.com/cosmos/cosmos-sdk => github.com/KiiChain/kiichain-cosmos v0.3.38
 	github.com/cosmos/iavl => github.com/sei-protocol/sei-iavl v0.2.0
-	github.com/cosmos/ibc-go/v3 => github.com/sei-protocol/sei-ibc-go/v3 v3.3.2
+	github.com/cosmos/ibc-go/v3 => github.com/kiichain/kii-ibc-go/v3 v3.3.2
 	github.com/ethereum/go-ethereum => github.com/sei-protocol/go-ethereum v1.13.5-sei-23
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/sei-protocol/sei-db => github.com/sei-protocol/sei-db v0.0.44

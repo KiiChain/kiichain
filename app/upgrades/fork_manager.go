@@ -4,7 +4,8 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/sei-protocol/goutils"
+
+	goappend "github.com/kiichain/kiichain3/utils/append"
 )
 
 // Chain-ID constants for use in hard fork handlers.
@@ -56,7 +57,7 @@ func (hfm *HardForkManager) RegisterHandler(handler HardForkHandler) {
 	hfm.uniqueNameMap[handlerName] = struct{}{}
 	targetHeight := handler.GetTargetHeight()
 	if handlers, ok := hfm.handlerMap[targetHeight]; ok {
-		goutils.InPlaceAppend[[]HardForkHandler](&handlers, handler)
+		goappend.InPlaceAppend[[]HardForkHandler](&handlers, handler)
 		hfm.handlerMap[targetHeight] = handlers
 	} else {
 		hfm.handlerMap[targetHeight] = []HardForkHandler{handler}
