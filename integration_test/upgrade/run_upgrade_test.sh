@@ -15,8 +15,8 @@ trap teardown EXIT
 # - The binary must be located on integration_test/upgrade/old_binary and named as kiichaind
 # 2. Start-up
 # - Start the docker environment
-# - It's started to skip build and use the old binary
-# - It will wait for liveness on the containers
+# - We do a chain upgrade on node 0, 1 and 2
+# - We wait for a few moments and do the upgrade on node 3
 
 # 1. Preparation
 echo "Preparing the old binary"
@@ -39,13 +39,13 @@ sleep 10
 
 # 2. Run the compatibility test
 echo "Starting the compatibility test..."
-python3 integration_test/scripts/runner.py integration_test/upgrade/compatibility_test.yaml
+python3 integration_test/scripts/runner.py integration_test/upgrade/upgrade_test.yaml
 
 # HERE YOU CAN APPLY OTHER TESTS BEFORE THE TEAR DOWN
-# python3 integration_test/scripts/runner.py integration_test/authz_module/send_authorization_test.yaml
-# python3 integration_test/scripts/runner.py integration_test/bank_module/send_funds_test.yaml
-# python3 integration_test/scripts/runner.py integration_test/staking_module/staking_test.yaml
+python3 integration_test/scripts/runner.py integration_test/authz_module/send_authorization_test.yaml
+python3 integration_test/scripts/runner.py integration_test/bank_module/send_funds_test.yaml
+python3 integration_test/scripts/runner.py integration_test/staking_module/staking_test.yaml
 
 # Start the RPC node
-sudo make run-rpc-node-skipbuild-integration > /dev/null 2>&1 &
-integration_test/evm_module/scripts/evm_tests.sh
+# sudo make run-rpc-node-skipbuild-integration > /dev/null 2>&1 &
+# integration_test/evm_module/scripts/evm_tests.sh

@@ -28,7 +28,7 @@
       node: kii-node-0
       env: BUILD_WAS_COMPLETED
 
-    # Upgrade the binary for note 0 and 1
+    # Upgrade the binary for node 0 and 1
     - cmd: sleep 20
       node: kii-node-0
     - cmd: kiichaind_upgrade_bin.sh
