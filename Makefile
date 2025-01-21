@@ -86,6 +86,7 @@ go.sum: go.mod
 
 build:
 	go build $(BUILD_FLAGS) -o ./build/kiichaind ./cmd/kiichaind
+.PHONY: build
 
 # build-price-feeder:
 # 	go build $(BUILD_FLAGS) -o ./build/price-feeder ./oracle/price-feeder
@@ -95,7 +96,6 @@ clean:
 
 build-loadtest:
 	go build -o build/loadtest ./loadtest/
-
 
 ###############################################################################
 ###                       Local testing using docker container              ###
@@ -237,6 +237,10 @@ run-rpc-node-skipbuild-integration: build-rpc-node-integration
 	--platform linux/x86_64 \
 	--env SKIP_BUILD=true \
 	kiichain3/rpcnode
+
+docker-cluster-start-skipbuild-integration: docker-cluster-stop-integration build-docker-integration
+	@rm -rf $(PROJECT_HOME)/build/generated
+	@cd integration_test/docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) NUM_ACCOUNTS=10 SKIP_BUILD=true docker compose up
 
 ###############################################################################
 ###                               Tests                                     ###

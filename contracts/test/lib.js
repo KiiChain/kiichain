@@ -49,7 +49,7 @@ function sleep(ms) {
 }
 
 async function delay() {
-    await sleep(1000)
+    await sleep(5000)
 }
 
 async function getCosmosTx(provider, evmTxHash) {
