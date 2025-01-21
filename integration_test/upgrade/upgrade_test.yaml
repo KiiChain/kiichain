@@ -1,0 +1,180 @@
+
+- name: Test Compatibility
+  inputs:
+    - cmd: echo "1.3.0"
+      env: VERSION
+
+    # PASS PROPOSAL FOR MAJOR UPGRADE
+    # Get block for 30s from now
+    - cmd: proposal_target_height.sh 30
+      env: TARGET_HEIGHT
+      node: kii-node-0
+      
+    # Submit the software upgrade proposal
+    - cmd: proposal_submit.sh $TARGET_HEIGHT major $VERSION
+      env: PROPOSAL_ID
+      node: kii-node-0
+
+    # Vote with all nodes
+    - cmd: proposal_vote.sh $PROPOSAL_ID
+      node: kii-node-0
+    - cmd: proposal_vote.sh $PROPOSAL_ID
+      node: kii-node-1
+    - cmd:  proposal_vote.sh $PROPOSAL_ID
+      node: kii-node-2
+    - cmd:  proposal_vote.sh $PROPOSAL_ID
+      node: kii-node-3
+  
+    # Wait for the proposal to pass
+    - cmd: proposal_wait_for_pass.sh $PROPOSAL_ID
+      node: kii-node-0
+    
+    # EXECUTE UPGRADE SCENARIOS
+    # Confirm no panic before upgrade and block height
+    - cmd: verify_running.sh
+      node: kii-node-0
+      env: RUNNING_BEFORE_UPGRADE_NODE_0
+    - cmd: verify_running.sh
+      node: kii-node-1
+      env: RUNNING_BEFORE_UPGRADE_NODE_1
+    - cmd: verify_running.sh
+      node: kii-node-2
+      env: RUNNING_BEFORE_UPGRADE_NODE_2
+    - cmd: verify_running.sh
+      node: kii-node-3
+      env: RUNNING_BEFORE_UPGRADE_NODE_3
+
+    # Wait for the target height (non-panicked nodes)
+    - cmd: wait_for_height.sh $TARGET_HEIGHT
+      node: kii-node-0
+    - cmd: wait_for_height.sh $TARGET_HEIGHT
+      node: kii-node-1
+    - cmd: wait_for_height.sh $TARGET_HEIGHT
+      node: kii-node-2
+    - cmd: wait_for_height.sh $TARGET_HEIGHT
+      node: kii-node-3
+
+    # Confirm panic and UPGRADE NEEDED log message for non-upgraded node
+    - cmd: verify_panic.sh $TARGET_HEIGHT
+      node: kii-node-0
+      env: PANIC_AT_BLOCK_HEIGHT_NODE_0
+    - cmd: verify_panic.sh $TARGET_HEIGHT
+      node: kii-node-1
+      env: PANIC_AT_BLOCK_HEIGHT_NODE_1
+    - cmd: verify_panic.sh $TARGET_HEIGHT
+      node: kii-node-2
+      env: PANIC_AT_BLOCK_HEIGHT_NODE_2
+    - cmd: verify_panic.sh $TARGET_HEIGHT
+      node: kii-node-3
+      env: PANIC_AT_BLOCK_HEIGHT_NODE_3
+
+    # Rebuild the binary
+    - cmd: kiichaind_rebuild.sh
+      node: kii-node-0
+      env: BUILD_WAS_COMPLETED
+
+    # Upgrade the binary for node 0, 1 and 2
+    - cmd: kiichaind_upgrade_bin.sh
+      node: kii-node-0
+      env: UPGRADE_COMPLETE_0
+    - cmd: kiichaind_upgrade_bin.sh
+      node: kii-node-1
+      env: UPGRADE_COMPLETE_1
+    - cmd: kiichaind_upgrade_bin.sh
+      node: kii-node-2
+      env: UPGRADE_COMPLETE_2
+    - cmd: kiichaind_upgrade_bin.sh
+      node: kii-node-3
+      env: UPGRADE_COMPLETE_3
+
+    # Confirm no panic after upgrade and block height
+    - cmd: verify_running.sh
+      node: kii-node-0
+      env: RUNNING_AFTER_UPGRADE_NODE_0
+    - cmd: verify_running.sh
+      node: kii-node-1
+      env: RUNNING_AFTER_UPGRADE_NODE_1
+    - cmd: verify_running.sh
+      node: kii-node-2
+      env: RUNNING_AFTER_UPGRADE_NODE_2
+    - cmd: verify_running.sh
+      node: kii-node-3
+      env: RUNNING_AFTER_UPGRADE_NODE_3
+
+    # Now we must check consensus
+    - cmd: proposal_target_height.sh 20
+      env: CONSENSUS_HEIGHT
+      node: kii-node-0
+
+    # Wait for the target height on all nodes
+    - cmd: wait_for_height.sh $CONSENSUS_HEIGHT
+      node: kii-node-0
+    - cmd: wait_for_height.sh $CONSENSUS_HEIGHT
+      node: kii-node-1
+    - cmd: wait_for_height.sh $CONSENSUS_HEIGHT
+      node: kii-node-2
+    - cmd: wait_for_height.sh $CONSENSUS_HEIGHT
+      node: kii-node-3
+
+    # Check if nodes are still running
+    - cmd: verify_running.sh
+      node: kii-node-0
+      env: RUNNING_CONSENSUS_UPGRADE_NODE_0
+    - cmd: verify_running.sh
+      node: kii-node-1
+      env: RUNNING_CONSENSUS_UPGRADE_NODE_1
+    - cmd: verify_running.sh
+      node: kii-node-2
+      env: RUNNING_CONSENSUS_UPGRADE_NODE_2
+    - cmd: verify_running.sh
+      node: kii-node-3
+      env: RUNNING_CONSENSUS_UPGRADE_NODE_3
+
+  verifiers:
+    # Nodes are running before upgrade
+    - type: eval
+      expr: RUNNING_BEFORE_UPGRADE_NODE_0 == "PASS"
+    - type: eval
+      expr: RUNNING_BEFORE_UPGRADE_NODE_1 == "PASS"
+    - type: eval
+      expr: RUNNING_BEFORE_UPGRADE_NODE_2 == "PASS"
+    - type: eval
+      expr: RUNNING_BEFORE_UPGRADE_NODE_3 == "PASS"
+
+    # Confirm panic
+    - type: eval
+      expr: PANIC_AT_BLOCK_HEIGHT_NODE_0 == "PASS"
+    - type: eval
+      expr: PANIC_AT_BLOCK_HEIGHT_NODE_1 == "PASS"
+    - type: eval
+      expr: PANIC_AT_BLOCK_HEIGHT_NODE_2 == "PASS"
+    - type: eval
+      expr: PANIC_AT_BLOCK_HEIGHT_NODE_3 == "PASS"
+
+    # Check if upgrade was complete
+    - type: eval
+      expr: UPGRADE_COMPLETE_0 == "PASS"
+    - type: eval
+      expr: UPGRADE_COMPLETE_1 == "PASS"
+    - type: eval
+      expr: UPGRADE_COMPLETE_2 == "PASS"
+
+    # Nodes are running after upgrade
+    - type: eval
+      expr: RUNNING_AFTER_UPGRADE_NODE_0 == "PASS"
+    - type: eval
+      expr: RUNNING_AFTER_UPGRADE_NODE_1 == "PASS"
+    - type: eval
+      expr: RUNNING_AFTER_UPGRADE_NODE_2 == "PASS"
+    - type: eval
+      expr: RUNNING_AFTER_UPGRADE_NODE_3 == "PASS"
+
+    # Nodes are running after consensus
+    - type: eval
+      expr: RUNNING_CONSENSUS_UPGRADE_NODE_0 == "PASS"
+    - type: eval
+      expr: RUNNING_CONSENSUS_UPGRADE_NODE_1 == "PASS"
+    - type: eval
+      expr: RUNNING_CONSENSUS_UPGRADE_NODE_2 == "PASS"
+    - type: eval
+      expr: RUNNING_CONSENSUS_UPGRADE_NODE_3 == "PASS"

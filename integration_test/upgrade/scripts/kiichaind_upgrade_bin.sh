@@ -10,7 +10,9 @@ export GOPATH=$HOME/go
 export GOBIN=$GOPATH/bin
 
 # kill the existing service
-pkill -f "kiichaind start"
+if pgrep -f "kiichaind start"; then
+  pkill -f "kiichaind start"
+fi
 sleep 10
 
 # Verify the process is no longer running
