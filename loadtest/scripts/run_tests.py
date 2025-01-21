@@ -65,7 +65,7 @@ def create_continuous_loadtest_config(base_config_json):
 
 def read_config_json(config_json_file_path):
     # Default path for running on EC2 instances
-    file_path = "/home/ubuntu/sei-chain/loadtest/config.json"
+    file_path = "/home/ubuntu/kii-chain/loadtest/config.json"
 
     if config_json_file_path is not None:
         file_path = config_json_file_path
@@ -76,7 +76,7 @@ def read_config_json(config_json_file_path):
 
 def run_go_loadtest_client(config_file_path, binary_path):
     # Default path for running on EC2 instances
-    cmd = ["/home/ubuntu/sei-chain/build/loadtest", "-config-file", config_file_path]
+    cmd = ["/home/ubuntu/kii-chain/build/loadtest", "-config-file", config_file_path]
     if binary_path is not None:
        cmd[0] = binary_path
 

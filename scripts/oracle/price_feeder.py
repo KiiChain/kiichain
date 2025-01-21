@@ -88,7 +88,7 @@ def main():
     parser.add_argument("password", help='The keychain password', type=str)
     parser.add_argument('chain_id', help='Chain id', type=str)
     parser.add_argument('coins', help='The coins to use', type=str)
-    parser.add_argument('--binary', help='Your seid binary path', type=str, default=str(Path.home()) + '/go/bin/seid')
+    parser.add_argument('--binary', help='Your kiichaind binary path', type=str, default=str(Path.home()) + '/go/bin/kiichaind')
     parser.add_argument('--node', help='The node to contact', type=str, default='http://localhost:26657')
     parser.add_argument('--interval', help='How long time to sleep between price checks', type=int, default=5)
     parser.add_argument('--vote-period', help='how many blocks is the vote period', type=int, default=10)

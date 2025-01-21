@@ -88,7 +88,7 @@ def take_manual_inputs():
 
 # Fetch chain data
 def get_rpc_server(chain_id):
-    chains_json_url = "https://raw.githubusercontent.com/sei-protocol/chain-registry/main/chains.json"
+    chains_json_url = "https://raw.githubusercontent.com/kiichain/chain-registry/main/chains.json"
     response = requests.get(chains_json_url)
     if response.status_code != 200:
         logging.error("Failed to retrieve chain information.")
@@ -199,7 +199,7 @@ def get_persistent_peers(rpc_url):
 
 # Fetch and write genesis file directly from source
 def write_genesis_file(chain_id):
-    genesis_url = f"https://raw.githubusercontent.com/sei-protocol/testnet/main/remote/genesis.json"
+    genesis_url = f"https://raw.githubusercontent.com/kiichain/testnet/main/remote/genesis.json"
     response = requests.get(genesis_url)
     if response.status_code == 200:
         genesis_path = os.path.expanduser('~/.kiichain3/config/genesis.json')

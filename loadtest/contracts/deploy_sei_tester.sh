@@ -1,31 +1,31 @@
 #!/bin/bash
-seidbin=$(which ~/go/bin/seid | tr -d '"')
-keyname=$(printf "12345678\n" | $seidbin keys list --output json | jq ".[0].name" | tr -d '"')
-chainid=$($seidbin status | jq ".NodeInfo.network" | tr -d '"')
-seihome=$(git rev-parse --show-toplevel | tr -d '"')
+kiidbin=$(which ~/go/bin/kiichaind | tr -d '"')
+keyname=$(printf "12345678\n" | $kiidbin keys list --output json | jq ".[0].name" | tr -d '"')
+chainid=$($kiidbin status | jq ".NodeInfo.network" | tr -d '"')
+kiihome=$(git rev-parse --show-toplevel | tr -d '"')
 
 echo $keyname
-echo $seidbin
+echo $kiidbin
 echo $chainid
-echo $seihome
+echo $kiihome
 
 # Deploy all contracts
-echo "Deploying sei tester contract"
+echo "Deploying kii tester contract"
 
-cd $seihome/loadtest/contracts
+cd $kiihome/loadtest/contracts
 # store
 echo "Storing..."
 
-sei_tester_res=$(printf "12345678\n" | $seidbin tx wasm store sei_tester.wasm -y --from=$keyname --chain-id=$chainid --gas=5000000 --fees=1000000ukii --broadcast-mode=block --output=json)
-sei_tester_id=$(python3 parser.py code_id $sei_tester_res)
+kii_tester_res=$(printf "12345678\n" | $kiidbin tx wasm store kii_tester.wasm -y --from=$keyname --chain-id=$chainid --gas=5000000 --fees=1000000ukii --broadcast-mode=block --output=json)
+kii_tester_id=$(python3 parser.py code_id $kii_tester_res)
 
 # instantiate
 echo "Instantiating..."
-tester_in_res=$(printf "12345678\n" | $seidbin tx wasm instantiate $sei_tester_id '{}' -y --no-admin --from=$keyname --chain-id=$chainid --gas=5000000 --fees=1000000ukii --broadcast-mode=block  --label=dex --output=json)
+tester_in_res=$(printf "12345678\n" | $kiidbin tx wasm instantiate $kii_tester_id '{}' -y --no-admin --from=$keyname --chain-id=$chainid --gas=5000000 --fees=1000000ukii --broadcast-mode=block  --label=dex --output=json)
 tester_addr=$(python3 parser.py contract_address $tester_in_res)
 
 # TODO fix once implemented in loadtest config
-jq '.sei_tester_address = "'$tester_addr'"' $seihome/loadtest/config.json > $seihome/loadtest/config_temp.json && mv $seihome/loadtest/config_temp.json $seihome/loadtest/config.json
+jq '.kii_tester_address = "'$tester_addr'"' $kiihome/loadtest/config.json > $kiihome/loadtest/config_temp.json && mv $kiihome/loadtest/config_temp.json $kiihome/loadtest/config.json
 
 
 echo "Deployed contracts:"

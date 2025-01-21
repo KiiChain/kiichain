@@ -1,6 +1,6 @@
 use cosmwasm_std::Decimal;
 use schemars::JsonSchema;
-use sei_cosmwasm::{Order};
+use kii_cosmwasm::{Order};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, JsonSchema)]

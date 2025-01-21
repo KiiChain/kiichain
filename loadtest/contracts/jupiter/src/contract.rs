@@ -7,8 +7,8 @@ use crate::msg::{
     BulkOrderPlacementsResponse, DepositInfo, InstantiateMsg, LiquidationRequest,
     LiquidationResponse, SettlementEntry, SudoMsg,
 };
-use sei_cosmwasm::{
-    Order, SeiMsg, SeiQueryWrapper, PositionDirection, OrderType,
+use kii_cosmwasm::{
+    Order, KiiMsg, KiiQueryWrapper, PositionDirection, OrderType,
 };
 
 #[entry_point]
@@ -17,13 +17,13 @@ pub fn instantiate(
     _env: Env,
     _info: MessageInfo,
     msg: InstantiateMsg,
-) -> StdResult<Response<SeiMsg>> {
+) -> StdResult<Response<KiiMsg>> {
     MARS_ADDR.save(deps.storage, &msg.mars_address)?;
     Ok(Response::new())
 }
 
 #[entry_point]
-pub fn sudo(deps: DepsMut<SeiQueryWrapper>, env: Env, msg: SudoMsg) -> Result<Response<SeiMsg>, StdError> {
+pub fn sudo(deps: DepsMut<KiiQueryWrapper>, env: Env, msg: SudoMsg) -> Result<Response<KiiMsg>, StdError> {
     match msg {
         SudoMsg::Settlement { epoch, entries } => process_settlements(deps, entries, epoch),
         SudoMsg::NewBlock { epoch } => handle_new_block(deps, env, epoch),
@@ -36,27 +36,27 @@ pub fn sudo(deps: DepsMut<SeiQueryWrapper>, env: Env, msg: SudoMsg) -> Result<Re
 }
 
 pub fn process_settlements(
-    _deps: DepsMut<SeiQueryWrapper>,
+    _deps: DepsMut<KiiQueryWrapper>,
     _entries: Vec<SettlementEntry>,
     _epoch: i64,
-) -> Result<Response<SeiMsg>, StdError> {
+) -> Result<Response<KiiMsg>, StdError> {
     Ok(Response::new())
 }
 
 pub fn handle_new_block(
-    _deps: DepsMut<SeiQueryWrapper>,
+    _deps: DepsMut<KiiQueryWrapper>,
     _env: Env,
     _epoch: i64,
-) -> Result<Response<SeiMsg>, StdError> {
+) -> Result<Response<KiiMsg>, StdError> {
     Ok(Response::new())
 }
 
 pub fn process_bulk_order_placements(
-    deps: DepsMut<SeiQueryWrapper>,
+    deps: DepsMut<KiiQueryWrapper>,
     env: Env,
     _orders: Vec<Order>,
     _deposits: Vec<DepositInfo>,
-) -> Result<Response<SeiMsg>, StdError> {
+) -> Result<Response<KiiMsg>, StdError> {
     let response = BulkOrderPlacementsResponse {
         unsuccessful_orders: vec![],
     };
@@ -78,7 +78,7 @@ pub fn process_bulk_order_placements(
         let order_placement = Order {
             price: Decimal::from_atomics(120u128, 0).unwrap(),
             quantity: Decimal::one(),
-            price_denom: "SEI".to_string(),
+            price_denom: "KII".to_string(),
             asset_denom: "ATOM".to_string(),
             position_direction: PositionDirection::Long,
             order_type: OrderType::Limit,
@@ -86,7 +86,7 @@ pub fn process_bulk_order_placements(
             status_description: "".to_string(),
             nominal: Decimal::zero(),
         };
-        let order = sei_cosmwasm::SeiMsg::PlaceOrders {
+        let order = kii_cosmwasm::KiiMsg::PlaceOrders {
             funds: vec![],
             orders: vec![order_placement],
             contract_address: MARS_ADDR.load(deps.storage)?,
@@ -98,17 +98,17 @@ pub fn process_bulk_order_placements(
 }
 
 pub fn process_bulk_order_cancellations(
-    _deps: DepsMut<SeiQueryWrapper>,
+    _deps: DepsMut<KiiQueryWrapper>,
     _ids: Vec<u64>,
-) -> Result<Response<SeiMsg>, StdError> {
+) -> Result<Response<KiiMsg>, StdError> {
     Ok(Response::new())
 }
 
 pub fn process_bulk_liquidation(
-    _deps: DepsMut<SeiQueryWrapper>,
+    _deps: DepsMut<KiiQueryWrapper>,
     _env: Env,
     _requests: Vec<LiquidationRequest>,
-) -> Result<Response<SeiMsg>, StdError> {
+) -> Result<Response<KiiMsg>, StdError> {
     let response = LiquidationResponse {
         successful_accounts: vec![],
         liquidation_orders: vec![],

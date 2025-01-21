@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 
 # for internal loadtest only
-CMD_TMPL = "printf '{password}\n' | " + str(Path.home()) + "/go/bin/seid"
+CMD_TMPL = "printf '{password}\n' | " + str(Path.home()) + "/go/bin/kiichaind"
 PREVOTE_TMPL = (
     " tx oracle aggregate-prevote abc 0uusdc,0uatom {val_addr} --from={key} "
     "--chain-id={chain_id} --fees=2000ukii -y --broadcast-mode=sync"
@@ -16,7 +16,7 @@ VOTE_TMPL = (
 )
 
 KEY = "default_account"
-CHAIN_ID = "sei-testnet-2"
+CHAIN_ID = "kii-testnet-2"
 PASSWORD = ""
 ADDR = ""
 VAL_ADDR = ""

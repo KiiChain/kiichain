@@ -7,8 +7,8 @@ use crate::msg::{
     BulkOrderPlacementsResponse, DepositInfo, InstantiateMsg, LiquidationRequest,
     LiquidationResponse, SettlementEntry, SudoMsg,
 };
-use sei_cosmwasm::{
-    Order, SeiMsg, SeiQueryWrapper,
+use kii_cosmwasm::{
+    Order, KiiMsg, KiiQueryWrapper,
 };
 
 #[entry_point]
@@ -17,12 +17,12 @@ pub fn instantiate(
     _env: Env,
     _info: MessageInfo,
     _msg: InstantiateMsg,
-) -> StdResult<Response<SeiMsg>> {
+) -> StdResult<Response<KiiMsg>> {
     Ok(Response::new())
 }
 
 #[entry_point]
-pub fn sudo(deps: DepsMut<SeiQueryWrapper>, env: Env, msg: SudoMsg) -> Result<Response, StdError> {
+pub fn sudo(deps: DepsMut<KiiQueryWrapper>, env: Env, msg: SudoMsg) -> Result<Response, StdError> {
     match msg {
         SudoMsg::Settlement { epoch, entries } => process_settlements(deps, entries, epoch),
         SudoMsg::NewBlock { epoch } => handle_new_block(deps, env, epoch),
@@ -35,7 +35,7 @@ pub fn sudo(deps: DepsMut<SeiQueryWrapper>, env: Env, msg: SudoMsg) -> Result<Re
 }
 
 pub fn process_settlements(
-    _deps: DepsMut<SeiQueryWrapper>,
+    _deps: DepsMut<KiiQueryWrapper>,
     _entries: Vec<SettlementEntry>,
     _epoch: i64,
 ) -> Result<Response, StdError> {
@@ -43,7 +43,7 @@ pub fn process_settlements(
 }
 
 pub fn handle_new_block(
-    _deps: DepsMut<SeiQueryWrapper>,
+    _deps: DepsMut<KiiQueryWrapper>,
     _env: Env,
     _epoch: i64,
 ) -> Result<Response, StdError> {
@@ -51,7 +51,7 @@ pub fn handle_new_block(
 }
 
 pub fn process_bulk_order_placements(
-    _deps: DepsMut<SeiQueryWrapper>,
+    _deps: DepsMut<KiiQueryWrapper>,
     _orders: Vec<Order>,
     _deposits: Vec<DepositInfo>,
 ) -> Result<Response, StdError> {
@@ -74,14 +74,14 @@ pub fn process_bulk_order_placements(
 }
 
 pub fn process_bulk_order_cancellations(
-    _deps: DepsMut<SeiQueryWrapper>,
+    _deps: DepsMut<KiiQueryWrapper>,
     _ids: Vec<u64>,
 ) -> Result<Response, StdError> {
     Ok(Response::new())
 }
 
 pub fn process_bulk_liquidation(
-    _deps: DepsMut<SeiQueryWrapper>,
+    _deps: DepsMut<KiiQueryWrapper>,
     _env: Env,
     _requests: Vec<LiquidationRequest>,
 ) -> Result<Response, StdError> {
