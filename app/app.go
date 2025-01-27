@@ -129,6 +129,10 @@ import (
 	mintclient "github.com/kiichain/kiichain3/x/mint/client/cli"
 	mintkeeper "github.com/kiichain/kiichain3/x/mint/keeper"
 	minttypes "github.com/kiichain/kiichain3/x/mint/types"
+	"github.com/kiichain/kiichain3/x/oracle"
+
+	oraclemodulekeeper "github.com/kiichain/kiichain3/x/oracle/keeper"
+	oraclemoduletypes "github.com/kiichain/kiichain3/x/oracle/types"
 
 	tokenfactorymodule "github.com/kiichain/kiichain3/x/tokenfactory"
 	tokenfactorykeeper "github.com/kiichain/kiichain3/x/tokenfactory/keeper"
@@ -204,6 +208,7 @@ var (
 		wasm.AppModuleBasic{},
 		epochmodule.AppModuleBasic{},
 		tokenfactorymodule.AppModuleBasic{},
+		oracle.AppModule{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -323,6 +328,7 @@ type App struct {
 	FeeGrantKeeper      feegrantkeeper.Keeper
 	WasmKeeper          wasm.Keeper
 	EvmKeeper           evmkeeper.Keeper
+	OracleKeeper        oraclemodulekeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -404,6 +410,7 @@ func New(
 		evmtypes.StoreKey, wasm.StoreKey,
 		epochmoduletypes.StoreKey,
 		tokenfactorytypes.StoreKey,
+		oraclemoduletypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientStoreKey)
@@ -668,6 +675,9 @@ func New(
 		&stakingKeeper, govRouter,
 	)
 
+	// Initialize the oracle keeper
+	app.OracleKeeper = oraclemodulekeeper.NewKeeper(keys[oraclemoduletypes.StoreKey], appCodec, app.GetSubspace(oraclemoduletypes.ModuleName))
+
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -730,6 +740,7 @@ func New(
 		params.NewAppModule(app.ParamsKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		evm.NewAppModule(appCodec, &app.EvmKeeper),
+		// oraclemodule.NewAppModule(appCodec, app.OracleKeeper), // TODO: Implement AppModule interface
 		transferModule,
 		epochModule,
 		tokenfactorymodule.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper),
@@ -822,6 +833,7 @@ func New(
 		wasm.ModuleName,
 		evmtypes.ModuleName,
 		acltypes.ModuleName,
+		oraclemoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
