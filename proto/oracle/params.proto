@@ -1,0 +1,71 @@
+syntax = "proto3";
+package kiichain.kiichain3.oracle;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/kiichain/kiichain3/x/oracle/types";
+
+// Params defines the parameters for the module
+message Params {
+    option (gogoproto.equal)            = true;
+    option (gogoproto.goproto_stringer) = false; // Allow custom logs 
+    
+    // The number of blocks per voting 
+    uint64 vote_period =1 [(gogoproto.moretags) = "yaml:\"vote_period\""];
+
+    // Minimun percentage of validators required to approve a price. For instance, if vote_threshold = "0.5" at least 50% of validators must submit votes 
+    // "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
+    string vote_threshold = 2 [
+        (gogoproto.moretags) = "yaml:\"vote_threshold\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", 
+        (gogoproto.nullable) = false 
+    ];        
+
+    // Acceptable desviation from the media price (higher and lower)
+    // "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
+    string reward_band = 3 [
+        (gogoproto.moretags) = "yaml:\"reward_band\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", 
+        (gogoproto.nullable) = false
+    ];
+
+    // List of allowed assets 
+    // DenomList = Alias to handle a list of Denom easier (instead of use []Denom use just DenomList as a data type)
+    repeated Denom whitelist = 4 [
+        (gogoproto.moretags) = "yaml:\"whitelist\"",
+        (gogoproto.castrepeated) = "DenomList", 
+        (gogoproto.nullable) = false
+    ];
+
+    // How much stake is slashed if a validator fails to submit votes 
+    // "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
+    string slash_fraction = 5 [
+        (gogoproto.moretags) = "yaml:\"slash_fraction\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", 
+        (gogoproto.nullable) = false
+    ];
+
+    // Define the window (in blocks) to vote, if not receive penalties due to bad performance
+    uint64 slash_window = 6 [(gogoproto.moretags) = "yaml:\"slash_window\""];
+
+    // Minimum percentage of voting on windows to avoid slashing. For instance, if min_valid_per_window = 0.8, then a validator must submit votes in 80% of windows to avoid slashing 
+    // "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
+    string min_valid_per_window = 7 [
+        (gogoproto.moretags) = "yaml:\"min_valid_per_window\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", 
+        (gogoproto.nullable) = false
+    ];
+
+    // How far back (in blocks) the module can compute historical price metrics 
+    int64 lookback_duration = 9 [(gogoproto.moretags) = "yaml:\"lookback_duration\""];
+    
+}
+
+message Denom {
+    option (gogoproto.equal)            = false;
+    option (gogoproto.goproto_stringer) = false;
+    option (gogoproto.goproto_getters) = false; // 
+
+    // Stores the name of a token pair, e.g: "BTC/USD"
+    string name = 1 [(gogoproto.moretags) = "yaml:\"name\""];
+}
