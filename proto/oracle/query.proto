@@ -1,0 +1,19 @@
+syntax = "proto3";
+package kiichain.kiichain3.oracle;
+
+import "gogoproto/gogo.proto";
+// import "google/api/annotations.proto";
+import "oracle/params.proto";
+
+option go_package = "github.com/kiichain/kiichain3/x/oracle/types";
+
+// Query defines the gRPC querier service
+service Query{
+    rpc Params(QueryParamsRequest) returns (QueryParamsResponse);
+}
+
+message QueryParamsRequest {}
+
+message QueryParamsResponse{
+    Params params = 1 [(gogoproto.nullable) = false];
+}

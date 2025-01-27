@@ -1,0 +1,11 @@
+syntax = "proto3";
+package kiichain.kiichain3.oracle;
+
+import "gogoproto/gogo.proto";
+import "oracle/params.proto";
+
+option go_package = "github.com/kiichain/kiichain3/x/oracle/types";
+
+message GenesisState{
+    Params params = 1 [(gogoproto.nullable) = false];
+}
