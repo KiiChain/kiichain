@@ -26,6 +26,7 @@ type Keeper struct {
 	distrName string
 }
 
+// NewKeeper creates an oracle Keeper instance
 func NewKeeper(cdc codec.BinaryCodec, storeKey sdk.StoreKey, memKey sdk.StoreKey, paramSpace paramstypes.Subspace,
 	accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper, StakingKeeper types.StakingKeeper,
 	distrName string) Keeper {
