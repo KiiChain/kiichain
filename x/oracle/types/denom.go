@@ -17,6 +17,7 @@ func (d Denom) Equal(d1 *Denom) bool {
 	return d.Name == d1.Name
 }
 
+// DenomList represents an array of Denom elements
 type DenomList []Denom
 
 // String implements fmt.Stringer interface for
