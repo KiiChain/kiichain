@@ -59,7 +59,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // **************************** EXCHANGE RATE LOGIC ***************************
-// GetBaseExchangeRate
+// SetBaseExchangeRate is used to set the exchange rate by denom from the KVStore
 func (k Keeper) GetBaseExchangeRate(ctx sdk.Context, denom string) (sdk.Dec, sdk.Int, int64, error) {
 	// Get ExchangeRate from KVStore
 	store := ctx.KVStore(k.storeKey)
