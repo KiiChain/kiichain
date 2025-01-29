@@ -14,6 +14,7 @@ func DefaultGenesisState() *GenesisState {
 	}
 }
 
+// ValidateGenesis executes the Validate function for an input genesis data
 func ValidateGenesis(data *GenesisState) error {
 	return data.Params.Validate()
 }
