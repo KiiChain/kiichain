@@ -7,6 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/kiichain/kiichain3/x/oracle/types"
 )
@@ -57,13 +58,13 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // **************************** EXCHANGE RATE LOGIC ***************************
-// GetBaseExchangeRate
+// GetBaseExchangeRate returns the exchange rate info by denom (exchange rate, lastupdate int time, lastupdate int time, )
 func (k Keeper) GetBaseExchangeRate(ctx sdk.Context, denom string) (sdk.Dec, sdk.Int, int64, error) {
-	// Get ExchangeRate from KVStore
+	// Get the ExchangeRate of the specific denom from KVStore
 	store := ctx.KVStore(k.storeKey)
 	byteData := store.Get(types.GetExchangeRateKey(denom))
 	if byteData == nil {
-
+		return sdk.ZeroDec(), sdk.ZeroInt(), 0, sdkerrors.Wrap(types.ErrUnknownDenom, denom)
 	}
 
 	// Decode ExchangeRate
@@ -71,5 +72,3 @@ func (k Keeper) GetBaseExchangeRate(ctx sdk.Context, denom string) (sdk.Dec, sdk
 	k.cdc.MustUnmarshal(byteData, exchangeRate)
 	return exchangeRate.ExchangeRate, exchangeRate.LastUpdate, exchangeRate.LastUpdateTimestamp, nil
 }
-
-// ****************************************************************************
