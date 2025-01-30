@@ -17,6 +17,7 @@ func (d Denom) Equal(d1 *Denom) bool {
 	return d.Name == d1.Name
 }
 
+// DenomList represents an array of Denom elements
 type DenomList []Denom
 
 // String implements fmt.Stringer interface for
@@ -25,4 +26,14 @@ func (dl DenomList) String() (out string) {
 		out += denom.String() + "\n"
 	}
 	return strings.TrimSpace(out)
+}
+
+// Contains iterates the denomList and return true if the demon is placed on the list
+func (dl DenomList) Contains(denom string) bool {
+	for _, d := range dl {
+		if d.Name == denom {
+			return true
+		}
+	}
+	return false
 }
