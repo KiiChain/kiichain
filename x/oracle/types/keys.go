@@ -68,9 +68,9 @@ func GetVoteTargetKey(denom string) []byte {
 
 // ExtractDenomFromVoteTargetKey extracts the denom from a value result
 // e.g: [0x05]["BTC/USD"] -> ExtractDenomFromVoteTargetKey -> "BTC/USD"
-func ExtractDenomFromVoteTargetKey(key []byte) (denom string) {
-	denom = string(key[1:])
-	return
+func ExtractDenomFromVoteTargetKey(key []byte) string {
+	denom := string(key[1:])
+	return denom
 }
 
 // GetPriceSnapshotKey returns the key to search the price snapshot by timestamp
