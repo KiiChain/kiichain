@@ -78,10 +78,10 @@ github.com/GoogleCloudPlatform/cloudsql-proxy v0.0.0-20190129172621-c8b1d7a94ddf
 github.com/HdrHistogram/hdrhistogram-go v1.1.2/go.mod h1:yDgFjdqOqDEKOvasDdhWNXYg9BVp4O+o5f6V/ehm6Oo=
 github.com/Joker/hpp v1.0.0/go.mod h1:8x5n+M1Hp5hC0g8okX3sR3vFQwynaX/UgSOM9MeBKzY=
 github.com/Joker/jade v1.0.1-0.20190614124447-d475f43051e7/go.mod h1:6E6s8o2AE4KhCrqr6GRJjdC/gNfTdxkIXvuGZZda2VM=
-github.com/KiiChain/kiichain-cosmos v0.3.38 h1:6p4swkJZIlBGr3BHe7uG5tqeyW3/QCj8n3Bfud7zaaU=
-github.com/KiiChain/kiichain-cosmos v0.3.38/go.mod h1:ZwWxF/69WlcLEn4BzVjPPToTFkE2sjPanU8PNNyKoOk=
-github.com/KiiChain/kiichain-tendermint v0.3.8 h1:qFDLPpGRwp4t7Ru1FTC1Nah2U5b7kaFYxkFFRgWEk2I=
-github.com/KiiChain/kiichain-tendermint v0.3.8/go.mod h1:4LSlJdhl3nf3OmohliwRNUFLOB1XWlrmSodrIP7fLh4=
+github.com/KiiChain/kiichain-cosmos v0.3.38-fork.1 h1:wpfV0lPKy3lNc8hFVYm1CaM2FIWbO/DFBNFU1hzYA0w=
+github.com/KiiChain/kiichain-cosmos v0.3.38-fork.1/go.mod h1:zxz8WC4+N/th1Guq1NaexVO/4EAPE4rq5MNfgQKF6ek=
+github.com/KiiChain/kiichain-tendermint v0.3.8-fork.1 h1:+QpIa3qk4136vO1lLsq4Yghqf5l9QIS4Hk2KUrKmO74=
+github.com/KiiChain/kiichain-tendermint v0.3.8-fork.1/go.mod h1:4LSlJdhl3nf3OmohliwRNUFLOB1XWlrmSodrIP7fLh4=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5+sAH+4kjUM=
