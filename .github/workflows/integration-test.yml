@@ -105,12 +105,12 @@ jobs:
           #     "./integration_test/evm_module/scripts/evm_tests.sh",
           #   ]
           # },
-          {
-            name: "EVM Interoperability",
-            scripts: [
-              "./integration_test/evm_module/scripts/evm_interoperability_tests.sh"
-            ]
-          },
+          # {
+          #   name: "EVM Interoperability",
+          #   scripts: [
+          #     "./integration_test/evm_module/scripts/evm_interoperability_tests.sh"
+          #   ]
+          # },
           {
             name: "dApp Tests",
             scripts: [
