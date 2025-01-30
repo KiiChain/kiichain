@@ -220,7 +220,7 @@ require (
 replace (
 	github.com/CosmWasm/wasmd => github.com/kiichain/kii-wasmd v0.2.4
 	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
-	github.com/cosmos/cosmos-sdk => github.com/KiiChain/kiichain-cosmos v0.3.38
+	github.com/cosmos/cosmos-sdk => github.com/KiiChain/kiichain-cosmos v0.3.38-fork.1
 	github.com/cosmos/iavl => github.com/sei-protocol/sei-iavl v0.2.0
 	github.com/cosmos/ibc-go/v3 => github.com/kiichain/kii-ibc-go/v3 v3.3.2
 	github.com/ethereum/go-ethereum => github.com/sei-protocol/go-ethereum v1.13.5-sei-23
@@ -228,7 +228,7 @@ replace (
 	github.com/sei-protocol/sei-db => github.com/sei-protocol/sei-db v0.0.44
 	// Latest goleveldb is broken, we have to stick to this version
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
-	github.com/tendermint/tendermint => github.com/KiiChain/kiichain-tendermint v0.3.8
+	github.com/tendermint/tendermint => github.com/KiiChain/kiichain-tendermint v0.3.8-fork.1
 	github.com/tendermint/tm-db => github.com/sei-protocol/tm-db v0.0.4
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
 )

@@ -292,8 +292,8 @@ func GetEventsOfType(rdtx sdk.DeliverTxHookInput, ty string) (res []abci.Event) 
 
 func GetAttributeValue(event abci.Event, attribute string) (string, bool) {
 	for _, attr := range event.Attributes {
-		if string(attr.Key) == attribute {
-			return string(attr.Value), true
+		if attr.Key == attribute {
+			return attr.Value, true
 		}
 	}
 	return "", false
