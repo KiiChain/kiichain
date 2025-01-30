@@ -19,7 +19,7 @@ jobs:
   integration-tests:
     name: Integration Test (${{ matrix.test.name }})
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     env:
       DAPP_TESTS_MNEMONIC: "minimum frequent idea maid chase palm cargo repair inform cloud sense drift episode vintage parrot memory found earn relax scrap spider valve volume athlete"
     strategy:
@@ -105,22 +105,22 @@ jobs:
           #     "./integration_test/evm_module/scripts/evm_tests.sh",
           #   ]
           # },
-          # {
-          #   name: "EVM Interoperability",
-          #   scripts: [
-          #     "./integration_test/evm_module/scripts/evm_interoperability_tests.sh"
-          #   ]
-          # },
-          # {
-          #   name: "dApp Tests",
-          #   scripts: [
-          #     "docker exec kii-node-0 integration_test/contracts/fund_daap_account.sh",
-          #     "./integration_test/dapp_tests/dapp_tests.sh local uniswap",
-          #     # This contract doesn't run with ukii
-          #     # "./integration_test/dapp_tests/dapp_tests.sh local steak",
-          #     "./integration_test/dapp_tests/dapp_tests.sh local nft"
-          #   ]
-          # },
+          {
+            name: "EVM Interoperability",
+            scripts: [
+              "./integration_test/evm_module/scripts/evm_interoperability_tests.sh"
+            ]
+          },
+          {
+            name: "dApp Tests",
+            scripts: [
+              "docker exec kii-node-0 integration_test/contracts/fund_daap_account.sh",
+              "./integration_test/dapp_tests/dapp_tests.sh local uniswap",
+              "./integration_test/dapp_tests/dapp_tests.sh local nft"
+              # This contract doesn't run with ukii
+              # "./integration_test/dapp_tests/dapp_tests.sh local steak",
+            ]
+          },
         ]
     steps:
       - uses: actions/checkout@v3
