@@ -21,7 +21,7 @@ import (
 	evmtypes "github.com/kiichain/kiichain3/x/evm/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	//nolint:gosec,G108
+	//nolint:gosec
 	_ "net/http/pprof"
 )
 
