@@ -1,6 +1,7 @@
 package types_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -108,6 +109,7 @@ func TestGetReleaseAmountToday(t *testing.T) {
 		minter         types.Minter
 		currentTime    time.Time
 		expectedAmount uint64
+		errContains    string
 	}{
 		{
 			name: "Regular scenario",
@@ -228,13 +230,53 @@ func TestGetReleaseAmountToday(t *testing.T) {
 			currentTime:    time.Date(2023, 4, 5, 0, 0, 0, 0, time.UTC),
 			expectedAmount: 0,
 		},
+		{
+			name: "Invalid - bad start date",
+			minter: types.NewMinter(
+				"20-23-04-01", // Bad start date
+				"2023-04-10",
+				"test",
+				100,
+			),
+			currentTime:    time.Date(2023, 4, 1, 0, 0, 0, 0, time.UTC),
+			expectedAmount: 11,
+			errContains:    "invalid start date for current minter",
+		},
+		{
+			name: "Invalid - bad end date",
+			minter: types.NewMinter(
+				"2023-04-01",
+				"20-23-04-10", // Bad end date
+				"test",
+				100,
+			),
+			currentTime:    time.Date(2023, 4, 1, 0, 0, 0, 0, time.UTC),
+			expectedAmount: 11,
+			errContains:    "invalid end date for current minter",
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			releaseAmount := tc.minter.GetReleaseAmountToday(tc.currentTime.UTC()).AmountOf(tc.minter.Denom).Uint64()
-			if releaseAmount != tc.expectedAmount {
-				t.Errorf("Expected release amount to be %d, but got %d", tc.expectedAmount, releaseAmount)
+			// Get the release amount
+			releaseAmount, err := tc.minter.GetReleaseAmountToday(tc.currentTime.UTC())
+
+			// Check for error
+			if tc.errContains == "" {
+				require.NoError(t, err, "Expected GetReleaseAmountToday to contain no error")
+			} else {
+				require.ErrorContains(
+					t,
+					err,
+					tc.errContains,
+					fmt.Sprintf("Expected GetReleaseAmountToday to contain error with %s", tc.errContains),
+				)
+				return
+			}
+			// Check the amount
+			releaseAmountUint := releaseAmount.AmountOf(tc.minter.Denom).Uint64()
+			if releaseAmountUint != tc.expectedAmount {
+				t.Errorf("Expected release amount to be %d, but got %d", tc.expectedAmount, releaseAmountUint)
 			}
 		})
 	}
@@ -247,6 +289,7 @@ func TestGetNumberOfDaysLeft(t *testing.T) {
 		minter           types.Minter
 		expectedDaysLeft uint64
 		currentTime      time.Time
+		errContains      string
 	}{
 		{
 			name: "Regular scenario",
@@ -322,14 +365,38 @@ func TestGetNumberOfDaysLeft(t *testing.T) {
 			currentTime:      time.Date(2023, 4, 1, 0, 0, 0, 0, time.UTC),
 			expectedDaysLeft: 9,
 		},
+		{
+			name: "Invalid - Bad end date",
+			minter: types.NewMinter(
+				"2023-04-01",
+				"20-23-04-10", // Broken date
+				"test",
+				100,
+			),
+			currentTime:      time.Date(2023, 4, 1, 0, 0, 0, 0, time.UTC),
+			expectedDaysLeft: 0,
+			errContains:      "invalid end date for current minter",
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			daysLeft := tc.minter.GetNumberOfDaysLeft(tc.currentTime)
-			if daysLeft != tc.expectedDaysLeft {
-				t.Errorf("Expected days left to be %d, but got %d", tc.expectedDaysLeft, daysLeft)
+			daysLeft, err := tc.minter.GetNumberOfDaysLeft(tc.currentTime)
+
+			// Check for error
+			if tc.errContains == "" {
+				require.NoError(t, err, "Expected GetNumberOfDaysLeft to contain no error")
+			} else {
+				require.ErrorContains(
+					t,
+					err,
+					tc.errContains,
+					fmt.Sprintf("Expected GetNumberOfDaysLeft to contain error with %s", tc.errContains),
+				)
 			}
+
+			// Check the days left
+			require.Equal(t, daysLeft, tc.expectedDaysLeft, fmt.Sprintf("Expected days left to be %d, but got %d", tc.expectedDaysLeft, daysLeft))
 		})
 	}
 }
@@ -360,33 +427,91 @@ func TestDefaultInitialMinter(t *testing.T) {
 }
 
 func TestValidateMinterBase(t *testing.T) {
-	m := types.NewMinter(
-		time.Now().Format(types.TokenReleaseDateFormat),
-		time.Now().AddDate(0, 0, -1).Format(types.TokenReleaseDateFormat),
-		sdk.DefaultBondDenom,
-		1000,
-	)
-	err := types.ValidateMinter(m)
-	require.NotNil(t, err)
+	// Get the current test cases
+	testCases := []struct {
+		name           string
+		minter         types.Minter
+		ongoingRelease bool
+		errContains    string
+	}{
+		{
+			name:           "Good path - Ongoing release",
+			ongoingRelease: true,
+			minter: types.NewMinter(
+				time.Now().Format(types.TokenReleaseDateFormat),
+				time.Now().AddDate(0, 0, 1).Format(types.TokenReleaseDateFormat),
+				sdk.DefaultBondDenom,
+				1000,
+			),
+		},
+		{
+			name: "Bad path - Invalid denom",
+			minter: types.NewMinter(
+				time.Now().Format(types.TokenReleaseDateFormat),
+				time.Now().AddDate(0, 0, 1).Format(types.TokenReleaseDateFormat),
+				"invalid denom",
+				1000,
+			),
+			errContains: "mint denom must be the same as the default bond denom",
+		},
+		{
+			name: "Bad path - End date in the past",
+			minter: types.NewMinter(
+				time.Now().Format(types.TokenReleaseDateFormat),
+				time.Now().AddDate(0, 0, -1).Format(types.TokenReleaseDateFormat),
+				sdk.DefaultBondDenom,
+				1000,
+			),
+			errContains: "end date must be after start date",
+		},
+		{
+			name: "Bad path - Invalid initial date",
+			minter: types.NewMinter(
+				time.Now().Format("Random String"),
+				time.Now().AddDate(0, 0, 1).Format(types.TokenReleaseDateFormat),
+				sdk.DefaultBondDenom,
+				1000,
+			),
+			errContains: "cannot parse \"Random String\"",
+		},
+		{
+			name: "Bad path - Invalid end date",
+			minter: types.NewMinter(
+				time.Now().Format(types.TokenReleaseDateFormat),
+				time.Now().AddDate(0, 0, 1).Format("Random String"),
+				sdk.DefaultBondDenom,
+				1000,
+			),
+			errContains: "cannot parse \"Random String\"",
+		},
+	}
 
-	m = types.NewMinter(
-		time.Now().Format(types.TokenReleaseDateFormat),
-		time.Now().AddDate(0, 0, 1).Format(types.TokenReleaseDateFormat),
-		"invalid denom",
-		1000,
-	)
-	err = types.ValidateMinter(m)
-	require.NotNil(t, err)
+	// Run all the test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Run the validate
+			err := types.ValidateMinter(tc.minter)
 
-	m = types.NewMinter(
-		time.Now().Format(types.TokenReleaseDateFormat),
-		time.Now().AddDate(0, 0, 1).Format(types.TokenReleaseDateFormat),
-		sdk.DefaultBondDenom,
-		1000,
-	)
-	err = types.ValidateMinter(m)
-	require.True(t, m.OngoingRelease())
-	require.Nil(t, err)
+			// Check for errors
+			if tc.errContains == "" {
+				require.NoError(t, err, "Expected minter to not contain errors")
+				// Check for ongoing release
+				require.Equal(
+					t,
+					tc.minter.OngoingRelease(),
+					tc.ongoingRelease,
+					fmt.Sprintf("Expected minter to have an ongoing release as %t", tc.ongoingRelease),
+				)
+			} else {
+				require.ErrorContains(
+					t,
+					err,
+					tc.errContains,
+					fmt.Sprintf("Expected error to contain %s", tc.errContains),
+				)
+			}
+		})
+	}
 }
 
 func TestGetLastMintDateTime(t *testing.T) {
@@ -475,7 +600,8 @@ func TestGetLastMintDateTimeBase(t *testing.T) {
 	)
 
 	// Call the function
-	date := minter.GetLastMintDateTime()
+	date, err := minter.GetLastMintDateTime()
+	require.NoError(t, err, "Expected GetLastMintDateTime to return no error")
 
 	// Check the result
 	// It should be the zero time because we haven't minted anything yet
