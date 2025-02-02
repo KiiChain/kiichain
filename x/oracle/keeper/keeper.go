@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/kiichain/kiichain3/x/oracle/types"
 )
 
@@ -147,7 +148,7 @@ func (k Keeper) GetFeederDelegation(ctx sdk.Context, valAddr sdk.ValAddress) sdk
 }
 
 // SetFeederDelegation set into the KVStore the address of an account delegated by the validator
-func (k Keeper) SetFeederDelegation(ctx sdk.Context, valAddr sdk.ValAddress, delegatedFeeder sdk.ValAddress) {
+func (k Keeper) SetFeederDelegation(ctx sdk.Context, valAddr sdk.ValAddress, delegatedFeeder sdk.AccAddress) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.GetFeederDelegationKey(valAddr), delegatedFeeder.Bytes())
 }
@@ -310,6 +311,27 @@ func (k Keeper) IterateAggregateExchangeRateVotes(ctx sdk.Context, handler func(
 			break
 		}
 	}
+}
+
+// ValidateFeeder the feeder address whether is a validator or delegated address and if is allowed
+// to feed the Oracle module price
+func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+	// validate if the feeder addr is a delegated address, if so, validate if the registered bounded address
+	// by that validator is the feeder address
+	if !feederAddr.Equals(valAddr) {
+		delegator := k.GetFeederDelegation(ctx, valAddr) // Get the delegated address by validator address
+		if !delegator.Equals(feederAddr) {
+			return sdkerrors.Wrap(types.ErrNoVotingPermission, feederAddr.String())
+		}
+	}
+
+	// Validate the feeder addr is a validator, if so, validate if is bonded (allowed to validate blocks)
+	validator := k.StakingKeeper.Validator(ctx, valAddr)
+	if valAddr == nil || !validator.IsBonded() {
+		return sdkerrors.Wrapf(stakingtypes.ErrNoValidatorFound, "validator %s is not active set", valAddr.String())
+	}
+
+	return nil
 }
 
 // ****************************************************************************

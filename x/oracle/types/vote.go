@@ -1,6 +1,9 @@
 package types
 
 import (
+	"fmt"
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"gopkg.in/yaml.v2"
 )
@@ -45,4 +48,41 @@ func (tuples ExchangeRateTuples) String() string {
 func (o OracleExchangeRate) String() string {
 	out, _ := yaml.Marshal(o)
 	return string(out)
+}
+
+// ParseExchangeRateTuples parses from exchangeRate string tuple to ExchangeRateTuples{} data type
+func ParseExchangeRateTuples(exchangeRateStr string) (ExchangeRateTuples, error) {
+	// Remove innecesaries spaces. i.e: " BTC:45000 , ETH:3000 " -> "BTC:45000 , ETH:3000"
+	exchangeRateStr = strings.TrimSpace(exchangeRateStr)
+	if len(exchangeRateStr) == 0 {
+		return nil, nil
+	}
+
+	// Separate elements by the comma
+	tupleStrs := strings.Split(exchangeRateStr, ",")
+	exchangeTuples := make(ExchangeRateTuples, len(tupleStrs)) // the parsed elements will be stored here
+	duplicateCheckMap := make(map[string]bool)                 // map to track duplicate
+
+	//Iterate each element ["BTC:45000", "ETH:3000", "COP:4500"]...
+	for i, tupleStr := range tupleStrs {
+		decCoin, err := sdk.ParseDecCoin(tupleStr) // convert decimal coin to string
+		if err != nil {
+			return nil, err
+		}
+
+		// convert each string rate into ExchangeRateTuple{} data type
+		exchangeTuples[i] = ExchangeRateTuple{
+			Denom:        decCoin.Denom,
+			ExchangeRate: decCoin.Amount,
+		}
+
+		// Check duplicate
+		_, ok := duplicateCheckMap[decCoin.Denom]
+		if ok {
+			return nil, fmt.Errorf("duplicate denom %s", decCoin.Denom)
+		}
+
+		duplicateCheckMap[decCoin.Denom] = true
+	}
+	return exchangeTuples, nil
 }
