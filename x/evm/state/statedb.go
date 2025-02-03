@@ -1,6 +1,8 @@
 package state
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/tracing"
@@ -39,7 +41,12 @@ type DBImpl struct {
 }
 
 func NewDBImpl(ctx sdk.Context, k EVMKeeper, simulation bool) *DBImpl {
-	feeCollector, _ := k.GetFeeCollectorAddress(ctx)
+	feeCollector, err := k.GetFeeCollectorAddress(ctx)
+	if err != nil {
+		// If no fee collection address has been found,
+		// we can panic at the database initialization
+		panic(fmt.Errorf("failed to get fee collection address for the EVM module with err: %s", err))
+	}
 	s := &DBImpl{
 		ctx:                ctx,
 		k:                  k,

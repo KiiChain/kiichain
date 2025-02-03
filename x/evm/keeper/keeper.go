@@ -539,6 +539,17 @@ func (k *Keeper) getReplayBlockCtx(ctx sdk.Context) (*vm.BlockContext, error) {
 	}, nil
 }
 
+// ClearCachedFeeCollectorAddress clear the fee collector address from memory
+// This is used in tests
+func (k *Keeper) ClearCachedFeeCollectorAddress() {
+	// Lock the mutex
+	k.cachedFeeCollectorAddressMtx.Lock()
+	// Clear it out (nil)
+	k.cachedFeeCollectorAddress = nil
+	// Unlock the mutex
+	k.cachedFeeCollectorAddressMtx.Unlock()
+}
+
 func uint64Cmp(a, b uint64) int {
 	if a < b {
 		return -1

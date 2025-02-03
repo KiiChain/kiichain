@@ -6,12 +6,14 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/tracing"
+	"github.com/stretchr/testify/require"
+
 	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
 	"github.com/kiichain/kiichain3/x/evm/state"
 	"github.com/kiichain/kiichain3/x/evm/types"
-	"github.com/stretchr/testify/require"
 )
 
 func TestState(t *testing.T) {
@@ -174,4 +176,30 @@ func TestSnapshot(t *testing.T) {
 	require.Equal(t, common.Hash{}, newStateDB.GetTransientState(evmAddr, tkey))
 	require.Equal(t, val, newStateDB.GetState(evmAddr, key))
 	require.Equal(t, eventCount+1, len(ctx.EventManager().Events()))
+}
+
+// TestStateDBBadInitialization test the NewDBImpl with a bad EVM module address association
+// This test must go first to avoid initialization from other tests
+func TestStateDBBadInitialization(t *testing.T) {
+	// Get the keeper from the EVM test app
+	k := &testkeeper.EVMTestApp.EvmKeeper
+	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
+
+	// Get a cached context
+	cachedContext, _ := ctx.CacheContext()
+
+	// Delete the module address
+	evmModuleAddr := testkeeper.EVMTestApp.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
+	evmAddr, ok := k.GetEVMAddress(cachedContext.WithGasMeter(sdk.NewInfiniteGasMeterWithMultiplier(cachedContext)), evmModuleAddr)
+	require.True(t, ok)
+	testkeeper.EVMTestApp.EvmKeeper.DeleteAddressMapping(cachedContext, evmModuleAddr, evmAddr)
+
+	// Remove the old cached address
+	testkeeper.EVMTestApp.EvmKeeper.ClearCachedFeeCollectorAddress()
+
+	// Run the NewDBImpl, it should panic
+	require.Panics(t, func() {
+		// Run the function, the result is not important
+		_ = state.NewDBImpl(cachedContext, k, false)
+	}, "Expected NewDBImpl to panic")
 }
