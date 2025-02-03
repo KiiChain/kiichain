@@ -35,7 +35,7 @@ type Params struct {
 	// "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
 	RewardBand github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,3,opt,name=reward_band,json=rewardBand,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"reward_band" yaml:"reward_band"`
 	// List of allowed assets
-	// DenomList is a custom data type, defined on x/oracle/types/denom.go
+	// DenomList = Alias to handle a list of Denom easier (instead of use []Denom use just DenomList as a data type)
 	Whitelist DenomList `protobuf:"bytes,4,rep,name=whitelist,proto3,castrepeated=DenomList" json:"whitelist" yaml:"whitelist"`
 	// How much stake is slashed if a validator fails to submit votes
 	// "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
@@ -148,7 +148,6 @@ func (m *Denom) XXX_DiscardUnknown() {
 var xxx_messageInfo_Denom proto.InternalMessageInfo
 
 // Data type to submit multiple exchange rates in one transaction
-// ExchangeRateTuples is a custom data type, defined on x/oracle/types/vote.go
 type AggregateExchangeRateVote struct {
 	ExchangeRateTuples ExchangeRateTuples `protobuf:"bytes,1,rep,name=exchange_rate_tuples,json=exchangeRateTuples,proto3,castrepeated=ExchangeRateTuples" json:"exchange_rate_tuples" yaml:"exchange_rate_tuples"`
 	Voter              string             `protobuf:"bytes,2,opt,name=voter,proto3" json:"voter,omitempty" yaml:"voter"`
@@ -317,8 +316,8 @@ func (m *PriceSnapshotItem) GetOracleExchangeRate() OracleExchangeRate {
 	return OracleExchangeRate{}
 }
 
-// Data type represents a list of prices snapshots for all currencies at an specific time
-// PriceSnapshotItems is a custom type, defined on x/orcale/types/snapshots.go
+// Data type represents a list of prices snapshots for all currencies at an
+// specific time
 type PriceSnapshot struct {
 	SnapshotTimestamp  int64              `protobuf:"varint,1,opt,name=snapshot_timestamp,json=snapshotTimestamp,proto3" json:"snapshot_timestamp,omitempty" yaml:"snapshot_timestamp"`
 	PriceSnapshotItems PriceSnapshotItems `protobuf:"bytes,2,rep,name=price_snapshot_items,json=priceSnapshotItems,proto3,castrepeated=PriceSnapshotItems" json:"price_snapshot_items" yaml:"price_snapshot_items"`
