@@ -16,6 +16,21 @@ import (
 	"github.com/kiichain/kiichain3/x/evm/types"
 )
 
+// TestStateDBBadInitialization test the NewDBImpl with a bad EVM module address association
+// This test must go first to avoid initialization from other tests
+func TestStateDBBadInitialization(t *testing.T) {
+	// Get the keeper from the EVM test app
+	k := &testkeeper.EVMTestApp.EvmKeeper
+	// Start a new empty context, this clear out the EVM module address association
+	ctx := testkeeper.EVMTestApp.NewContext(true, tmproto.Header{Height: testkeeper.EVMTestApp.LastBlockHeight()})
+
+	// Run the NewDBImpl, it should panic
+	require.Panics(t, func() {
+		// Run the function, the result is not important
+		_ = state.NewDBImpl(ctx, k, false)
+	}, "Expected NewDBImpl to panic")
+}
+
 func TestState(t *testing.T) {
 	k := &testkeeper.EVMTestApp.EvmKeeper
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
@@ -176,19 +191,4 @@ func TestSnapshot(t *testing.T) {
 	require.Equal(t, common.Hash{}, newStateDB.GetTransientState(evmAddr, tkey))
 	require.Equal(t, val, newStateDB.GetState(evmAddr, key))
 	require.Equal(t, eventCount+1, len(ctx.EventManager().Events()))
-}
-
-// TestStateDBBadInitialization test the NewDBImpl with a bad EVM module address association
-func TestStateDBBadInitialization(t *testing.T) {
-	// Get the keeper from the EVM test app
-	k := &testkeeper.EVMTestApp.EvmKeeper
-	// Start a new empty context, this clear out the EVM module address association
-	ctx := testkeeper.EVMTestApp.NewContext(true, tmproto.Header{Height: testkeeper.EVMTestApp.LastBlockHeight()})
-
-	// Run the NewDBImpl, it should panic
-
-	require.Panics(t, func() {
-		// Run the function, the result is not important
-		_ = state.NewDBImpl(ctx, k, false)
-	}, "Expected NewDBImpl to panic")
 }
