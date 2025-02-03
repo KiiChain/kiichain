@@ -21,25 +21,33 @@ var (
 	ModuleCdc = codec.NewAminoCodec(amino)
 )
 
+// Initialize the registration of codes
 func init() {
 	RegisterCodec(amino)
 	cryptocodec.RegisterCrypto(amino)
 	amino.Seal()
 }
 
+// GetAmino returns the current legacy amino
 func GetAmino() *codec.LegacyAmino {
 	return amino
 }
 
+// RegisterCodec register the EVM module codecs
 func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgAssociate{}, "evm/MsgAssociate", nil)
 	cdc.RegisterConcrete(&MsgEVMTransaction{}, "evm/MsgEVMTransaction", nil)
 	cdc.RegisterConcrete(&MsgSend{}, "evm/MsgSend", nil)
 	cdc.RegisterConcrete(&MsgRegisterPointer{}, "evm/MsgRegisterPointer", nil)
 	cdc.RegisterConcrete(&MsgAssociateContractAddress{}, "evm/MsgAssociateContractAddress", nil)
+	cdc.RegisterConcrete(&MsgInternalEVMCall{}, "evm/MsgInternalEVMCall", nil)
+	cdc.RegisterConcrete(&MsgInternalEVMDelegateCall{}, "evm/MsgInternalEVMDelegateCall", nil)
+
 }
 
+// RegisterInterfaces register the EVM module interfaces
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
+	// Register the governance type implementations
 	registry.RegisterImplementations((*govtypes.Content)(nil),
 		&AddERCNativePointerProposal{},
 		&AddERCCW20PointerProposal{},
@@ -48,13 +56,18 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&AddCWERC721PointerProposal{},
 		&AddERCNativePointerProposalV2{},
 	)
+	// Register the msg type implementations
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
 		&MsgEVMTransaction{},
 		&MsgSend{},
 		&MsgRegisterPointer{},
 		&MsgAssociateContractAddress{},
+		&MsgAssociate{},
+		&MsgInternalEVMCall{},
+		&MsgInternalEVMDelegateCall{},
 	)
+	// Register ethereum interfaces
 	registry.RegisterInterface(
 		"kiichain3.evm.TxData",
 		(*ethtx.TxData)(nil),
@@ -68,6 +81,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 
+// PackTxData pack the eth tx data into a codec any
 func PackTxData(txData ethtx.TxData) (*codectypes.Any, error) {
 	msg, ok := txData.(proto.Message)
 	if !ok {
@@ -82,6 +96,7 @@ func PackTxData(txData ethtx.TxData) (*codectypes.Any, error) {
 	return anyTxData, nil
 }
 
+// UnpackTxData unpack the code any into a eth tx type
 func UnpackTxData(any *codectypes.Any) (ethtx.TxData, error) {
 	if any == nil {
 		return nil, errors.New("protobuf Any message cannot be nil")

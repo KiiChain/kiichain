@@ -26,10 +26,10 @@ func TestIsAssociate(t *testing.T) {
 }
 
 func TestIsNotAssociate(t *testing.T) {
-	tx, err := types.NewMsgEVMTransaction(nil)
+	_, err := types.NewMsgEVMTransaction(nil)
 	require.Error(t, err)
 
-	tx, err = types.NewMsgEVMTransaction(&ethtx.AccessTuple{})
+	tx, err := types.NewMsgEVMTransaction(&ethtx.AccessTuple{})
 	require.Nil(t, err)
 	require.False(t, tx.IsAssociateTx())
 }
@@ -57,7 +57,9 @@ func TestAsTransaction(t *testing.T) {
 
 	signer := ethtypes.MakeSigner(ethCfg, blockNum, uint64(ctx.BlockTime().Unix()))
 	tx, err := ethtypes.SignTx(ethtypes.NewTx(&txData), signer, key)
+	require.NoError(t, err)
 	typedTx, err := ethtx.NewDynamicFeeTx(tx)
+	require.NoError(t, err)
 	msg, err := types.NewMsgEVMTransaction(typedTx)
 	require.Nil(t, err)
 	ethTx, ethTxData := msg.AsTransaction()
