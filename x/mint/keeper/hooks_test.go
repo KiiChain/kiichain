@@ -13,10 +13,6 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
-func getGenesisTime() time.Time {
-	return time.Date(2022, time.Month(7), 18, 10, 0, 0, 0, time.UTC)
-}
-
 func getEpoch(genesisTime time.Time, currTime time.Time) types.Epoch {
 	// Epochs increase every minute, so derive based on the time
 	return types.Epoch{
@@ -71,7 +67,7 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 			currEpoch := getEpoch(genesisTime, currTime)
 			kiiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
 			kiiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
-			mintParams = kiiApp.MintKeeper.GetParams(ctx)
+			_ = kiiApp.MintKeeper.GetParams(ctx)
 
 			// 250k / 25 days = 100000 per day
 			expectedAmount := int64(100000)
@@ -117,7 +113,7 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 			currEpoch := getEpoch(genesisTime, currTime)
 			kiiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
 			kiiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
-			mintParams = kiiApp.MintKeeper.GetParams(ctx)
+			_ = kiiApp.MintKeeper.GetParams(ctx)
 
 			expectedAmount := int64(104166)
 			newMinter := kiiApp.MintKeeper.GetMinter(ctx)
@@ -178,7 +174,7 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 			currEpoch := getEpoch(genesisTime, currTime)
 			kiiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
 			kiiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
-			mintParams = kiiApp.MintKeeper.GetParams(ctx)
+			_ = kiiApp.MintKeeper.GetParams(ctx)
 
 			newMinter := kiiApp.MintKeeper.GetMinter(ctx)
 
@@ -203,7 +199,7 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 		kiiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
 		genesisTime := header.Time
 
-		tokenReleaseSchedle := []minttypes.ScheduledTokenRelease{
+		tokenReleaseSchedule := []minttypes.ScheduledTokenRelease{
 			{
 				StartDate:          genesisTime.AddDate(0, 0, 0).Format(minttypes.TokenReleaseDateFormat),
 				EndDate:            genesisTime.AddDate(0, 0, 24).Format(minttypes.TokenReleaseDateFormat),
@@ -212,7 +208,7 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 		}
 		mintParams := minttypes.NewParams(
 			"ukii",
-			tokenReleaseSchedle,
+			tokenReleaseSchedule,
 		)
 		kiiApp.MintKeeper.SetParams(ctx, mintParams)
 
@@ -221,7 +217,7 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 			currEpoch := getEpoch(genesisTime, currTime)
 			kiiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
 			kiiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
-			mintParams = kiiApp.MintKeeper.GetParams(ctx)
+			_ = kiiApp.MintKeeper.GetParams(ctx)
 
 			newMinter := kiiApp.MintKeeper.GetMinter(ctx)
 			expectedAmount := int64(104166)
@@ -236,7 +232,7 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 		currEpoch := getEpoch(genesisTime, postOutageTime)
 		kiiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
 		kiiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
-		mintParams = kiiApp.MintKeeper.GetParams(ctx)
+		_ = kiiApp.MintKeeper.GetParams(ctx)
 
 		newMinter := kiiApp.MintKeeper.GetMinter(ctx)
 		require.Equal(t, postOutageTime.Format(minttypes.TokenReleaseDateFormat), newMinter.GetLastMintDate(), "Last mint date should be correct")
@@ -249,7 +245,7 @@ func TestEndOfEpochMintedCoinDistribution(t *testing.T) {
 			currEpoch := getEpoch(genesisTime, currTime)
 			kiiApp.EpochKeeper.BeforeEpochStart(ctx, currEpoch)
 			kiiApp.EpochKeeper.AfterEpochEnd(ctx, currEpoch)
-			mintParams = kiiApp.MintKeeper.GetParams(ctx)
+			_ = kiiApp.MintKeeper.GetParams(ctx)
 
 			newMinter := kiiApp.MintKeeper.GetMinter(ctx)
 			expectedAmount := int64(127315)
@@ -291,6 +287,70 @@ func TestNoEpochPassedNoDistribution(t *testing.T) {
 	// Ensure that EpochProvision hasn't changed
 	endLastMintAmount := kiiApp.MintKeeper.GetMinter(ctx).GetLastMintAmountCoin()
 	require.True(t, startLastMintAmount.Equal(endLastMintAmount))
+}
+
+func TestAfterEpochEndBadPath(t *testing.T) {
+	// Initialize the app
+	kiiApp := keepertest.TestApp()
+	ctx := kiiApp.BaseApp.NewContext(false, tmproto.Header{Time: time.Now()})
+
+	// Prepare the header and begin block from abi
+	header := tmproto.Header{Height: kiiApp.LastBlockHeight() + 1}
+	kiiApp.BeginBlock(ctx, abci.RequestBeginBlock{Header: header})
+	genesisTime := time.Date(2022, time.Month(7), 18, 10, 0, 0, 0, time.UTC)
+	currTime := genesisTime.Add(time.Minute)
+
+	// Get the current epoch
+	currEpoch := getEpoch(genesisTime, currTime)
+
+	// We force a bad end date on the current minter
+	t.Run("Should panic on bad GetOrUpdateLatestMinter", func(t *testing.T) {
+		// Get a cached context to avoid commits
+		cachedCtx, _ := ctx.CacheContext()
+
+		// Set an scheduled
+		tokenReleaseSchedule := []minttypes.ScheduledTokenRelease{
+			{
+				StartDate:          genesisTime.AddDate(0, 0, 0).Format(minttypes.TokenReleaseDateFormat),
+				EndDate:            genesisTime.AddDate(0, 0, 24).Format(minttypes.TokenReleaseDateFormat),
+				TokenReleaseAmount: 2500000,
+			},
+		}
+		mintParams := minttypes.NewParams(
+			"ukii",
+			tokenReleaseSchedule,
+		)
+		kiiApp.MintKeeper.SetParams(cachedCtx, mintParams)
+
+		// Set a bad minter
+		kiiApp.MintKeeper.SetMinter(cachedCtx, minttypes.Minter{
+			StartDate: "2024-01-01",
+			EndDate:   "bad date",
+		})
+
+		// Run the after epoch end
+		require.Panics(t, func() {
+			kiiApp.MintKeeper.AfterEpochEnd(cachedCtx, currEpoch)
+		})
+	})
+
+	// We force a bad end date on the current minter
+	t.Run("Should panic on bad GetReleaseAmountToday", func(t *testing.T) {
+		// Get a cached context to avoid commits
+		cachedCtx, _ := ctx.CacheContext()
+
+		// Set a bad minter
+		kiiApp.MintKeeper.SetMinter(cachedCtx, minttypes.Minter{
+			StartDate: "bad date",
+			EndDate:   "2024-01-01",
+		})
+
+		// Run the after epoch end
+		require.Panics(t, func() {
+			kiiApp.MintKeeper.AfterEpochEnd(cachedCtx, currEpoch)
+		})
+	})
+
 }
 
 func TestSortTokenReleaseCalendar(t *testing.T) {

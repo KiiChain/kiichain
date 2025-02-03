@@ -8,11 +8,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	epochTypes "github.com/kiichain/kiichain3/x/epoch/types"
 	"github.com/kiichain/kiichain3/x/mint/keeper"
-	mintKeeper "github.com/kiichain/kiichain3/x/mint/keeper"
 	"github.com/kiichain/kiichain3/x/mint/types"
-	mintTypes "github.com/kiichain/kiichain3/x/mint/types"
 
-	minttypes "github.com/kiichain/kiichain3/x/mint/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -30,9 +27,7 @@ func (m MockAccountKeeper) GetModuleAddress(name string) sdk.AccAddress {
 	return nil
 }
 
-func (m MockAccountKeeper) SetModuleAccount(ctx sdk.Context, account authtypes.ModuleAccountI) {
-	m.ModuleAccount = account
-}
+func (m MockAccountKeeper) SetModuleAccount(ctx sdk.Context, account authtypes.ModuleAccountI) {}
 
 func (m MockAccountKeeper) GetModuleAccount(ctx sdk.Context, moduleName string) authtypes.ModuleAccountI {
 	return m.ModuleAccount
@@ -58,22 +53,22 @@ func TestGetNextScheduledTokenRelease(t *testing.T) {
 		CurrentEpochStartTime: currentTime,
 		CurrentEpochHeight:    100,
 	}
-	currentMinter := mintTypes.DefaultInitialMinter()
+	currentMinter := types.DefaultInitialMinter()
 
-	tokenReleaseSchedule := []mintTypes.ScheduledTokenRelease{
+	tokenReleaseSchedule := []types.ScheduledTokenRelease{
 		{
-			StartDate:          currentTime.AddDate(0, 0, 30).Format(minttypes.TokenReleaseDateFormat),
-			EndDate:            currentTime.AddDate(0, 2, 0).Format(minttypes.TokenReleaseDateFormat),
+			StartDate:          currentTime.AddDate(0, 0, 30).Format(types.TokenReleaseDateFormat),
+			EndDate:            currentTime.AddDate(0, 2, 0).Format(types.TokenReleaseDateFormat),
 			TokenReleaseAmount: 200,
 		},
 		{
-			StartDate:          currentTime.AddDate(1, 0, 0).Format(minttypes.TokenReleaseDateFormat),
-			EndDate:            currentTime.AddDate(2, 0, 0).Format(minttypes.TokenReleaseDateFormat),
+			StartDate:          currentTime.AddDate(1, 0, 0).Format(types.TokenReleaseDateFormat),
+			EndDate:            currentTime.AddDate(2, 0, 0).Format(types.TokenReleaseDateFormat),
 			TokenReleaseAmount: 300,
 		},
 		{
-			StartDate:          currentTime.AddDate(0, 0, 1).Format(minttypes.TokenReleaseDateFormat),
-			EndDate:            currentTime.AddDate(0, 0, 15).Format(minttypes.TokenReleaseDateFormat),
+			StartDate:          currentTime.AddDate(0, 0, 1).Format(types.TokenReleaseDateFormat),
+			EndDate:            currentTime.AddDate(0, 0, 15).Format(types.TokenReleaseDateFormat),
 			TokenReleaseAmount: 100,
 		},
 	}
@@ -81,103 +76,127 @@ func TestGetNextScheduledTokenRelease(t *testing.T) {
 	t.Run("Get the next scheduled token release", func(t *testing.T) {
 		// No next scheduled token release intially
 		epoch.CurrentEpochStartTime = currentTime.AddDate(0, 0, 0)
-		nextScheduledRelease := mintKeeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, currentMinter)
+		nextScheduledRelease, err := keeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, currentMinter)
+		require.NoError(t, err)
 		require.Nil(t, nextScheduledRelease)
 
 		epoch.CurrentEpochStartTime = currentTime.AddDate(0, 0, 1)
-		nextScheduledRelease = mintKeeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, currentMinter)
+		nextScheduledRelease, err = keeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, currentMinter)
+		require.NoError(t, err)
 		require.NotNil(t, nextScheduledRelease)
 		require.Equal(t, uint64(100), nextScheduledRelease.TokenReleaseAmount)
 	})
 
 	t.Run("No next scheduled token release, assume we are on the second period", func(t *testing.T) {
-		// No next scheduled token release intially
+		// No next scheduled token release initially
 		epoch.CurrentEpochStartTime = currentTime.AddDate(0, 0, 0)
-		nextScheduledRelease := mintKeeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, currentMinter)
+		nextScheduledRelease, err := keeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, currentMinter)
+		require.NoError(t, err)
 		require.Nil(t, nextScheduledRelease)
 
-		secondMinter := mintTypes.NewMinter(
-			currentTime.AddDate(0, 0, 30).Format(minttypes.TokenReleaseDateFormat),
-			currentTime.AddDate(0, 2, 0).Format(minttypes.TokenReleaseDateFormat),
+		secondMinter := types.NewMinter(
+			currentTime.AddDate(0, 0, 30).Format(types.TokenReleaseDateFormat),
+			currentTime.AddDate(0, 2, 0).Format(types.TokenReleaseDateFormat),
 			"ukii",
 			200,
 		)
 		epoch.CurrentEpochStartTime = currentTime.AddDate(0, 5, 0)
-		nextScheduledRelease = mintKeeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, secondMinter)
+		nextScheduledRelease, err = keeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, secondMinter)
+		require.NoError(t, err)
 		require.Nil(t, nextScheduledRelease)
 	})
 
 	t.Run("test case where we skip the start date due to outage for two days", func(t *testing.T) {
-		// No next scheduled token release intially
+		// No next scheduled token release initially
 		epoch.CurrentEpochStartTime = currentTime.AddDate(0, 0, 0)
-		nextScheduledRelease := mintKeeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, currentMinter)
+		nextScheduledRelease, err := keeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, currentMinter)
+		require.NoError(t, err)
 		require.Nil(t, nextScheduledRelease)
 
-		// First mint was +1 but the chain recoverd on +3
+		// First mint was +1 but the chain recovered on +3
 		epoch.CurrentEpochStartTime = currentTime.AddDate(0, 0, 3)
-		nextScheduledRelease = mintKeeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, currentMinter)
+		nextScheduledRelease, err = keeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, currentMinter)
+		require.NoError(t, err)
 		require.Equal(t, uint64(100), nextScheduledRelease.GetTokenReleaseAmount())
-		require.Equal(t, currentTime.AddDate(0, 0, 1).Format(minttypes.TokenReleaseDateFormat), nextScheduledRelease.GetStartDate())
+		require.Equal(t, currentTime.AddDate(0, 0, 1).Format(types.TokenReleaseDateFormat), nextScheduledRelease.GetStartDate())
 	})
 
-	t.Run("Panic on invalid foramt", func(t *testing.T) {
-		// No next scheduled token release intially
-		tokenReleaseSchedule := []mintTypes.ScheduledTokenRelease{
+	t.Run("Error on invalid format", func(t *testing.T) {
+		// No next scheduled token release initially
+		tokenReleaseSchedule := []types.ScheduledTokenRelease{
 			{
 				StartDate:          "Bad Start Date",
-				EndDate:            currentTime.AddDate(0, 2, 0).Format(minttypes.TokenReleaseDateFormat),
+				EndDate:            currentTime.AddDate(0, 2, 0).Format(types.TokenReleaseDateFormat),
 				TokenReleaseAmount: 200,
 			},
 		}
 		epoch.CurrentEpochStartTime = currentTime.AddDate(0, 0, 0)
-		require.Panics(t, func() {
-			mintKeeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, currentMinter)
-		})
+
+		// Check for error
+		_, err := keeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, currentMinter)
+		require.ErrorContains(t, err, "invalid scheduled release date")
+	})
+
+	t.Run("Error on bad minter", func(t *testing.T) {
+		// Generate a bad minter
+		badMinter := types.NewMinter(
+			currentTime.AddDate(0, 0, 30).Format(types.TokenReleaseDateFormat),
+			currentTime.AddDate(0, 2, 0).Format("BAD START DATE FORMAT"),
+			"ukii",
+			200,
+		)
+
+		// Check for error
+		epoch.CurrentEpochStartTime = currentTime.AddDate(0, 5, 0)
+		_, err := keeper.GetNextScheduledTokenRelease(epoch, tokenReleaseSchedule, badMinter)
+		require.ErrorContains(t, err, "invalid end date for current minter")
 	})
 }
 
 func TestGetOrUpdateLatestMinter(t *testing.T) {
 	t.Parallel()
 	app, ctx := createTestApp(false)
-	mintKeeper := app.MintKeeper
+	appKeeper := app.MintKeeper
 	currentTime := time.Now()
 	epoch := epochTypes.Epoch{
 		CurrentEpochStartTime: currentTime,
 	}
 
 	t.Run("No ongoing release", func(t *testing.T) {
-		currentMinter := mintKeeper.GetOrUpdateLatestMinter(ctx, epoch)
+		currentMinter, err := appKeeper.GetOrUpdateLatestMinter(ctx, epoch)
+		require.NoError(t, err)
 		require.False(t, currentMinter.OngoingRelease())
 	})
 
 	t.Run("No ongoing release, but there's a scheduled release", func(t *testing.T) {
-		mintKeeper.SetMinter(ctx, mintTypes.NewMinter(
-			currentTime.Format(minttypes.TokenReleaseDateFormat),
-			currentTime.AddDate(1, 0, 0).Format(minttypes.TokenReleaseDateFormat),
+		appKeeper.SetMinter(ctx, types.NewMinter(
+			currentTime.Format(types.TokenReleaseDateFormat),
+			currentTime.AddDate(1, 0, 0).Format(types.TokenReleaseDateFormat),
 			"ukii",
 			1000,
 		))
 		epoch.CurrentEpochStartTime = currentTime
-		currentMinter := mintKeeper.GetOrUpdateLatestMinter(ctx, epoch)
+		currentMinter, err := appKeeper.GetOrUpdateLatestMinter(ctx, epoch)
+		require.NoError(t, err)
 		require.True(t, currentMinter.OngoingRelease())
-		require.Equal(t, currentTime.Format(minttypes.TokenReleaseDateFormat), currentMinter.StartDate)
-		mintKeeper.SetMinter(ctx, mintTypes.DefaultInitialMinter())
+		require.Equal(t, currentTime.Format(types.TokenReleaseDateFormat), currentMinter.StartDate)
+		appKeeper.SetMinter(ctx, types.DefaultInitialMinter())
 	})
 
 	t.Run("Ongoing release same day", func(t *testing.T) {
-		params := mintKeeper.GetParams(ctx)
+		params := appKeeper.GetParams(ctx)
 		params.TokenReleaseSchedule = []types.ScheduledTokenRelease{
 			{
-				StartDate:          currentTime.AddDate(0, 0, 0).Format(minttypes.TokenReleaseDateFormat),
-				EndDate:            currentTime.AddDate(0, 0, 0).Format(minttypes.TokenReleaseDateFormat),
+				StartDate:          currentTime.AddDate(0, 0, 0).Format(types.TokenReleaseDateFormat),
+				EndDate:            currentTime.AddDate(0, 0, 0).Format(types.TokenReleaseDateFormat),
 				TokenReleaseAmount: 1000,
 			},
 		}
-		mintKeeper.SetParams(ctx, params)
+		appKeeper.SetParams(ctx, params)
 
 		minter := types.Minter{
-			StartDate:           currentTime.Format(minttypes.TokenReleaseDateFormat),
-			EndDate:             currentTime.Format(minttypes.TokenReleaseDateFormat),
+			StartDate:           currentTime.Format(types.TokenReleaseDateFormat),
+			EndDate:             currentTime.Format(types.TokenReleaseDateFormat),
 			Denom:               "ukii",
 			TotalMintAmount:     100,
 			RemainingMintAmount: 0,
@@ -185,54 +204,58 @@ func TestGetOrUpdateLatestMinter(t *testing.T) {
 			LastMintDate:        "2023-04-01",
 			LastMintHeight:      0,
 		}
-		mintKeeper.SetMinter(ctx, minter)
+		appKeeper.SetMinter(ctx, minter)
 
 		epoch.CurrentEpochStartTime = currentTime
-		currentMinter := mintKeeper.GetOrUpdateLatestMinter(ctx, epoch)
-		amount := currentMinter.GetReleaseAmountToday(currentTime).IsZero()
+		currentMinter, err := appKeeper.GetOrUpdateLatestMinter(ctx, epoch)
+		require.NoError(t, err)
+		releaseAmountToday, err := currentMinter.GetReleaseAmountToday(currentTime)
+		require.NoError(t, err)
+		amount := releaseAmountToday.IsZero()
 		require.Zero(t, currentMinter.GetRemainingMintAmount())
 		require.True(t, amount)
 		require.False(t, currentMinter.OngoingRelease())
-		require.Equal(t, currentTime.Format(minttypes.TokenReleaseDateFormat), currentMinter.StartDate)
-		mintKeeper.SetMinter(ctx, mintTypes.DefaultInitialMinter())
+		require.Equal(t, currentTime.Format(types.TokenReleaseDateFormat), currentMinter.StartDate)
+		appKeeper.SetMinter(ctx, types.DefaultInitialMinter())
 	})
 
 	t.Run("TokenReleaseSchedule not sorted", func(t *testing.T) {
-		params := mintKeeper.GetParams(ctx)
+		params := appKeeper.GetParams(ctx)
 		params.TokenReleaseSchedule = []types.ScheduledTokenRelease{
 			{
-				StartDate:          currentTime.AddDate(0, 20, 0).Format(minttypes.TokenReleaseDateFormat),
-				EndDate:            currentTime.AddDate(0, 45, 0).Format(minttypes.TokenReleaseDateFormat),
+				StartDate:          currentTime.AddDate(0, 20, 0).Format(types.TokenReleaseDateFormat),
+				EndDate:            currentTime.AddDate(0, 45, 0).Format(types.TokenReleaseDateFormat),
 				TokenReleaseAmount: 2000,
 			},
 			{
-				StartDate:          currentTime.Format(minttypes.TokenReleaseDateFormat),
-				EndDate:            currentTime.AddDate(0, 15, 0).Format(minttypes.TokenReleaseDateFormat),
+				StartDate:          currentTime.Format(types.TokenReleaseDateFormat),
+				EndDate:            currentTime.AddDate(0, 15, 0).Format(types.TokenReleaseDateFormat),
 				TokenReleaseAmount: 1000,
 			},
 		}
-		mintKeeper.SetParams(ctx, params)
+		appKeeper.SetParams(ctx, params)
 
 		epoch.CurrentEpochStartTime = currentTime
-		currentMinter := mintKeeper.GetOrUpdateLatestMinter(ctx, epoch)
+		currentMinter, err := appKeeper.GetOrUpdateLatestMinter(ctx, epoch)
+		require.NoError(t, err)
 		require.True(t, currentMinter.OngoingRelease())
-		require.Equal(t, currentTime.Format(minttypes.TokenReleaseDateFormat), currentMinter.StartDate)
+		require.Equal(t, currentTime.Format(types.TokenReleaseDateFormat), currentMinter.StartDate)
 	})
 }
 
 func TestBaseCases(t *testing.T) {
 	t.Parallel()
 	app, ctx := createTestApp(false)
-	mintKeeper := app.MintKeeper
+	appKeeper := app.MintKeeper
 
 	t.Run("invalid module name", func(t *testing.T) {
 		mockAccountKeeper := MockAccountKeeper{}
 
 		require.Panics(t, func() {
 			keeper.NewKeeper(
-				mintKeeper.GetCdc(),
-				mintKeeper.GetStoreKey(),
-				mintKeeper.GetParamSpace(),
+				appKeeper.GetCdc(),
+				appKeeper.GetStoreKey(),
+				appKeeper.GetParamSpace(),
 				nil,
 				mockAccountKeeper,
 				nil,
@@ -244,10 +267,10 @@ func TestBaseCases(t *testing.T) {
 
 	t.Run("set hooks", func(t *testing.T) {
 		newHook := &MockMintHooks{}
-		mintKeeper.SetHooks(newHook)
+		appKeeper.SetHooks(newHook)
 
 		require.PanicsWithValue(t, "cannot set mint hooks twice", func() {
-			mintKeeper.SetHooks(newHook)
+			appKeeper.SetHooks(newHook)
 		})
 	})
 
@@ -262,21 +285,21 @@ func TestBaseCases(t *testing.T) {
 	})
 
 	t.Run("staking keeper calls", func(t *testing.T) {
-		require.False(t, mintKeeper.StakingTokenSupply(ctx).IsNil())
-		require.False(t, mintKeeper.BondedRatio(ctx).IsNil())
+		require.False(t, appKeeper.StakingTokenSupply(ctx).IsNil())
+		require.False(t, appKeeper.BondedRatio(ctx).IsNil())
 	})
 
 	t.Run("mint keeper calls", func(t *testing.T) {
-		require.NotNil(t, mintKeeper.GetStoreKey())
-		require.NotNil(t, mintKeeper.GetCdc())
-		require.NotNil(t, mintKeeper.GetParamSpace())
+		require.NotNil(t, appKeeper.GetStoreKey())
+		require.NotNil(t, appKeeper.GetCdc())
+		require.NotNil(t, appKeeper.GetParamSpace())
 		require.NotPanics(t, func() {
-			mintKeeper.SetParamSpace(mintKeeper.GetParamSpace())
+			appKeeper.SetParamSpace(appKeeper.GetParamSpace())
 		})
 	})
 
 	t.Run("staking keeper calls", func(t *testing.T) {
-		require.Nil(t, mintKeeper.MintCoins(ctx, sdk.NewCoins()))
+		require.Nil(t, appKeeper.MintCoins(ctx, sdk.NewCoins()))
 	})
 
 }

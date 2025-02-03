@@ -21,7 +21,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	"net/http"
-	//nolint:gosec,G108
+	//nolint:gosec
 	_ "net/http/pprof"
 )
 

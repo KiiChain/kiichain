@@ -124,60 +124,74 @@ func (k Keeper) AddCollectedFees(ctx sdk.Context, fees sdk.Coins) error {
 func (k Keeper) GetOrUpdateLatestMinter(
 	ctx sdk.Context,
 	epoch epochTypes.Epoch,
-) types.Minter {
+) (types.Minter, error) {
 	params := k.GetParams(ctx)
 	currentReleaseMinter := k.GetMinter(ctx)
-	nextScheduledRelease := GetNextScheduledTokenRelease(epoch, params.TokenReleaseSchedule, currentReleaseMinter)
+	nextScheduledRelease, err := GetNextScheduledTokenRelease(epoch, params.TokenReleaseSchedule, currentReleaseMinter)
+	if err != nil {
+		return types.Minter{}, err
+	}
 
 	// There's still an ongoing release (> 0 remaining amount or same start date) or there's no release scheduled
 	if currentReleaseMinter.OngoingRelease() || nextScheduledRelease.GetStartDate() == currentReleaseMinter.GetStartDate() || nextScheduledRelease == nil {
 		k.Logger(ctx).Debug("Ongoing token release or no nextScheduledRelease", "minter", currentReleaseMinter)
-		return currentReleaseMinter
+		return currentReleaseMinter, nil
 	}
 
+	// Return the new minter
 	return types.NewMinter(
 		nextScheduledRelease.GetStartDate(),
 		nextScheduledRelease.GetEndDate(),
 		params.GetMintDenom(),
 		nextScheduledRelease.GetTokenReleaseAmount(),
-	)
+	), nil
 }
 
+// GetCdc returns the keeper Cdc
 func (k Keeper) GetCdc() codec.BinaryCodec {
 	return k.cdc
 }
 
+// GetStoreKey returns the keeper store key
 func (k Keeper) GetStoreKey() sdk.StoreKey {
 	return k.storeKey
 }
 
+// GetParamSpace returns the keeper param space
 func (k Keeper) GetParamSpace() paramtypes.Subspace {
 	return k.paramSpace
 }
 
+// SetParamSpace set the keeper param space
 func (k *Keeper) SetParamSpace(subspace paramtypes.Subspace) {
 	k.paramSpace = subspace
 }
 
+// GetNextScheduledTokenRelease returns the start, end date and the release amount for the next epoch
 func GetNextScheduledTokenRelease(
 	epoch epochTypes.Epoch,
 	tokenReleaseSchedule []types.ScheduledTokenRelease,
 	currentMinter types.Minter,
-) *types.ScheduledTokenRelease {
+) (*types.ScheduledTokenRelease, error) {
 	for _, scheduledRelease := range tokenReleaseSchedule {
 		scheduledStartDate, err := time.Parse(types.TokenReleaseDateFormat, scheduledRelease.GetStartDate())
 		if err != nil {
 			// This should not happen as the scheduled release date is validated when the param is updated
-			panic(fmt.Errorf("invalid scheduled release date: %s", err))
+			return nil, fmt.Errorf("invalid scheduled release date: %s", err)
 		}
 		scheduledStartDateTime := scheduledStartDate.UTC()
 
 		// If epoch is after the currentScheduled date and it's after the current release
 		if epoch.GetCurrentEpochStartTime().After(scheduledStartDateTime) {
-			if scheduledStartDateTime.After(currentMinter.GetEndDateTime()) || scheduledStartDateTime.Equal(currentMinter.GetEndDateTime()) {
-				return &scheduledRelease
+			endDate, err := currentMinter.GetEndDateTime()
+			if err != nil {
+				return nil, err
+			}
+
+			if scheduledStartDateTime.After(endDate) || scheduledStartDateTime.Equal(endDate) {
+				return &scheduledRelease, nil
 			}
 		}
 	}
-	return nil
+	return nil, nil
 }
