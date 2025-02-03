@@ -86,3 +86,12 @@ func ParseExchangeRateTuples(exchangeRateStr string) (ExchangeRateTuples, error)
 	}
 	return exchangeTuples, nil
 }
+
+// DenomOracleExchangeRatePairs represents an array of DenomOracleExchangeRate on query.go
+type DenomOracleExchangeRatePairs []DenomOracleExchangeRate
+
+// String implements stringify for DenomOracleExchangeRatePairs
+func (o DenomOracleExchangeRatePairs) String() string {
+	out, _ := yaml.Marshal(o)
+	return string(out)
+}
