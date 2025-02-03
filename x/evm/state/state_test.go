@@ -6,20 +6,14 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/stretchr/testify/require"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	testkeeper "github.com/kiichain/kiichain3/testutil/keeper"
 	"github.com/kiichain/kiichain3/x/evm/state"
 	"github.com/kiichain/kiichain3/x/evm/types"
-)
-
-var (
-	// This empty context is used specifically on the TestStateDBBadInitialization
-	// Don't reuse it in other tests
-	emptyContext = testkeeper.EVMTestApp.NewContext(true, tmproto.Header{Height: testkeeper.EVMTestApp.LastBlockHeight()})
 )
 
 func TestState(t *testing.T) {
@@ -189,10 +183,23 @@ func TestSnapshot(t *testing.T) {
 func TestStateDBBadInitialization(t *testing.T) {
 	// Get the keeper from the EVM test app
 	k := &testkeeper.EVMTestApp.EvmKeeper
+	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
+
+	// Get a cached context
+	cachedContext, _ := ctx.CacheContext()
+
+	// Delete the module address
+	evmModuleAddr := testkeeper.EVMTestApp.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
+	evmAddr, ok := k.GetEVMAddress(cachedContext.WithGasMeter(sdk.NewInfiniteGasMeterWithMultiplier(cachedContext)), evmModuleAddr)
+	require.True(t, ok)
+	testkeeper.EVMTestApp.EvmKeeper.DeleteAddressMapping(cachedContext, evmModuleAddr, evmAddr)
+
+	// Remove the old cached address
+	testkeeper.EVMTestApp.EvmKeeper.ClearCachedFeeCollectorAddress()
 
 	// Run the NewDBImpl, it should panic
 	require.Panics(t, func() {
 		// Run the function, the result is not important
-		_ = state.NewDBImpl(emptyContext, k, false)
+		_ = state.NewDBImpl(cachedContext, k, false)
 	}, "Expected NewDBImpl to panic")
 }
