@@ -17,7 +17,7 @@ type msgServer struct {
 var _ types.MsgServer = msgServer{}
 
 // NewMsgServer creates a new msg server instance with the oracle module's keeper as an input
-func NewMsgServer(keeper Keeper) msgServer {
+func NewMsgServer(keeper Keeper) types.MsgServer {
 	return msgServer{
 		Keeper: keeper,
 	}
