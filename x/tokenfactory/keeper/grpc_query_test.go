@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/kiichain/kiichain3/x/tokenfactory/keeper"
 	"github.com/kiichain/kiichain3/x/tokenfactory/types"
@@ -155,6 +156,100 @@ func (suite *KeeperTestSuite) TestDenomAllowListRequest() {
 				suite.Require().NotNil(res)
 				suite.Require().Equal(tc.expAllowList, res.AllowList)
 			}
+		})
+	}
+}
+
+// TestQueryServerDenomsFromCreator tests the query server for the query DenomsFromCreator
+func (suite *KeeperTestSuite) TestQueryServerDenomsFromCreator() {
+	testCases := []struct {
+		name        string
+		args        *types.QueryDenomsFromCreatorRequest
+		denomsRes   []string
+		malleate    func()
+		errContains string
+	}{
+		{
+			name: "Pass - No data set",
+			args: &types.QueryDenomsFromCreatorRequest{
+				Creator: "kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs",
+			},
+		},
+		{
+			name: "Pass - Data set",
+			args: &types.QueryDenomsFromCreatorRequest{
+				Creator: "kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs",
+			},
+			malleate: func() {
+				_, err := suite.App.TokenFactoryKeeper.CreateDenom(
+					suite.Ctx,
+					"kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs",
+					"test",
+				)
+				suite.Require().NoError(err)
+			},
+			denomsRes: []string{"factory/kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs/test"},
+		},
+		{
+			name: "Pass - Big dataset paginated",
+			args: &types.QueryDenomsFromCreatorRequest{
+				Creator: "kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs",
+				Pagination: &query.PageRequest{
+					Limit:  3,
+					Offset: 2,
+				},
+			},
+			malleate: func() {
+				for i := range 100 {
+					_, err := suite.App.TokenFactoryKeeper.CreateDenom(
+						suite.Ctx,
+						"kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs",
+						fmt.Sprintf("test%d", i),
+					)
+					suite.Require().NoError(err)
+				}
+			},
+			// Offset will skip index 0 and 1 and start in alphabetical order, 10, 11, 12
+			denomsRes: []string{
+				"factory/kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs/test10",
+				"factory/kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs/test11",
+				"factory/kii1y3pxq5dp900czh0mkudhjdqjq5m8cpmm4hvczs/test12",
+			},
+		},
+		{
+			name: "Error - No creator",
+			args: &types.QueryDenomsFromCreatorRequest{
+				Creator: "",
+			},
+			errContains: "creator address cannot be empty",
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			// Restart the environment
+			suite.SetupTest()
+			// Wrap the context for the message server
+			ctx := sdk.WrapSDKContext(suite.Ctx)
+
+			// Change the system
+			if tc.malleate != nil {
+				tc.malleate()
+			}
+
+			// Run the query
+			res, err := suite.queryClient.DenomsFromCreator(ctx, tc.args)
+
+			// Check for error
+			if tc.errContains == "" {
+				suite.Require().NoError(err)
+			} else {
+				suite.Require().ErrorContains(err, tc.errContains)
+				return
+			}
+
+			// Check the response
+			suite.Require().Equal(tc.denomsRes, res.Denoms)
 		})
 	}
 }
