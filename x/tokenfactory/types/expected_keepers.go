@@ -31,9 +31,7 @@ type BankKeeper interface {
 }
 
 type AccountKeeper interface {
-	GetModuleAddress(name string) sdk.AccAddress
-	SetModuleAccount(ctx sdk.Context, macc authtypes.ModuleAccountI)
-	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
+	GetModuleAccount(ctx sdk.Context, moduleName string) authtypes.ModuleAccountI
 }
 
 // DistrKeeper defines the contract needed to be fulfilled for distribution keeper.

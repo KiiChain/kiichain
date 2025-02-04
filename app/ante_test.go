@@ -187,7 +187,7 @@ func (suite *AnteTestSuite) TestValidateDepedencies() {
 
 	suite.Require().NotNil(err, "Did not error on invalid tx")
 
-	privs, accNums, accSeqs = []cryptotypes.PrivKey{suite.testAccPriv}, []uint64{7}, []uint64{0}
+	privs, accNums, accSeqs = []cryptotypes.PrivKey{suite.testAccPriv}, []uint64{8}, []uint64{0}
 
 	handlerCtx, cms := aclutils.CacheTxContext(suite.Ctx)
 	validTx, err := suite.CreateTestTx(privs, accNums, accSeqs, suite.Ctx.ChainID())
