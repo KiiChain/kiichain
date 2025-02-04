@@ -4,14 +4,17 @@ import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/kiichain/kiichain3/x/tokenfactory/types"
 )
 
+// Interface check for the query server
 var _ types.QueryServer = Keeper{}
 
+// Params implements Query/Params gRPC method.
 func (k Keeper) Params(ctx context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	params := k.GetParams(sdkCtx)
@@ -30,10 +33,34 @@ func (k Keeper) DenomAuthorityMetadata(ctx context.Context, req *types.QueryDeno
 	return &types.QueryDenomAuthorityMetadataResponse{AuthorityMetadata: authorityMetadata}, nil
 }
 
-func (k Keeper) DenomsFromCreator(ctx context.Context, req *types.QueryDenomsFromCreatorRequest) (*types.QueryDenomsFromCreatorResponse, error) {
-	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	denoms := k.getDenomsFromCreator(sdkCtx, req.GetCreator())
-	return &types.QueryDenomsFromCreatorResponse{Denoms: denoms}, nil
+// DenomsFromCreator implements Query/DenomsFromCreator gRPC method.
+func (k Keeper) DenomsFromCreator(c context.Context, req *types.QueryDenomsFromCreatorRequest) (*types.QueryDenomsFromCreatorResponse, error) {
+	// Unwrap the context
+	ctx := sdk.UnwrapSDKContext(c)
+
+	// Validate the request
+	if req == nil || req.GetCreator() == "" {
+		return nil, status.Error(codes.InvalidArgument, "creator address cannot be empty")
+	}
+
+	// Get the creator
+	creator := req.GetCreator()
+
+	// Prepare the store (this deprecates the old getDenomsFromCreator)
+	prefixStore := k.GetCreatorPrefixStore(ctx, creator)
+
+	// Paginate the response
+	denoms := []string{}
+	pageRes, err := query.Paginate(prefixStore, req.Pagination, func(key []byte, value []byte) error {
+		denoms = append(denoms, string(value))
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the response
+	return &types.QueryDenomsFromCreatorResponse{Denoms: denoms, Pagination: pageRes}, nil
 }
 
 // DenomMetadata implements Query/DenomMetadata gRPC method.
@@ -58,6 +85,7 @@ func (k Keeper) DenomMetadata(c context.Context, req *types.QueryDenomMetadataRe
 	}, nil
 }
 
+// DenomAllowList implements Query/DenomAllowList gRPC method.
 func (k Keeper) DenomAllowList(c context.Context, req *types.QueryDenomAllowListRequest) (*types.QueryDenomAllowListResponse, error) {
 	if req == nil {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")

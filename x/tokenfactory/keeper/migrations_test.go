@@ -59,7 +59,7 @@ func TestMigrate2to3(t *testing.T) {
 	store.Set(oldCreatorSpecificPrefix, []byte("garbage value whitelist creator"))
 	require.True(t, store.Has(oldCreateDenomFeeWhitelistPrefix))
 	require.True(t, store.Has(oldCreatorSpecificPrefix))
-	newKeeper := NewKeeper(cdc, storeKey, paramsSubspace, nil, bankkeeper.NewBaseKeeper(cdc, bankstorekey, nil, paramsSubspace, nil), nil, Config{DenomAllowListMaxSize: 100})
+	newKeeper := NewKeeper(storeKey, cdc, paramsSubspace, nil, bankkeeper.NewBaseKeeper(cdc, bankstorekey, nil, paramsSubspace, nil), nil, Config{DenomAllowListMaxSize: 100})
 	m := NewMigrator(newKeeper)
 	err := m.Migrate2to3(ctx)
 	require.Nil(t, err)

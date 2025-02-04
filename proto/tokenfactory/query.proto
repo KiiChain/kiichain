@@ -75,12 +75,16 @@ message QueryDenomAuthorityMetadataResponse {
 // DenomsFromCreator gRPC query.
 message QueryDenomsFromCreatorRequest {
   string creator = 1 [(gogoproto.moretags) = "yaml:\"creator\""];
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QueryDenomsFromCreatorRequest defines the response structure for the
 // DenomsFromCreator gRPC query.
 message QueryDenomsFromCreatorResponse {
   repeated string denoms = 1 [(gogoproto.moretags) = "yaml:\"denoms\""];
+  // pagination defines an pagination for the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryDenomMetadataRequest is the request type for the DenomMetadata gRPC method.

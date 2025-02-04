@@ -18,6 +18,7 @@ import (
 type (
 	Keeper struct {
 		storeKey sdk.StoreKey
+		cdc      codec.BinaryCodec
 
 		paramSpace paramtypes.Subspace
 
@@ -31,8 +32,8 @@ type (
 
 // NewKeeper returns a new instance of the x/tokenfactory keeper
 func NewKeeper(
-	_ codec.Codec,
 	storeKey sdk.StoreKey,
+	cdc codec.BinaryCodec,
 	paramSpace paramtypes.Subspace,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
@@ -44,7 +45,9 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		storeKey:   storeKey,
+		storeKey: storeKey,
+		cdc:      cdc,
+
 		paramSpace: paramSpace,
 
 		accountKeeper: accountKeeper,
