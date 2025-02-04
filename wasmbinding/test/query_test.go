@@ -10,6 +10,9 @@ import (
 	wasmvmtypes "github.com/CosmWasm/wasmvm/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	cosmosQuery "github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/stretchr/testify/require"
+
 	"github.com/kiichain/kiichain3/app"
 	"github.com/kiichain/kiichain3/wasmbinding"
 	epochwasm "github.com/kiichain/kiichain3/x/epoch/client/wasm"
@@ -19,7 +22,6 @@ import (
 	tokenfactorywasm "github.com/kiichain/kiichain3/x/tokenfactory/client/wasm"
 	tokenfactorybinding "github.com/kiichain/kiichain3/x/tokenfactory/client/wasm/bindings"
 	tokenfactorytypes "github.com/kiichain/kiichain3/x/tokenfactory/types"
-	"github.com/stretchr/testify/require"
 )
 
 func SetupWasmbindingTest(t *testing.T) (*app.TestWrapper, func(ctx sdk.Context, request json.RawMessage) ([]byte, error)) {
@@ -123,7 +125,7 @@ func TestWasmGetDenomsFromCreator(t *testing.T) {
 	var parsedRes tokenfactorytypes.QueryDenomsFromCreatorResponse
 	err = json.Unmarshal(res, &parsedRes)
 	require.NoError(t, err)
-	require.Equal(t, tokenfactorytypes.QueryDenomsFromCreatorResponse{Denoms: nil}, parsedRes)
+	require.Equal(t, tokenfactorytypes.QueryDenomsFromCreatorResponse{Denoms: nil, Pagination: &cosmosQuery.PageResponse{Total: 0}}, parsedRes)
 
 	// Add first denom
 	testWrapper.App.TokenFactoryKeeper.CreateDenom(testWrapper.Ctx, app.TestUser, "test1")
@@ -134,7 +136,7 @@ func TestWasmGetDenomsFromCreator(t *testing.T) {
 	var parsedRes2 tokenfactorytypes.QueryDenomsFromCreatorResponse
 	err = json.Unmarshal(res, &parsedRes2)
 	require.NoError(t, err)
-	require.Equal(t, tokenfactorytypes.QueryDenomsFromCreatorResponse{Denoms: []string{denom1}}, parsedRes2)
+	require.Equal(t, tokenfactorytypes.QueryDenomsFromCreatorResponse{Denoms: []string{denom1}, Pagination: &cosmosQuery.PageResponse{Total: 1}}, parsedRes2)
 
 	// Add second denom
 	testWrapper.App.TokenFactoryKeeper.CreateDenom(testWrapper.Ctx, app.TestUser, "test2")
@@ -145,8 +147,7 @@ func TestWasmGetDenomsFromCreator(t *testing.T) {
 	var parsedRes3 tokenfactorytypes.QueryDenomsFromCreatorResponse
 	err = json.Unmarshal(res, &parsedRes3)
 	require.NoError(t, err)
-	require.Equal(t, tokenfactorytypes.QueryDenomsFromCreatorResponse{Denoms: []string{denom1, denom2}}, parsedRes3)
-
+	require.Equal(t, tokenfactorytypes.QueryDenomsFromCreatorResponse{Denoms: []string{denom1, denom2}, Pagination: &cosmosQuery.PageResponse{Total: 2}}, parsedRes3)
 }
 
 func MockQueryPlugins() wasmkeeper.QueryPlugins {
