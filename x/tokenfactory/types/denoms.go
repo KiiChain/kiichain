@@ -20,10 +20,12 @@ const (
 	MaxCreatorLength = 59 + MaxHrpLength
 )
 
-// GetTokenDenom constructs a denom string for tokens created by tokenfactory
+// GetAndValidateTokenDenom constructs a denom string for tokens created by tokenfactory
 // based on an input creator address and a subdenom
 // The denom constructed is factory/{creator}/{subdenom}
-func GetTokenDenom(creator, subdenom string) (string, error) {
+// This validates the subdenom length, creator length and goes though normal cosmos validation
+// This also goes through normal cosmos validation for the final denom
+func GetAndValidateTokenDenom(creator, subdenom string) (string, error) {
 	if len(subdenom) > MaxSubdenomLength {
 		return "", ErrSubdenomTooLong
 	}
