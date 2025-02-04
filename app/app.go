@@ -526,8 +526,8 @@ func New(
 	}
 
 	app.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
-		appCodec,
 		app.keys[tokenfactorytypes.StoreKey],
+		appCodec,
 		app.GetSubspace(tokenfactorytypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper.(bankkeeper.BaseKeeper).WithMintCoinsRestriction(tokenfactorytypes.NewTokenFactoryDenomMintCoinsRestriction()),
