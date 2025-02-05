@@ -34,7 +34,7 @@ func (m MsgCreateDenom) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", err)
 	}
 
-	_, err = GetTokenDenom(m.Sender, m.Subdenom)
+	_, err = GetAndValidateTokenDenom(m.Sender, m.Subdenom)
 	if err != nil {
 		return sdkerrors.Wrap(ErrInvalidDenom, err.Error())
 	}

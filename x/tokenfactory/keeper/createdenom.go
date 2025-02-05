@@ -49,6 +49,7 @@ func (k Keeper) createDenomAfterValidation(ctx sdk.Context, creatorAddr string, 
 	return nil
 }
 
+// validateCreateDenom validate the create denom message and return the full denom
 func (k Keeper) validateCreateDenom(ctx sdk.Context, creatorAddr string, subdenom string) (newTokenDenom string, err error) {
 	// Temporary check until IBC bug is sorted out
 	if k.bankKeeper.HasSupply(ctx, subdenom) {
@@ -56,7 +57,10 @@ func (k Keeper) validateCreateDenom(ctx sdk.Context, creatorAddr string, subdeno
 			"can't create subdenoms that are the same as a native denom")
 	}
 
-	denom, err := types.GetTokenDenom(creatorAddr, subdenom)
+	// This get the full denom and apply validations
+	// Validates the subdenom length, creator length and goes though normal cosmos validation
+	// This also goes through normal cosmos validation for the final denom
+	denom, err := types.GetAndValidateTokenDenom(creatorAddr, subdenom)
 	if err != nil {
 		return "", err
 	}
@@ -69,6 +73,7 @@ func (k Keeper) validateCreateDenom(ctx sdk.Context, creatorAddr string, subdeno
 	return denom, nil
 }
 
+// validateUpdateDenom this validates the update denom message
 func (k Keeper) validateUpdateDenom(ctx sdk.Context, msg *types.MsgUpdateDenom) (tokenDenom string, err error) {
 	_, _, err = types.DeconstructDenom(msg.GetDenom())
 	if err != nil {
@@ -87,6 +92,7 @@ func (k Keeper) validateUpdateDenom(ctx sdk.Context, msg *types.MsgUpdateDenom) 
 	return msg.GetDenom(), nil
 }
 
+// validateAllowListSize validates the allow list size
 func (k Keeper) validateAllowListSize(allowList *banktypes.AllowList) error {
 	if allowList == nil {
 		return types.ErrAllowListUndefined
@@ -98,6 +104,7 @@ func (k Keeper) validateAllowListSize(allowList *banktypes.AllowList) error {
 	return nil
 }
 
+// validateAllowList validates the allow list
 func (k Keeper) validateAllowList(allowList *banktypes.AllowList) error {
 	err := k.validateAllowListSize(allowList)
 	if err != nil {
