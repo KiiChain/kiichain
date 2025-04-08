@@ -9,7 +9,6 @@ import (
 
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
 	icacontrollertypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/types"
-	providertypes "github.com/cosmos/interchain-security/v6/x/ccv/provider/types"
 
 	evidencetypes "cosmossdk.io/x/evidence/types"
 
@@ -358,18 +357,4 @@ func queryICAAccountAddress(endpoint, owner, connectionID string) (string, error
 	}
 
 	return icaAccountResp.Address, nil
-}
-
-func queryBlocksPerEpoch(endpoint string) (int64, error) {
-	body, err := httpGet(fmt.Sprintf("%s/interchain_security/ccv/provider/params", endpoint))
-	if err != nil {
-		return 0, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-
-	var response providertypes.QueryParamsResponse
-	if err = cdc.UnmarshalJSON(body, &response); err != nil {
-		return 0, err
-	}
-
-	return response.Params.BlocksPerEpoch, nil
 }

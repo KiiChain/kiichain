@@ -799,35 +799,6 @@ func (s *IntegrationTestSuite) writeLiquidStakingParamsUpdateProposal(c *chain, 
 	s.Require().NoError(err)
 }
 
-// writeGovParamChangeProposalBlocksPerEpoch writes a governance proposal JSON file to change the `BlocksPerEpoch`
-// parameter to the provided `blocksPerEpoch`
-func (s *IntegrationTestSuite) writeGovParamChangeProposalBlocksPerEpoch(c *chain, paramsJSON string) {
-	template := `
-	{
-		"messages":[
-		  {
-			"@type": "/interchain_security.ccv.provider.v1.MsgUpdateParams",
-   			"authority": "%s",
-			"params": %s
-		  }
-		],
-		"deposit": "100akii",
-		"proposer": "sample proposer",
-		"metadata": "sample metadata",
-		"title": "blocks per epoch title",
-		"summary": "blocks per epoch summary",
-		"expedited": false
-	}`
-
-	propMsgBody := fmt.Sprintf(template,
-		govAuthority,
-		paramsJSON,
-	)
-
-	err := writeFile(filepath.Join(c.validators[0].configDir(), "config", proposalBlocksPerEpochFilename), []byte(propMsgBody))
-	s.Require().NoError(err)
-}
-
 // writeFailingExpeditedProposal writes a governance proposal JSON file.
 // The proposal fails because only SoftwareUpgrade and CancelSoftwareUpgrade can be expedited.
 func (s *IntegrationTestSuite) writeFailingExpeditedProposal(c *chain, blocksPerEpoch int64) {
