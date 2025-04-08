@@ -56,9 +56,6 @@ import (
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-
-	"github.com/kiichain/kiichain/v1/x/metaprotocols"
-	metaprotocolstypes "github.com/kiichain/kiichain/v1/x/metaprotocols/types"
 )
 
 var maccPerms = map[string][]string{
@@ -112,7 +109,6 @@ func appModules(
 		app.ICAModule,
 		app.PFMRouterModule,
 		app.RateLimitModule,
-		metaprotocols.NewAppModule(),
 		feemarket.NewAppModule(appCodec, *app.FeeMarketKeeper),
 	}
 }
@@ -191,7 +187,6 @@ func orderBeginBlockers() []string {
 		vestingtypes.ModuleName,
 		feemarkettypes.ModuleName,
 		consensusparamtypes.ModuleName,
-		metaprotocolstypes.ModuleName,
 		wasmtypes.ModuleName,
 	}
 }
@@ -221,7 +216,6 @@ func orderEndBlockers() []string {
 		vestingtypes.ModuleName,
 		feemarkettypes.ModuleName,
 		consensusparamtypes.ModuleName,
-		metaprotocolstypes.ModuleName,
 		wasmtypes.ModuleName,
 	}
 }
@@ -263,7 +257,6 @@ func orderInitBlockers() []string {
 		// min fee is empty when gentx is called.
 		feemarkettypes.ModuleName,
 		consensusparamtypes.ModuleName,
-		metaprotocolstypes.ModuleName,
 		wasmtypes.ModuleName,
 		// crisis needs to be last so that the genesis state is consistent
 		// when it checks invariants
