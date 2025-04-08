@@ -30,7 +30,6 @@ require (
 	github.com/cosmos/ibc-apps/modules/rate-limiting/v8 v8.0.0
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
 	github.com/cosmos/ibc-go/v8 v8.7.0
-	github.com/cosmos/interchain-security/v6 v6.4.0
 	github.com/google/gofuzz v1.2.0
 	github.com/gorilla/mux v1.8.1
 	github.com/ory/dockertest/v3 v3.11.0
@@ -188,7 +187,6 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/opencontainers/runc v1.1.14 // indirect
-	github.com/oxyno-zeta/gomock-extra-matcher v1.2.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/petermattis/goid v0.0.0-20240813172612-4fcff4a6cae7 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -225,7 +223,6 @@ require (
 	go.opentelemetry.io/otel v1.32.0 // indirect
 	go.opentelemetry.io/otel/metric v1.32.0 // indirect
 	go.opentelemetry.io/otel/trace v1.32.0 // indirect
-	go.uber.org/mock v0.4.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/crypto v0.32.0 // indirect
