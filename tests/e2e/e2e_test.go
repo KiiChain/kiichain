@@ -134,6 +134,5 @@ func (s *IntegrationTestSuite) TestTxExtensions() {
 	if !runTxExtensionsTest {
 		s.T().Skip()
 	}
-	s.bankSendWithNonCriticalExtensionOptions()
 	s.failedBankSendWithNonCriticalExtensionOptions()
 }

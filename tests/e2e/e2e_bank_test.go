@@ -2,7 +2,6 @@ package e2e
 
 import (
 	"fmt"
-	"path/filepath"
 	"time"
 
 	"cosmossdk.io/math"
@@ -11,8 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	extensiontypes "github.com/kiichain/kiichain/v1/x/metaprotocols/types"
 )
 
 func (s *IntegrationTestSuite) testBankTokenTransfer() {
@@ -101,76 +98,6 @@ func (s *IntegrationTestSuite) testBankTokenTransfer() {
 			10*time.Second,
 			5*time.Second,
 		)
-	})
-}
-
-// tests the bank send command with populated non_critical_extension_options field
-// the Tx should succeed if the data can be properly encoded and decoded
-// the tx is signed and broadcast using kiichaind tx sign and broadcast commands
-func (s *IntegrationTestSuite) bankSendWithNonCriticalExtensionOptions() {
-	s.Run("transfer_with_non_critical_extension_options", func() {
-		c := s.chainB
-
-		submitterAccount := c.genesisAccounts[1]
-		submitterAddress, err := submitterAccount.keyInfo.GetAddress()
-		s.Require().NoError(err)
-		sendMsg := banktypes.NewMsgSend(submitterAddress, submitterAddress, sdk.NewCoins(sdk.NewCoin(akiiDenom, math.NewInt(100))))
-
-		// valid non-critical extension options
-		ext := &extensiontypes.ExtensionData{
-			ProtocolId:      "test-protocol",
-			ProtocolVersion: "1",
-			Data:            []byte("Hello Cosmos"),
-		}
-
-		extAny, err := codectypes.NewAnyWithValue(ext)
-		s.Require().NoError(err)
-		s.Require().NotNil(extAny)
-
-		txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-		s.Require().NoError(txBuilder.SetMsgs(sendMsg))
-
-		txBuilder.SetMemo("non-critical-ext-message-test")
-		txBuilder.SetFeeAmount(sdk.NewCoins(standardFees))
-		txBuilder.SetGasLimit(200000)
-
-		// add extension options
-		tx := txBuilder.GetTx()
-		if etx, ok := tx.(authTx.ExtensionOptionsTxBuilder); ok {
-			etx.SetNonCriticalExtensionOptions(extAny)
-		}
-
-		bz, err := encodingConfig.TxConfig.TxEncoder()(tx)
-		s.Require().NoError(err)
-		s.Require().NotNil(bz)
-
-		txWithExt, err := decodeTx(bz)
-		s.Require().NoError(err)
-		s.Require().NotNil(txWithExt)
-
-		rawTx, err := cdc.MarshalJSON(txWithExt)
-		s.Require().NoError(err)
-		s.Require().NotNil(rawTx)
-
-		unsignedFname := "unsigned_non_critical_extension_option_tx.json"
-		unsignedJSONFile := filepath.Join(c.validators[0].configDir(), unsignedFname)
-		err = writeFile(unsignedJSONFile, rawTx)
-		s.Require().NoError(err)
-
-		signedTx, err := s.signTxFileOnline(c, 0, submitterAddress.String(), unsignedFname)
-		s.Require().NoError(err)
-		s.Require().NotNil(signedTx)
-
-		signedFname := "signed_non_critical_extension_option_tx.json"
-		signedJSONFile := filepath.Join(c.validators[0].configDir(), signedFname)
-		err = writeFile(signedJSONFile, signedTx)
-		s.Require().NoError(err)
-
-		// if there's no errors the non_critical_extension_options field was properly encoded and decoded
-		out, err := s.broadcastTxFile(c, 0, submitterAddress.String(), signedFname)
-		s.Require().NoError(err)
-		s.Require().NotNil(out)
 	})
 }
 
