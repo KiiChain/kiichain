@@ -799,44 +799,6 @@ func (s *IntegrationTestSuite) writeLiquidStakingParamsUpdateProposal(c *chain, 
 	s.Require().NoError(err)
 }
 
-// writeFailingExpeditedProposal writes a governance proposal JSON file.
-// The proposal fails because only SoftwareUpgrade and CancelSoftwareUpgrade can be expedited.
-func (s *IntegrationTestSuite) writeFailingExpeditedProposal(c *chain, blocksPerEpoch int64) {
-	template := `
-	{
-		"messages":[
-		  {
-			"@type": "/cosmos.gov.v1.MsgExecLegacyContent",
-			"authority": "%s",
-			"content": {
-				"@type": "/cosmos.params.v1beta1.ParameterChangeProposal",
-				"title": "BlocksPerEpoch",
-				"description": "change blocks per epoch",
-				"changes": [{
-				  "subspace": "provider",
-				  "key": "BlocksPerEpoch",
-				  "value": "\"%d\""
-				}]
-			}
-		  }
-		],
-		"deposit": "100akii",
-		"proposer": "sample proposer",
-		"metadata": "sample metadata",
-		"title": "blocks per epoch title",
-		"summary": "blocks per epoch summary",
-		"expedited": true
-	}`
-
-	propMsgBody := fmt.Sprintf(template,
-		govAuthority,
-		blocksPerEpoch,
-	)
-
-	err := writeFile(filepath.Join(c.validators[0].configDir(), "config", proposalFailExpedited), []byte(propMsgBody))
-	s.Require().NoError(err)
-}
-
 // MsgSoftwareUpgrade can be expedited and it can only be submitted using "tx gov submit-proposal" command.
 func (s *IntegrationTestSuite) writeExpeditedSoftwareUpgradeProp(c *chain) {
 	body := `{

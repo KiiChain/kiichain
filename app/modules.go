@@ -82,7 +82,7 @@ var maccPerms = map[string][]string{
 func appModules(
 	app *KiichainApp,
 	appCodec codec.Codec,
-	txConfig client.TxEncodingConfig,
+	_ client.TxEncodingConfig,
 	skipGenesisInvariants bool,
 ) []module.AppModule {
 	return []module.AppModule{

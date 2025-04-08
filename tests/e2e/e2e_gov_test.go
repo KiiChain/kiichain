@@ -204,13 +204,6 @@ func (s *IntegrationTestSuite) submitGovCommand(chainAAPIEndpoint, sender string
 	})
 }
 
-func (s *IntegrationTestSuite) submitGovCommandExpectingFailure(sender string, govCommand string, proposalFlags []string) {
-	s.Run(fmt.Sprintf("Running failing expedited tx gov %s -- expecting error", govCommand), func() {
-		// should return an error -- the Tx fails at the ante handler
-		s.runGovExec(s.chainA, 0, sender, govCommand, proposalFlags, standardFees.String(), s.expectTxSubmitError("unsupported expedited proposal type"))
-	})
-}
-
 // MsgSoftwareUpgrade can be expedited but it can only be submitted using "tx gov submit-proposal" command.
 // Messages submitted using "tx gov submit-legacy-proposal" command cannot be expedited.// submit but vote no so that the proposal is not passed
 func (s *IntegrationTestSuite) GovSoftwareUpgradeExpedited() {
