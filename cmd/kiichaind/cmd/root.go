@@ -29,6 +29,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
+	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
@@ -209,6 +210,7 @@ func initRootCmd(rootCmd *cobra.Command,
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(basicManager, kiichain.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
+		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(ac.newApp, kiichain.DefaultNodeHome),
 		snapshot.Cmd(ac.newApp),
