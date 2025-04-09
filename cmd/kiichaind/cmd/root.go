@@ -48,7 +48,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
@@ -211,8 +210,7 @@ func initRootCmd(rootCmd *cobra.Command,
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(basicManager, kiichain.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
-		NewTestnetCmd(basicManager, banktypes.GenesisBalancesIterator{}, ac),
-		addDebugCommands(debug.Cmd()),
+		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(ac.newApp, kiichain.DefaultNodeHome),
 		snapshot.Cmd(ac.newApp),
