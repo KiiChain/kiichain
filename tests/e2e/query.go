@@ -90,20 +90,6 @@ func querySupplyOf(endpoint, denom string) (sdk.Coin, error) {
 	return supplyOfResp.Amount, nil
 }
 
-func queryStakingParams(endpoint string) (stakingtypes.QueryParamsResponse, error) {
-	body, err := httpGet(fmt.Sprintf("%s/cosmos/staking/v1beta1/params", endpoint))
-	if err != nil {
-		return stakingtypes.QueryParamsResponse{}, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-
-	var params stakingtypes.QueryParamsResponse
-	if err := cdc.UnmarshalJSON(body, &params); err != nil {
-		return stakingtypes.QueryParamsResponse{}, err
-	}
-
-	return params, nil
-}
-
 func queryDelegation(endpoint string, validatorAddr string, delegatorAddr string) (stakingtypes.QueryDelegationResponse, error) {
 	var res stakingtypes.QueryDelegationResponse
 

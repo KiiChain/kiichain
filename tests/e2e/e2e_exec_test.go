@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -472,7 +473,7 @@ func (s *IntegrationTestSuite) execUnbondDelegation(c *chain, valIdx int, amount
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, delegatorAddr),
 		fmt.Sprintf("--%s=%s", flags.FlagChainID, c.id),
 		fmt.Sprintf("--%s=%s", flags.FlagGasPrices, delegateFees),
-		"--gas=300000", // default 200_000 is not enough; gas fees are higher when unbonding is done after LSM operations
+		"--gas=300000", // default 200_000 is not enough
 		"--keyring-backend=test",
 		fmt.Sprintf("--%s=%s", flags.FlagHome, home),
 		"--output=json",
@@ -766,107 +767,72 @@ func (s *IntegrationTestSuite) defaultExecValidation(chain *chain, valIdx int) f
 	}
 }
 
-func (s *IntegrationTestSuite) executeValidatorBond(c *chain, valIdx int, valOperAddress, delegatorAddr, home, delegateFees string) {
+// signTxFileOnline signs a transaction file using the kiichaincli tx sign command
+// the from flag is used to specify the keyring account to sign the transaction
+// the from account must be registered in the keyring and exist on chain (have a balance or be a genesis account)
+func (s *IntegrationTestSuite) signTxFileOnline(chain *chain, valIdx int, from string, txFilePath string) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-
-	s.T().Logf("Executing kiichaind tx staking validator-bond %s", c.id)
 
 	kiichainCommand := []string{
 		kiichaindBinary,
 		txCommand,
-		stakingtypes.ModuleName,
-		"validator-bond",
-		valOperAddress,
-		fmt.Sprintf("--%s=%s", flags.FlagFrom, delegatorAddr),
-		fmt.Sprintf("--%s=%s", flags.FlagChainID, c.id),
-		fmt.Sprintf("--%s=%s", flags.FlagGasPrices, delegateFees),
+		"sign",
+		filepath.Join(kiichainHomePath, txFilePath),
+		fmt.Sprintf("--%s=%s", flags.FlagChainID, chain.id),
+		fmt.Sprintf("--%s=%s", flags.FlagHome, kiichainHomePath),
+		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
 		"--keyring-backend=test",
-		fmt.Sprintf("--%s=%s", flags.FlagHome, home),
 		"--output=json",
 		"-y",
 	}
 
-	s.executeKiichainTxCommand(ctx, c, kiichainCommand, valIdx, s.defaultExecValidation(c, valIdx))
-	s.T().Logf("%s successfully executed validator bond tx to %s", delegatorAddr, valOperAddress)
+	var output []byte
+	var erroutput []byte
+	captureOutput := func(stdout []byte, stderr []byte) bool {
+		output = stdout
+		erroutput = stderr
+		return true
+	}
+
+	s.executeKiichainTxCommand(ctx, chain, kiichainCommand, valIdx, captureOutput)
+	if len(erroutput) > 0 {
+		return nil, fmt.Errorf("failed to sign tx: %s", string(erroutput))
+	}
+	return output, nil
 }
 
-func (s *IntegrationTestSuite) executeTokenizeShares(c *chain, valIdx int, amount, valOperAddress, delegatorAddr, home, delegateFees string) {
+// broadcastTxFile broadcasts a signed transaction file using the kiichaincli tx broadcast command
+// the from flag is used to specify the keyring account to sign the transaction
+// the from account must be registered in the keyring and exist on chain (have a balance or be a genesis account)
+func (s *IntegrationTestSuite) broadcastTxFile(chain *chain, valIdx int, from string, txFilePath string) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	s.T().Logf("Executing kiichaind tx staking tokenize-share %s", c.id)
-
-	kiichainCommand := []string{
+	broadcastTxCmd := []string{
 		kiichaindBinary,
 		txCommand,
-		stakingtypes.ModuleName,
-		"tokenize-share",
-		valOperAddress,
-		amount,
-		delegatorAddr,
-		fmt.Sprintf("--%s=%s", flags.FlagFrom, delegatorAddr),
-		fmt.Sprintf("--%s=%s", flags.FlagChainID, c.id),
-		fmt.Sprintf("--%s=%s", flags.FlagGasPrices, delegateFees),
-		fmt.Sprintf("--%s=%d", flags.FlagGas, 1000000),
+		"broadcast",
+		filepath.Join(kiichainHomePath, txFilePath),
+		fmt.Sprintf("--%s=%s", flags.FlagChainID, chain.id),
+		fmt.Sprintf("--%s=%s", flags.FlagHome, kiichainHomePath),
+		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
 		"--keyring-backend=test",
-		fmt.Sprintf("--%s=%s", flags.FlagHome, home),
 		"--output=json",
 		"-y",
 	}
 
-	s.executeKiichainTxCommand(ctx, c, kiichainCommand, valIdx, s.defaultExecValidation(c, valIdx))
-	s.T().Logf("%s successfully executed tokenize share tx from %s", delegatorAddr, valOperAddress)
-}
-
-func (s *IntegrationTestSuite) executeRedeemShares(c *chain, valIdx int, amount, delegatorAddr, home, delegateFees string) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-
-	s.T().Logf("Executing kiichaind tx staking redeem-tokens %s", c.id)
-
-	kiichainCommand := []string{
-		kiichaindBinary,
-		txCommand,
-		stakingtypes.ModuleName,
-		"redeem-tokens",
-		amount,
-		fmt.Sprintf("--%s=%s", flags.FlagFrom, delegatorAddr),
-		fmt.Sprintf("--%s=%s", flags.FlagChainID, c.id),
-		fmt.Sprintf("--%s=%s", flags.FlagGasPrices, delegateFees),
-		fmt.Sprintf("--%s=%d", flags.FlagGas, 1000000),
-		"--keyring-backend=test",
-		fmt.Sprintf("--%s=%s", flags.FlagHome, home),
-		"--output=json",
-		"-y",
+	var output []byte
+	var erroutput []byte
+	captureOutput := func(stdout []byte, stderr []byte) bool {
+		output = stdout
+		erroutput = stderr
+		return true
 	}
 
-	s.executeKiichainTxCommand(ctx, c, kiichainCommand, valIdx, s.defaultExecValidation(c, valIdx))
-	s.T().Logf("%s successfully executed redeem share tx for %s", delegatorAddr, amount)
-}
-
-func (s *IntegrationTestSuite) executeTransferTokenizeShareRecord(c *chain, valIdx int, recordID, owner, newOwner, home, txFees string) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-
-	s.T().Logf("Executing kiichaind tx staking transfer-tokenize-share-record %s", c.id)
-
-	kiichainCommand := []string{
-		kiichaindBinary,
-		txCommand,
-		stakingtypes.ModuleName,
-		"transfer-tokenize-share-record",
-		recordID,
-		newOwner,
-		fmt.Sprintf("--%s=%s", flags.FlagFrom, owner),
-		fmt.Sprintf("--%s=%s", flags.FlagChainID, c.id),
-		fmt.Sprintf("--%s=%s", flags.FlagGasPrices, txFees),
-		"--keyring-backend=test",
-		fmt.Sprintf("--%s=%s", flags.FlagHome, home),
-		"--output=json",
-		"-y",
+	s.executeKiichainTxCommand(ctx, chain, broadcastTxCmd, valIdx, captureOutput)
+	if len(erroutput) > 0 {
+		return nil, fmt.Errorf("failed to sign tx: %s", string(erroutput))
 	}
-
-	s.executeKiichainTxCommand(ctx, c, kiichainCommand, valIdx, s.defaultExecValidation(c, valIdx))
-	s.T().Logf("%s successfully executed transfer tokenize share record for %s", owner, recordID)
+	return output, nil
 }

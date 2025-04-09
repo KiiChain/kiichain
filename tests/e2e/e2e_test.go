@@ -16,7 +16,6 @@ var (
 	runStakingAndDistributionTest = true
 	runVestingTest                = true
 	runRestInterfacesTest         = true
-	runLsmTest                    = true
 	runRateLimitTest              = true
 	runTxExtensionsTest           = true
 
