@@ -109,14 +109,6 @@ func (s *IntegrationTestSuite) TestVesting() {
 	s.testContinuousVestingAccount(chainAAPI)
 }
 
-func (s *IntegrationTestSuite) TestLSM() {
-	if !runLsmTest || skipIBCTests {
-		s.T().Log("skipping LSM e2e tests...")
-		s.T().Skip()
-	}
-	s.testLSM()
-}
-
 func (s *IntegrationTestSuite) TestRateLimit() {
 	if !runRateLimitTest || skipIBCTests {
 		s.T().Log("skipping rate limit e2e tests...")
