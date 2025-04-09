@@ -15,9 +15,6 @@ import (
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
-	no_valupdates_genutil "github.com/cosmos/interchain-security/v6/x/ccv/no_valupdates_genutil"
-	no_valupdates_staking "github.com/cosmos/interchain-security/v6/x/ccv/no_valupdates_staking"
-	providertypes "github.com/cosmos/interchain-security/v6/x/ccv/provider/types"
 
 	"cosmossdk.io/x/evidence"
 	evidencetypes "cosmossdk.io/x/evidence/types"
@@ -75,12 +72,11 @@ var maccPerms = map[string][]string{
 	stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 	govtypes.ModuleName:            {authtypes.Burner},
 	// liquiditytypes.ModuleName:         {authtypes.Minter, authtypes.Burner},
-	ibctransfertypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
-	ibcfeetypes.ModuleName:            nil,
-	providertypes.ConsumerRewardsPool: nil,
-	wasmtypes.ModuleName:              {authtypes.Burner},
-	feemarkettypes.ModuleName:         nil,
-	feemarkettypes.FeeCollectorName:   nil,
+	ibctransfertypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
+	ibcfeetypes.ModuleName:          nil,
+	wasmtypes.ModuleName:            {authtypes.Burner},
+	feemarkettypes.ModuleName:       nil,
+	feemarkettypes.FeeCollectorName: nil,
 }
 
 func appModules(
@@ -90,7 +86,7 @@ func appModules(
 	skipGenesisInvariants bool,
 ) []module.AppModule {
 	return []module.AppModule{
-		no_valupdates_genutil.NewAppModule(
+		genutil.NewAppModule(
 			app.AccountKeeper,
 			app.StakingKeeper,
 			app,
@@ -105,7 +101,7 @@ func appModules(
 		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, nil, app.GetSubspace(minttypes.ModuleName)),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(slashingtypes.ModuleName), app.interfaceRegistry),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(distrtypes.ModuleName)),
-		no_valupdates_staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
+		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
 		upgrade.NewAppModule(app.UpgradeKeeper, app.AccountKeeper.AddressCodec()),
 		evidence.NewAppModule(app.EvidenceKeeper),
 		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
@@ -120,7 +116,6 @@ func appModules(
 		app.ICAModule,
 		app.PFMRouterModule,
 		app.RateLimitModule,
-		app.ProviderModule,
 		metaprotocols.NewAppModule(),
 		feemarket.NewAppModule(appCodec, *app.FeeMarketKeeper),
 	}
@@ -175,13 +170,6 @@ func simulationModules(
 /*
 orderBeginBlockers tells the app's module manager how to set the order of
 BeginBlockers, which are run at the beginning of every block.
-
-Interchain Security Requirements:
-During begin block slashing happens after distr.BeginBlocker so that
-there is nothing left over in the validator fee pool, so as to keep the
-CanWithdrawInvariant invariant.
-NOTE: staking module is required if HistoricalEntries param > 0
-NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
 */
 
 func orderBeginBlockers() []string {
@@ -208,21 +196,12 @@ func orderBeginBlockers() []string {
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
 		feemarkettypes.ModuleName,
-		providertypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		metaprotocolstypes.ModuleName,
 		wasmtypes.ModuleName,
 	}
 }
 
-/*
-Interchain Security Requirements:
-- provider.EndBlock gets validator updates from the staking module;
-thus, staking.EndBlock must be executed before provider.EndBlock;
-- creating a new consumer chain requires the following order,
-CreateChildClient(), staking.EndBlock, provider.EndBlock;
-thus, gov.EndBlock must be executed before staking.EndBlock
-*/
 func orderEndBlockers() []string {
 	return []string{
 		crisistypes.ModuleName,
@@ -248,7 +227,6 @@ func orderEndBlockers() []string {
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		feemarkettypes.ModuleName,
-		providertypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		metaprotocolstypes.ModuleName,
 		wasmtypes.ModuleName,
@@ -292,7 +270,6 @@ func orderInitBlockers() []string {
 		// To resolve this issue, we should initialize the feemarket module after genutil, ensuring that the
 		// min fee is empty when gentx is called.
 		feemarkettypes.ModuleName,
-		providertypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		metaprotocolstypes.ModuleName,
 		wasmtypes.ModuleName,

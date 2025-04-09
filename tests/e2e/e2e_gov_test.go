@@ -5,15 +5,12 @@ import (
 	"strconv"
 	"time"
 
-	providertypes "github.com/cosmos/interchain-security/v6/x/ccv/provider/types"
-
 	"cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypesv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 )
 
 /*
@@ -205,78 +202,6 @@ func (s *IntegrationTestSuite) submitGovCommand(chainAAPIEndpoint, sender string
 			5*time.Second,
 		)
 	})
-}
-
-func (s *IntegrationTestSuite) submitGovCommandExpectingFailure(sender string, govCommand string, proposalFlags []string) {
-	s.Run(fmt.Sprintf("Running failing expedited tx gov %s -- expecting error", govCommand), func() {
-		// should return an error -- the Tx fails at the ante handler
-		s.runGovExec(s.chainA, 0, sender, govCommand, proposalFlags, standardFees.String(), s.expectTxSubmitError("unsupported expedited proposal type"))
-	})
-}
-
-// testSetBlocksPerEpoch tests that we can change `BlocksPerEpoch` through a governance proposal
-func (s *IntegrationTestSuite) testSetBlocksPerEpoch() {
-	chainEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
-
-	providerParams := providertypes.DefaultParams()
-
-	// assert that initially, the actual blocks per epoch are the default blocks per epoch
-	s.Require().Eventually(
-		func() bool {
-			blocksPerEpoch, err := queryBlocksPerEpoch(chainEndpoint)
-			s.T().Logf("Initial BlocksPerEpoch param: %v", blocksPerEpoch)
-			s.Require().NoError(err)
-
-			s.Require().Equal(blocksPerEpoch, providerParams.BlocksPerEpoch)
-			return true
-		},
-		15*time.Second,
-		5*time.Second,
-	)
-
-	// create a governance proposal to change blocks per epoch to the default blocks per epoch plus one
-	expectedBlocksPerEpoch := providerParams.BlocksPerEpoch + 1
-	providerParams.BlocksPerEpoch = expectedBlocksPerEpoch
-	paramsJSON := cdc.MustMarshalJSON(&providerParams)
-	s.writeGovParamChangeProposalBlocksPerEpoch(s.chainA, string(paramsJSON))
-
-	validatorAAddr, _ := s.chainA.validators[0].keyInfo.GetAddress()
-	proposalCounter++
-	submitGovFlags := []string{configFile(proposalBlocksPerEpochFilename)}
-	depositGovFlags := []string{strconv.Itoa(proposalCounter), depositAmount.String()}
-	voteGovFlags := []string{strconv.Itoa(proposalCounter), "yes"}
-
-	s.T().Logf("Proposal number: %d", proposalCounter)
-	s.T().Logf("Submitting, deposit and vote Gov Proposal: Change BlocksPerEpoch parameter")
-	s.submitGovProposal(chainEndpoint, validatorAAddr.String(), proposalCounter, paramtypes.ProposalTypeChange, submitGovFlags, depositGovFlags, voteGovFlags, "vote")
-
-	s.Require().Eventually(
-		func() bool {
-			blocksPerEpoch, err := queryBlocksPerEpoch(chainEndpoint)
-			s.Require().NoError(err)
-
-			s.T().Logf("Newly set blocks per epoch: %d", blocksPerEpoch)
-			s.Require().Equal(expectedBlocksPerEpoch, blocksPerEpoch)
-			return true
-		},
-		15*time.Second,
-		5*time.Second,
-	)
-}
-
-// ExpeditedProposalRejected tests that expediting a ParamChange proposal fails.
-func (s *IntegrationTestSuite) ExpeditedProposalRejected() {
-	defaultBlocksPerEpoch := providertypes.DefaultParams().BlocksPerEpoch
-
-	// attempt to change but nothing should happen -> proposal fails at ante handler
-	expectedBlocksPerEpoch := defaultBlocksPerEpoch + 100
-	s.writeFailingExpeditedProposal(s.chainA, expectedBlocksPerEpoch)
-
-	validatorAAddr, _ := s.chainA.validators[0].keyInfo.GetAddress()
-	submitGovFlags := []string{configFile(proposalFailExpedited)}
-
-	s.T().Logf("Submitting, deposit and vote Gov Proposal: Change BlocksPerEpoch parameter - expecting to fail")
-	s.submitGovCommandExpectingFailure(validatorAAddr.String(), "submit-proposal", submitGovFlags)
 }
 
 // MsgSoftwareUpgrade can be expedited but it can only be submitted using "tx gov submit-proposal" command.

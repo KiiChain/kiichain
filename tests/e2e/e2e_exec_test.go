@@ -767,19 +767,6 @@ func (s *IntegrationTestSuite) defaultExecValidation(chain *chain, valIdx int) f
 	}
 }
 
-func (s *IntegrationTestSuite) expectTxSubmitError(expectErrString string) func([]byte, []byte) bool {
-	return func(stdOut []byte, stdErr []byte) bool {
-		var txResp sdk.TxResponse
-		if err := cdc.UnmarshalJSON(stdOut, &txResp); err != nil {
-			return false
-		}
-		if strings.Contains(txResp.RawLog, expectErrString) {
-			return true
-		}
-		return false
-	}
-}
-
 func (s *IntegrationTestSuite) executeValidatorBond(c *chain, valIdx int, valOperAddress, delegatorAddr, home, delegateFees string) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()

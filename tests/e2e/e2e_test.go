@@ -68,8 +68,6 @@ func (s *IntegrationTestSuite) TestGov() {
 	s.GovCancelSoftwareUpgrade()
 	s.GovCommunityPoolSpend()
 
-	s.testSetBlocksPerEpoch()
-	s.ExpeditedProposalRejected()
 	s.GovSoftwareUpgradeExpedited()
 }
 
