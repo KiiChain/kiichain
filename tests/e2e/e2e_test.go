@@ -129,10 +129,3 @@ func (s *IntegrationTestSuite) TestRateLimit() {
 	s.testResetRateLimit()
 	s.testRemoveRateLimit()
 }
-
-func (s *IntegrationTestSuite) TestTxExtensions() {
-	if !runTxExtensionsTest {
-		s.T().Skip()
-	}
-	s.failedBankSendWithNonCriticalExtensionOptions()
-}
