@@ -443,7 +443,7 @@ func (s *IntegrationTestSuite) testFailedMultihopIBCTokenTransfer() {
 				returned := beforeSenderAKiiBalance.Sub(standardFees).IsEqual(afterSenderAKiiBalance)
 				return returned
 			},
-			5*time.Minute,
+			1*time.Minute,
 			10*time.Second,
 		)
 	})

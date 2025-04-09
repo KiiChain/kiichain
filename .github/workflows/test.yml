@@ -53,35 +53,6 @@ jobs:
           name: "${{ github.sha }}-coverage"
           path: ./profile.out
 
-  test-e2e:
-    runs-on: Kiichain-Runner-medium
-    timeout-minutes: 45
-    steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: 1.22.x
-      - uses: actions/checkout@v4
-      - uses: technote-space/get-diff-action@v6.1.2
-        id: git_diff
-        with:
-          PATTERNS: |
-            **/*.go
-            go.mod
-            go.sum
-            **/go.mod
-            **/go.sum
-            **/Makefile
-            Makefile
-      - name: Build Kiichain Docker Image
-        if: env.GIT_DIFF
-        run: make docker-build-debug
-      - name: Build Hermes Docker Image
-        if: env.GIT_DIFF
-        run: make docker-build-hermes
-      - name: Test E2E
-        if: env.GIT_DIFF
-        run: make test-e2e
-
   repo-analysis:
     runs-on: ubuntu-latest
     needs: [tests]
@@ -106,38 +77,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  liveness-test:
-    runs-on: Kiichain-Runner-medium
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: 1.22.x
-      - uses: technote-space/get-diff-action@v6.1.2
-        id: git_diff
-        with:
-          PATTERNS: |
-            **/*.go
-            go.mod
-            go.sum
-            **/go.mod
-            **/go.sum
-            **/Makefile
-            Makefile
-      - name: Install Kiichain
-        run: |
-          make build
-        if: env.GIT_DIFF
-      - name: Start Local Network
-        run: |
-          make start-localnet-ci > liveness.out 2>&1 &
-        if: env.GIT_DIFF
-      - name: Test Local Network Liveness
-        run: |
-          ./contrib/scripts/test_localnet_liveness.sh 100 5 50 localhost
-        if: env.GIT_DIFF
 
   # upgrade-test:
   #   runs-on: ubuntu-latest

@@ -1,0 +1,44 @@
+name: Liveness check
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  liveness-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.22.x
+      - uses: technote-space/get-diff-action@v6.1.2
+        id: git_diff
+        with:
+          PATTERNS: |
+            **/*.go
+            go.mod
+            go.sum
+            **/go.mod
+            **/go.sum
+            **/Makefile
+            Makefile
+      - name: Install Kiichain
+        run: |
+          make build
+        if: env.GIT_DIFF
+      - name: Start Local Network
+        run: |
+          make start-localnet-ci > liveness.out 2>&1 &
+        if: env.GIT_DIFF
+      - name: Test Local Network Liveness
+        run: |
+          ./contrib/scripts/test_localnet_liveness.sh 100 5 20 localhost
+        if: env.GIT_DIFF

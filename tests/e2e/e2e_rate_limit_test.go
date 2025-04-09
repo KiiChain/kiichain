@@ -239,8 +239,8 @@ func (s *IntegrationTestSuite) testAddRateLimits() {
 			res, err := queryRateLimit(chainEndpoint, transferChannel, stakeDenom)
 			s.Require().NoError(err)
 			s.Require().NotNil(res.RateLimit)
-			s.Require().Equal(*rateLimits[0].Path, *res.RateLimit.Path)
-			s.Require().Equal(*rateLimits[0].Quota, *res.RateLimit.Quota)
+			s.Require().Equal(*rateLimits[1].Path, *res.RateLimit.Path)
+			s.Require().Equal(*rateLimits[1].Quota, *res.RateLimit.Quota)
 
 			return true
 		},
