@@ -28,7 +28,6 @@ import (
 
 	kiichain "github.com/kiichain/kiichain/v1/app"
 	kiiparams "github.com/kiichain/kiichain/v1/app/params"
-	metaprotocoltypes "github.com/kiichain/kiichain/v1/x/metaprotocols/types"
 )
 
 const (
@@ -57,7 +56,6 @@ func init() {
 
 	upgradetypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	distribtypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
-	metaprotocoltypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	ratelimittypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 
 	cdc = encodingConfig.Marshaler
