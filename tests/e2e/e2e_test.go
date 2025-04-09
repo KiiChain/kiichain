@@ -16,7 +16,6 @@ var (
 	runStakingAndDistributionTest = true
 	runVestingTest                = true
 	runRestInterfacesTest         = true
-	runLsmTest                    = true
 	runRateLimitTest              = true
 	runTxExtensionsTest           = true
 
@@ -107,14 +106,6 @@ func (s *IntegrationTestSuite) TestVesting() {
 	chainAAPI := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
 	s.testDelayedVestingAccount(chainAAPI)
 	s.testContinuousVestingAccount(chainAAPI)
-}
-
-func (s *IntegrationTestSuite) TestLSM() {
-	if !runLsmTest || skipIBCTests {
-		s.T().Log("skipping LSM e2e tests...")
-		s.T().Skip()
-	}
-	s.testLSM()
 }
 
 func (s *IntegrationTestSuite) TestRateLimit() {

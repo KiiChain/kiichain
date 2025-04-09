@@ -66,15 +66,11 @@ const (
 
 	proposalMaxTotalBypassFilename   = "proposal_max_total_bypass.json"
 	proposalCommunitySpendFilename   = "proposal_community_spend.json"
-	proposalLSMParamUpdateFilename   = "proposal_lsm_param_update.json"
 	proposalBlocksPerEpochFilename   = "proposal_blocks_per_epoch.json"
 	proposalFailExpedited            = "proposal_fail_expedited.json"
 	proposalExpeditedSoftwareUpgrade = "proposal_expedited_software_upgrade.json"
 	proposalSoftwareUpgrade          = "proposal_software_upgrade.json"
 	proposalCancelSoftwareUpgrade    = "proposal_cancel_software_upgrade.json"
-
-	// proposalAddConsumerChainFilename    = "proposal_add_consumer.json"
-	// proposalRemoveConsumerChainFilename = "proposal_remove_consumer.json"
 
 	hermesBinary              = "hermes"
 	hermesConfigWithGasPrices = "/root/.hermes/config.toml"
@@ -753,49 +749,6 @@ func (s *IntegrationTestSuite) writeCancelSoftwareUpgradeProposal(c *chain) {
 	   }`
 
 	err := writeFile(filepath.Join(c.validators[0].configDir(), "config", proposalCancelSoftwareUpgrade), []byte(template))
-	s.Require().NoError(err)
-}
-
-func (s *IntegrationTestSuite) writeLiquidStakingParamsUpdateProposal(c *chain, oldParams stakingtypes.Params) {
-	template := `
-	{
-		"messages": [
-		 {
-		  "@type": "/cosmos.staking.v1beta1.MsgUpdateParams",
-		  "authority": "%s",
-		  "params": {
-		   "unbonding_time": "%s",
-		   "max_validators": %d,
-		   "max_entries": %d,
-		   "historical_entries": %d,
-		   "bond_denom": "%s",
-		   "min_commission_rate": "%s",
-		   "validator_bond_factor": "%s",
-		   "global_liquid_staking_cap": "%s",
-		   "validator_liquid_staking_cap": "%s"
-		  }
-		 }
-		],
-		"metadata": "ipfs://CID",
-		"deposit": "100akii",
-		"title": "Update LSM Params",
-		"summary": "e2e-test updating LSM staking params",
-		"expedited": false
-	   }`
-	propMsgBody := fmt.Sprintf(template,
-		govAuthority,
-		oldParams.UnbondingTime,
-		oldParams.MaxValidators,
-		oldParams.MaxEntries,
-		oldParams.HistoricalEntries,
-		oldParams.BondDenom,
-		oldParams.MinCommissionRate,
-		math.LegacyNewDec(250),           // validator bond factor
-		math.LegacyNewDecWithPrec(25, 2), // 25 global_liquid_staking_cap
-		math.LegacyNewDecWithPrec(50, 2), // 50 validator_liquid_staking_cap
-	)
-
-	err := writeFile(filepath.Join(c.validators[0].configDir(), "config", proposalLSMParamUpdateFilename), []byte(propMsgBody))
 	s.Require().NoError(err)
 }
 
