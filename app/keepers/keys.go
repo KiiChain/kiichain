@@ -1,8 +1,6 @@
 package keepers
 
 import (
-	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
-
 	routertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
@@ -56,7 +54,6 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		routertypes.StoreKey,
 		ratelimittypes.StoreKey,
 		consensusparamtypes.StoreKey,
-		feemarkettypes.StoreKey,
 		wasmtypes.StoreKey,
 	)
 
