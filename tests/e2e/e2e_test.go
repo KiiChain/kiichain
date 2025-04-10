@@ -17,7 +17,6 @@ var (
 	runVestingTest                = true
 	runRestInterfacesTest         = true
 	runRateLimitTest              = true
-	runTxExtensionsTest           = true
 
 	// skipIBCTests skips tests that uses IBC
 	skipIBCTests = os.Getenv("SKIP_IBC_TESTS") == "true"
