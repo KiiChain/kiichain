@@ -380,7 +380,7 @@ func (s *IntegrationTestSuite) testFailedMultihopIBCTokenTransfer() {
 		middlehop := address.String()
 
 		address, _ = s.chainA.validators[1].keyInfo.GetAddress()
-		recipient := strings.Replace(address.String(), "cosmos", "foobar", 1) // this should be an invalid recipient to force the tx to fail
+		recipient := strings.Replace(address.String(), "kii", "foobar", 1) // this should be an invalid recipient to force the tx to fail
 
 		forwardPort := "transfer"
 		forwardChannel := "channel-0"
