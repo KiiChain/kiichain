@@ -1,9 +1,6 @@
 package kiichain
 
 import (
-	feemarket "github.com/skip-mev/feemarket/x/feemarket"
-	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
-
 	pfmroutertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
 	"github.com/cosmos/ibc-go/modules/capability"
@@ -66,11 +63,9 @@ var maccPerms = map[string][]string{
 	stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 	govtypes.ModuleName:            {authtypes.Burner},
 	// liquiditytypes.ModuleName:         {authtypes.Minter, authtypes.Burner},
-	ibctransfertypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
-	ibcfeetypes.ModuleName:          nil,
-	wasmtypes.ModuleName:            {authtypes.Burner},
-	feemarkettypes.ModuleName:       nil,
-	feemarkettypes.FeeCollectorName: nil,
+	ibctransfertypes.ModuleName: {authtypes.Minter, authtypes.Burner},
+	ibcfeetypes.ModuleName:      nil,
+	wasmtypes.ModuleName:        {authtypes.Burner},
 }
 
 func appModules(
@@ -109,7 +104,6 @@ func appModules(
 		app.ICAModule,
 		app.PFMRouterModule,
 		app.RateLimitModule,
-		feemarket.NewAppModule(appCodec, *app.FeeMarketKeeper),
 	}
 }
 
@@ -185,7 +179,6 @@ func orderBeginBlockers() []string {
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
-		feemarkettypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		wasmtypes.ModuleName,
 	}
@@ -214,7 +207,6 @@ func orderEndBlockers() []string {
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
-		feemarkettypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		wasmtypes.ModuleName,
 	}
@@ -250,12 +242,6 @@ func orderInitBlockers() []string {
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
-		// The feemarket module should ideally be initialized before the genutil module in theory:
-		// The feemarket antehandler performs checks in DeliverTx, which is called by gentx.
-		// When the fee > 0, gentx needs to pay the fee. However, this is not expected.
-		// To resolve this issue, we should initialize the feemarket module after genutil, ensuring that the
-		// min fee is empty when gentx is called.
-		feemarkettypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		wasmtypes.ModuleName,
 		// crisis needs to be last so that the genesis state is consistent
