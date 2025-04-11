@@ -4,8 +4,8 @@ import (
 	fmt "fmt"
 	"testing"
 
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/testhelpers"
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/testhelpers"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cometbft/cometbft/crypto/ed25519"

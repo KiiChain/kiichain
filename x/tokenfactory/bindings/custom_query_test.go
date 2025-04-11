@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
-	"github.com/strangelove-ventures/tokenfactory/app"
-	bindings "github.com/strangelove-ventures/tokenfactory/x/tokenfactory/bindings/types"
+	"github.com/kiichain/kiichain/v1/app"
+	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"

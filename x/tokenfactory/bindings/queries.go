@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	bindingstypes "github.com/strangelove-ventures/tokenfactory/x/tokenfactory/bindings/types"
-	tokenfactorykeeper "github.com/strangelove-ventures/tokenfactory/x/tokenfactory/keeper"
+	bindingstypes "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
+	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"

@@ -3,8 +3,8 @@ package simulation
 import (
 	"math/rand"
 
-	appparams "github.com/strangelove-ventures/tokenfactory/app/params"
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/types"
+	appparams "github.com/kiichain/kiichain/v1/app/params"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 
 	sdkmath "cosmossdk.io/math"
 

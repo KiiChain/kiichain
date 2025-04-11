@@ -15,12 +15,12 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/client/cli"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/exported"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
+	simulation "github.com/kiichain/kiichain/v1/x/tokenfactory/simulation"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 	"github.com/spf13/cobra"
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/client/cli"
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/exported"
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/keeper"
-	simulation "github.com/strangelove-ventures/tokenfactory/x/tokenfactory/simulation"
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/types"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 

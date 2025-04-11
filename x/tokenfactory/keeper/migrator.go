@@ -3,8 +3,8 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/exported"
-	v2 "github.com/strangelove-ventures/tokenfactory/x/tokenfactory/migrations/v2"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/exported"
+	v2 "github.com/kiichain/kiichain/v1/x/tokenfactory/migrations/v2"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"

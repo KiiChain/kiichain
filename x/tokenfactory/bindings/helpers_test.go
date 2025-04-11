@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
-	"github.com/strangelove-ventures/tokenfactory/app"
+	"github.com/kiichain/kiichain/v1/app"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cometbft/cometbft/crypto"

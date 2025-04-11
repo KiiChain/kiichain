@@ -3,9 +3,9 @@ package keeper_test
 import (
 	"testing"
 
-	"github.com/strangelove-ventures/tokenfactory/app/apptesting"
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/keeper"
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v1/app/apptesting"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 	"github.com/stretchr/testify/suite"
 
 	sdkmath "cosmossdk.io/math"

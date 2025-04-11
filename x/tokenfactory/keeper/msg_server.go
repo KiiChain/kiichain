@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 
 	"cosmossdk.io/errors"
 

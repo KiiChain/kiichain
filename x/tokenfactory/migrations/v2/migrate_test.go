@@ -3,10 +3,10 @@ package v2_test
 import (
 	"testing"
 
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory"
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/exported"
-	v2 "github.com/strangelove-ventures/tokenfactory/x/tokenfactory/migrations/v2"
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/exported"
+	v2 "github.com/kiichain/kiichain/v1/x/tokenfactory/migrations/v2"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 	"github.com/stretchr/testify/require"
 
 	sdkstore "cosmossdk.io/store/types"

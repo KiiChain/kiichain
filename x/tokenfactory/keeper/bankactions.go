@@ -5,7 +5,7 @@ import (
 	"sort"
 
 	"github.com/gogo/status"
-	"github.com/strangelove-ventures/tokenfactory/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 	"google.golang.org/grpc/codes"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
