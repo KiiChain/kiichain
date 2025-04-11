@@ -17,7 +17,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 	return func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
 		var contractQuery bindingstypes.TokenFactoryQuery
 		if err := json.Unmarshal(request, &contractQuery); err != nil {
-			return nil, errorsmod.Wrap(err, "osmosis query")
+			return nil, errorsmod.Wrap(err, "kiichain query")
 		}
 
 		switch {
@@ -27,7 +27,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 
 			fullDenom, err := GetFullDenom(creator, subdenom)
 			if err != nil {
-				return nil, errorsmod.Wrap(err, "osmo full denom query")
+				return nil, errorsmod.Wrap(err, "kii full denom query")
 			}
 
 			res := bindingstypes.FullDenomResponse{
