@@ -5,7 +5,8 @@ import (
 	"testing"
 
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
-	"github.com/kiichain/kiichain/v1/app"
+	app "github.com/kiichain/kiichain/v1/app"
+	"github.com/kiichain/kiichain/v1/app/helpers"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cometbft/cometbft/crypto"
@@ -17,12 +18,12 @@ import (
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
 )
 
-func CreateTestInput(t *testing.T) (*app.TokenFactoryApp, sdk.Context) {
-	ctx, chain := app.Setup(t)
-	return chain, sdk.UnwrapSDKContext(ctx)
+func CreateTestInput(t *testing.T) (*app.KiichainApp, sdk.Context) {
+	chain := helpers.Setup(t)
+	return chain, sdk.UnwrapSDKContext(sdk.Context{})
 }
 
-func FundAccount(t *testing.T, ctx sdk.Context, app *app.TokenFactoryApp, acct sdk.AccAddress) {
+func FundAccount(t *testing.T, ctx sdk.Context, app *app.KiichainApp, acct sdk.AccAddress) {
 	err := banktestutil.FundAccount(ctx, app.BankKeeper, acct, sdk.NewCoins(
 		sdk.NewCoin("uosmo", sdkmath.NewInt(10000000000)),
 	))
@@ -46,7 +47,7 @@ func RandomBech32AccountAddress() string {
 	return RandomAccountAddress().String()
 }
 
-func storeReflectCode(t *testing.T, ctx sdk.Context, app *app.TokenFactoryApp, addr sdk.AccAddress) uint64 {
+func storeReflectCode(t *testing.T, ctx sdk.Context, app *app.KiichainApp, addr sdk.AccAddress) uint64 {
 	wasmCode, err := os.ReadFile("./testdata/token_reflect.wasm")
 	require.NoError(t, err)
 
@@ -57,7 +58,7 @@ func storeReflectCode(t *testing.T, ctx sdk.Context, app *app.TokenFactoryApp, a
 	return codeID
 }
 
-func instantiateReflectContract(t *testing.T, ctx sdk.Context, app *app.TokenFactoryApp, funder sdk.AccAddress) sdk.AccAddress {
+func instantiateReflectContract(t *testing.T, ctx sdk.Context, app *app.KiichainApp, funder sdk.AccAddress) sdk.AccAddress {
 	initMsgBz := []byte("{}")
 	contractKeeper := keeper.NewDefaultPermissionKeeper(app.WasmKeeper)
 	codeID := uint64(1)
@@ -67,7 +68,7 @@ func instantiateReflectContract(t *testing.T, ctx sdk.Context, app *app.TokenFac
 	return addr
 }
 
-func fundAccount(t *testing.T, ctx sdk.Context, app *app.TokenFactoryApp, addr sdk.AccAddress, coins sdk.Coins) {
+func fundAccount(t *testing.T, ctx sdk.Context, app *app.KiichainApp, addr sdk.AccAddress, coins sdk.Coins) {
 	err := banktestutil.FundAccount(
 		ctx,
 		app.BankKeeper,
@@ -77,7 +78,7 @@ func fundAccount(t *testing.T, ctx sdk.Context, app *app.TokenFactoryApp, addr s
 	require.NoError(t, err)
 }
 
-func SetupCustomApp(t *testing.T, addr sdk.AccAddress) (*app.TokenFactoryApp, sdk.Context) {
+func SetupCustomApp(t *testing.T, addr sdk.AccAddress) (*app.KiichainApp, sdk.Context) {
 	app, ctx := CreateTestInput(t)
 	wasmKeeper := app.WasmKeeper
 

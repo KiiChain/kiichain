@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
-	"github.com/kiichain/kiichain/v1/app"
+	app "github.com/kiichain/kiichain/v1/app"
 	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
 	"github.com/stretchr/testify/require"
 
@@ -46,7 +46,7 @@ type ChainResponse struct {
 	Data []byte `json:"data"`
 }
 
-func queryCustom(t *testing.T, ctx sdk.Context, app *app.TokenFactoryApp, contract sdk.AccAddress, request bindings.TokenFactoryQuery, response interface{}) {
+func queryCustom(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contract sdk.AccAddress, request bindings.TokenFactoryQuery, response interface{}) {
 	msgBz, err := json.Marshal(request)
 	require.NoError(t, err)
 	fmt.Println("queryCustom1", string(msgBz))

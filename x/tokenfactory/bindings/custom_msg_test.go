@@ -7,7 +7,7 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
-	"github.com/kiichain/kiichain/v1/app"
+	app "github.com/kiichain/kiichain/v1/app"
 	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
 	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 	"github.com/stretchr/testify/require"
@@ -303,7 +303,7 @@ type ReflectSubMsgs struct {
 	Msgs []wasmvmtypes.SubMsg `json:"msgs"`
 }
 
-func executeCustom(t *testing.T, ctx sdk.Context, app *app.TokenFactoryApp, contract sdk.AccAddress, sender sdk.AccAddress, msg bindings.TokenFactoryMsg, funds sdk.Coin) error { //nolint:unparam // funds is always nil but could change in the future.
+func executeCustom(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contract sdk.AccAddress, sender sdk.AccAddress, msg bindings.TokenFactoryMsg, funds sdk.Coin) error { //nolint:unparam // funds is always nil but could change in the future.
 	customBz, err := json.Marshal(msg)
 	require.NoError(t, err)
 
