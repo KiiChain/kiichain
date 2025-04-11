@@ -23,7 +23,9 @@ import (
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/kiichain/kiichain/v1/ante"
 	kiichain "github.com/kiichain/kiichain/v1/app"
+	"github.com/kiichain/kiichain/v1/app/params"
 )
 
 var app *kiichain.KiichainApp
@@ -35,6 +37,16 @@ func KiichainAppIniterTempDir() (ibctesting.TestingApp, map[string]json.RawMessa
 	if err != nil {
 		panic(err)
 	}
+
+	// Set the base options
+	baseAppOptions := bam.SetChainID(
+		fmt.Sprintf("%s-1", params.LocalChainId),
+	)
+
+	// Disable the fee market
+	ante.UseFeeMarketDecorator = false
+
+	// Initialize the app
 	app = kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
@@ -44,7 +56,9 @@ func KiichainAppIniterTempDir() (ibctesting.TestingApp, map[string]json.RawMessa
 		tmpDir,
 		kiichain.EmptyAppOptions{},
 		kiichain.EmptyWasmOptions,
-		kiichain.NoOpEVMOptions)
+		kiichain.EVMAppOptions,
+		baseAppOptions,
+	)
 
 	testApp := ibctesting.TestingApp(app)
 

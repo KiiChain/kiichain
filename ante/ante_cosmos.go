@@ -12,9 +12,12 @@ import (
 	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
 )
 
+// UseFeeMarketDecorator to make the integration testing easier: we can switch off its ante and post decorators with this flag
+var UseFeeMarketDecorator = true
+
 // newCosmosAnteHandler creates the default ante handler for Cosmos transactions
 func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
-	return sdk.ChainAnteDecorators(
+	anteDecorators := []sdk.AnteDecorator{
 		evmcosmosante.NewRejectMessagesDecorator(), // reject MsgEthereumTxs
 		evmcosmosante.NewAuthzLimiterDecorator( // disable the Msg types that cannot be included on an authz.MsgExec msgs field
 			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
@@ -32,7 +35,6 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		NewGovExpeditedProposalsDecorator(options.Cdc),
 		evmcosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
@@ -41,5 +43,19 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
-	)
+	}
+
+	// Skip the feemarket decorator is needed
+	if UseFeeMarketDecorator {
+		anteDecorators = append(anteDecorators,
+			ante.NewDeductFeeDecorator(
+				options.AccountKeeper,
+				options.BankKeeper,
+				options.FeegrantKeeper,
+				options.TxFeeChecker,
+			),
+		)
+	}
+
+	return sdk.ChainAnteDecorators(anteDecorators...)
 }
