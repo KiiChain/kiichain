@@ -21,6 +21,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
+	tenderminttypes "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -29,10 +30,10 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakinghelper "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 type KeeperTestHelper struct {
@@ -50,6 +51,7 @@ type KeeperTestHelper struct {
 func (s *KeeperTestHelper) Setup() {
 	t := s.T()
 	s.App = helpers.Setup(t)
+	s.Ctx = s.App.BaseApp.NewUncachedContext(true, tenderminttypes.Header{Height: 1, ChainID: "testing", Time: time.Now().UTC()})
 
 	s.QueryHelper = &baseapp.QueryServiceTestHelper{
 		GRPCQueryRouter: s.App.GRPCQueryRouter(),
@@ -100,7 +102,10 @@ func (s *KeeperTestHelper) Commit() {
 
 // FundAcc funds target address with specified amount.
 func (s *KeeperTestHelper) FundAcc(acc sdk.AccAddress, amounts sdk.Coins) {
-	err := banktestutil.FundAccount(s.Ctx, s.App.BankKeeper, acc, amounts)
+	err := s.App.BankKeeper.MintCoins(s.Ctx, tokenfactorytypes.ModuleName, amounts)
+	s.Require().NoError(err)
+
+	err = s.App.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, tokenfactorytypes.ModuleName, acc, amounts)
 	s.Require().NoError(err)
 }
 
@@ -111,7 +116,7 @@ func (s *KeeperTestHelper) FundModuleAcc(moduleName string, amounts sdk.Coins) {
 }
 
 func (s *KeeperTestHelper) MintCoins(coins sdk.Coins) {
-	err := s.App.BankKeeper.MintCoins(s.Ctx, minttypes.ModuleName, coins)
+	err := s.App.BankKeeper.MintCoins(s.Ctx, tokenfactorytypes.ModuleName, coins)
 	s.Require().NoError(err)
 }
 
