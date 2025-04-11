@@ -52,12 +52,32 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
+	// EVM imports
+	cosmosevmcmd "github.com/cosmos/evm/client"
+	evmkeyring "github.com/cosmos/evm/crypto/keyring"
+	evmserver "github.com/cosmos/evm/server"
+	evmserverconfig "github.com/cosmos/evm/server/config"
+	srvflags "github.com/cosmos/evm/server/flags"
+
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	kiichain "github.com/kiichain/kiichain/v1/app"
 )
+
+// CustomAppConfig generates a new custom config
+type CustomAppConfig struct {
+	serverconfig.Config
+
+	// EVM config
+	EVM     evmserverconfig.EVMConfig
+	JSONRPC evmserverconfig.JSONRPCConfig
+	TLS     evmserverconfig.TLSConfig
+
+	// wasm config
+	Wasm wasmtypes.WasmConfig `mapstructure:"wasm"`
+}
 
 // NewRootCmd creates a new root command for simd. It is called once in the
 // main function.
@@ -75,6 +95,7 @@ func NewRootCmd() *cobra.Command {
 		tempDir,
 		initAppOptions,
 		kiichain.EmptyWasmOptions,
+		kiichain.NoOpEVMOptions,
 	)
 	defer func() {
 		if err := tempApplication.Close(); err != nil {
@@ -92,7 +113,11 @@ func NewRootCmd() *cobra.Command {
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithHomeDir(kiichain.DefaultNodeHome).
-		WithViper("")
+		WithViper("").
+		// EVM config
+		WithBroadcastMode(flags.FlagBroadcastMode).
+		WithKeyringOptions(evmkeyring.Option()).
+		WithLedgerHasProtobuf(true)
 
 	rootCmd := &cobra.Command{
 		Use:   "kiichaind",
@@ -174,24 +199,24 @@ func initCometConfig() *tmcfg.Config {
 }
 
 func initAppConfig() (string, interface{}) {
-	// Embed additional configurations
-	type CustomAppConfig struct {
-		serverconfig.Config
-
-		Wasm wasmtypes.WasmConfig `mapstructure:"wasm"`
-	}
-
 	// Can optionally overwrite the SDK's default server config.
 	srvCfg := serverconfig.DefaultConfig()
 	srvCfg.StateSync.SnapshotInterval = 1000
 	srvCfg.StateSync.SnapshotKeepRecent = 10
 
 	customAppConfig := CustomAppConfig{
-		Config: *srvCfg,
-		Wasm:   wasmtypes.DefaultWasmConfig(),
+		Config:  *srvCfg,
+		EVM:     *evmserverconfig.DefaultEVMConfig(),
+		JSONRPC: *evmserverconfig.DefaultJSONRPCConfig(),
+		TLS:     *evmserverconfig.DefaultTLSConfig(),
+		Wasm:    wasmtypes.DefaultWasmConfig(),
 	}
 
+	// Default template
 	defaultAppTemplate := serverconfig.DefaultConfigTemplate + wasmtypes.DefaultConfigTemplate()
+
+	// EVM template
+	defaultAppTemplate += evmserverconfig.DefaultEVMConfigTemplate
 
 	return defaultAppTemplate, customAppConfig
 }
@@ -216,7 +241,18 @@ func initRootCmd(rootCmd *cobra.Command,
 		snapshot.Cmd(ac.newApp),
 	)
 
-	server.AddCommands(rootCmd, kiichain.DefaultNodeHome, ac.newApp, ac.appExport, addModuleInitFlags)
+	// EVM add commands
+	evmserver.AddCommands(
+		rootCmd,
+		evmserver.NewDefaultStartOptions(ac.newApp, kiichain.DefaultNodeHome),
+		ac.appExport,
+		addModuleInitFlags,
+	)
+
+	// add Cosmos EVM key commands
+	rootCmd.AddCommand(
+		cosmosevmcmd.KeyCommands(kiichain.DefaultNodeHome, true),
+	)
 
 	// add keybase, auxiliary RPC, query, and tx child commands
 	rootCmd.AddCommand(
@@ -229,6 +265,13 @@ func initRootCmd(rootCmd *cobra.Command,
 
 	// add rosetta
 	rootCmd.AddCommand(rosettaCmd.RosettaCommand(interfaceRegistry, cdc))
+
+	// Add tx flags
+	var err error
+	rootCmd, err = srvflags.AddTxFlags(rootCmd)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func addModuleInitFlags(startCmd *cobra.Command) {
@@ -380,6 +423,7 @@ func (a appCreator) newApp(
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		appOpts,
 		wasmOpts,
+		kiichain.NoOpEVMOptions,
 		baseappOptions...,
 	)
 }
@@ -425,6 +469,7 @@ func (a appCreator) appExport(
 		homePath,
 		appOpts,
 		emptyWasmOpts,
+		kiichain.NoOpEVMOptions,
 	)
 
 	if height != -1 {

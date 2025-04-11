@@ -30,7 +30,7 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	kiichainapp "github.com/kiichain/kiichain/v1/app"
+	kiichain "github.com/kiichain/kiichain/v1/app"
 )
 
 // SimAppChainID hardcoded chainID for simulation
@@ -65,7 +65,7 @@ type EmptyAppOptions struct{}
 
 func (EmptyAppOptions) Get(_ string) interface{} { return nil }
 
-func Setup(t *testing.T) *kiichainapp.KiichainApp {
+func Setup(t *testing.T) *kiichain.KiichainApp {
 	t.Helper()
 
 	privVal := mock.NewPV()
@@ -94,7 +94,7 @@ func Setup(t *testing.T) *kiichainapp.KiichainApp {
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit in the default token of the KiichainApp from first genesis
 // account. A Nop logger is set in KiichainApp.
-func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *kiichainapp.KiichainApp {
+func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *kiichain.KiichainApp {
 	t.Helper()
 
 	kiichainApp, genesisState := setup()
@@ -124,7 +124,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	return kiichainApp
 }
 
-func setup() (*kiichainapp.KiichainApp, kiichainapp.GenesisState) {
+func setup() (*kiichain.KiichainApp, kiichain.GenesisState) {
 	db := dbm.NewMemDB()
 	dir, err := os.MkdirTemp("", "kiichain-test-app")
 	if err != nil {
@@ -136,7 +136,7 @@ func setup() (*kiichainapp.KiichainApp, kiichainapp.GenesisState) {
 	appOptions[server.FlagInvCheckPeriod] = 5
 	appOptions[server.FlagMinGasPrices] = "0akii"
 
-	kiichainApp := kiichainapp.NewKiichainApp(
+	kiichainApp := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		db,
 		nil,
@@ -145,15 +145,16 @@ func setup() (*kiichainapp.KiichainApp, kiichainapp.GenesisState) {
 		dir,
 		appOptions,
 		emptyWasmOpts,
+		kiichain.NoOpEVMOptions,
 	)
 	return kiichainApp, kiichainApp.ModuleBasics.DefaultGenesis(kiichainApp.AppCodec())
 }
 
 func genesisStateWithValSet(t *testing.T,
-	app *kiichainapp.KiichainApp, genesisState kiichainapp.GenesisState,
+	app *kiichain.KiichainApp, genesisState kiichain.GenesisState,
 	valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount,
 	balances ...banktypes.Balance,
-) kiichainapp.GenesisState {
+) kiichain.GenesisState {
 	t.Helper()
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
