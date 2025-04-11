@@ -4,7 +4,18 @@ import (
 	"errors"
 	"os"
 
+	"github.com/spf13/cast"
+
+	srvflags "github.com/cosmos/evm/server/flags"
+	// EVM imports
+	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	"github.com/cosmos/evm/x/ibc/transfer"
 	ibctransferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
+	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	pfmrouter "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
 	pfmrouterkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/keeper"
 	pfmroutertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
@@ -29,7 +40,6 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
-	"github.com/spf13/cast"
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -70,16 +80,6 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	srvflags "github.com/cosmos/evm/server/flags"
-	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
-
-	// EVM imports
-	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
-	erc20types "github.com/cosmos/evm/x/erc20/types"
-	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
-	"github.com/cosmos/evm/x/ibc/transfer"
-	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
-	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"

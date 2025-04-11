@@ -3,7 +3,6 @@ package ante_test
 import (
 	"testing"
 
-	"github.com/kiichain/kiichain/v1/ante"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/evm/crypto/ethsecp256k1"
@@ -20,6 +19,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	"github.com/kiichain/kiichain/v1/ante"
 )
 
 func TestConsumeSignatureVerificationGas(t *testing.T) {

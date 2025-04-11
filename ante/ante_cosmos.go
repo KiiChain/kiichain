@@ -1,15 +1,16 @@
 package ante
 
 import (
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	evmcosmosante "github.com/cosmos/evm/ante/cosmos"
 	evmante "github.com/cosmos/evm/ante/evm"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
-
 	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 )
 
 // UseFeeMarketDecorator to make the integration testing easier: we can switch off its ante and post decorators with this flag

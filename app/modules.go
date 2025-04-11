@@ -1,6 +1,13 @@
 package kiichain
 
 import (
+	// EVM types
+	"github.com/cosmos/evm/x/erc20"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	"github.com/cosmos/evm/x/feemarket"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	"github.com/cosmos/evm/x/vm"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	pfmroutertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
 	"github.com/cosmos/ibc-go/modules/capability"
@@ -50,14 +57,6 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	// EVM types
-	"github.com/cosmos/evm/x/erc20"
-	erc20types "github.com/cosmos/evm/x/erc20/types"
-	"github.com/cosmos/evm/x/feemarket"
-	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
-	"github.com/cosmos/evm/x/vm"
-	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"

@@ -17,6 +17,11 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	dbm "github.com/cosmos/cosmos-db"
+	// EVM
+	cosmosevmante "github.com/cosmos/evm/ante/evm"
+	evmencoding "github.com/cosmos/evm/encoding"
+	srvflags "github.com/cosmos/evm/server/flags"
+	cosmosevmtypes "github.com/cosmos/evm/types"
 	"github.com/cosmos/gogoproto/proto"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 
@@ -52,12 +57,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-
-	// EVM
-	cosmosevmante "github.com/cosmos/evm/ante/evm"
-	evmencoding "github.com/cosmos/evm/encoding"
-	srvflags "github.com/cosmos/evm/server/flags"
-	cosmosevmtypes "github.com/cosmos/evm/types"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"

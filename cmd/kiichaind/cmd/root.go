@@ -16,6 +16,12 @@ import (
 	tmcli "github.com/cometbft/cometbft/libs/cli"
 
 	dbm "github.com/cosmos/cosmos-db"
+	// EVM imports
+	cosmosevmcmd "github.com/cosmos/evm/client"
+	evmkeyring "github.com/cosmos/evm/crypto/keyring"
+	evmserver "github.com/cosmos/evm/server"
+	evmserverconfig "github.com/cosmos/evm/server/config"
+	srvflags "github.com/cosmos/evm/server/flags"
 
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/log"
@@ -51,13 +57,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-
-	// EVM imports
-	cosmosevmcmd "github.com/cosmos/evm/client"
-	evmkeyring "github.com/cosmos/evm/crypto/keyring"
-	evmserver "github.com/cosmos/evm/server"
-	evmserverconfig "github.com/cosmos/evm/server/config"
-	srvflags "github.com/cosmos/evm/server/flags"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
