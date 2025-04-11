@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cosmos/evm/ante"
-	"github.com/cosmos/evm/crypto/ethsecp256k1"
-
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	"github.com/cosmos/evm/ante"
+	"github.com/cosmos/evm/crypto/ethsecp256k1"
 )
 
 // generatePubKeysAndSignatures generates random pub keys and signatures

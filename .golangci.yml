@@ -69,6 +69,7 @@ linters-settings:
       - prefix(cosmossdk.io) # new modules
       - prefix(github.com/cosmos/cosmos-sdk) # cosmos sdk
       - prefix(github.com/CosmWasm/wasmd) # cosmwasm
+      - prefix(github.com/cosmos/evm) # evm
       - prefix(github.com/kiichain/kiichain) # Kiichain
   dogsled:
     max-blank-identifiers: 3

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	evmtypes "github.com/cosmos/evm/x/vm/types"
-
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/kiichain/kiichain/v1/app/params"
 )

@@ -6,16 +6,6 @@ import (
 
 	"github.com/spf13/cast"
 
-	srvflags "github.com/cosmos/evm/server/flags"
-	// EVM imports
-	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
-	erc20types "github.com/cosmos/evm/x/erc20/types"
-	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
-	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
-	"github.com/cosmos/evm/x/ibc/transfer"
-	ibctransferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
-	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
-	evmtypes "github.com/cosmos/evm/x/vm/types"
 	pfmrouter "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
 	pfmrouterkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/keeper"
 	pfmroutertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
@@ -88,6 +78,16 @@ import (
 	tokenfactorybindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
+
+	srvflags "github.com/cosmos/evm/server/flags"
+	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	"github.com/cosmos/evm/x/ibc/transfer"
+	ibctransferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
+	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 type AppKeepers struct {

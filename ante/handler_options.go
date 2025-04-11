@@ -1,7 +1,6 @@
 package ante
 
 import (
-	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 
 	corestoretypes "cosmossdk.io/core/store"
@@ -17,6 +16,8 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
+	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Cosmos EVM

@@ -1,9 +1,9 @@
 package params
 
 import (
-	evmtypes "github.com/cosmos/evm/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	evmtypes "github.com/cosmos/evm/types"
 )
 
 const (

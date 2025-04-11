@@ -1,13 +1,6 @@
 package kiichain
 
 import (
-	// EVM types
-	"github.com/cosmos/evm/x/erc20"
-	erc20types "github.com/cosmos/evm/x/erc20/types"
-	"github.com/cosmos/evm/x/feemarket"
-	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
-	"github.com/cosmos/evm/x/vm"
-	evmtypes "github.com/cosmos/evm/x/vm/types"
 	pfmroutertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/types"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
 	"github.com/cosmos/ibc-go/modules/capability"
@@ -63,6 +56,13 @@ import (
 
 	"github.com/kiichain/kiichain/v1/x/tokenfactory"
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
+
+	"github.com/cosmos/evm/x/erc20"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	"github.com/cosmos/evm/x/feemarket"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	"github.com/cosmos/evm/x/vm"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 var maccPerms = map[string][]string{
