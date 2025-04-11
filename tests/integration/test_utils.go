@@ -23,10 +23,10 @@ import (
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	kiichainApp "github.com/kiichain/kiichain/v1/app"
+	kiichain "github.com/kiichain/kiichain/v1/app"
 )
 
-var app *kiichainApp.KiichainApp
+var app *kiichain.KiichainApp
 
 // Some tests require a random directory to be created when running IBC testing suite with kiichain.
 // This is due to how CosmWasmVM initializes the VM - all IBC testing apps must have different dirs so they don't conflict.
@@ -35,15 +35,16 @@ func KiichainAppIniterTempDir() (ibctesting.TestingApp, map[string]json.RawMessa
 	if err != nil {
 		panic(err)
 	}
-	app = kiichainApp.NewKiichainApp(
+	app = kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
 		nil,
 		true,
 		map[int64]bool{},
 		tmpDir,
-		kiichainApp.EmptyAppOptions{},
-		kiichainApp.EmptyWasmOptions)
+		kiichain.EmptyAppOptions{},
+		kiichain.EmptyWasmOptions,
+		kiichain.NoOpEVMOptions)
 
 	testApp := ibctesting.TestingApp(app)
 
@@ -52,15 +53,16 @@ func KiichainAppIniterTempDir() (ibctesting.TestingApp, map[string]json.RawMessa
 
 // KiichainAppIniter implements ibctesting.AppIniter for the kiichain app
 func KiichainAppIniter() (ibctesting.TestingApp, map[string]json.RawMessage) {
-	app = kiichainApp.NewKiichainApp(
+	app = kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
 		nil,
 		true,
 		map[int64]bool{},
-		kiichainApp.DefaultNodeHome,
-		kiichainApp.EmptyAppOptions{},
-		kiichainApp.EmptyWasmOptions)
+		kiichain.DefaultNodeHome,
+		kiichain.EmptyAppOptions{},
+		kiichain.EmptyWasmOptions,
+		kiichain.NoOpEVMOptions)
 
 	testApp := ibctesting.TestingApp(app)
 

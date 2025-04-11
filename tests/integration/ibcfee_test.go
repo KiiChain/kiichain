@@ -14,7 +14,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v1/ante"
 	kiichainApp "github.com/kiichain/kiichain/v1/app"
 )
 
@@ -48,7 +47,6 @@ func TestIBCFeeTestSuite(t *testing.T) {
 }
 
 func (suite *IBCFeeTestSuite) SetupTest() {
-	ante.UseFeeMarketDecorator = false
 	ibctesting.DefaultTestingAppInit = KiichainAppIniterTempDir
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 3)
 	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1))

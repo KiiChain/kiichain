@@ -100,6 +100,7 @@ func (c *chain) createAndInitValidators(count int) error {
 		kiichain.DefaultNodeHome,
 		kiichain.EmptyAppOptions{},
 		kiichain.EmptyWasmOptions,
+		kiichain.NoOpEVMOptions,
 	)
 	defer func() {
 		if err := tempApplication.Close(); err != nil {
@@ -144,6 +145,7 @@ func (c *chain) createAndInitValidatorsWithMnemonics(count int, mnemonics []stri
 		kiichain.DefaultNodeHome,
 		kiichain.EmptyAppOptions{},
 		kiichain.EmptyWasmOptions,
+		kiichain.NoOpEVMOptions,
 	)
 	defer func() {
 		if err := tempApplication.Close(); err != nil {
