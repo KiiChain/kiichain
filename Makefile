@@ -331,12 +331,12 @@ format:
 
 start-localnet-ci: build
 	rm -rf ~/.kiichaind-liveness
-	./build/kiichaind init liveness --chain-id liveness --home ~/.kiichaind-liveness
-	./build/kiichaind config set client chain-id liveness --home ~/.kiichaind-liveness
+	./build/kiichaind init liveness --chain-id localchain_1010-1 --home ~/.kiichaind-liveness
+	./build/kiichaind config set client chain-id localchain_1010-1 --home ~/.kiichaind-liveness
 	./build/kiichaind config set client keyring-backend test --home ~/.kiichaind-liveness
 	./build/kiichaind keys add val --home ~/.kiichaind-liveness --keyring-backend test
 	./build/kiichaind genesis add-genesis-account val 10000000000000000000000000stake --home ~/.kiichaind-liveness --keyring-backend test
-	./build/kiichaind genesis gentx val 1000000000stake --home ~/.kiichaind-liveness --chain-id liveness --keyring-backend test
+	./build/kiichaind genesis gentx val 1000000000stake --home ~/.kiichaind-liveness --chain-id localchain_1010-1 --keyring-backend test
 	./build/kiichaind genesis collect-gentxs --home ~/.kiichaind-liveness
 	sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0akii"/' ~/.kiichaind-liveness/config/app.toml
 	./build/kiichaind start --home ~/.kiichaind-liveness --x-crisis-skip-assert-invariants
