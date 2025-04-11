@@ -62,7 +62,6 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	"github.com/kiichain/kiichain/v1/ante"
 	kiiante "github.com/kiichain/kiichain/v1/ante"
 	"github.com/kiichain/kiichain/v1/app/keepers"
 	"github.com/kiichain/kiichain/v1/app/upgrades"
@@ -323,7 +322,7 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 		IBCKeeper:              app.IBCKeeper,
 		FeeMarketKeeper:        app.FeeMarketKeeper,
 		SignModeHandler:        txConfig.SignModeHandler(),
-		SigGasConsumer:         ante.SigVerificationGasConsumer,
+		SigGasConsumer:         kiiante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
 		TxFeeChecker:           cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
 		StakingKeeper:          app.StakingKeeper,

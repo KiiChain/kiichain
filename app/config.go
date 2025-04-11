@@ -29,12 +29,12 @@ var sealed = false
 // that allows initializing the app with different coin info based on the
 // chain id
 var ChainsCoinInfo = map[string]evmtypes.EvmCoinInfo{
-	params.TestnetChainId: {
+	params.TestnetChainID: {
 		Denom:        params.BaseDenom,
 		DisplayDenom: params.DisplayDenom,
 		Decimals:     params.BaseDenomUnit,
 	},
-	params.LocalChainId: {
+	params.LocalChainID: {
 		Denom:        params.BaseDenom,
 		DisplayDenom: params.DisplayDenom,
 		Decimals:     params.BaseDenomUnit,

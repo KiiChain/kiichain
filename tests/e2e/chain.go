@@ -27,7 +27,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	kiichain "github.com/kiichain/kiichain/v1/app"
-	"github.com/kiichain/kiichain/v1/app/params"
 	kiiparams "github.com/kiichain/kiichain/v1/app/params"
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
@@ -82,7 +81,7 @@ func newChain() (*chain, error) {
 	}
 
 	return &chain{
-		id:      fmt.Sprintf("%s-%d", params.LocalChainId, tmrand.Int()),
+		id:      fmt.Sprintf("%s-%d", kiiparams.LocalChainID, tmrand.Int()),
 		dataDir: tmpDir,
 	}, nil
 }
