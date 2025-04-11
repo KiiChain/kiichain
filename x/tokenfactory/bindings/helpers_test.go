@@ -3,6 +3,7 @@ package bindings_test
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 	app "github.com/kiichain/kiichain/v1/app"
@@ -14,19 +15,24 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 
+	tenderminttypes "github.com/cometbft/cometbft/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
+	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 func CreateTestInput(t *testing.T) (*app.KiichainApp, sdk.Context) {
 	chain := helpers.Setup(t)
-	return chain, sdk.UnwrapSDKContext(sdk.Context{})
+	ctx := chain.BaseApp.NewUncachedContext(true, tenderminttypes.Header{Height: 1, ChainID: "testing", Time: time.Now().UTC()})
+
+	return chain, sdk.UnwrapSDKContext(ctx)
 }
 
 func FundAccount(t *testing.T, ctx sdk.Context, app *app.KiichainApp, acct sdk.AccAddress) {
-	err := banktestutil.FundAccount(ctx, app.BankKeeper, acct, sdk.NewCoins(
-		sdk.NewCoin("uosmo", sdkmath.NewInt(10000000000)),
-	))
+	amounts := sdk.NewCoins(sdk.NewCoin("uosmo", sdkmath.NewInt(10000000000)))
+	err := app.BankKeeper.MintCoins(ctx, tokenfactorytypes.ModuleName, amounts)
+	require.NoError(t, err)
+
+	err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, tokenfactorytypes.ModuleName, acct, amounts)
 	require.NoError(t, err)
 }
 
@@ -69,12 +75,10 @@ func instantiateReflectContract(t *testing.T, ctx sdk.Context, app *app.Kiichain
 }
 
 func fundAccount(t *testing.T, ctx sdk.Context, app *app.KiichainApp, addr sdk.AccAddress, coins sdk.Coins) {
-	err := banktestutil.FundAccount(
-		ctx,
-		app.BankKeeper,
-		addr,
-		coins,
-	)
+	err := app.BankKeeper.MintCoins(ctx, tokenfactorytypes.ModuleName, coins)
+	require.NoError(t, err)
+
+	err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, tokenfactorytypes.ModuleName, addr, coins)
 	require.NoError(t, err)
 }
 
