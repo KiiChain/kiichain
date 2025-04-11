@@ -25,6 +25,7 @@ import (
 	govv1beta1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	paramsproptypes "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 
 	kiichain "github.com/kiichain/kiichain/v1/app"
 	kiiparams "github.com/kiichain/kiichain/v1/app/params"
@@ -57,6 +58,7 @@ func init() {
 	upgradetypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	distribtypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	ratelimittypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
+	tokenfactorytypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 
 	cdc = encodingConfig.Marshaler
 	txConfig = encodingConfig.TxConfig
