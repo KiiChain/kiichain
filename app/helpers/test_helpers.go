@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -17,6 +18,7 @@ import (
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -31,6 +33,7 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	kiichain "github.com/kiichain/kiichain/v1/app"
+	"github.com/kiichain/kiichain/v1/app/params"
 )
 
 // SimAppChainID hardcoded chainID for simulation
@@ -109,6 +112,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
+			ChainId:         kiichainApp.ChainID(),
 		},
 	)
 	require.NoError(t, err)
@@ -136,6 +140,12 @@ func setup() (*kiichain.KiichainApp, kiichain.GenesisState) {
 	appOptions[server.FlagInvCheckPeriod] = 5
 	appOptions[server.FlagMinGasPrices] = "0akii"
 
+	// Set the base options
+	baseAppOptions := baseapp.SetChainID(
+		fmt.Sprintf("%s-1", params.LocalChainId),
+	)
+
+	// initialize the kiichain app
 	kiichainApp := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		db,
@@ -145,7 +155,8 @@ func setup() (*kiichain.KiichainApp, kiichain.GenesisState) {
 		dir,
 		appOptions,
 		emptyWasmOpts,
-		kiichain.NoOpEVMOptions,
+		kiichain.EVMAppOptions,
+		baseAppOptions,
 	)
 	return kiichainApp, kiichainApp.ModuleBasics.DefaultGenesis(kiichainApp.AppCodec())
 }

@@ -423,7 +423,7 @@ func (a appCreator) newApp(
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		appOpts,
 		wasmOpts,
-		kiichain.NoOpEVMOptions,
+		kiichain.EVMAppOptions,
 		baseappOptions...,
 	)
 }
@@ -469,7 +469,7 @@ func (a appCreator) appExport(
 		homePath,
 		appOpts,
 		emptyWasmOpts,
-		kiichain.NoOpEVMOptions,
+		kiichain.EVMAppOptions,
 	)
 
 	if height != -1 {

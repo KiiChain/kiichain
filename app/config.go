@@ -31,6 +31,11 @@ var ChainsCoinInfo = map[string]evmtypes.EvmCoinInfo{
 		DisplayDenom: params.DisplayDenom,
 		Decimals:     params.BaseDenomUnit,
 	},
+	params.LocalChainId: {
+		Denom:        params.BaseDenom,
+		DisplayDenom: params.DisplayDenom,
+		Decimals:     params.BaseDenomUnit,
+	},
 }
 
 // EVMAppOptions allows to setup the global configuration
