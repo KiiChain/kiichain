@@ -38,7 +38,7 @@ import (
 type KeeperTestHelper struct {
 	suite.Suite
 
-	App         *app.TokenFactoryApp
+	App         *app.KiichainApp
 	Ctx         sdk.Context
 	QueryHelper *baseapp.QueryServiceTestHelper
 	TestAccs    []sdk.AccAddress
