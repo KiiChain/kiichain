@@ -65,7 +65,7 @@ message MsgMint {
   cosmos.base.v1beta1.Coin amount = 2 [
     (gogoproto.moretags) = "yaml:\"amount\"",
     (gogoproto.nullable) = false,
-    (amino.encoding)     = "legacy_coin"
+    (amino.encoding) = "legacy_coin"
   ];
   string mintToAddress = 3 [
     (gogoproto.moretags) = "yaml:\"mint_to_address\"",
@@ -85,7 +85,7 @@ message MsgBurn {
   cosmos.base.v1beta1.Coin amount = 2 [
     (gogoproto.moretags) = "yaml:\"amount\"",
     (gogoproto.nullable) = false,
-    (amino.encoding)     = "legacy_coin"
+    (amino.encoding) = "legacy_coin"
   ];
   string burnFromAddress = 3 [
     (gogoproto.moretags) = "yaml:\"burn_from_address\"",
@@ -135,7 +135,7 @@ message MsgForceTransfer {
   cosmos.base.v1beta1.Coin amount = 2 [
     (gogoproto.moretags) = "yaml:\"amount\"",
     (gogoproto.nullable) = false,
-    (amino.encoding)     = "legacy_coin"
+    (amino.encoding) = "legacy_coin"
   ];
   string transferFromAddress = 3
       [ (gogoproto.moretags) = "yaml:\"transfer_from_address\"" ];
@@ -153,12 +153,12 @@ message MsgUpdateParams {
   option (amino.name) = "tokenfactory/update-params";
 
   // authority is the address of the governance account.
-  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
 
   // params defines the x/mint parameters to update.
   //
   // NOTE: All parameters must be supplied.
-  Params params = 2 [(gogoproto.nullable) = false];
+  Params params = 2 [ (gogoproto.nullable) = false ];
 }
 
 // MsgUpdateParamsResponse defines the response structure for executing a

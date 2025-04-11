@@ -39,7 +39,7 @@ service Query {
       returns (QueryDenomsFromAdminResponse) {
     option (google.api.http).get =
         "/tokenfactory/v1beta1/denoms_from_admin/{admin}";
-      }
+  }
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
