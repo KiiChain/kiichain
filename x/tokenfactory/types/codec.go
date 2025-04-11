@@ -24,12 +24,12 @@ var (
 
 const (
 	// Amino names
-	createTFDenom        = "osmosis/tokenfactory/create-denom"
-	mintTFDenom          = "osmosis/tokenfactory/mint"
-	burnTFDenom          = "osmosis/tokenfactory/burn"
-	forceTransferTFDenom = "osmosis/tokenfactory/force-transfer"
-	changeAdminTFDenom   = "osmosis/tokenfactory/change-admin"
-	updateTFparams       = "osmosis/tokenfactory/msg-update-params"
+	createTFDenom        = "tokenfactory/create-denom"
+	mintTFDenom          = "tokenfactory/mint"
+	burnTFDenom          = "tokenfactory/burn"
+	forceTransferTFDenom = "tokenfactory/force-transfer"
+	changeAdminTFDenom   = "tokenfactory/change-admin"
+	updateTFparams       = "tokenfactory/msg-update-params"
 )
 
 // NOTE: This is required for the GetSignBytes function
