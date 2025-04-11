@@ -14,7 +14,7 @@ import (
 
 func RandDenomCreationFeeParam(r *rand.Rand) sdk.Coins {
 	amount := r.Int63n(10_000_000)
-	return sdk.NewCoins(sdk.NewCoin(appparams.BondDenom, sdkmath.NewInt(amount)))
+	return sdk.NewCoins(sdk.NewCoin(appparams.DisplayDenom, sdkmath.NewInt(amount)))
 }
 
 func RandomizedGenState(simstate *module.SimulationState) {
