@@ -29,7 +29,7 @@ RUN addgroup -g 1025 nonroot
 RUN adduser -D nonroot -u 1025 -G nonroot
 ARG IMG_TAG
 COPY --from=kiichaind-builder  /src/app/build/kiichaind /usr/local/bin/
-EXPOSE 26656 26657 1317 9090
+EXPOSE 26656 26657 1317 9090 8545
 USER nonroot
 
 ENTRYPOINT ["kiichaind", "start"]

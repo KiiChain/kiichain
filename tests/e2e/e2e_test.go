@@ -17,6 +17,7 @@ var (
 	runVestingTest                = true
 	runRestInterfacesTest         = true
 	runRateLimitTest              = true
+	runEVMTest                    = true
 
 	// skipIBCTests skips tests that uses IBC
 	skipIBCTests = os.Getenv("SKIP_IBC_TESTS") == "true"
@@ -118,4 +119,12 @@ func (s *IntegrationTestSuite) TestRateLimit() {
 	s.testIBCTransfer(false)
 	s.testResetRateLimit()
 	s.testRemoveRateLimit()
+}
+
+func (s *IntegrationTestSuite) TestEVM() {
+	if !runEVMTest {
+		s.T().Skip()
+	}
+	jsonRPC := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("8545/tcp"))
+	s.testEVMQueries(jsonRPC)
 }
