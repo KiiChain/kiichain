@@ -26,6 +26,10 @@ import (
 	paramsproptypes "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
+
 	kiichain "github.com/kiichain/kiichain/v1/app"
 	kiiparams "github.com/kiichain/kiichain/v1/app/params"
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
@@ -60,6 +64,11 @@ func init() {
 	ratelimittypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 
+	// EVM register interfaces
+	evmtypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
+	erc20types.RegisterInterfaces(encodingConfig.InterfaceRegistry)
+	feemarkettypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
+
 	cdc = encodingConfig.Marshaler
 	txConfig = encodingConfig.TxConfig
 }
@@ -91,13 +100,18 @@ func (c *chain) configDir() string {
 }
 
 func (c *chain) createAndInitValidators(count int) error {
+	tmpDir, err := os.MkdirTemp("", "")
+	if err != nil {
+		return err
+	}
+
 	tempApplication := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
 		nil,
 		true,
 		map[int64]bool{},
-		kiichain.DefaultNodeHome,
+		tmpDir,
 		kiichain.EmptyAppOptions{},
 		kiichain.EmptyWasmOptions,
 		kiichain.NoOpEVMOptions,
