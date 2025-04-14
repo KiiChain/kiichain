@@ -53,7 +53,7 @@ const (
 	photonDenom      = "photon"
 	akiiDenom        = params.BaseDenom
 	stakeDenom       = "stake"
-	initBalanceStr   = "110000000000stake,100000000000000000photon,100000000000000000akii"
+	initBalanceStr   = "110000000000stake,100000000000000000photon,100000000000000000000000000000akii"
 	minGasPrice      = "0.005"
 	// the test basefee in genesis is the same as minGasPrice
 	// global fee lower/higher than min_gas_price
@@ -86,7 +86,7 @@ var (
 	stakingAmount      = math.NewInt(100000000000)
 	stakingAmountCoin  = sdk.NewCoin(akiiDenom, stakingAmount)
 	tokenAmount        = sdk.NewCoin(akiiDenom, math.NewInt(3300000000)) // 3,300akii
-	standardFees       = sdk.NewCoin(akiiDenom, math.NewInt(330000))     // 0.33akii
+	standardFees       = sdk.NewCoin(akiiDenom, math.NewInt(9900000000)) // 9900 akii
 	depositAmount      = sdk.NewCoin(akiiDenom, math.NewInt(330000000))  // 3,300akii
 	distModuleAddress  = authtypes.NewModuleAddress(distrtypes.ModuleName).String()
 	govModuleAddress   = authtypes.NewModuleAddress(govtypes.ModuleName).String()
