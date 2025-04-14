@@ -34,11 +34,11 @@ type (
 
 var (
 	genesisVestingKeys      = []string{continuousVestingKey, delayedVestingKey, lockedVestingKey, periodicVestingKey}
-	vestingAmountVested     = sdk.NewCoin(akiiDenom, math.NewInt(99900000000))
-	vestingAmount           = sdk.NewCoin(akiiDenom, math.NewInt(350000))
+	vestingAmountVested     = sdk.NewCoin(akiiDenom, math.NewInt(99900000000000000))
+	vestingAmount           = sdk.NewCoin(akiiDenom, math.NewInt(350000000000))
 	vestingBalance          = sdk.NewCoins(vestingAmountVested).Add(vestingAmount)
-	vestingDelegationAmount = sdk.NewCoin(akiiDenom, math.NewInt(500000000))
-	vestingDelegationFees   = sdk.NewCoin(akiiDenom, math.NewInt(1))
+	vestingDelegationAmount = sdk.NewCoin(akiiDenom, math.NewInt(500000000000000))
+	vestingDelegationFees   = sdk.NewCoin(akiiDenom, math.NewInt(1000000))
 )
 
 func (s *IntegrationTestSuite) testDelayedVestingAccount(api string) {
