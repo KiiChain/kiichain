@@ -90,33 +90,6 @@ func Setup(t *testing.T) *kiichainapp.KiichainApp {
 	return app
 }
 
-// func Setup2(t *testing.T) (sdk.Context, *kiichainapp.KiichainApp) {
-// 	t.Helper()
-
-// 	privVal := apphelpers.NewPV()
-// 	pubKey, err := privVal.GetPubKey()
-// 	require.NoError(t, err)
-
-// 	// create validator set with single validator
-// 	validator := tmtypes.NewValidator(pubKey, 1)
-// 	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
-
-// 	sdkAddr, err := sdk.AccAddressFromHexUnsafe(pubKey.Address().String())
-// 	require.NoError(t, err)
-
-// 	// generate genesis account
-// 	senderPrivKey := secp256k1.GenPrivKey()
-// 	acc := authtypes.NewBaseAccount(sdkAddr, senderPrivKey.PubKey(), 0, 0)
-// 	balance := banktypes.Balance{
-// 		Address: acc.GetAddress().String(),
-// 		Coins:   sdk.NewCoins(sdk.NewCoin(appparams.BondDenom, sdkmath.NewInt(100000000000000))),
-// 	}
-
-// 	ctx, app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, balance)
-
-// 	return ctx, app
-// }
-
 // SetupWithGenesisValSet initializes a new KiichainApp with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit in the default token of the KiichainApp from first genesis
