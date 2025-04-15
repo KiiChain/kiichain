@@ -63,6 +63,7 @@ func (s *KeeperTestHelper) Setup() {
 	s.StakingHelper.Denom = "stake"
 }
 
+// Sets up test bevore initializing genesis
 func (s *KeeperTestHelper) SetupTestForInitGenesis() {
 	t := s.T()
 	// Setting to True, leads to init genesis not running
@@ -115,6 +116,7 @@ func (s *KeeperTestHelper) FundModuleAcc(moduleName string, amounts sdk.Coins) {
 	s.Require().NoError(err)
 }
 
+// MintCoins mint coins of the specified type.
 func (s *KeeperTestHelper) MintCoins(coins sdk.Coins) {
 	err := s.App.BankKeeper.MintCoins(s.Ctx, tokenfactorytypes.ModuleName, coins)
 	s.Require().NoError(err)
@@ -242,6 +244,7 @@ func (s *KeeperTestHelper) BuildTx(
 	return txBuilder.GetTx()
 }
 
+// ConfirmUpgradeSucceeded checks if upgrade was applied
 func (s *KeeperTestHelper) ConfirmUpgradeSucceeded(upgradeName string, upgradeHeight int64) {
 	s.Ctx = s.Ctx.WithBlockHeight(upgradeHeight - 1)
 	plan := upgradetypes.Plan{Name: upgradeName, Height: upgradeHeight}
@@ -268,6 +271,7 @@ func CreateRandomAccounts(numAccts int) []sdk.AccAddress {
 	return testAddrs
 }
 
+// GenerateTestAddrs sets up addresses for testing
 func GenerateTestAddrs() (string, string) {
 	pk1 := ed25519.GenPrivKey().PubKey()
 	validAddr := sdk.AccAddress(pk1.Address()).String()
