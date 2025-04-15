@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
@@ -16,9 +15,6 @@ import (
 )
 
 type (
-	// IsAdmin is a function signature that checks if an address is an admin.
-	IsSudoAdmin func(ctx context.Context, addr string) bool
-
 	Keeper struct {
 		cdc       codec.BinaryCodec
 		storeKey  store.StoreKey

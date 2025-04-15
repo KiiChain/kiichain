@@ -52,7 +52,7 @@ func (server msgServer) Mint(goCtx context.Context, msg *types.MsgMint) (*types.
 	var err error
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Standard user verification if they are not a Sudo admin
+	// Standard user verification
 	_, denomExists := server.bankKeeper.GetDenomMetaData(ctx, msg.Amount.Denom)
 	if !denomExists {
 		return nil, types.ErrDenomDoesNotExist.Wrapf("denom: %s", msg.Amount.Denom)
@@ -71,7 +71,7 @@ func (server msgServer) Mint(goCtx context.Context, msg *types.MsgMint) (*types.
 		msg.MintToAddress = msg.Sender
 	}
 
-	err = server.Keeper.mintTo(ctx, msg.Amount, msg.MintToAddress, false)
+	err = server.Keeper.mintTo(ctx, msg.Amount, msg.MintToAddress)
 	if err != nil {
 		return nil, err
 	}
