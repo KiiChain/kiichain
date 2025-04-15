@@ -1,9 +1,9 @@
 syntax = "proto3";
-package tokenfactory.v1beta1;
+package kiichain.tokenfactory.v1beta1;
 
 import "gogoproto/gogo.proto";
-import "tokenfactory/v1beta1/authorityMetadata.proto";
-import "tokenfactory/v1beta1/params.proto";
+import "kiichain/tokenfactory/v1beta1/authorityMetadata.proto";
+import "kiichain/tokenfactory/v1beta1/params.proto";
 
 option go_package = "github.com/kiichain/kiichain/v1/x/tokenfactory/types";
 
