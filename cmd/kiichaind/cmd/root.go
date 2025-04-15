@@ -371,17 +371,11 @@ func (a appCreator) newApp(
 		skipUpgradeHeights[int64(h)] = true
 	}
 
+	// Get the chain id
 	homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
-	chainID := cast.ToString(appOpts.Get(flags.FlagChainID))
-	if chainID == "" {
-		// fallback to genesis chain-id
-		genDocFile := filepath.Join(homeDir, cast.ToString(appOpts.Get("genesis_file")))
-		appGenesis, err := genutiltypes.AppGenesisFromFile(genDocFile)
-		if err != nil {
-			panic(err)
-		}
-
-		chainID = appGenesis.ChainID
+	chainID, err := getChainIDFromOpts(appOpts)
+	if err != nil {
+		panic(err)
 	}
 
 	snapshotDir := filepath.Join(homeDir, "data", "snapshots")
@@ -458,6 +452,12 @@ func (a appCreator) appExport(
 		loadLatest = true
 	}
 
+	// get the chain id
+	chainID, err := getChainIDFromOpts(appOpts)
+	if err != nil {
+		return servertypes.ExportedApp{}, err
+	}
+
 	var emptyWasmOpts []wasmkeeper.Option
 	kiichainApp = kiichain.NewKiichainApp(
 		logger,
@@ -469,6 +469,7 @@ func (a appCreator) appExport(
 		appOpts,
 		emptyWasmOpts,
 		kiichain.EVMAppOptions,
+		baseapp.SetChainID(chainID),
 	)
 
 	if height != -1 {
@@ -488,4 +489,24 @@ var tempDir = func() string {
 	defer os.RemoveAll(dir)
 
 	return dir
+}
+
+// getChainIDFromOpts returns the chain Id from app Opts
+// It first tries to get from the chainId flag, if not available
+// it will load from home
+func getChainIDFromOpts(appOpts servertypes.AppOptions) (chainID string, err error) {
+	homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
+	if chainID == "" {
+		// fallback to genesis chain-id
+		chainID = cast.ToString(appOpts.Get(flags.FlagChainID))
+		genDocFile := filepath.Join(homeDir, cast.ToString(appOpts.Get("genesis_file")))
+		appGenesis, err := genutiltypes.AppGenesisFromFile(genDocFile)
+		if err != nil {
+			return "", err
+		}
+
+		chainID = appGenesis.ChainID
+	}
+
+	return
 }
