@@ -25,12 +25,12 @@ func (suite *CodecTestSuite) TestRegisterInterfaces() {
 	impls := registry.ListImplementations(sdk.MsgInterfaceProtoName)
 	suite.Require().Equal(7, len(impls))
 	suite.Require().ElementsMatch([]string{
-		"/tokenfactory.v1beta1.MsgCreateDenom",
-		"/tokenfactory.v1beta1.MsgMint",
-		"/tokenfactory.v1beta1.MsgBurn",
-		"/tokenfactory.v1beta1.MsgChangeAdmin",
-		"/tokenfactory.v1beta1.MsgSetDenomMetadata",
-		"/tokenfactory.v1beta1.MsgForceTransfer",
-		"/tokenfactory.v1beta1.MsgUpdateParams",
+		"/kiichain.tokenfactory.v1beta1.MsgCreateDenom",
+		"/kiichain.tokenfactory.v1beta1.MsgMint",
+		"/kiichain.tokenfactory.v1beta1.MsgBurn",
+		"/kiichain.tokenfactory.v1beta1.MsgChangeAdmin",
+		"/kiichain.tokenfactory.v1beta1.MsgSetDenomMetadata",
+		"/kiichain.tokenfactory.v1beta1.MsgForceTransfer",
+		"/kiichain.tokenfactory.v1beta1.MsgUpdateParams",
 	}, impls)
 }
