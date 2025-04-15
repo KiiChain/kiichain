@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"testing"
 
-	wasmbinding "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings"
-	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 	"github.com/stretchr/testify/require"
 
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	wasmbinding "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings"
+	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 func TestCreateDenom(t *testing.T) {

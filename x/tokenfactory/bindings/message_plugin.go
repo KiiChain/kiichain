@@ -3,11 +3,7 @@ package bindings
 import (
 	"encoding/json"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
-	bindingstypes "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
-	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 
 	errorsmod "cosmossdk.io/errors"
 
@@ -15,6 +11,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+
+	bindingstypes "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
+	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 // CustomMessageDecorator returns decorator for custom CosmWasm bindings messages

@@ -3,12 +3,12 @@ package keeper_test
 import (
 	"fmt"
 
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
-
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 func (suite *KeeperTestSuite) TestMsgCreateDenom() {

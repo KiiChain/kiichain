@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	bindingstypes "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
-	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
+	bindingstypes "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
+	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
 )
 
 type QueryPlugin struct {

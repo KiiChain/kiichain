@@ -1,10 +1,11 @@
 package bindings
 
 import (
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
-
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+
+	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
 )
 
 func RegisterCustomPlugins(

@@ -3,13 +3,13 @@ package simulation
 import (
 	"math/rand"
 
-	appparams "github.com/kiichain/kiichain/v1/app/params"
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
-
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
+	appparams "github.com/kiichain/kiichain/v1/app/params"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 func RandDenomCreationFeeParam(r *rand.Rand) sdk.Coins {

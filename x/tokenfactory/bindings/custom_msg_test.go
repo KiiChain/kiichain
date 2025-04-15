@@ -5,16 +5,18 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
-	app "github.com/kiichain/kiichain/v1/app"
-	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 	"github.com/stretchr/testify/require"
 
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/CosmWasm/wasmd/x/wasm/keeper"
+
+	app "github.com/kiichain/kiichain/v1/app"
+	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 func TestCreateDenomMsg(t *testing.T) {

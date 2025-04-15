@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -13,6 +12,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 // GetTxCmd returns the transaction commands for this module

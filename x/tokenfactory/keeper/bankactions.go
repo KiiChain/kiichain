@@ -5,10 +5,11 @@ import (
 	"sort"
 
 	"github.com/gogo/status"
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 	"google.golang.org/grpc/codes"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 func (k Keeper) mintTo(ctx sdk.Context, amount sdk.Coin, mintTo string) error {

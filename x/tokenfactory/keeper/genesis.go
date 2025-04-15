@@ -1,9 +1,9 @@
 package keeper
 
 import (
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 // InitGenesis initializes the tokenfactory module's state from a provided genesis

@@ -3,15 +3,16 @@ package keeper_test
 import (
 	"testing"
 
-	"github.com/kiichain/kiichain/v1/app/apptesting"
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 	"github.com/stretchr/testify/suite"
 
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	"github.com/kiichain/kiichain/v1/app/apptesting"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 type KeeperTestSuite struct {

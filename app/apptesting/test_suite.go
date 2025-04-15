@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	app "github.com/kiichain/kiichain/v1/app"
-	helpers "github.com/kiichain/kiichain/v1/app/helpers"
-	appparams "github.com/kiichain/kiichain/v1/app/params"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cometbft/cometbft/crypto/ed25519"
+	tenderminttypes "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	dbm "github.com/cosmos/cosmos-db"
@@ -21,7 +19,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
-	tenderminttypes "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -33,6 +30,10 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakinghelper "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	app "github.com/kiichain/kiichain/v1/app"
+	helpers "github.com/kiichain/kiichain/v1/app/helpers"
+	appparams "github.com/kiichain/kiichain/v1/app/params"
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 

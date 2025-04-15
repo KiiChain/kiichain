@@ -3,8 +3,6 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
-
 	"cosmossdk.io/log"
 	"cosmossdk.io/store/prefix"
 	store "cosmossdk.io/store/types"
@@ -12,6 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 type (

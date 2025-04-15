@@ -4,9 +4,6 @@ import (
 	"context"
 	"math/rand"
 
-	appparams "github.com/kiichain/kiichain/v1/app/params"
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
-
 	sdkmath "cosmossdk.io/math"
 	sdkstore "cosmossdk.io/store"
 
@@ -16,6 +13,9 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
+
+	appparams "github.com/kiichain/kiichain/v1/app/params"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 // Simulation operation weights constants

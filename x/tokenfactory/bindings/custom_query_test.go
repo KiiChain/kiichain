@@ -6,11 +6,12 @@ import (
 	"testing"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
-	app "github.com/kiichain/kiichain/v1/app"
-	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	app "github.com/kiichain/kiichain/v1/app"
+	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
 )
 
 func TestQueryFullDenom(t *testing.T) {

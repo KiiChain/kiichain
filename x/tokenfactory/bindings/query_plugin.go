@@ -5,11 +5,12 @@ import (
 	"fmt"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
-	bindingstypes "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
 
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	bindingstypes "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
 )
 
 // CustomQuerier dispatches custom CosmWasm bindings queries.

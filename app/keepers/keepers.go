@@ -74,6 +74,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	tokenfactorybindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
@@ -127,14 +128,12 @@ type AppKeepers struct {
 	scopedWasmKeeper          capabilitykeeper.ScopedKeeper
 }
 
-var (
-	tokenFactoryCapabilities = []string{
-		tokenfactorytypes.EnableBurnFrom,
-		tokenfactorytypes.EnableForceTransfer,
-		tokenfactorytypes.EnableSetMetadata,
-		tokenfactorytypes.EnableCommunityPoolFeeFunding,
-	}
-)
+var tokenFactoryCapabilities = []string{
+	tokenfactorytypes.EnableBurnFrom,
+	tokenfactorytypes.EnableForceTransfer,
+	tokenfactorytypes.EnableSetMetadata,
+	tokenfactorytypes.EnableCommunityPoolFeeFunding,
+}
 
 func NewAppKeeper(
 	appCodec codec.Codec,

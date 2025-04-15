@@ -3,12 +3,12 @@ package keeper
 import (
 	"context"
 
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
-
 	"cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 type msgServer struct {
