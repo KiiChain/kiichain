@@ -10,9 +10,15 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// Wallets variables
+var (
+	EVMHdPath    = "m/44'/60'/0'/0/0"
+	EthSecp256k1 = "eth_secp256k1"
+)
+
 // HDPath generates an HD path based on the wallet index
 func HDPath(index int) string {
-	return fmt.Sprintf("m/44'/118'/0'/0/%d", index)
+	return fmt.Sprintf("m/44'/60'/0'/0/%d", index)
 }
 
 // PubKey returns a sample account PubKey

@@ -2,7 +2,7 @@
 ARG IMG_TAG=latest
 
 # Compile the kiichaind binary
-FROM golang:1.22-alpine AS kiichaind-builder
+FROM golang:1.23-alpine AS kiichaind-builder
 WORKDIR /src/app/
 ENV PACKAGES="curl make git libc-dev bash file gcc linux-headers eudev-dev"
 RUN apk add --no-cache $PACKAGES
@@ -29,7 +29,7 @@ RUN addgroup -g 1025 nonroot
 RUN adduser -D nonroot -u 1025 -G nonroot
 ARG IMG_TAG
 COPY --from=kiichaind-builder  /src/app/build/kiichaind /usr/local/bin/
-EXPOSE 26656 26657 1317 9090
+EXPOSE 26656 26657 1317 9090 8545
 USER nonroot
 
 ENTRYPOINT ["kiichaind", "start"]

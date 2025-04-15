@@ -29,6 +29,11 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
+
+	// EVM
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -57,11 +62,21 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		ratelimittypes.StoreKey,
 		consensusparamtypes.StoreKey,
 		wasmtypes.StoreKey,
+		// EVM
+		evmtypes.StoreKey,
+		feemarkettypes.StoreKey,
+		erc20types.StoreKey,
+		// Custom modules
 		tokenfactorytypes.StoreKey,
 	)
 
 	// Define transient store keys
-	appKeepers.tkeys = storetypes.NewTransientStoreKeys(paramstypes.TStoreKey)
+	appKeepers.tkeys = storetypes.NewTransientStoreKeys(
+		paramstypes.TStoreKey,
+		// EVM keys
+		evmtypes.TransientKey,
+		feemarkettypes.TransientKey,
+	)
 
 	// MemKeys are for information that is stored only in RAM.
 	appKeepers.memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)

@@ -47,10 +47,6 @@ func TestAppStateDeterminism(t *testing.T) {
 	if !sim.FlagEnabledValue {
 		t.Skip("skipping application simulation")
 	}
-
-	// since we can't provide tx fees to SimulateFromSeed(), we must switch off the feemarket
-	ante.UseFeeMarketDecorator = false
-
 	config := sim.NewConfigFromFlags()
 	config.InitialBlockHeight = 1
 	config.ExportParamsPath = ""
@@ -98,6 +94,7 @@ func TestAppStateDeterminism(t *testing.T) {
 				dir,
 				appOptions,
 				emptyWasmOption,
+				kiichain.NoOpEVMOptions,
 				interBlockCacheOpt(),
 				baseapp.SetChainID(AppChainID),
 			)

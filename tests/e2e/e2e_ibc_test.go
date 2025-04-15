@@ -307,7 +307,7 @@ func (s *IntegrationTestSuite) testMultihopIBCTokenTransfer() {
 		forwardPort := "transfer"
 		forwardChannel := "channel-0"
 
-		tokenAmt := 3300000000
+		tokenAmt := 330000000000000000
 
 		chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
 
@@ -385,7 +385,7 @@ func (s *IntegrationTestSuite) testFailedMultihopIBCTokenTransfer() {
 		forwardPort := "transfer"
 		forwardChannel := "channel-0"
 
-		tokenAmt := 3300000000
+		tokenAmt := 330000000000000000
 
 		chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
 

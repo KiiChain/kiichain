@@ -42,6 +42,16 @@ const (
 	stakingParamsModuleQueryPath        = "/cosmos/staking/v1beta1/params"
 	missingPath                         = "/missing_endpoint"
 	localMinGasPriceQueryPath           = "/cosmos/base/node/v1beta1/config"
+
+	// EVM endpoints
+	evmBaseFee        = "/cosmos/evm/vm/v1/base_fee"
+	evmParams         = "/cosmos/evm/vm/v1/params"
+	evmConfig         = "/cosmos/evm/vm/v1/config"
+	feeMarketParams   = "/cosmos/evm/feemarket/v1/params"
+	feeMarketBaseFee  = "/cosmos/evm/feemarket/v1/base_fee"
+	feeMarketBlockGas = "/cosmos/evm/feemarket/v1/block_gas"
+	erc20Params       = "/cosmos/evm/erc20/v1/token_pairs"
+	erc20TokenPairs   = "/cosmos/evm/erc20/v1/params"
 )
 
 func (s *IntegrationTestSuite) testRestInterfaces() {
@@ -72,6 +82,15 @@ func (s *IntegrationTestSuite) testRestInterfaces() {
 				{stakingParamsModuleQueryPath, 200},
 				{missingPath, 501},
 				{localMinGasPriceQueryPath, 200},
+				// EVM endpoints
+				{evmBaseFee, 200},
+				{evmParams, 200},
+				{evmConfig, 200},
+				{feeMarketParams, 200},
+				{feeMarketBaseFee, 200},
+				{feeMarketBlockGas, 200},
+				{erc20Params, 200},
+				{erc20TokenPairs, 200},
 			}
 		)
 

@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -765,74 +764,4 @@ func (s *IntegrationTestSuite) defaultExecValidation(chain *chain, valIdx int) f
 		}
 		return false
 	}
-}
-
-// signTxFileOnline signs a transaction file using the kiichaincli tx sign command
-// the from flag is used to specify the keyring account to sign the transaction
-// the from account must be registered in the keyring and exist on chain (have a balance or be a genesis account)
-func (s *IntegrationTestSuite) signTxFileOnline(chain *chain, valIdx int, from string, txFilePath string) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-
-	kiichainCommand := []string{
-		kiichaindBinary,
-		txCommand,
-		"sign",
-		filepath.Join(kiichainHomePath, txFilePath),
-		fmt.Sprintf("--%s=%s", flags.FlagChainID, chain.id),
-		fmt.Sprintf("--%s=%s", flags.FlagHome, kiichainHomePath),
-		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
-		"--keyring-backend=test",
-		"--output=json",
-		"-y",
-	}
-
-	var output []byte
-	var erroutput []byte
-	captureOutput := func(stdout []byte, stderr []byte) bool {
-		output = stdout
-		erroutput = stderr
-		return true
-	}
-
-	s.executeKiichainTxCommand(ctx, chain, kiichainCommand, valIdx, captureOutput)
-	if len(erroutput) > 0 {
-		return nil, fmt.Errorf("failed to sign tx: %s", string(erroutput))
-	}
-	return output, nil
-}
-
-// broadcastTxFile broadcasts a signed transaction file using the kiichaincli tx broadcast command
-// the from flag is used to specify the keyring account to sign the transaction
-// the from account must be registered in the keyring and exist on chain (have a balance or be a genesis account)
-func (s *IntegrationTestSuite) broadcastTxFile(chain *chain, valIdx int, from string, txFilePath string) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-
-	broadcastTxCmd := []string{
-		kiichaindBinary,
-		txCommand,
-		"broadcast",
-		filepath.Join(kiichainHomePath, txFilePath),
-		fmt.Sprintf("--%s=%s", flags.FlagChainID, chain.id),
-		fmt.Sprintf("--%s=%s", flags.FlagHome, kiichainHomePath),
-		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
-		"--keyring-backend=test",
-		"--output=json",
-		"-y",
-	}
-
-	var output []byte
-	var erroutput []byte
-	captureOutput := func(stdout []byte, stderr []byte) bool {
-		output = stdout
-		erroutput = stderr
-		return true
-	}
-
-	s.executeKiichainTxCommand(ctx, chain, broadcastTxCmd, valIdx, captureOutput)
-	if len(erroutput) > 0 {
-		return nil, fmt.Errorf("failed to sign tx: %s", string(erroutput))
-	}
-	return output, nil
 }

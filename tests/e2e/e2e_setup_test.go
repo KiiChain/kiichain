@@ -53,7 +53,7 @@ const (
 	photonDenom      = "photon"
 	akiiDenom        = params.BaseDenom
 	stakeDenom       = "stake"
-	initBalanceStr   = "110000000000stake,100000000000000000photon,100000000000000000akii"
+	initBalanceStr   = "110000000000stake,100000000000000000photon,100000000000000000000000000000akii"
 	minGasPrice      = "0.005"
 	// the test basefee in genesis is the same as minGasPrice
 	// global fee lower/higher than min_gas_price
@@ -85,9 +85,9 @@ var (
 	kiichainConfigPath = filepath.Join(kiichainHomePath, "config")
 	stakingAmount      = math.NewInt(100000000000)
 	stakingAmountCoin  = sdk.NewCoin(akiiDenom, stakingAmount)
-	tokenAmount        = sdk.NewCoin(akiiDenom, math.NewInt(3300000000)) // 3,300akii
-	standardFees       = sdk.NewCoin(akiiDenom, math.NewInt(330000))     // 0.33akii
-	depositAmount      = sdk.NewCoin(akiiDenom, math.NewInt(330000000))  // 3,300akii
+	tokenAmount        = sdk.NewCoin(akiiDenom, math.NewInt(330000000000000000))
+	standardFees       = sdk.NewCoin(akiiDenom, math.NewInt(33000000000000))
+	depositAmount      = sdk.NewCoin(akiiDenom, math.NewInt(33000000000000000))
 	distModuleAddress  = authtypes.NewModuleAddress(distrtypes.ModuleName).String()
 	govModuleAddress   = authtypes.NewModuleAddress(govtypes.ModuleName).String()
 	proposalCounter    = 0
@@ -228,7 +228,7 @@ func (s *IntegrationTestSuite) initNodes(c *chain) {
 	}
 
 	s.Require().NoError(
-		modifyGenesis(val0ConfigDir, "", initBalanceStr, addrAll, initialBaseFeeAmt, akiiDenom),
+		modifyGenesis(val0ConfigDir, "", initBalanceStr, addrAll, akiiDenom),
 	)
 	// copy the genesis file to the remaining validators
 	for _, val := range c.validators[1:] {
@@ -554,6 +554,12 @@ func (s *IntegrationTestSuite) runValidators(c *chain, portOffset int) {
 				fmt.Sprintf("%s/:%s", val.configDir(), kiichainHomePath),
 			},
 			Repository: "kiichain/kiichaind-e2e",
+			Cmd: []string{
+				"--json-rpc.enable",
+				"true",
+				"--json-rpc.address",
+				"0.0.0.0:8545",
+			},
 		}
 
 		s.Require().NoError(exec.Command("chmod", "-R", "0777", val.configDir()).Run()) //nolint:gosec // this is a test
@@ -562,6 +568,7 @@ func (s *IntegrationTestSuite) runValidators(c *chain, portOffset int) {
 		if val.index == 0 {
 			runOpts.PortBindings = map[docker.Port][]docker.PortBinding{
 				"1317/tcp":  {{HostIP: "", HostPort: fmt.Sprintf("%d", 1317+portOffset)}},
+				"8545/tcp":  {{HostIP: "", HostPort: fmt.Sprintf("%d", 8545+portOffset)}},
 				"6060/tcp":  {{HostIP: "", HostPort: fmt.Sprintf("%d", 6060+portOffset)}},
 				"6061/tcp":  {{HostIP: "", HostPort: fmt.Sprintf("%d", 6061+portOffset)}},
 				"6062/tcp":  {{HostIP: "", HostPort: fmt.Sprintf("%d", 6062+portOffset)}},

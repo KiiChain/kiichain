@@ -29,6 +29,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	evmhd "github.com/cosmos/evm/crypto/hd"
 )
 
 //
@@ -46,10 +48,9 @@ type validator struct {
 }
 
 type account struct {
-	moniker    string //nolint:unused
-	mnemonic   string
-	keyInfo    keyring.Record
-	privateKey cryptotypes.PrivKey
+	moniker  string //nolint:unused
+	mnemonic string
+	keyInfo  keyring.Record
 }
 
 func (v *validator) instanceName() string {
@@ -173,13 +174,13 @@ func (v *validator) createKeyFromMnemonic(name, mnemonic string) error {
 
 func (c *chain) addAccountFromMnemonic(counts int) error {
 	val0ConfigDir := c.validators[0].configDir()
-	kb, err := keyring.New(keyringAppName, keyring.BackendTest, val0ConfigDir, nil, cdc)
+	kb, err := keyring.New(keyringAppName, keyring.BackendTest, val0ConfigDir, nil, cdc, evmhd.EthSecp256k1Option())
 	if err != nil {
 		return err
 	}
 
 	keyringAlgos, _ := kb.SupportedAlgorithms()
-	algo, err := keyring.NewSigningAlgoFromString(string(hd.Secp256k1Type), keyringAlgos)
+	algo, err := keyring.NewSigningAlgoFromString(string(evmhd.EthSecp256k1Type), keyringAlgos)
 	if err != nil {
 		return err
 	}
@@ -190,24 +191,14 @@ func (c *chain) addAccountFromMnemonic(counts int) error {
 		if err != nil {
 			return err
 		}
-		info, err := kb.NewAccount(name, mnemonic, "", sdk.FullFundraiserPath, algo)
+		info, err := kb.NewAccount(name, mnemonic, "", EVMHdPath, algo)
 		if err != nil {
 			return err
 		}
 
-		privKeyArmor, err := kb.ExportPrivKeyArmor(name, keyringPassphrase)
-		if err != nil {
-			return err
-		}
-
-		privKey, _, err := sdkcrypto.UnarmorDecryptPrivKey(privKeyArmor, keyringPassphrase)
-		if err != nil {
-			return err
-		}
 		acct := account{}
 		acct.keyInfo = *info
 		acct.mnemonic = mnemonic
-		acct.privateKey = privKey
 		c.genesisAccounts = append(c.genesisAccounts, &acct)
 	}
 
