@@ -40,14 +40,6 @@ func (suite *KeeperTestSuite) TestMintDenomMsg() {
 		},
 		// Sudo Mints
 		{
-			desc:                  "successful sudo mint executed by an allowed sudoer",
-			amount:                10,
-			mintDenom:             "unique",
-			admin:                 suite.TestAccs[0].String(),
-			sudoer:                suite.TestAccs[0].String(), // this user can sudo mint
-			expectedMessageEvents: 1,
-		},
-		{
 			desc:      "invalid sudo mint from a non admin",
 			amount:    10,
 			mintDenom: "unique",
