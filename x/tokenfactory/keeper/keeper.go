@@ -33,8 +33,6 @@ type (
 		// the address capable of executing a MsgUpdateParams message. Typically, this
 		// should be the x/gov module account.
 		authority string
-
-		IsSudoAdminFunc IsSudoAdmin
 	}
 )
 
@@ -47,8 +45,6 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	communityPoolKeeper types.CommunityPoolKeeper,
 	enabledCapabilities []string,
-	// use DefaultIsSudoAdminFunc if you don't have a custom one
-	isSudoAdminFunc IsSudoAdmin,
 	authority string,
 ) Keeper {
 	permAddrs := make(map[string]authtypes.PermissionsForAddress)
@@ -68,14 +64,7 @@ func NewKeeper(
 		authority: authority,
 
 		enabledCapabilities: enabledCapabilities,
-
-		IsSudoAdminFunc: isSudoAdminFunc,
 	}
-}
-
-// DefaultIsSudoAdminFunc returns false for all addresses.
-func DefaultIsSudoAdminFunc(_ context.Context, _ string) bool {
-	return false
 }
 
 // GetAuthority returns the x/mint module's authority.
