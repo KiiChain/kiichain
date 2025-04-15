@@ -74,6 +74,10 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
+	tokenfactorybindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 type AppKeepers struct {
@@ -83,17 +87,18 @@ type AppKeepers struct {
 	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
-	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bankkeeper.Keeper
-	CapabilityKeeper *capabilitykeeper.Keeper
-	StakingKeeper    *stakingkeeper.Keeper
-	SlashingKeeper   slashingkeeper.Keeper
-	DistrKeeper      distrkeeper.Keeper
-	GovKeeper        *govkeeper.Keeper
-	CrisisKeeper     *crisiskeeper.Keeper
-	UpgradeKeeper    *upgradekeeper.Keeper
-	ParamsKeeper     paramskeeper.Keeper
-	WasmKeeper       wasmkeeper.Keeper
+	AccountKeeper      authkeeper.AccountKeeper
+	BankKeeper         bankkeeper.Keeper
+	CapabilityKeeper   *capabilitykeeper.Keeper
+	StakingKeeper      *stakingkeeper.Keeper
+	SlashingKeeper     slashingkeeper.Keeper
+	DistrKeeper        distrkeeper.Keeper
+	GovKeeper          *govkeeper.Keeper
+	CrisisKeeper       *crisiskeeper.Keeper
+	UpgradeKeeper      *upgradekeeper.Keeper
+	ParamsKeeper       paramskeeper.Keeper
+	WasmKeeper         wasmkeeper.Keeper
+	TokenFactoryKeeper tokenfactorykeeper.Keeper
 	// IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	IBCKeeper             *ibckeeper.Keeper
 	ICAHostKeeper         icahostkeeper.Keeper
@@ -121,6 +126,13 @@ type AppKeepers struct {
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICSproviderkeeper   capabilitykeeper.ScopedKeeper
 	scopedWasmKeeper          capabilitykeeper.ScopedKeeper
+}
+
+var tokenFactoryCapabilities = []string{
+	tokenfactorytypes.EnableBurnFrom,
+	tokenfactorytypes.EnableForceTransfer,
+	tokenfactorytypes.EnableSetMetadata,
+	tokenfactorytypes.EnableCommunityPoolFeeFunding,
 }
 
 func NewAppKeeper(
@@ -406,6 +418,18 @@ func NewAppKeeper(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
+	appKeepers.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[tokenfactorytypes.StoreKey],
+		maccPerms,
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.DistrKeeper,
+		tokenFactoryCapabilities,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+	wasmOpts = append(wasmOpts, tokenfactorybindings.RegisterCustomPlugins(appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)...)
+
 	// Must be called on PFMRouter AFTER TransferKeeper initialized
 	appKeepers.PFMRouterKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
 
@@ -517,6 +541,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(pfmroutertypes.ModuleName)
 	paramsKeeper.Subspace(ratelimittypes.ModuleName).WithKeyTable(ratelimittypes.ParamKeyTable())
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
+	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 
 	return paramsKeeper
 }
