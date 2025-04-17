@@ -232,7 +232,7 @@ func initRootCmd(rootCmd *cobra.Command,
 	ac := appCreator{}
 
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, kiichain.DefaultNodeHome),
+		initCmd(basicManager, kiichain.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),

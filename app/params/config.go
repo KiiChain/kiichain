@@ -1,6 +1,9 @@
 package params
 
 import (
+	"time"
+
+	cmtcfg "github.com/cometbft/cometbft/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	evmtypes "github.com/cosmos/evm/types"
@@ -61,4 +64,13 @@ func init() {
 
 	// Update power reduction based on the new 18-decimal base unit
 	sdk.DefaultPowerReduction = evmtypes.AttoPowerReduction
+
+	// Update the sdk default bond denom
+	sdk.DefaultBondDenom = BaseDenom
+}
+
+// SetTendermintConfigs sets the app config with custom parameters
+func SetTendermintConfigs(config *cmtcfg.Config) {
+	// Consensus Configs
+	config.Consensus.TimeoutCommit = 2000 * time.Millisecond
 }
