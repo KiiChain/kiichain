@@ -1,14 +1,9 @@
 name: Check Markdown links
-# on: 
-#   workflow_dispatch:
-#   schedule: 
-#     - cron: '* */24 * * *'
-on:
-  workflow_call:
-  pull_request:
-  push:
-    branches:
-      - main
+on: 
+  workflow_dispatch:
+  schedule: 
+    - cron: '* */24 * * *'
+
 jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
