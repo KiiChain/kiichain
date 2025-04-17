@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   schedule: 
     - cron: '* */24 * * *'
+
 jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
@@ -10,5 +11,4 @@ jobs:
       - uses: actions/checkout@v4
       - uses: gaurav-nelson/github-action-markdown-link-check@1.0.15
         with:
-          folder-path: "docs"
-          file-extension: ".mdx"
+          file-extension: ".md"
