@@ -54,15 +54,15 @@ import (
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	"github.com/kiichain/kiichain/v1/x/tokenfactory"
-	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
-
 	"github.com/cosmos/evm/x/erc20"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	"github.com/cosmos/evm/x/feemarket"
 	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	"github.com/cosmos/evm/x/vm"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
+
+	"github.com/kiichain/kiichain/v1/x/tokenfactory"
+	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 var maccPerms = map[string][]string{

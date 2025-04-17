@@ -75,10 +75,6 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	tokenfactorybindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings"
-	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
-
 	srvflags "github.com/cosmos/evm/server/flags"
 	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
@@ -88,6 +84,10 @@ import (
 	ibctransferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
+
+	tokenfactorybindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 type AppKeepers struct {

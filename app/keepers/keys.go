@@ -28,12 +28,12 @@ import (
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
-
 	// EVM
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
+
+	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {

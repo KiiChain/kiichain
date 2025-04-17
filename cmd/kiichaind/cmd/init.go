@@ -8,10 +8,11 @@ import (
 	"os"
 	"path/filepath"
 
-	cfg "github.com/cometbft/cometbft/config"
-	"github.com/cosmos/go-bip39"
-	"github.com/kiichain/kiichain/v1/app/params"
 	"github.com/spf13/cobra"
+
+	cfg "github.com/cometbft/cometbft/config"
+
+	"github.com/cosmos/go-bip39"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math/unsafe"
@@ -26,6 +27,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/genutil/types"
+
+	"github.com/kiichain/kiichain/v1/app/params"
 )
 
 // initCmd initializes the configuration files for a new node

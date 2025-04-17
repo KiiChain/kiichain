@@ -4,6 +4,7 @@ import (
 	"time"
 
 	cmtcfg "github.com/cometbft/cometbft/config"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	evmtypes "github.com/cosmos/evm/types"
