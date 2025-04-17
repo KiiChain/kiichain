@@ -30,8 +30,6 @@ $KIICHAIND genesis collect-gentxs
 echo "Setting up node configs"
 # sed -i '' 's#"tcp://127.0.0.1:26657"#"tcp://0.0.0.0:26657"#g' ~/.kiichain/config/config.toml
 sleep 1
-sed -i -r 's/timeout_commit = "5s"/timeout_commit = "1s"/g' ~/.kiichain/config/config.toml
-sed -i -r 's/timeout_propose = "3s"/timeout_propose = "1s"/g' ~/.kiichain/config/config.toml
 sed -i -r 's/index_all_keys = false/index_all_keys = true/g' ~/.kiichain/config/config.toml
 sed -i -r 's/minimum-gas-prices = ""/minimum-gas-prices = "0stake"/g' ~/.kiichain/config/app.toml
 

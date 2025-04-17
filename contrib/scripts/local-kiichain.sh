@@ -51,8 +51,6 @@ kiichaind genesis collect-gentxs --home ${PROV_NODE_DIR} --gentx-dir ${PROV_NODE
 sleep 1
 
 sed -i -r "/node =/ s/= .*/= \"tcp:\/\/${NODE_IP}:26658\"/" ${PROV_NODE_DIR}/config/client.toml
-sed -i -r 's/timeout_commit = "5s"/timeout_commit = "3s"/g' ${PROV_NODE_DIR}/config/config.toml
-sed -i -r 's/timeout_propose = "3s"/timeout_propose = "1s"/g' ${PROV_NODE_DIR}/config/config.toml
 sed -i -r 's/minimum-gas-prices = ""/minimum-gas-prices = "0stake"/g' ${PROV_NODE_DIR}/config/app.toml
 
 
