@@ -22,11 +22,10 @@ import (
 // * Transfer tests: https://github.com/cosmos/ibc-go/blob/v7.3.2/modules/apps/29-fee/transfer_test.go#L13
 // * ICA tests: https://github.com/cosmos/ibc-go/blob/v7.3.2/modules/apps/29-fee/ica_test.go#L94
 var (
-
 	// transfer + IBC fee test variables
-	defaultRecvFee    = sdk.Coins{sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(100)}}
-	defaultAckFee     = sdk.Coins{sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(200)}}
-	defaultTimeoutFee = sdk.Coins{sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(300)}}
+	defaultRecvFee    = sdk.Coins{sdk.Coin{Denom: "stake", Amount: math.NewInt(100)}}
+	defaultAckFee     = sdk.Coins{sdk.Coin{Denom: "stake", Amount: math.NewInt(200)}}
+	defaultTimeoutFee = sdk.Coins{sdk.Coin{Denom: "stake", Amount: math.NewInt(300)}}
 )
 
 type IBCFeeTestSuite struct {
@@ -47,6 +46,8 @@ func TestIBCFeeTestSuite(t *testing.T) {
 }
 
 func (suite *IBCFeeTestSuite) SetupTest() {
+	// Set the DefaultBondDenom as default
+	sdk.DefaultBondDenom = "stake"
 	ibctesting.DefaultTestingAppInit = KiichainAppIniterTempDir
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 3)
 	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1))
