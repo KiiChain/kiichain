@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	"github.com/kiichain/kiichain/v1/app/params"
 	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
@@ -137,10 +138,10 @@ func (suite *KeeperTestSuite) TestCreateDenom() {
 
 			// note balance, create a tokenfactory denom, then note balance again
 			// preCreateBalance := bankKeeper.GetAllBalances(suite.Ctx, suite.TestAccs[0])
-			preCreateBalance := bankKeeper.GetBalance(suite.Ctx, suite.TestAccs[0], "stake")
+			preCreateBalance := bankKeeper.GetBalance(suite.Ctx, suite.TestAccs[0], params.BaseDenom)
 			res, err := suite.msgServer.CreateDenom(suite.Ctx, types.NewMsgCreateDenom(suite.TestAccs[0].String(), tc.subdenom))
 			// postCreateBalance := bankKeeper.GetAllBalances(suite.Ctx, suite.TestAccs[0])
-			postCreateBalance := bankKeeper.GetBalance(suite.Ctx, suite.TestAccs[0], "stake")
+			postCreateBalance := bankKeeper.GetBalance(suite.Ctx, suite.TestAccs[0], params.BaseDenom)
 			if tc.valid {
 				suite.Require().NoError(err)
 				if denomCreationFee != nil {

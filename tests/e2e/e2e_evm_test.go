@@ -59,6 +59,8 @@ func httpEVMPostJSON(url, method string, params []interface{}) (map[string]inter
 	data, _ := json.Marshal(payload)
 
 	// Get the response
+	// Since this is a test, we can silence linting for the http call
+	//nolint:gosec
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(data))
 	if err != nil {
 		return nil, err

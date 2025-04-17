@@ -1,7 +1,7 @@
 package kiichain
 
 import (
-	"fmt"
+	"log"
 	"strings"
 
 	"cosmossdk.io/math"
@@ -34,7 +34,7 @@ var ChainsCoinInfo = map[string]evmtypes.EvmCoinInfo{
 		DisplayDenom: params.DisplayDenom,
 		Decimals:     params.BaseDenomUnit,
 	},
-	params.LocalChainID: {
+	"default": {
 		Denom:        params.BaseDenom,
 		DisplayDenom: params.DisplayDenom,
 		Decimals:     params.BaseDenomUnit,
@@ -57,7 +57,9 @@ func EVMAppOptions(chainID string) error {
 	if !found {
 		coinInfo, found = ChainsCoinInfo[chainID]
 		if !found {
-			return fmt.Errorf("unknown chain id: %s, %+v", chainID, ChainsCoinInfo)
+			// If not found, set as default
+			log.Println("Chain ID not found in ChainsCoinInfo, using default")
+			coinInfo = ChainsCoinInfo[params.TestnetChainID]
 		}
 	}
 

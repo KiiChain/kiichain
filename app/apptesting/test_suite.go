@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cometbft/cometbft/crypto/ed25519"
-	tenderminttypes "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	dbm "github.com/cosmos/cosmos-db"
@@ -52,7 +51,7 @@ type KeeperTestHelper struct {
 func (s *KeeperTestHelper) Setup() {
 	t := s.T()
 	s.App = helpers.Setup(t)
-	s.Ctx = s.App.BaseApp.NewUncachedContext(true, tenderminttypes.Header{Height: 1, ChainID: "testing", Time: time.Now().UTC()})
+	s.Ctx = s.App.BaseApp.NewUncachedContext(true, tmtypes.Header{Height: 1, ChainID: "testing", Time: time.Now().UTC()})
 
 	s.QueryHelper = &baseapp.QueryServiceTestHelper{
 		GRPCQueryRouter: s.App.GRPCQueryRouter(),

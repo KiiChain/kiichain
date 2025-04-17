@@ -51,7 +51,7 @@ const (
 	feeMarketBaseFee  = "/cosmos/evm/feemarket/v1/base_fee"
 	feeMarketBlockGas = "/cosmos/evm/feemarket/v1/block_gas"
 	erc20Params       = "/cosmos/evm/erc20/v1/token_pairs"
-	erc20TokenPairs   = "/cosmos/evm/erc20/v1/params"
+	erc20TokenPairs   = "/cosmos/evm/erc20/v1/params" //nolint:gosec
 )
 
 func (s *IntegrationTestSuite) testRestInterfaces() {

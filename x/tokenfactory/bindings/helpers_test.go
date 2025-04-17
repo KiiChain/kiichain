@@ -23,6 +23,7 @@ import (
 )
 
 func CreateTestInput(t *testing.T) (*app.KiichainApp, sdk.Context) {
+	t.Helper()
 	chain := helpers.Setup(t)
 	ctx := chain.BaseApp.NewUncachedContext(true, tenderminttypes.Header{Height: 1, ChainID: "testing", Time: time.Now().UTC()})
 
@@ -30,6 +31,7 @@ func CreateTestInput(t *testing.T) (*app.KiichainApp, sdk.Context) {
 }
 
 func FundAccount(t *testing.T, ctx sdk.Context, app *app.KiichainApp, acct sdk.AccAddress) {
+	t.Helper()
 	amounts := sdk.NewCoins(sdk.NewCoin("uosmo", sdkmath.NewInt(10000000000)))
 	err := app.BankKeeper.MintCoins(ctx, tokenfactorytypes.ModuleName, amounts)
 	require.NoError(t, err)
@@ -56,6 +58,7 @@ func RandomBech32AccountAddress() string {
 }
 
 func storeReflectCode(t *testing.T, ctx sdk.Context, app *app.KiichainApp, addr sdk.AccAddress) uint64 {
+	t.Helper()
 	wasmCode, err := os.ReadFile("./testdata/token_reflect.wasm")
 	require.NoError(t, err)
 
@@ -67,6 +70,7 @@ func storeReflectCode(t *testing.T, ctx sdk.Context, app *app.KiichainApp, addr 
 }
 
 func instantiateReflectContract(t *testing.T, ctx sdk.Context, app *app.KiichainApp, funder sdk.AccAddress) sdk.AccAddress {
+	t.Helper()
 	initMsgBz := []byte("{}")
 	contractKeeper := keeper.NewDefaultPermissionKeeper(app.WasmKeeper)
 	codeID := uint64(1)
@@ -77,6 +81,7 @@ func instantiateReflectContract(t *testing.T, ctx sdk.Context, app *app.Kiichain
 }
 
 func fundAccount(t *testing.T, ctx sdk.Context, app *app.KiichainApp, addr sdk.AccAddress, coins sdk.Coins) {
+	t.Helper()
 	err := app.BankKeeper.MintCoins(ctx, tokenfactorytypes.ModuleName, coins)
 	require.NoError(t, err)
 
@@ -85,6 +90,7 @@ func fundAccount(t *testing.T, ctx sdk.Context, app *app.KiichainApp, addr sdk.A
 }
 
 func SetupCustomApp(t *testing.T, addr sdk.AccAddress) (*app.KiichainApp, sdk.Context) {
+	t.Helper()
 	app, ctx := CreateTestInput(t)
 	wasmKeeper := app.WasmKeeper
 

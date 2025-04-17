@@ -48,6 +48,7 @@ type ChainResponse struct {
 }
 
 func queryCustom(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contract sdk.AccAddress, request bindings.TokenFactoryQuery, response interface{}) {
+	t.Helper()
 	msgBz, err := json.Marshal(request)
 	require.NoError(t, err)
 	fmt.Println("queryCustom1", string(msgBz))

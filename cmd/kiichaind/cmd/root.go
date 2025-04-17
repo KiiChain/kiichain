@@ -232,7 +232,7 @@ func initRootCmd(rootCmd *cobra.Command,
 	ac := appCreator{}
 
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, kiichain.DefaultNodeHome),
+		initCmd(basicManager, kiichain.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
@@ -495,10 +495,10 @@ var tempDir = func() string {
 // It first tries to get from the chainId flag, if not available
 // it will load from home
 func getChainIDFromOpts(appOpts servertypes.AppOptions) (chainID string, err error) {
-	homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
+	chainID = cast.ToString(appOpts.Get(flags.FlagChainID))
 	if chainID == "" {
 		// fallback to genesis chain-id
-		chainID = cast.ToString(appOpts.Get(flags.FlagChainID))
+		homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
 		genDocFile := filepath.Join(homeDir, cast.ToString(appOpts.Get("genesis_file")))
 		appGenesis, err := genutiltypes.AppGenesisFromFile(genDocFile)
 		if err != nil {

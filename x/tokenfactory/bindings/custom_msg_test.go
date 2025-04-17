@@ -306,6 +306,7 @@ type ReflectSubMsgs struct {
 }
 
 func executeCustom(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contract sdk.AccAddress, sender sdk.AccAddress, msg bindings.TokenFactoryMsg, funds sdk.Coin) error { //nolint:unparam // funds is always nil but could change in the future.
+	t.Helper()
 	customBz, err := json.Marshal(msg)
 	require.NoError(t, err)
 
