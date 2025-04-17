@@ -3,6 +3,7 @@ package e2e
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec/unknownproto"
 	sdktx "github.com/cosmos/cosmos-sdk/types/tx"
 )
@@ -49,4 +50,14 @@ func concatFlags(originalCollection []string, commandFlags []string, generalFlag
 	originalCollection = append(originalCollection, generalFlags...)
 
 	return originalCollection
+}
+
+// mustNewIntFromString returns a new int from a string and panics if it fails
+func mustNewIntFromString(amount string) math.Int {
+	amountInt, ok := math.NewIntFromString(amount)
+	if !ok {
+		panic(fmt.Sprintf("failed to convert %s to int", amount))
+	}
+
+	return amountInt
 }

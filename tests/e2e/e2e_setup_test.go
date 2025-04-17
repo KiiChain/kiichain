@@ -83,11 +83,11 @@ const (
 
 var (
 	kiichainConfigPath = filepath.Join(kiichainHomePath, "config")
-	stakingAmount      = math.NewInt(100000000000)
+	stakingAmount      = mustNewIntFromString("100000000000000000000000") // 100,000 Kii
 	stakingAmountCoin  = sdk.NewCoin(akiiDenom, stakingAmount)
-	tokenAmount        = sdk.NewCoin(akiiDenom, math.NewInt(330000000000000000))
-	standardFees       = sdk.NewCoin(akiiDenom, math.NewInt(33000000000000))
-	depositAmount      = sdk.NewCoin(akiiDenom, math.NewInt(33000000000000000))
+	tokenAmount        = sdk.NewCoin(akiiDenom, mustNewIntFromString("3300000000000000000000")) // 3,300 Kii
+	standardFees       = sdk.NewCoin(akiiDenom, mustNewIntFromString("330000000000000000"))     // 0.33 Kii
+	depositAmount      = sdk.NewCoin(akiiDenom, mustNewIntFromString("330000000000000000000"))  // 3,300 Kii
 	distModuleAddress  = authtypes.NewModuleAddress(distrtypes.ModuleName).String()
 	govModuleAddress   = authtypes.NewModuleAddress(govtypes.ModuleName).String()
 	proposalCounter    = 0
