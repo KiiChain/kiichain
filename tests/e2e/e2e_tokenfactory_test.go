@@ -141,6 +141,7 @@ func (s *IntegrationTestSuite) testTokenFactory() {
 		// Setup amounts
 		adminAmount := math.NewInt(1000000000)
 		bobAmount := math.NewInt(5000)
+		burnAmount := math.NewInt(2000)
 
 		// Create denom
 		s.createDenom(s.chainA, adminAddress, newDenom)
@@ -150,7 +151,8 @@ func (s *IntegrationTestSuite) testTokenFactory() {
 
 		var initialAdminBalance,
 			initialBobBalance,
-			initialCharlieBalance sdk.Coin
+			initialCharlieBalance,
+			laterBobBalance sdk.Coin
 
 		// get balances of admin and other accounts
 		s.Require().Eventually(
@@ -169,6 +171,23 @@ func (s *IntegrationTestSuite) testTokenFactory() {
 				initialCharlieBalance, err = getSpecificBalance(chainEndpoint, charlieAddress, fullDenom)
 				s.Require().NoError(err)
 				s.Require().Zero(initialCharlieBalance.Amount)
+
+				return true
+			},
+			10*time.Second,
+			5*time.Second,
+		)
+
+		// Burn from bob
+		s.burnDenomFrom(c, adminAddress, bobAddress, sdk.NewCoin(fullDenom, burnAmount))
+
+		// Verify change
+		s.Require().Eventually(
+			func() bool {
+				// Bob should have less of the coin
+				laterBobBalance, err = getSpecificBalance(chainEndpoint, bobAddress, fullDenom)
+				s.Require().NoError(err)
+				s.Require().Equal(bobAmount.Sub(burnAmount), laterBobBalance.Amount)
 
 				return true
 			},
