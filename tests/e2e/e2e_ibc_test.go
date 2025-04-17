@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -247,8 +248,8 @@ func (s *IntegrationTestSuite) testIBCTokenTransfer() {
 			}
 		}
 
-		tokenAmt := 3300000000
-		s.sendIBC(s.chainA, 0, sender, recipient, strconv.Itoa(tokenAmt)+akiiDenom, standardFees.String(), "", false)
+		tokenAmt := mustNewIntFromString("3300000000000000000000") // 3,300 Kii
+		s.sendIBC(s.chainA, 0, sender, recipient, tokenAmt.String()+akiiDenom, standardFees.String(), "", false)
 
 		pass := s.hermesClearPacket(hermesConfigWithGasPrices, s.chainA.id, transferPort, transferChannel)
 		s.Require().True(pass)
@@ -265,7 +266,7 @@ func (s *IntegrationTestSuite) testIBCTokenTransfer() {
 		for _, c := range balances {
 			if strings.Contains(c.Denom, "ibc/") {
 				ibcStakeDenom = c.Denom
-				s.Require().Equal((int64(tokenAmt) + beforeBalance), c.Amount.Int64())
+				s.Require().Equal((tokenAmt.Add(math.NewInt(beforeBalance))), c.Amount)
 				break
 			}
 		}
@@ -307,7 +308,7 @@ func (s *IntegrationTestSuite) testMultihopIBCTokenTransfer() {
 		forwardPort := "transfer"
 		forwardChannel := "channel-0"
 
-		tokenAmt := 330000000000000000
+		tokenAmt := mustNewIntFromString("3300000000000000000000") // 3,300 Kii
 
 		chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
 
@@ -341,7 +342,7 @@ func (s *IntegrationTestSuite) testMultihopIBCTokenTransfer() {
 		memo, err := json.Marshal(firstHopMetadata)
 		s.Require().NoError(err)
 
-		s.sendIBC(s.chainA, 0, sender, middlehop, strconv.Itoa(tokenAmt)+akiiDenom, standardFees.String(), string(memo), false)
+		s.sendIBC(s.chainA, 0, sender, middlehop, tokenAmt.String()+akiiDenom, standardFees.String(), string(memo), false)
 
 		pass := s.hermesClearPacket(hermesConfigWithGasPrices, s.chainA.id, transferPort, transferChannel)
 		s.Require().True(pass)

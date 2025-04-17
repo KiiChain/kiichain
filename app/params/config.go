@@ -58,4 +58,7 @@ func init() {
 	SetBip44CoinType(config)
 	// Seal the config
 	config.Seal()
+
+	// Update power reduction based on the new 18-decimal base unit
+	sdk.DefaultPowerReduction = evmtypes.AttoPowerReduction
 }
