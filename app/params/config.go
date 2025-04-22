@@ -34,7 +34,7 @@ const (
 	BaseDenomUnit = 18
 
 	// Testnet chain id
-	TestnetChainID = "kiichain_1336"
+	TestnetChainID = "oro_1336"
 	LocalChainID   = "localchain_1010"
 )
 
