@@ -376,7 +376,19 @@ proto-gen:
 
 proto-swagger-gen:
 	@echo "Generating Protobuf Swagger"
-	@$(protoImage) sh ./proto/scripts/protoc-swagger-gen.sh
+
+	@echo "Preparing the protofiles"
+	@./proto/scripts/swagger-gen.sh
+
+	@echo "Generating the buf files"
+	@$(protoImage) sh ./proto/scripts/swagger-protoc.sh
+
+	@echo "Merging protofiles"
+	@./proto/scripts/swagger-merger.py
+	
+	@echo "Combining swagger files"
+	@$(protoImage) sh ./proto/scripts/swagger-combine.sh
+
 
 proto-format:
 	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;

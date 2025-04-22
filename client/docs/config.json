@@ -1,9 +1,0 @@
-{
-  "swagger": "2.0",
-  "info": {
-    "title": "Kiichain - HTTP API Console",
-    "description": "Kiichain REST API",
-    "version": "1.0.0"
-  },
-  "apis": []
-}
