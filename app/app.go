@@ -3,12 +3,12 @@ package kiichain
 import (
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
 
 	"github.com/gorilla/mux"
-	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -66,6 +66,7 @@ import (
 	kiiante "github.com/kiichain/kiichain/v1/ante"
 	"github.com/kiichain/kiichain/v1/app/keepers"
 	"github.com/kiichain/kiichain/v1/app/upgrades"
+	"github.com/kiichain/kiichain/v1/client/docs"
 )
 
 var (
@@ -440,7 +441,7 @@ func (app *KiichainApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.A
 	nodeservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// register swagger API from root so that other applications can override easily
-	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
+	if err := registerSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
 		panic(err)
 	}
 }
@@ -498,15 +499,21 @@ func (app *KiichainApp) setupUpgradeHandlers() {
 	}
 }
 
-// RegisterSwaggerAPI registers swagger route with API Server
-func RegisterSwaggerAPI(rtr *mux.Router) {
-	statikFS, err := fs.New()
-	if err != nil {
-		panic(err)
+// registerSwaggerAPI provides a common function which registers swagger route with API Server
+func registerSwaggerAPI(_ client.Context, rtr *mux.Router, swaggerEnabled bool) error {
+	if !swaggerEnabled {
+		return nil
 	}
 
-	staticServer := http.FileServer(statikFS)
+	root, err := fs.Sub(docs.SwaggerUI, "swagger-ui")
+	if err != nil {
+		return err
+	}
+
+	staticServer := http.FileServer(http.FS(root))
 	rtr.PathPrefix("/swagger/").Handler(http.StripPrefix("/swagger/", staticServer))
+
+	return nil
 }
 
 func (app *KiichainApp) OnTxSucceeded(_ sdk.Context, _, _ string, _ []byte, _ []byte) {
