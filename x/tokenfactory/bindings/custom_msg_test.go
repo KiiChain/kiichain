@@ -215,21 +215,27 @@ func TestForceTransfer(t *testing.T) {
 	err = executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
 	require.NoError(t, err)
 
-	// Force move 100 tokens from lucky to rcpt
-	msg = bindings.TokenFactoryMsg{ForceTransfer: &bindings.ForceTransfer{
-		Denom:       sunDenom,
-		Amount:      sdkmath.NewInt(100),
-		FromAddress: lucky.String(),
-		ToAddress:   rcpt.String(),
-	}}
-	err = executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
-	require.NoError(t, err)
+	// Checks if force transfer is enables
+	capabilities := app.TokenFactoryKeeper.GetEnabledCapabilities()
+	forceTransferEnabled := types.IsCapabilityEnabled(capabilities, types.EnableForceTransfer)
 
-	// check the balance of rcpt
-	balances = app.BankKeeper.GetAllBalances(ctx, rcpt)
-	require.Len(t, balances, 1)
-	coin := balances[0]
-	require.Equal(t, sdkmath.NewInt(100), coin.Amount)
+	if forceTransferEnabled {
+		// Force move 100 tokens from lucky to rcpt
+		msg = bindings.TokenFactoryMsg{ForceTransfer: &bindings.ForceTransfer{
+			Denom:       sunDenom,
+			Amount:      sdkmath.NewInt(100),
+			FromAddress: lucky.String(),
+			ToAddress:   rcpt.String(),
+		}}
+		err = executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
+		require.NoError(t, err)
+
+		// check the balance of rcpt
+		balances = app.BankKeeper.GetAllBalances(ctx, rcpt)
+		require.Len(t, balances, 1)
+		coin := balances[0]
+		require.Equal(t, sdkmath.NewInt(100), coin.Amount)
+	}
 }
 
 func TestBurnMsg(t *testing.T) {
@@ -267,29 +273,35 @@ func TestBurnMsg(t *testing.T) {
 	err = executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
 	require.NoError(t, err)
 
-	// can burn from different address with burnFrom
-	amt, ok := sdkmath.NewIntFromString("1")
-	require.True(t, ok)
-	msg = bindings.TokenFactoryMsg{BurnTokens: &bindings.BurnTokens{
-		Denom:           sunDenom,
-		Amount:          amt,
-		BurnFromAddress: lucky.String(),
-	}}
-	err = executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
-	require.NoError(t, err)
+	// Checks if burnFrom is enabled
+	capabilities := app.TokenFactoryKeeper.GetEnabledCapabilities()
+	burnFromEnabled := types.IsCapabilityEnabled(capabilities, types.EnableBurnFrom)
 
-	// lucky needs to send balance to reflect contract to burn it
-	luckyBalance := app.BankKeeper.GetAllBalances(ctx, lucky)
-	err = app.BankKeeper.SendCoins(ctx, lucky, reflect, luckyBalance)
-	require.NoError(t, err)
+	if burnFromEnabled {
+		// can burn from different address with burnFrom
+		amt, ok := sdkmath.NewIntFromString("1")
+		require.True(t, ok)
+		msg = bindings.TokenFactoryMsg{BurnTokens: &bindings.BurnTokens{
+			Denom:           sunDenom,
+			Amount:          amt,
+			BurnFromAddress: lucky.String(),
+		}}
+		err = executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
+		require.NoError(t, err)
 
-	msg = bindings.TokenFactoryMsg{BurnTokens: &bindings.BurnTokens{
-		Denom:           sunDenom,
-		Amount:          amount.Abs().Sub(sdkmath.NewInt(1)),
-		BurnFromAddress: reflect.String(),
-	}}
-	err = executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
-	require.NoError(t, err)
+		// lucky needs to send balance to reflect contract to burn it
+		luckyBalance := app.BankKeeper.GetAllBalances(ctx, lucky)
+		err = app.BankKeeper.SendCoins(ctx, lucky, reflect, luckyBalance)
+		require.NoError(t, err)
+
+		msg = bindings.TokenFactoryMsg{BurnTokens: &bindings.BurnTokens{
+			Denom:           sunDenom,
+			Amount:          amount.Abs().Sub(sdkmath.NewInt(1)),
+			BurnFromAddress: reflect.String(),
+		}}
+		err = executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
+		require.NoError(t, err)
+	}
 }
 
 type ReflectExec struct {

@@ -50,12 +50,15 @@ func (suite *KeeperTestSuite) TestAdminMsgs() {
 	suite.Require().True(suite.App.BankKeeper.GetBalance(suite.Ctx, suite.TestAccs[1], suite.defaultDenom).Amount.Int64() == addr1bal, suite.App.BankKeeper.GetBalance(suite.Ctx, suite.TestAccs[1], suite.defaultDenom))
 
 	// Test force transferring
-	_, err = suite.msgServer.ForceTransfer(suite.Ctx, types.NewMsgForceTransfer(suite.TestAccs[0].String(), sdk.NewInt64Coin(suite.defaultDenom, 5), suite.TestAccs[1].String(), suite.TestAccs[0].String()))
-	addr1bal -= 5
-	addr0bal += 5
-	suite.Require().NoError(err)
-	suite.Require().True(suite.App.BankKeeper.GetBalance(suite.Ctx, suite.TestAccs[0], suite.defaultDenom).Amount.Int64() == addr0bal, suite.App.BankKeeper.GetBalance(suite.Ctx, suite.TestAccs[0], suite.defaultDenom))
-	suite.Require().True(suite.App.BankKeeper.GetBalance(suite.Ctx, suite.TestAccs[1], suite.defaultDenom).Amount.Int64() == addr1bal, suite.App.BankKeeper.GetBalance(suite.Ctx, suite.TestAccs[1], suite.defaultDenom))
+	capabilities := suite.App.TokenFactoryKeeper.GetEnabledCapabilities()
+	if types.IsCapabilityEnabled(capabilities, types.EnableForceTransfer) {
+		_, err = suite.msgServer.ForceTransfer(suite.Ctx, types.NewMsgForceTransfer(suite.TestAccs[0].String(), sdk.NewInt64Coin(suite.defaultDenom, 5), suite.TestAccs[1].String(), suite.TestAccs[0].String()))
+		addr1bal -= 5
+		addr0bal += 5
+		suite.Require().NoError(err)
+		suite.Require().True(suite.App.BankKeeper.GetBalance(suite.Ctx, suite.TestAccs[0], suite.defaultDenom).Amount.Int64() == addr0bal, suite.App.BankKeeper.GetBalance(suite.Ctx, suite.TestAccs[0], suite.defaultDenom))
+		suite.Require().True(suite.App.BankKeeper.GetBalance(suite.Ctx, suite.TestAccs[1], suite.defaultDenom).Amount.Int64() == addr1bal, suite.App.BankKeeper.GetBalance(suite.Ctx, suite.TestAccs[1], suite.defaultDenom))
+	}
 
 	// Test burning from own account
 	_, err = suite.msgServer.Burn(suite.Ctx, types.NewMsgBurn(suite.TestAccs[0].String(), sdk.NewInt64Coin(suite.defaultDenom, 5)))
@@ -199,6 +202,10 @@ func (suite *KeeperTestSuite) TestBurnDenom() {
 	// Create a denom.
 	suite.CreateDefaultDenom()
 
+	// Check burn from capability
+	capabilities := suite.App.TokenFactoryKeeper.GetEnabledCapabilities()
+	burnFrom := types.IsCapabilityEnabled(capabilities, types.EnableBurnFrom)
+
 	// mint 1000 default token for all testAccs
 	balances := make(map[string]int64)
 	for _, acc := range suite.TestAccs {
@@ -246,13 +253,13 @@ func (suite *KeeperTestSuite) TestBurnDenom() {
 			expectPass: true,
 		},
 		{
-			desc: "success case - burn from another address",
+			desc: "burn from another address",
 			burnMsg: *types.NewMsgBurnFrom(
 				suite.TestAccs[0].String(),
 				sdk.NewInt64Coin(suite.defaultDenom, 10),
 				suite.TestAccs[1].String(),
 			),
-			expectPass: true,
+			expectPass: burnFrom,
 		},
 	} {
 		suite.Run(fmt.Sprintf("Case %s", tc.desc), func() {
@@ -276,6 +283,10 @@ func (suite *KeeperTestSuite) TestForceTransferDenom() {
 	// Create a denom.
 	suite.CreateDefaultDenom()
 
+	// Check force transfer from capability
+	capabilities := suite.App.TokenFactoryKeeper.GetEnabledCapabilities()
+	forceTransfer := types.IsCapabilityEnabled(capabilities, types.EnableForceTransfer)
+
 	// mint 1000 default token for all testAccs
 	balances := make(map[string]int64)
 	for _, acc := range suite.TestAccs {
@@ -297,7 +308,7 @@ func (suite *KeeperTestSuite) TestForceTransferDenom() {
 				suite.TestAccs[1].String(),
 				suite.TestAccs[2].String(),
 			),
-			expectPass: true,
+			expectPass: forceTransfer,
 		},
 		{
 			desc: "denom does not exist",

@@ -319,15 +319,18 @@ func TestBurn(t *testing.T) {
 	mintAmount, ok := sdkmath.NewIntFromString("8080")
 	require.True(t, ok)
 
+	// Check if burn is enabled from non admins
+	capabilities := app.TokenFactoryKeeper.GetEnabledCapabilities()
+	burnFromEnabled := types.IsCapabilityEnabled(capabilities, types.EnableBurnFrom)
+
 	specs := map[string]struct {
 		burn   *bindings.BurnTokens
 		expErr bool
 	}{
 		"valid burn": {
 			burn: &bindings.BurnTokens{
-				Denom:           validDenomStr,
-				Amount:          mintAmount,
-				BurnFromAddress: creator.String(),
+				Denom:  validDenomStr,
+				Amount: mintAmount,
 			},
 			expErr: false,
 		},
@@ -337,37 +340,33 @@ func TestBurn(t *testing.T) {
 				Amount:          mintAmount,
 				BurnFromAddress: lucky.String(),
 			},
-			expErr: true,
+			expErr: !burnFromEnabled,
 		},
 		"empty sub-denom": {
 			burn: &bindings.BurnTokens{
-				Denom:           emptyDenomStr,
-				Amount:          mintAmount,
-				BurnFromAddress: creator.String(),
+				Denom:  emptyDenomStr,
+				Amount: mintAmount,
 			},
 			expErr: false,
 		},
 		"invalid sub-denom": {
 			burn: &bindings.BurnTokens{
-				Denom:           "sub-denom_2",
-				Amount:          mintAmount,
-				BurnFromAddress: creator.String(),
+				Denom:  "sub-denom_2",
+				Amount: mintAmount,
 			},
 			expErr: true,
 		},
 		"non-minted denom": {
 			burn: &bindings.BurnTokens{
-				Denom:           fmt.Sprintf("factory/%s/%s", creator.String(), "SUN"),
-				Amount:          mintAmount,
-				BurnFromAddress: creator.String(),
+				Denom:  fmt.Sprintf("factory/%s/%s", creator.String(), "SUN"),
+				Amount: mintAmount,
 			},
 			expErr: true,
 		},
 		"zero amount": {
 			burn: &bindings.BurnTokens{
-				Denom:           validDenomStr,
-				Amount:          sdkmath.ZeroInt(),
-				BurnFromAddress: creator.String(),
+				Denom:  validDenomStr,
+				Amount: sdkmath.ZeroInt(),
 			},
 			expErr: true,
 		},
@@ -377,9 +376,8 @@ func TestBurn(t *testing.T) {
 		},
 		"null burn": {
 			burn: &bindings.BurnTokens{
-				Denom:           validDenomStr,
-				Amount:          mintAmount.Neg(),
-				BurnFromAddress: creator.String(),
+				Denom:  validDenomStr,
+				Amount: mintAmount.Neg(),
 			},
 			expErr: true,
 		},
