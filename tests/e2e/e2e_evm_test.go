@@ -2,20 +2,24 @@ package e2e
 
 import (
 	"bytes"
+	"context"
 	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/big"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	geth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/kiichain/kiichain/v1/tests/e2e/mock"
 
 	"cosmossdk.io/math"
 
@@ -26,7 +30,6 @@ import (
 
 const (
 	CounterBinary = "6080604052348015600e575f5ffd5b505f805560ce80601d5f395ff3fe6080604052348015600e575f5ffd5b50600436106030575f3560e01c80638ada066e146034578063d09de08a146048575b5f5ffd5b5f5460405190815260200160405180910390f35b604e6050565b005b60015f5f828254605f91906066565b9091555050565b8082018281125f831280158216821582161715609057634e487b7160e01b5f52601160045260245ffd5b50509291505056fea26469706673582212202eb4042585c41ce4809327e6d7a60c017098a1ca09ffc5893f6360047a5354b564736f6c634300081d0033"
-	CounterABI    = `[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"getCounter","outputs":[{"internalType":"int256","name":"","type":"int256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"increment","outputs":[],"stateMutability":"nonpayable","type":"function"}]`
 )
 
 func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
@@ -78,7 +81,7 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 
 	// 1. Create new account
 	// Make a key
-	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	key, err := crypto.HexToECDSA("88cbead91aee890d27bf06e003ade3d4e952427e88f88d31d61d3ef5e5d54305")
 	s.Require().NoError(err)
 
 	// Make a message to extract key, making sure we are using correct way
@@ -168,14 +171,45 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 
 	s.Run("create and interact w/ contract", func() {
 		// 5. Deploy contract
-		contractAddress, err := deployContract(client, key, evmAddress, []byte(CounterBinary))
+		// body, err := deployContractViaPost(jsonRCP, evmAddress, []byte(CounterBinary))
+		// s.Require().NoError(err)
+
+		// s.T().Logf("Return from http post contract : %s", body)
+
+		// Prepare auth
+		auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1010))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Set optional params (recommended)
+		auth.Value = big.NewInt(0)      // in wei
+		auth.GasLimit = uint64(3000000) // gas limit
+		auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
+
+		contractAddress, tx, counter, err := mock.DeployCounter(auth, client)
 		s.Require().NoError(err)
 
+		s.waitForTransaction(client, tx)
 		s.T().Logf("ContractAddress : %s", contractAddress.String())
 
 		// 6. Interact w/ contract and see changes
-		s.bumpCounterContract(client, key, evmAddress, contractAddress)
+		tx, err = counter.Increment(auth)
+		s.Require().NoError(err)
+		s.waitForTransaction(client, tx)
+
+		counterValue, err := counter.GetCounter(nil)
+		s.Require().NoError(err)
+		s.T().Logf("Counter value: %s", counterValue)
+
+		// s.bumpCounterContract(client, key, evmAddress, contractAddress)
 	})
+}
+
+func (s *IntegrationTestSuite) waitForTransaction(client *ethclient.Client, tx *geth.Transaction) {
+	receipt, err := bind.WaitMined(context.Background(), client, tx)
+	s.Require().NoError(err)
+	s.Require().False(receipt.Status == geth.ReceiptStatusFailed)
 }
 
 func (s *IntegrationTestSuite) bumpCounterContract(
@@ -185,7 +219,7 @@ func (s *IntegrationTestSuite) bumpCounterContract(
 	contractAddress common.Address,
 ) {
 	// Parse ABI for addresses
-	factoryABI, err := abi.JSON(strings.NewReader(CounterABI))
+	factoryABI, err := abi.JSON(strings.NewReader(mock.CounterABI))
 	getCountersFunction, err := factoryABI.Pack("getCounter")
 	s.Require().NoError(err)
 	incrementFunction, err := factoryABI.Pack("increment")
@@ -193,15 +227,38 @@ func (s *IntegrationTestSuite) bumpCounterContract(
 
 	// Request increment
 	_, err = EVMCallContract(client, contractAddress, getCountersFunction)
+	s.Require().NoError(err)
 
 	// Check increment
 	data, err := EVMCallContract(client, contractAddress, incrementFunction)
+	s.Require().NoError(err)
 
 	// Unpack the result
 	var counter *big.Int
 	err = factoryABI.UnpackIntoInterface(&counter, "getCounter", data)
 	s.Require().NoError(err)
 	s.Require().Greater(counter, big.NewInt(0))
+}
+
+func deployContractViaPost(
+	jsonRCP string,
+	fromAddress common.Address,
+	contractBinary []byte,
+) (map[string]interface{}, error) {
+	args := map[string]interface{}{
+		"from":     fromAddress,
+		"to":       "",
+		"data":     HexifyFuncAddress(contractBinary),
+		"gas":      "0x90D40",
+		"gasPrice": "0x9184e72a000",
+	}
+
+	return httpEVMPostJSON2(jsonRCP, "eth_sendTransaction", args)
+}
+
+// HexifyFuncAddress turns an ABI function address and turns it into a hex value
+func HexifyFuncAddress(funcAddress []byte) string {
+	return "0x" + hex.EncodeToString(funcAddress)
 }
 
 // CosmosPubKeyToEVMAddress takes a cosmos key and returns a respective evm address
@@ -242,6 +299,32 @@ func httpEVMPostJSON(url, method string, params []interface{}) (map[string]inter
 		"id":      1,
 		"method":  method,
 		"params":  params,
+	}
+	data, _ := json.Marshal(payload)
+
+	// Get the response
+	// Since this is a test, we can silence linting for the http call
+	//nolint:gosec
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(data))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// Decode the result
+	var result map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	return result, err
+}
+
+// httpEVMPostJSON creates a post with the EVM format
+func httpEVMPostJSON2(url, method string, params map[string]interface{}) (map[string]interface{}, error) {
+	// Create the payload with the json format
+	payload := map[string]interface{}{
+		"jsonrpc": "2.0",
+		"id":      1,
+		"method":  method,
+		"params":  []interface{}{params},
 	}
 	data, _ := json.Marshal(payload)
 
