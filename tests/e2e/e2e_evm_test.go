@@ -3,7 +3,6 @@ package e2e
 import (
 	"bytes"
 	"context"
-	"crypto/ecdsa"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -13,19 +12,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	geth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/kiichain/kiichain/v1/tests/e2e/mock"
 
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
+
+	"github.com/kiichain/kiichain/v1/tests/e2e/mock"
 )
 
 const (
@@ -212,50 +211,6 @@ func (s *IntegrationTestSuite) waitForTransaction(client *ethclient.Client, tx *
 	s.Require().False(receipt.Status == geth.ReceiptStatusFailed)
 }
 
-func (s *IntegrationTestSuite) bumpCounterContract(
-	client *ethclient.Client,
-	privateKey *ecdsa.PrivateKey,
-	fromAddress common.Address,
-	contractAddress common.Address,
-) {
-	// Parse ABI for addresses
-	factoryABI, err := abi.JSON(strings.NewReader(mock.CounterABI))
-	getCountersFunction, err := factoryABI.Pack("getCounter")
-	s.Require().NoError(err)
-	incrementFunction, err := factoryABI.Pack("increment")
-	s.Require().NoError(err)
-
-	// Request increment
-	_, err = EVMCallContract(client, contractAddress, getCountersFunction)
-	s.Require().NoError(err)
-
-	// Check increment
-	data, err := EVMCallContract(client, contractAddress, incrementFunction)
-	s.Require().NoError(err)
-
-	// Unpack the result
-	var counter *big.Int
-	err = factoryABI.UnpackIntoInterface(&counter, "getCounter", data)
-	s.Require().NoError(err)
-	s.Require().Greater(counter, big.NewInt(0))
-}
-
-func deployContractViaPost(
-	jsonRCP string,
-	fromAddress common.Address,
-	contractBinary []byte,
-) (map[string]interface{}, error) {
-	args := map[string]interface{}{
-		"from":     fromAddress,
-		"to":       "",
-		"data":     HexifyFuncAddress(contractBinary),
-		"gas":      "0x90D40",
-		"gasPrice": "0x9184e72a000",
-	}
-
-	return httpEVMPostJSON2(jsonRCP, "eth_sendTransaction", args)
-}
-
 // HexifyFuncAddress turns an ABI function address and turns it into a hex value
 func HexifyFuncAddress(funcAddress []byte) string {
 	return "0x" + hex.EncodeToString(funcAddress)
@@ -299,32 +254,6 @@ func httpEVMPostJSON(url, method string, params []interface{}) (map[string]inter
 		"id":      1,
 		"method":  method,
 		"params":  params,
-	}
-	data, _ := json.Marshal(payload)
-
-	// Get the response
-	// Since this is a test, we can silence linting for the http call
-	//nolint:gosec
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(data))
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	// Decode the result
-	var result map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	return result, err
-}
-
-// httpEVMPostJSON creates a post with the EVM format
-func httpEVMPostJSON2(url, method string, params map[string]interface{}) (map[string]interface{}, error) {
-	// Create the payload with the json format
-	payload := map[string]interface{}{
-		"jsonrpc": "2.0",
-		"id":      1,
-		"method":  method,
-		"params":  []interface{}{params},
 	}
 	data, _ := json.Marshal(payload)
 
