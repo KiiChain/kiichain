@@ -2,7 +2,6 @@ package e2e
 
 import (
 	"bytes"
-	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -17,11 +16,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
-	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	goeth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+)
+
+const (
+	CounterBinary = "6080604052348015600e575f5ffd5b505f805560ce80601d5f395ff3fe6080604052348015600e575f5ffd5b50600436106030575f3560e01c80638ada066e146034578063d09de08a146048575b5f5ffd5b5f5460405190815260200160405180910390f35b604e6050565b005b60015f5f828254605f91906066565b9091555050565b8082018281125f831280158216821582161715609057634e487b7160e01b5f52601160045260245ffd5b50509291505056fea26469706673582212202eb4042585c41ce4809327e6d7a60c017098a1ca09ffc5893f6360047a5354b564736f6c634300081d0033"
+	CounterABI    = `[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"getCounter","outputs":[{"internalType":"int256","name":"","type":"int256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"increment","outputs":[],"stateMutability":"nonpayable","type":"function"}]`
 )
 
 func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
@@ -63,7 +66,7 @@ func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
 	})
 }
 
-func (s *IntegrationTestSuite) testEVMSend(jsonRCP string) {
+func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 	var (
 		err           error
 		valIdx        = 0
@@ -111,7 +114,7 @@ func (s *IntegrationTestSuite) testEVMSend(jsonRCP string) {
 
 	var newBalance sdk.Coin
 
-	// get balances of sender and recipient accounts
+	// Get balances of sender and recipient accounts
 	s.Require().Eventually(
 		func() bool {
 			newBalance, err = getSpecificBalance(chainEndpoint, cosmosAddress, akiiDenom)
@@ -132,22 +135,19 @@ func (s *IntegrationTestSuite) testEVMSend(jsonRCP string) {
 		balance, err := parseResultAsHex(res)
 		s.Require().NoError(err)
 		s.T().Logf("Balance : %s", balance)
+
 		// Balance should have something now
 		s.Require().False(strings.HasPrefix(balance, "0x0"))
 	})
 
-	// Send amount
+	// 3. Send via evm
 	client, err := ethclient.Dial(jsonRCP)
 	amount := big.NewInt(1000000000000000000)
-	tx, err := sendEVMTransaction(client, key, evmAddress, aliceEvmAddress, amount)
-	s.Require().NoError(err)
-
-	time.Sleep(time.Millisecond * 5000)
-
-	_, receipt, err := checkTransactionByHash(client, tx.Hash())
+	receipt, err := sendEVM(client, key, evmAddress, aliceEvmAddress, amount)
 	s.Require().NoError(err)
 	s.T().Logf("Transaction status: %d\n", receipt.Status)
 
+	// 4. check changes
 	s.Run("eth_getBalance on address after send", func() {
 		res, err := httpEVMPostJSON(jsonRCP, "eth_getBalance", []interface{}{
 			evmAddress.String(), "latest",
@@ -160,87 +160,43 @@ func (s *IntegrationTestSuite) testEVMSend(jsonRCP string) {
 		// Balance should have something now
 		s.Require().False(strings.HasPrefix(balance, "0x0"))
 	})
+
+	s.Run("create and interact w/ contract", func() {
+		// 5. Deploy contract
+		contractAddress, err := deployContract(client, key, evmAddress, []byte(CounterBinary))
+		s.Require().NoError(err)
+
+		s.T().Logf("ContractAddress : %s", contractAddress.String())
+
+		// 6. Interact w/ contract and see changes
+		s.bumpCounterContract(client, key, evmAddress, contractAddress)
+	})
 }
 
-func sendEVMTransaction(
+func (s *IntegrationTestSuite) bumpCounterContract(
 	client *ethclient.Client,
 	privateKey *ecdsa.PrivateKey,
 	fromAddress common.Address,
-	toAddress common.Address,
-	amount *big.Int,
-) (*goeth.Transaction, error) {
-	// Get the nonce (transaction count)
-	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get nonce: %w", err)
-	}
+	contractAddress common.Address,
+) {
+	// Parse ABI for addresses
+	factoryABI, err := abi.JSON(strings.NewReader(CounterABI))
+	getCountersFunction, err := factoryABI.Pack("getCounter")
+	s.Require().NoError(err)
+	incrementFunction, err := factoryABI.Pack("increment")
+	s.Require().NoError(err)
 
-	// Get suggested gas price
-	gasPrice, err := client.SuggestGasPrice(context.Background())
-	if err != nil {
-		return nil, fmt.Errorf("failed to get gas price: %w", err)
-	}
+	// Request increment
+	_, err = EVMCallContract(client, contractAddress, getCountersFunction)
 
-	// Estimate gas limit
-	gasLimit, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
-		From:  fromAddress,
-		To:    &toAddress,
-		Value: amount,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to estimate gas: %w", err)
-	}
+	// Check increment
+	data, err := EVMCallContract(client, contractAddress, incrementFunction)
 
-	// Create the transaction
-	tx := goeth.NewTransaction(
-		nonce,
-		toAddress,
-		amount,
-		gasLimit,
-		gasPrice,
-		nil, // data payload (empty for simple transfers)
-	)
-
-	// Get chain ID
-	chainID, err := client.NetworkID(context.Background())
-	if err != nil {
-		return nil, fmt.Errorf("failed to get chain ID: %w", err)
-	}
-
-	// Sign the transaction
-	signedTx, err := goeth.SignTx(tx, goeth.NewEIP155Signer(chainID), privateKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to sign transaction: %w", err)
-	}
-
-	// Send the transaction
-	err = client.SendTransaction(context.Background(), signedTx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send transaction: %w", err)
-	}
-
-	return signedTx, nil
-}
-
-func checkTransactionByHash(client *ethclient.Client, txHash common.Hash) (*goeth.Transaction, *goeth.Receipt, error) {
-	// Get the transaction details
-	tx, isPending, err := client.TransactionByHash(context.Background(), txHash)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get transaction: %w", err)
-	}
-
-	// If transaction is still pending
-	if isPending {
-		return tx, nil, fmt.Errorf("transaction is still pending")
-	}
-
-	// Get the transaction receipt
-	receipt, err := client.TransactionReceipt(context.Background(), txHash)
-	if err != nil {
-		return tx, nil, fmt.Errorf("failed to get receipt: %w", err)
-	}
-
-	return tx, receipt, nil
+	// Unpack the result
+	var counter *big.Int
+	err = factoryABI.UnpackIntoInterface(&counter, "getCounter", data)
+	s.Require().NoError(err)
+	s.Require().Greater(counter, big.NewInt(0))
 }
 
 // CosmosPubKeyToEVMAddress takes a cosmos key and returns a respective evm address
