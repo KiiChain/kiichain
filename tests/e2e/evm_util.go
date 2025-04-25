@@ -5,7 +5,6 @@ import (
 	"crypto/ecdsa"
 	"fmt"
 	"math/big"
-	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum"
@@ -31,9 +30,62 @@ func deployContract(
 	fromAddress common.Address,
 	contractBinary []byte,
 ) (common.Address, error) {
-	receipt, err := EVMTransaction(client, privateKey, fromAddress, common.Address{}, big.NewInt(0), contractBinary)
+	// Get the nonce (transaction count)
+	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
-		return common.Address{}, fmt.Errorf("failed to deploy contract: %w", err)
+		return common.Address{}, fmt.Errorf("failed to get nonce: %w", err)
+	}
+
+	// Get suggested gas price
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		return common.Address{}, fmt.Errorf("failed to get gas price: %w", err)
+	}
+
+	// Get chain ID
+	chainID, err := client.NetworkID(context.Background())
+	if err != nil {
+		return common.Address{}, fmt.Errorf("failed to get chain ID: %w", err)
+	}
+
+	// Estimate gas
+	// estimatedGas, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
+	// 	From: fromAddress,
+	// 	Data: contractBinary,
+	// })
+	// if err != nil {
+	// 	return common.Address{}, fmt.Errorf("gas estimation failed: %v", err)
+	// }
+
+	// Create the transaction
+	tx := geth.NewContractCreation(
+		nonce,
+		big.NewInt(0),
+		150000,
+		gasPrice,
+		contractBinary, // contract bytes
+	)
+
+	// Sign the transaction
+	signedTx, err := geth.SignTx(tx, geth.NewEIP155Signer(chainID), privateKey)
+	if err != nil {
+		return common.Address{}, fmt.Errorf("failed to sign transaction: %w", err)
+	}
+
+	// Send the transaction
+	err = client.SendTransaction(context.Background(), signedTx)
+	if err != nil {
+		return common.Address{}, fmt.Errorf("failed to send transaction: %w", err)
+	}
+
+	time.Sleep(time.Millisecond * 5000)
+
+	_, receipt, err := checkTransactionByHash(client, signedTx.Hash())
+	if err != nil {
+		return common.Address{}, fmt.Errorf("failed to get receipt: %w", err)
+	}
+	if receipt.Status == 0 {
+		return common.Address{}, fmt.Errorf("receipt status is 0")
 	}
 	return receipt.ContractAddress, nil
 }
@@ -65,20 +117,20 @@ func EVMTransaction(
 	}
 
 	// Estimate gas
-	estimatedGas, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
-		From: fromAddress,
-		Data: contractBinary,
-	})
-	if err != nil {
-		return geth.Receipt{}, fmt.Errorf("gas estimation failed: %v", err)
-	}
+	// estimatedGas, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
+	// 	From: fromAddress,
+	// 	Data: contractBinary,
+	// })
+	// if err != nil {
+	// 	return geth.Receipt{}, fmt.Errorf("gas estimation failed: %v", err)
+	// }
 
 	// Create the transaction
 	tx := geth.NewTransaction(
 		nonce,
 		toAddress,
 		amount,
-		estimatedGas,
+		1500000,
 		gasPrice,
 		contractBinary, // contract bytes
 	)
@@ -102,11 +154,7 @@ func EVMTransaction(
 		return geth.Receipt{}, fmt.Errorf("failed to get receipt: %w", err)
 	}
 	if receipt.Status == 0 {
-		reason, err := getRevertReason(client, signedTx.Hash(), fromAddress)
-		if err != nil {
-			return geth.Receipt{}, fmt.Errorf("failed to get receipt: %w", err)
-		}
-		return geth.Receipt{}, fmt.Errorf("receipt status is 0, reason: %s", reason)
+		return geth.Receipt{}, fmt.Errorf("receipt status is 0")
 	}
 	return *receipt, nil
 }
@@ -142,35 +190,4 @@ func checkTransactionByHash(client *ethclient.Client, txHash common.Hash) (*geth
 	}
 
 	return tx, receipt, nil
-}
-
-func getRevertReason(client *ethclient.Client, txHash common.Hash, sender common.Address) (string, error) {
-	// Get the transaction
-	tx, isPending, err := client.TransactionByHash(context.Background(), txHash)
-	if err != nil {
-		return "", err
-	}
-	if isPending {
-		return "", fmt.Errorf("transaction is still pending")
-	}
-
-	// Replay the transaction as a call
-	msg := ethereum.CallMsg{
-		From:     sender,
-		To:       tx.To(),
-		Gas:      tx.Gas(),
-		GasPrice: tx.GasPrice(),
-		Value:    tx.Value(),
-		Data:     tx.Data(),
-	}
-
-	_, err = client.CallContract(context.Background(), msg, nil)
-	if err != nil {
-		// Extract revert reason from error message
-		if strings.Contains(err.Error(), "execution reverted: ") {
-			return fmt.Sprintf("Execution reverted, error: %s", err.Error()), nil
-		}
-		return err.Error(), nil
-	}
-	return "unknown error (possibly out of gas)", nil
 }
