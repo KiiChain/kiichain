@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"fmt"
+	"os"
 )
 
 var (
@@ -19,7 +20,7 @@ var (
 	runEVMTest                    = true
 
 	// skipIBCTests skips tests that uses IBC
-	skipIBCTests = true
+	skipIBCTests = os.Getenv("SKIP_IBC_TESTS") == "true"
 )
 
 func (s *IntegrationTestSuite) TestRestInterfaces() {
