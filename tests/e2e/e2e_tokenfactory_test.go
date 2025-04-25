@@ -108,7 +108,7 @@ func (s *IntegrationTestSuite) createDenom(c *chain, admin, denom string) {
 		denom,
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, admin),
 		fmt.Sprintf("--%s=%s", flags.FlagChainID, c.id),
-		fmt.Sprintf("--%s=%s", flags.FlagGasPrices, "300akii"),
+		fmt.Sprintf("--%s=%s", flags.FlagGasPrices, "300000000000akii"),
 		fmt.Sprintf("--%s=%s", flags.FlagGas, "auto"),
 		fmt.Sprintf("--%s=%s", flags.FlagGasAdjustment, "1.5"),
 		// "--gas=250000",
