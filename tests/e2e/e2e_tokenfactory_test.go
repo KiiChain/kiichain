@@ -75,16 +75,16 @@ func (s *IntegrationTestSuite) testTokenFactory() {
 			5*time.Second,
 		)
 
-		// Burn from bob
+		// Burn from bob, expected to fail
 		s.burnDenomFrom(c, adminAddress, bobAddress, sdk.NewCoin(fullDenom, burnAmount))
 
 		// Verify change
 		s.Require().Eventually(
 			func() bool {
-				// Bob should have less of the coin
+				// Bob should have same coin since it should fail
 				laterBobBalance, err = getSpecificBalance(chainEndpoint, bobAddress, fullDenom)
 				s.Require().NoError(err)
-				s.Require().Equal(bobAmount.Sub(burnAmount), laterBobBalance.Amount)
+				s.Require().Equal(bobAmount, laterBobBalance.Amount)
 
 				return true
 			},
@@ -193,7 +193,8 @@ func (s *IntegrationTestSuite) burnDenomFrom(c *chain, admin, receiver string, a
 	}
 
 	s.T().Logf("Burning %s from %s", amount.String(), receiver)
-	s.executeKiichainTxCommand(ctx, c, mintCmd, 0, s.defaultExecValidation(c, 0))
+	// burnFrom is disabled and should fail
+	s.executeKiichainTxCommand(ctx, c, mintCmd, 0, s.expectErrExecValidation(c, 0, true))
 }
 
 func builFullDenom(creator, denom string) string {
