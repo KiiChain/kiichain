@@ -51,7 +51,8 @@ func (suite *KeeperTestSuite) TestAdminMsgs() {
 
 	// Test force transferring
 	capabilities := suite.App.TokenFactoryKeeper.GetEnabledCapabilities()
-	if types.IsCapabilityEnabled(capabilities, types.EnableForceTransfer) {
+	forceTransfeEnabled := types.IsCapabilityEnabled(capabilities, types.EnableForceTransfer)
+	if forceTransfeEnabled {
 		_, err = suite.msgServer.ForceTransfer(suite.Ctx, types.NewMsgForceTransfer(suite.TestAccs[0].String(), sdk.NewInt64Coin(suite.defaultDenom, 5), suite.TestAccs[1].String(), suite.TestAccs[0].String()))
 		addr1bal -= 5
 		addr0bal += 5
@@ -204,7 +205,7 @@ func (suite *KeeperTestSuite) TestBurnDenom() {
 
 	// Check burn from capability
 	capabilities := suite.App.TokenFactoryKeeper.GetEnabledCapabilities()
-	burnFrom := types.IsCapabilityEnabled(capabilities, types.EnableBurnFrom)
+	burnFromEnabled := types.IsCapabilityEnabled(capabilities, types.EnableBurnFrom)
 
 	// mint 1000 default token for all testAccs
 	balances := make(map[string]int64)
@@ -259,7 +260,7 @@ func (suite *KeeperTestSuite) TestBurnDenom() {
 				sdk.NewInt64Coin(suite.defaultDenom, 10),
 				suite.TestAccs[1].String(),
 			),
-			expectPass: burnFrom,
+			expectPass: burnFromEnabled,
 		},
 	} {
 		suite.Run(fmt.Sprintf("Case %s", tc.desc), func() {
@@ -285,7 +286,7 @@ func (suite *KeeperTestSuite) TestForceTransferDenom() {
 
 	// Check force transfer from capability
 	capabilities := suite.App.TokenFactoryKeeper.GetEnabledCapabilities()
-	forceTransfer := types.IsCapabilityEnabled(capabilities, types.EnableForceTransfer)
+	forceTransferEnabled := types.IsCapabilityEnabled(capabilities, types.EnableForceTransfer)
 
 	// mint 1000 default token for all testAccs
 	balances := make(map[string]int64)
@@ -308,7 +309,7 @@ func (suite *KeeperTestSuite) TestForceTransferDenom() {
 				suite.TestAccs[1].String(),
 				suite.TestAccs[2].String(),
 			),
-			expectPass: forceTransfer,
+			expectPass: forceTransferEnabled,
 		},
 		{
 			desc: "denom does not exist",
