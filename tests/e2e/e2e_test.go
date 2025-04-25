@@ -107,6 +107,7 @@ func (s *IntegrationTestSuite) TestVesting() {
 	s.testDelayedVestingAccount(chainAAPI)
 	s.testContinuousVestingAccount(chainAAPI)
 }
+
 func (s *IntegrationTestSuite) TestTokenFactory() {
 	s.testTokenFactory()
 }

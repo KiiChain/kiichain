@@ -6,8 +6,10 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
@@ -93,7 +95,7 @@ func (s *IntegrationTestSuite) testTokenFactory() {
 }
 
 // createDenomAndMint uses tokenfactory module to create a specific denom under a given
-// admin and mint a given ammount of that new currency
+// admin and mint a given amount of that new currency
 func (s *IntegrationTestSuite) createDenom(c *chain, admin, denom string) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
