@@ -215,7 +215,7 @@ func TestForceTransfer(t *testing.T) {
 	err = executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
 	require.NoError(t, err)
 
-	// Checks if force transfer is enables
+	// Checks if force transfer is enabled
 	capabilities := app.TokenFactoryKeeper.GetEnabledCapabilities()
 	forceTransferEnabled := types.IsCapabilityEnabled(capabilities, types.EnableForceTransfer)
 
