@@ -77,7 +77,7 @@ func EVMTransaction(
 	tx := geth.NewTransaction(
 		nonce,
 		toAddress,
-		amount, // no ammount
+		amount,
 		estimatedGas,
 		gasPrice,
 		contractBinary, // contract bytes

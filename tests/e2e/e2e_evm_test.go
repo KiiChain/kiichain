@@ -12,14 +12,16 @@ import (
 	"strings"
 	"time"
 
-	"cosmossdk.io/math"
-	"github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+
+	"cosmossdk.io/math"
+
+	"github.com/cosmos/cosmos-sdk/crypto/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 )
 
 const (
@@ -109,7 +111,7 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 	s.Require().NoError(err)
 	s.T().Logf("Alice evm address : %s", aliceEvmAddress)
 
-	// 2. Send funds for new account so it can do operations
+	// 2. Send funds via cosmos for new account so it can do operations
 	s.execBankSend(s.chainA, valIdx, alice.String(), cosmosAddress, tokenAmount.String(), standardFees.String(), false)
 
 	var newBalance sdk.Coin
@@ -117,9 +119,11 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 	// Get balances of sender and recipient accounts
 	s.Require().Eventually(
 		func() bool {
+			// Get balance via cosmos
 			newBalance, err = getSpecificBalance(chainEndpoint, cosmosAddress, akiiDenom)
 			s.Require().NoError(err)
 
+			// Balance should already have some coin
 			return newBalance.IsValid() && newBalance.Amount.GT(math.ZeroInt())
 		},
 		10*time.Second,
@@ -127,6 +131,7 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 	)
 
 	s.Run("eth_getBalance on new address", func() {
+		// Get balance via evm
 		res, err := httpEVMPostJSON(jsonRCP, "eth_getBalance", []interface{}{
 			evmAddress.String(), "latest",
 		})
@@ -136,7 +141,7 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 		s.Require().NoError(err)
 		s.T().Logf("Balance : %s", balance)
 
-		// Balance should have something now
+		// Balance should have something
 		s.Require().False(strings.HasPrefix(balance, "0x0"))
 	})
 
