@@ -20,9 +20,9 @@ _This is the Kiichain kiichain Testnet_
 
 **Minimum**
 
-- 64 GB RAM
+- 8 GB RAM
 - 1 TB NVME SSD
-- 16 Cores (modern CPU's)
+- 4 Cores (modern CPU's)
 
 ## Operating System
 
@@ -30,7 +30,7 @@ _This is the Kiichain kiichain Testnet_
 
 **Dependencies**
 
-> Prerequisite: go1.22+ required.
+> Prerequisite: go1.23+ required.
 
 - Arch Linux: `pacman -S go`
 - Ubuntu: `sudo snap install go --classic`
