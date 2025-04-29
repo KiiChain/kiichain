@@ -52,6 +52,9 @@ const (
 	feeMarketBlockGas = "/cosmos/evm/feemarket/v1/block_gas"
 	erc20Params       = "/cosmos/evm/erc20/v1/token_pairs"
 	erc20TokenPairs   = "/cosmos/evm/erc20/v1/params" //nolint:gosec
+
+	// Tokenfactory Endpoints
+	tokenFactoryParams = "/kiichain/tokenfactory/v1beta1/params"
 )
 
 func (s *IntegrationTestSuite) testRestInterfaces() {
@@ -82,6 +85,7 @@ func (s *IntegrationTestSuite) testRestInterfaces() {
 				{stakingParamsModuleQueryPath, 200},
 				{missingPath, 501},
 				{localMinGasPriceQueryPath, 200},
+				{tokenFactoryParams, 200},
 				// EVM endpoints
 				{evmBaseFee, 200},
 				{evmParams, 200},

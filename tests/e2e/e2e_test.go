@@ -108,6 +108,10 @@ func (s *IntegrationTestSuite) TestVesting() {
 	s.testContinuousVestingAccount(chainAAPI)
 }
 
+func (s *IntegrationTestSuite) TestTokenFactory() {
+	s.testTokenFactory()
+}
+
 func (s *IntegrationTestSuite) TestRateLimit() {
 	if !runRateLimitTest || skipIBCTests {
 		s.T().Log("skipping rate limit e2e tests...")

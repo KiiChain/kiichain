@@ -144,8 +144,6 @@ type AppKeepers struct {
 }
 
 var tokenFactoryCapabilities = []string{
-	tokenfactorytypes.EnableBurnFrom,
-	tokenfactorytypes.EnableForceTransfer,
 	tokenfactorytypes.EnableSetMetadata,
 	tokenfactorytypes.EnableCommunityPoolFeeFunding,
 }
