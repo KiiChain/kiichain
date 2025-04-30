@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -387,7 +386,7 @@ func (s *IntegrationTestSuite) testFailedMultihopIBCTokenTransfer() {
 		forwardPort := "transfer"
 		forwardChannel := "channel-0"
 
-		tokenAmt := 330000000000000000
+		tokenAmt := mustNewIntFromString("3300000000000000000000") // 3,300 Kii
 
 		chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
 
@@ -418,7 +417,7 @@ func (s *IntegrationTestSuite) testFailedMultihopIBCTokenTransfer() {
 		memo, err := json.Marshal(firstHopMetadata)
 		s.Require().NoError(err)
 
-		s.sendIBC(s.chainA, 0, sender, middlehop, strconv.Itoa(tokenAmt)+akiiDenom, standardFees.String(), string(memo), false)
+		s.sendIBC(s.chainA, 0, sender, middlehop, tokenAmt.String()+akiiDenom, standardFees.String(), string(memo), false)
 
 		// Sender account should be initially decremented the full amount
 		s.Require().Eventually(
