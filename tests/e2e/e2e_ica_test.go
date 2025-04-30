@@ -32,7 +32,7 @@ func (s *IntegrationTestSuite) testICARegisterAccountAndSendTx() {
 			icaAccount             string
 			icaAccountBalances     sdk.Coins
 			recipientBalances      sdk.Coins
-			recipientBalanceBefore *math.Int
+			recipientBalanceBefore math.Int
 			err                    error
 			ibcStakeDenom          string
 		)
@@ -99,15 +99,14 @@ func (s *IntegrationTestSuite) testICARegisterAccountAndSendTx() {
 		)
 		for _, c := range recipientBalances {
 			if c.Denom == ibcStakeDenom {
-				recipientBalanceBefore = &c.Amount
+				recipientBalanceBefore = c.Amount
 				break
 			}
 		}
 
 		// Check if the balance is nil and set it to zero
-		if recipientBalanceBefore == nil {
-			zeroInt := math.ZeroInt()
-			recipientBalanceBefore = &zeroInt
+		if recipientBalanceBefore.IsNil() {
+			recipientBalanceBefore = math.ZeroInt()
 		}
 
 		amountToICASend := int64(tokenAmount / 3)
