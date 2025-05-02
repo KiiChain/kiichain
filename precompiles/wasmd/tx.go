@@ -1,0 +1,106 @@
+package wasmd
+
+import (
+	"fmt"
+
+	wasmdkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/evm/x/vm/core/vm"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
+)
+
+const (
+	// InstantiateMethod is the method name for instantiating a contract
+	InstantiateMethod = "instantiate"
+	// ExecuteMethod is the method name for executing a contract
+	ExecuteMethod = "execute"
+)
+
+// Instantiate executes wasmd instantiate from the precompile
+func (p Precompile) Instantiate(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	// Get the contract caller
+	caller := contract.CallerAddress
+
+	// Create the instantiate message
+	msg, err := NewMsgInstantiate(caller, args)
+	if err != nil {
+		return nil, err
+	}
+
+	// Log the call
+	p.Logger(ctx).Debug(
+		"tx called",
+		"method", method.Name,
+		"args", fmt.Sprintf(
+			"{ admin: %s, code_id: %d, sender: %s }",
+			msg.Admin, msg.CodeID, msg.Sender,
+		),
+	)
+
+	// Initialize the message server
+	msgSrv := wasmdkeeper.NewMsgServerImpl(&p.wasmdKeeper)
+
+	// Call the instantiate method
+	res, err := msgSrv.InstantiateContract(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	// Emit the event
+	p.EmitEventContractInstantiated(ctx, stateDB, res.Address, caller, msg.CodeID)
+
+	// Return the response
+	return method.Outputs.Pack(res.Address, res.Data)
+}
+
+// Execute executes wasmd execute from the precompile
+func (p Precompile) Execute(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	// Get the contract caller
+	caller := contract.CallerAddress
+
+	// Create the execute message
+	msg, err := NewMsgExecute(caller, args)
+	if err != nil {
+		return nil, err
+	}
+
+	// Log the call
+	p.Logger(ctx).Debug(
+		"tx called",
+		"method", method.Name,
+		"args", fmt.Sprintf(
+			"{ contract: %s, msg: %s, sender: %s }",
+			msg.Contract, msg.Msg, msg.Sender,
+		),
+	)
+
+	// Initialize the message server
+	msgSrv := wasmdkeeper.NewMsgServerImpl(&p.wasmdKeeper)
+
+	// Call the instantiate method
+	res, err := msgSrv.ExecuteContract(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	// Emit the event
+	p.EmitEventContractExecuted(ctx, stateDB, msg.Contract, caller, msg.Msg)
+
+	// Return the response
+	return method.Outputs.Pack(res.Data)
+}
