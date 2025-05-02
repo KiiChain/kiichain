@@ -5,6 +5,7 @@ import (
 	"maps"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/kiichain/kiichain/v1/precompiles/wasmd"
 
 	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 
@@ -17,6 +18,7 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	bankprecompile "github.com/cosmos/evm/precompiles/bank"
 	"github.com/cosmos/evm/precompiles/bech32"
 	distprecompile "github.com/cosmos/evm/precompiles/distribution"
@@ -49,6 +51,7 @@ func NewAvailableStaticPrecompiles(
 	govKeeper govkeeper.Keeper,
 	slashingKeeper slashingkeeper.Keeper,
 	evidenceKeeper evidencekeeper.Keeper,
+	wasmdKeeper wasmkeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -115,6 +118,12 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate evidence precompile: %w", err))
 	}
 
+	// Prepare the wasmd precompile
+	wasmdPrecompile, err := wasmd.NewPrecompile(wasmdKeeper, authzKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate wasmd precompile: %w", err))
+	}
+
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
@@ -127,6 +136,7 @@ func NewAvailableStaticPrecompiles(
 	precompiles[govPrecompile.Address()] = govPrecompile
 	precompiles[slashingPrecompile.Address()] = slashingPrecompile
 	precompiles[evidencePrecompile.Address()] = evidencePrecompile
+	precompiles[wasmdPrecompile.Address()] = wasmdPrecompile
 
 	// Return the precompiles
 	return precompiles
