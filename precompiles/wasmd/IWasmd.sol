@@ -13,14 +13,15 @@ address constant WASMD_PRECOMPILER_ADDRESS = 0x000000000000000000000000000000000
 interface IWasmd {
     /// @dev This event is emitted when a contract is instantiated on the Wasmd protocol.
     /// @param contractAddress The address of the newly instantiated contract.
-    /// @param label The label of the contract.
+    /// @param caller The address of the caller that instantiated the contract.
     /// @param codeId The code id of the contract.
-    event ContractInstantiated(string indexed contractAddress, string indexed label, uint64 codeId);
+    event ContractInstantiated(string indexed contractAddress, address indexed caller, uint64 codeId);
 
     /// @dev This event is emitted when a contract is executed on the Wasmd protocol.
     /// @param contractAddress The address of the contract that was executed.
+    /// @param caller The address of the caller that executed the contract.
     /// @param msg The message that was sent to the contract.
-    event ContractExecuted(string indexed contractAddress, bytes msg);
+    event ContractExecuted(string indexed contractAddress, address indexed caller, bytes msg);
 
     /// @dev This function is used to instantiate a new contract on the Wasmd protocol.
     /// @param admin The admin of the contract.
@@ -32,7 +33,7 @@ interface IWasmd {
     /// @return data The data returned from the contract instantiation.
     function instantiate(
         // the admin of the contract
-        string memory admin,
+        address admin,
         // the code id of the contract
         uint64 codeId,
         // the label of the contract
