@@ -109,9 +109,9 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.Execute(ctx, evm.Origin, contract, stateDB, method, args)
 	// Wasmd queries
 	case QueryRawMethod:
-		bz, err = p.QueryRaw(ctx, method, contract, args)
+		bz, err = p.QueryRaw(ctx, method, args)
 	case QuerySmartMethod:
-		bz, err = p.QuerySmart(ctx, method, contract, args)
+		bz, err = p.QuerySmart(ctx, method, args)
 	default:
 		// If default error out
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)

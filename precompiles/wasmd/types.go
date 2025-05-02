@@ -22,6 +22,11 @@ func ParseQueryRawArgs(args []interface{}) (*wasmtypes.QueryRawContractStateRequ
 		return nil, fmt.Errorf("invalid contract address")
 	}
 
+	// Check if the addr is a valid bech32 address
+	if _, err := sdk.AccAddressFromBech32(contractAddr); err != nil {
+		return nil, fmt.Errorf("invalid contract address: %w", err)
+	}
+
 	// Parse the second arg, the query data
 	queryData, ok := args[1].([]byte)
 	if !ok || len(queryData) == 0 {
@@ -46,6 +51,11 @@ func ParseQuerySmartArgs(args []interface{}) (*wasmtypes.QuerySmartContractState
 	contractAddr, ok := args[0].(string)
 	if !ok || contractAddr == "" {
 		return nil, fmt.Errorf("invalid contract address")
+	}
+
+	// Check if the addr is a valid bech32 address
+	if _, err := sdk.AccAddressFromBech32(contractAddr); err != nil {
+		return nil, fmt.Errorf("invalid contract address: %w", err)
 	}
 
 	// Parse the second arg, the query data

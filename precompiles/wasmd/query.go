@@ -3,7 +3,6 @@ package wasmd
 import (
 	wasmdkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/evm/x/vm/core/vm"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
@@ -15,7 +14,7 @@ const (
 )
 
 // QueryRaw is a precompile method that handles raw queries from the contract to the wasmd module
-func (p *Precompile) QueryRaw(ctx sdk.Context, method *abi.Method, _ *vm.Contract, args []interface{}) ([]byte, error) {
+func (p *Precompile) QueryRaw(ctx sdk.Context, method *abi.Method, args []interface{}) ([]byte, error) {
 	// Build the request from the arguments
 	req, err := ParseQueryRawArgs(args)
 	if err != nil {
@@ -31,12 +30,12 @@ func (p *Precompile) QueryRaw(ctx sdk.Context, method *abi.Method, _ *vm.Contrac
 		return nil, err
 	}
 
-	// Returnt the response
-	return method.Outputs.Pack(res.Data)
+	// Return the response
+	return res.Data, nil
 }
 
 // QuerySmart is a precompile method that handles smart queries from the contract to the wasmd module
-func (p *Precompile) QuerySmart(ctx sdk.Context, method *abi.Method, _ *vm.Contract, args []interface{}) ([]byte, error) {
+func (p *Precompile) QuerySmart(ctx sdk.Context, method *abi.Method, args []interface{}) ([]byte, error) {
 	// Build the request from the arguments
 	req, err := ParseQuerySmartArgs(args)
 	if err != nil {
@@ -52,6 +51,6 @@ func (p *Precompile) QuerySmart(ctx sdk.Context, method *abi.Method, _ *vm.Contr
 		return nil, err
 	}
 
-	// Returnt the response
-	return method.Outputs.Pack(res.Data)
+	// Return the response
+	return res.Data, nil
 }
