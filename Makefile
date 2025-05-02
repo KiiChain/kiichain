@@ -400,26 +400,8 @@ proto-update-deps:
 ###                                  EVM                                    ###
 ###############################################################################
 
-# Paths and Tools
-PRECOMPILES_SRC = precompiles
-SOLC = solc
-
-# Check if solc is installed
-check-evm-tools:
-	@which $(SOLC) > /dev/null || (echo "Error: solc is not installed." && exit 1)
+PRECOMPILES_SRC = ./precompiles
 
 # Compile precompile artifacts
-compile-evm-precompiles: check-evm-tools
-	@for dir in $(PRECOMPILES_SRC)/*/; do \
-		for file in $$dir*.sol; do \
-			[ -f "$$file" ] || continue; \
-			echo "Compiling $$file"; \
-			$(SOLC) --abi $$file -o $$dir --overwrite; \
-			abi_file="$$dir$$(basename $$file .sol).abi"; \
-			if [ -f "$$abi_file" ]; then \
-				mv "$$abi_file" "$$dir/abi.json"; \
-			else \
-				echo "No ABI generated for $$file, skipping."; \
-			fi; \
-		done \
-	done
+compile-evm-precompiles:
+	@./precompiles/scripts/solc_to_hardhat.py $(PRECOMPILES_SRC)
