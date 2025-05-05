@@ -99,7 +99,10 @@ func (p Precompile) Execute(
 	}
 
 	// Emit the event
-	p.EmitEventContractExecuted(ctx, stateDB, msg.Contract, origin, msg.Msg)
+	err = p.EmitEventContractExecuted(ctx, stateDB, msg.Contract, origin, msg.Msg)
+	if err != nil {
+		return nil, err
+	}
 
 	// Return the response
 	return method.Outputs.Pack(res.Data)

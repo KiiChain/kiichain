@@ -16,7 +16,7 @@ import (
 type ContractInstantiatedEvent struct {
 	ContractAddress common.Hash
 	Caller          common.Address
-	CodeId          uint64
+	CodeID          uint64
 }
 
 // ContractExecutedEvent is the event emitted when a contract is executed

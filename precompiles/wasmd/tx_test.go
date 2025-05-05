@@ -170,7 +170,7 @@ func (s *WasmdPrecompileTestSuite) TestInstantiate() {
 				// Check if events were emitted
 				log := stateDB.Logs()[0] // Always zero index, since the db is initialized per test
 				event := s.Precompile.ABI.Events[wasmdprecompile.EventTypeContractInstantiated]
-				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(string(log.Topics[0].Hex())))
+				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
 				s.Require().Equal(log.BlockNumber, uint64(s.Ctx.BlockHeight()))
 
 				// Decode the event data and check
@@ -183,7 +183,7 @@ func (s *WasmdPrecompileTestSuite) TestInstantiate() {
 				s.Require().Equal(account.Addr, instantiateEvent.Caller)
 
 				// Check the event value
-				s.Require().Equal(tc.args[1], instantiateEvent.CodeId)
+				s.Require().Equal(tc.args[1], instantiateEvent.CodeID)
 			}
 		})
 	}
@@ -316,7 +316,7 @@ func (s *WasmdPrecompileTestSuite) TestExecute() {
 				// Check if events were emitted
 				log := stateDB.Logs()[0] // Always zero index, since the db is initialized per test
 				event := s.Precompile.ABI.Events[wasmdprecompile.EventTypeContractExecuted]
-				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(string(log.Topics[0].Hex())))
+				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
 				s.Require().Equal(log.BlockNumber, uint64(s.Ctx.BlockHeight()))
 
 				// Decode the event data and check
