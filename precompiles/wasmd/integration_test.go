@@ -37,6 +37,7 @@ type WasmdPrecompileTestSuite struct {
 	CounterCodeID  uint64
 }
 
+// TestWasmdPrecompileTestSuite runs all the tests under the wasmd pre-compile test suite
 func TestWasmdPrecompileTestSuite(t *testing.T) {
 	suite.Run(t, new(WasmdPrecompileTestSuite))
 }

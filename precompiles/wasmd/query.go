@@ -14,7 +14,7 @@ const (
 )
 
 // QueryRaw is a precompile method that handles raw queries from the contract to the wasmd module
-func (p *Precompile) QueryRaw(ctx sdk.Context, method *abi.Method, args []interface{}) ([]byte, error) {
+func (p *Precompile) QueryRaw(ctx sdk.Context, method *abi.Method, args []any) ([]byte, error) {
 	// Build the request from the arguments
 	req, err := ParseQueryRawArgs(args)
 	if err != nil {
@@ -35,7 +35,7 @@ func (p *Precompile) QueryRaw(ctx sdk.Context, method *abi.Method, args []interf
 }
 
 // QuerySmart is a precompile method that handles smart queries from the contract to the wasmd module
-func (p *Precompile) QuerySmart(ctx sdk.Context, method *abi.Method, args []interface{}) ([]byte, error) {
+func (p *Precompile) QuerySmart(ctx sdk.Context, method *abi.Method, args []any) ([]byte, error) {
 	// Build the request from the arguments
 	req, err := ParseQuerySmartArgs(args)
 	if err != nil {

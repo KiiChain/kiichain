@@ -39,6 +39,7 @@ func LoadABI() (abi.ABI, error) {
 	return cmn.LoadABI(f, "abi.json")
 }
 
+// NewPrecompile starts a new wasmd precompile
 func NewPrecompile(
 	wasmdKeeper wasmdkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
