@@ -67,13 +67,18 @@ import (
 	"github.com/kiichain/kiichain/v1/app/keepers"
 	"github.com/kiichain/kiichain/v1/app/upgrades"
 	"github.com/kiichain/kiichain/v1/client/docs"
+
+	v1_3 "github.com/kiichain/kiichain/v1/app/upgrades/v1_3"
 )
 
 var (
 	// DefaultNodeHome default home directories for the application daemon
 	DefaultNodeHome string
 
-	Upgrades = []upgrades.Upgrade{}
+	// Upgrades is a list of all the upgrades that are available for the application.
+	Upgrades = []upgrades.Upgrade{
+		v1_3.Upgrade,
+	}
 )
 
 var (
