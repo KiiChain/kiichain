@@ -9,6 +9,20 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// ContractInstantiatedEvent is the event emitted when a contract is instantiated
+type ContractInstantiatedEvent struct {
+	ContractAddress common.Hash
+	Caller          common.Address
+	CodeId          uint64
+}
+
+// ContractExecutedEvent is the event emitted when a contract is executed
+type ContractExecutedEvent struct {
+	ContractAddress common.Hash
+	Caller          common.Address
+	Msg             []byte
+}
+
 // ParseQueryRawArgs parses the arguments for the raw query method
 func ParseQueryRawArgs(args []interface{}) (*wasmtypes.QueryRawContractStateRequest, error) {
 	// Check the number of arguments, should be 2
@@ -83,31 +97,31 @@ func NewMsgInstantiate(
 
 	// Parse the first arg, the admin
 	admin, ok := args[0].(common.Address)
-	if !ok || admin == (common.Address{}) {
+	if !ok {
 		return nil, fmt.Errorf("invalid admin address")
 	}
 
 	// Parse the second arg, the code ID
 	codeID, ok := args[1].(uint64)
-	if !ok || codeID == 0 {
+	if !ok {
 		return nil, fmt.Errorf("invalid code ID")
 	}
 
 	// Parse the third arg, the label
 	label, ok := args[2].(string)
-	if !ok || label == "" {
+	if !ok {
 		return nil, fmt.Errorf("invalid label")
 	}
 
 	// Parse the fourth arg, the init message
 	msg, ok := args[3].([]byte)
-	if !ok || len(msg) == 0 {
+	if !ok {
 		return nil, fmt.Errorf("invalid init message")
 	}
 
 	// Parse the fifth arg, the funds
 	funds, ok := args[4].([]sdk.Coin)
-	if !ok || len(funds) == 0 {
+	if !ok {
 		return nil, fmt.Errorf("invalid funds")
 	}
 
@@ -116,15 +130,18 @@ func NewMsgInstantiate(
 	// Parse the admin address
 	adminAccAddress := sdk.AccAddress(admin.Bytes())
 
-	// Create the MsgInstantiateContract and return
-	return &wasmtypes.MsgInstantiateContract{
+	// Get the message
+	msgInstantiate := &wasmtypes.MsgInstantiateContract{
 		Sender: senderAccAddress.String(),
 		Admin:  adminAccAddress.String(),
 		CodeID: codeID,
 		Label:  label,
 		Msg:    msg,
 		Funds:  funds,
-	}, nil
+	}
+
+	// Create the MsgInstantiateContract and return
+	return msgInstantiate, msgInstantiate.ValidateBasic()
 }
 
 // NewMsgExecute creates a new execute message from args
@@ -139,30 +156,38 @@ func NewMsgExecute(
 
 	// Parse the first arg, the contract address
 	contractAddr, ok := args[0].(string)
-	if !ok || contractAddr == "" {
+	if !ok {
 		return nil, fmt.Errorf("invalid contract address")
+	}
+
+	// Check if the addr is a valid bech32 address
+	if _, err := sdk.AccAddressFromBech32(contractAddr); err != nil {
+		return nil, fmt.Errorf("invalid contract address: %w", err)
 	}
 
 	// Parse the second arg, the execute message
 	msg, ok := args[1].([]byte)
-	if !ok || len(msg) == 0 {
+	if !ok {
 		return nil, fmt.Errorf("invalid execute message")
 	}
 
 	// Parse the third arg, the funds
 	funds, ok := args[2].([]sdk.Coin)
-	if !ok || len(funds) == 0 {
+	if !ok {
 		return nil, fmt.Errorf("invalid funds")
 	}
 
 	// Parse the sender
 	senderAccAddress := sdk.AccAddress(sender.Bytes())
 
-	// Create the MsgExecuteContract and return
-	return &wasmtypes.MsgExecuteContract{
+	// Get the message
+	msgExecute := &wasmtypes.MsgExecuteContract{
 		Sender:   senderAccAddress.String(),
 		Contract: contractAddr,
 		Msg:      msg,
 		Funds:    funds,
-	}, nil
+	}
+
+	// Create the MsgExecuteContract and return
+	return msgExecute, msgExecute.ValidateBasic()
 }

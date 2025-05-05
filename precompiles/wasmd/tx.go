@@ -26,11 +26,8 @@ func (p Precompile) Instantiate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	// Get the contract caller
-	caller := contract.CallerAddress
-
 	// Create the instantiate message
-	msg, err := NewMsgInstantiate(caller, args)
+	msg, err := NewMsgInstantiate(origin, args)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +52,10 @@ func (p Precompile) Instantiate(
 	}
 
 	// Emit the event
-	p.EmitEventContractInstantiated(ctx, stateDB, res.Address, caller, msg.CodeID)
+	err = p.EmitEventContractInstantiated(ctx, stateDB, res.Address, origin, msg.CodeID)
+	if err != nil {
+		return nil, err
+	}
 
 	// Return the response
 	return method.Outputs.Pack(res.Address, res.Data)
@@ -70,11 +70,8 @@ func (p Precompile) Execute(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	// Get the contract caller
-	caller := contract.CallerAddress
-
 	// Create the execute message
-	msg, err := NewMsgExecute(caller, args)
+	msg, err := NewMsgExecute(origin, args)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +96,7 @@ func (p Precompile) Execute(
 	}
 
 	// Emit the event
-	p.EmitEventContractExecuted(ctx, stateDB, msg.Contract, caller, msg.Msg)
+	p.EmitEventContractExecuted(ctx, stateDB, msg.Contract, origin, msg.Msg)
 
 	// Return the response
 	return method.Outputs.Pack(res.Data)
