@@ -46,7 +46,7 @@
                 {
                     "indexed": false,
                     "internalType": "uint64",
-                    "name": "codeId",
+                    "name": "codeID",
                     "type": "uint64"
                 }
             ],
@@ -103,7 +103,7 @@
                 },
                 {
                     "internalType": "uint64",
-                    "name": "codeId",
+                    "name": "codeID",
                     "type": "uint64"
                 },
                 {

@@ -14,8 +14,8 @@ interface IWasmd {
     /// @dev This event is emitted when a contract is instantiated on the Wasmd protocol.
     /// @param contractAddress The address of the newly instantiated contract.
     /// @param caller The address of the caller that instantiated the contract.
-    /// @param codeId The code id of the contract.
-    event ContractInstantiated(string indexed contractAddress, address indexed caller, uint64 codeId);
+    /// @param codeID The code id of the contract.
+    event ContractInstantiated(string indexed contractAddress, address indexed caller, uint64 codeID);
 
     /// @dev This event is emitted when a contract is executed on the Wasmd protocol.
     /// @param contractAddress The address of the contract that was executed.
@@ -25,7 +25,7 @@ interface IWasmd {
 
     /// @dev This function is used to instantiate a new contract on the Wasmd protocol.
     /// @param admin The admin of the contract.
-    /// @param codeId The code id of the contract.
+    /// @param codeID The code id of the contract.
     /// @param label The label of the contract.
     /// @param msg The init message of the contract.
     /// @param coins The funds to be sent to the contract.
@@ -35,7 +35,7 @@ interface IWasmd {
         // the admin of the contract
         address admin,
         // the code id of the contract
-        uint64 codeId,
+        uint64 codeID,
         // the label of the contract
         string memory label,
         // the init message of the contract
