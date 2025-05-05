@@ -9,6 +9,9 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/x/vm/statedb"
+	"github.com/ethereum/go-ethereum/common"
 	app "github.com/kiichain/kiichain/v1/app"
 	helpers "github.com/kiichain/kiichain/v1/app/helpers"
 	wasmdprecompile "github.com/kiichain/kiichain/v1/precompiles/wasmd"
@@ -26,8 +29,9 @@ type WasmdPrecompileTestSuite struct {
 	suite.Suite
 
 	// App and context
-	App *app.KiichainApp
-	Ctx sdk.Context
+	App     *app.KiichainApp
+	Ctx     sdk.Context
+	keyring testkeyring.Keyring
 
 	// Precompile
 	Precompile *wasmdprecompile.Precompile
@@ -51,6 +55,10 @@ func (s *WasmdPrecompileTestSuite) SetupSuite() {
 	s.App = helpers.Setup(t)
 	s.Ctx = s.App.BaseApp.NewUncachedContext(true, tmtypes.Header{Height: 1, ChainID: "test_1010-1", Time: time.Now().UTC()})
 
+	// Start a new keyring
+	keyring := testkeyring.New(2)
+	s.keyring = keyring
+
 	// Store a counter smart contract
 	s.WasmdMsgServer = wasmdkeeper.NewMsgServerImpl(&s.App.WasmKeeper)
 	res, err := s.WasmdMsgServer.StoreCode(s.Ctx, &wasmtypes.MsgStoreCode{
@@ -67,4 +75,17 @@ func (s *WasmdPrecompileTestSuite) SetupSuite() {
 	pc, err := wasmdprecompile.NewPrecompile(s.App.WasmKeeper, s.App.AuthzKeeper)
 	s.Require().NoError(err)
 	s.Precompile = pc
+}
+
+// GetStateDB returns the state database for the precompile
+func (s *WasmdPrecompileTestSuite) GetStateDB() *statedb.StateDB {
+	// Get the header hash
+	headerHash := s.Ctx.HeaderHash()
+
+	// Return the statedb
+	return statedb.New(
+		s.Ctx,
+		s.App.EVMKeeper,
+		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash)),
+	)
 }
