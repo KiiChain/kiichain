@@ -22,7 +22,7 @@ const (
 func (p *Precompile) EmitEventContractInstantiated(ctx sdk.Context, stateDB vm.StateDB, contractAddress string, caller common.Address, codeID uint64) (err error) {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeContractInstantiated]
-	topics := make([]common.Hash, 4)
+	topics := make([]common.Hash, 3)
 
 	// The first topic is the signature of the event
 	topics[0] = event.ID
@@ -34,7 +34,7 @@ func (p *Precompile) EmitEventContractInstantiated(ctx sdk.Context, stateDB vm.S
 	}
 
 	// The third event is the caller address
-	topics[2], err = cmn.MakeTopic(caller.Hex())
+	topics[2], err = cmn.MakeTopic(caller)
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,13 @@ func (p *Precompile) EmitEventContractExecuted(ctx sdk.Context, stateDB vm.State
 	}
 
 	// The third event is the caller address
-	topics[2], err = cmn.MakeTopic(caller.Hex())
+	topics[2], err = cmn.MakeTopic(caller)
+	if err != nil {
+		return err
+	}
+
+	// Parse the data
+	dataField, err := p.ABI.Events[EventTypeContractExecuted].Inputs.NonIndexed().Pack(data)
 	if err != nil {
 		return err
 	}
@@ -79,7 +85,7 @@ func (p *Precompile) EmitEventContractExecuted(ctx sdk.Context, stateDB vm.State
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
 		Topics:      topics,
-		Data:        data,
+		Data:        dataField,
 		BlockNumber: uint64(ctx.BlockHeight()),
 	})
 
