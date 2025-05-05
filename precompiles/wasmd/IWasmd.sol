@@ -12,25 +12,24 @@ address constant WASMD_PRECOMPILER_ADDRESS = 0x000000000000000000000000000000000
 /// @custom:address 0x0000000000000000000000000000000000001001
 interface IWasmd {
     /// @dev This event is emitted when a contract is instantiated on the Wasmd protocol.
-    /// @param contractAddress The address of the newly instantiated contract.
     /// @param caller The address of the caller that instantiated the contract.
     /// @param codeID The code id of the contract.
-    event ContractInstantiated(string indexed contractAddress, address indexed caller, uint64 codeID);
+    /// @param contractAddress The address of the contract that was instantiated.
+    event ContractInstantiated(address indexed caller, uint64 indexed codeID, string contractAddress, bytes data);
 
     /// @dev This event is emitted when a contract is executed on the Wasmd protocol.
     /// @param contractAddress The address of the contract that was executed.
     /// @param caller The address of the caller that executed the contract.
-    /// @param msg The message that was sent to the contract.
-    event ContractExecuted(string indexed contractAddress, address indexed caller, bytes msg);
+    /// @param data The data returned from the contract execution.
+    event ContractExecuted(string indexed contractAddress, address indexed caller, bytes data);
 
     /// @dev This function is used to instantiate a new contract on the Wasmd protocol.
-    /// @param admin The admin of the contract.
+    /// @param admin The address of the admin of the contract.
     /// @param codeID The code id of the contract.
     /// @param label The label of the contract.
     /// @param msg The init message of the contract.
     /// @param coins The funds to be sent to the contract.
-    /// @return contractAddress The address of the newly instantiated contract.
-    /// @return data The data returned from the contract instantiation.
+    /// @return success A boolean indicating whether the instantiation was successful.
     function instantiate(
         // the admin of the contract
         address admin,
@@ -42,13 +41,13 @@ interface IWasmd {
         bytes memory msg,
         // the funds to be sent to the contract
         Coin[] memory coins
-    ) external returns (string memory contractAddress, bytes memory data);
+    ) external returns (bool success);
 
     /// @dev This function is used to execute a contract on the Wasmd protocol.
     /// @param contractAddress The address of the contract to execute.
     /// @param msg The message to send to the contract.
-    /// @param coins The funds to be sent to the contract.
-    /// @return data The data returned from the contract execution.
+    /// @param coins The funds to send to the contract.
+    /// @return success A boolean indicating whether the execution
     function execute(
         // the contract address to execute
         string memory contractAddress,
@@ -56,7 +55,7 @@ interface IWasmd {
         bytes memory msg,
         // the funds to send to the contract
         Coin[] memory coins
-    ) external returns (bytes memory data);
+    ) external returns (bool success);
 
     /// @dev This function is used to query a contract on the Wasmd protocol using a raw query.
     /// @param contractAddress The address of the contract to query.

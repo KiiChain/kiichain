@@ -21,7 +21,7 @@
                 {
                     "indexed": false,
                     "internalType": "bytes",
-                    "name": "msg",
+                    "name": "data",
                     "type": "bytes"
                 }
             ],
@@ -33,21 +33,27 @@
             "inputs": [
                 {
                     "indexed": true,
-                    "internalType": "string",
-                    "name": "contractAddress",
-                    "type": "string"
-                },
-                {
-                    "indexed": true,
                     "internalType": "address",
                     "name": "caller",
                     "type": "address"
                 },
                 {
-                    "indexed": false,
+                    "indexed": true,
                     "internalType": "uint64",
                     "name": "codeID",
                     "type": "uint64"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "string",
+                    "name": "contractAddress",
+                    "type": "string"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "bytes",
+                    "name": "data",
+                    "type": "bytes"
                 }
             ],
             "name": "ContractInstantiated",
@@ -86,9 +92,9 @@
             "name": "execute",
             "outputs": [
                 {
-                    "internalType": "bytes",
-                    "name": "data",
-                    "type": "bytes"
+                    "internalType": "bool",
+                    "name": "success",
+                    "type": "bool"
                 }
             ],
             "stateMutability": "nonpayable",
@@ -137,14 +143,9 @@
             "name": "instantiate",
             "outputs": [
                 {
-                    "internalType": "string",
-                    "name": "contractAddress",
-                    "type": "string"
-                },
-                {
-                    "internalType": "bytes",
-                    "name": "data",
-                    "type": "bytes"
+                    "internalType": "bool",
+                    "name": "success",
+                    "type": "bool"
                 }
             ],
             "stateMutability": "nonpayable",
