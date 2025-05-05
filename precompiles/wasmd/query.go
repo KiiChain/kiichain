@@ -1,9 +1,11 @@
 package wasmd
 
 import (
-	wasmdkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	wasmdkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 )
 
 const (

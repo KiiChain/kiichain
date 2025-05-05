@@ -3,11 +3,14 @@ package wasmd
 import (
 	"fmt"
 
-	wasmdkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/evm/x/vm/core/vm"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	wasmdkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+
+	"github.com/cosmos/evm/x/vm/core/vm"
 )
 
 const (

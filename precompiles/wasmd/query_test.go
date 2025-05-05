@@ -1,8 +1,10 @@
 package wasmd_test
 
 import (
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	wasmdprecompile "github.com/kiichain/kiichain/v1/precompiles/wasmd"
 )
 

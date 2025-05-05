@@ -3,10 +3,13 @@ package wasmd
 import (
 	"fmt"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/ethereum/go-ethereum/common"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
+	cmn "github.com/cosmos/evm/precompiles/common"
 )
 
 // ContractInstantiatedEvent is the event emitted when a contract is instantiated

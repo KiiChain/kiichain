@@ -1,21 +1,27 @@
 package wasmd_test
 
 import (
-	_ "embed"
 	"testing"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/stretchr/testify/suite"
+
+	_ "embed"
+
+	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	wasmdkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
 	"github.com/cosmos/evm/x/vm/statedb"
-	"github.com/ethereum/go-ethereum/common"
+
 	app "github.com/kiichain/kiichain/v1/app"
 	helpers "github.com/kiichain/kiichain/v1/app/helpers"
 	wasmdprecompile "github.com/kiichain/kiichain/v1/precompiles/wasmd"
-	"github.com/stretchr/testify/suite"
 )
 
 // CounterWasmCode is the bytecode of the counter smart contract

@@ -5,7 +5,6 @@ import (
 	"maps"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/kiichain/kiichain/v1/precompiles/wasmd"
 
 	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 
@@ -19,6 +18,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+
 	bankprecompile "github.com/cosmos/evm/precompiles/bank"
 	"github.com/cosmos/evm/precompiles/bech32"
 	distprecompile "github.com/cosmos/evm/precompiles/distribution"
@@ -32,6 +32,8 @@ import (
 	transferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 	"github.com/cosmos/evm/x/vm/core/vm"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
+
+	"github.com/kiichain/kiichain/v1/precompiles/wasmd"
 )
 
 const bech32PrecompileBaseGas = 6_000

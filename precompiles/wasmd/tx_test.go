@@ -1,11 +1,14 @@
 package wasmd_test
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	cmn "github.com/cosmos/evm/precompiles/common"
-	"github.com/cosmos/evm/precompiles/testutil"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	cmn "github.com/cosmos/evm/precompiles/common"
+	"github.com/cosmos/evm/precompiles/testutil"
+
 	wasmdprecompile "github.com/kiichain/kiichain/v1/precompiles/wasmd"
 )
 
