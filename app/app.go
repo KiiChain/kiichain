@@ -66,9 +66,8 @@ import (
 	kiiante "github.com/kiichain/kiichain/v1/ante"
 	"github.com/kiichain/kiichain/v1/app/keepers"
 	"github.com/kiichain/kiichain/v1/app/upgrades"
-	"github.com/kiichain/kiichain/v1/client/docs"
-
 	v1_3 "github.com/kiichain/kiichain/v1/app/upgrades/v1_3"
+	"github.com/kiichain/kiichain/v1/client/docs"
 )
 
 var (

@@ -3,11 +3,13 @@ package v1_3
 import (
 	"context"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/kiichain/kiichain/v1/app/keepers"
 	"github.com/kiichain/kiichain/v1/precompiles/wasmd"
 )

@@ -4,11 +4,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
+
 	"github.com/kiichain/kiichain/v1/app/helpers"
 	"github.com/kiichain/kiichain/v1/app/upgrades/v1_3"
 	"github.com/kiichain/kiichain/v1/precompiles/wasmd"
-	"github.com/stretchr/testify/require"
 )
 
 // TestUpgrade tests the upgrade handler for v1.3.0
