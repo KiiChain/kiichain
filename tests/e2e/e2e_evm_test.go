@@ -168,24 +168,20 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 		s.Require().False(strings.HasPrefix(balance, "0x0"))
 	})
 
+	// 5. Deploy contract
 	s.Run("create and interact w/ contract", func() {
-		// 5. Deploy contract
-		// body, err := deployContractViaPost(jsonRCP, evmAddress, []byte(CounterBinary))
-		// s.Require().NoError(err)
-
-		// s.T().Logf("Return from http post contract : %s", body)
-
 		// Prepare auth
 		auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1010))
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		// Set optional params (recommended)
-		auth.Value = big.NewInt(0)      // in wei
+		// Set optional params
+		auth.Value = big.NewInt(0)
 		auth.GasLimit = uint64(3000000) // gas limit
 		auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
 
+		// Deploy
 		contractAddress, tx, counter, err := mock.DeployCounter(auth, client)
 		s.Require().NoError(err)
 
@@ -199,9 +195,7 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 
 		counterValue, err := counter.GetCounter(nil)
 		s.Require().NoError(err)
-		s.T().Logf("Counter value: %s", counterValue)
-
-		// s.bumpCounterContract(client, key, evmAddress, contractAddress)
+		s.Require().Equal(big.NewInt(1), counterValue)
 	})
 }
 
