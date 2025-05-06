@@ -55,13 +55,13 @@ func (p Precompile) Instantiate(
 	}
 
 	// Emit the event
-	err = p.EmitEventContractInstantiated(ctx, stateDB, res.Address, origin, msg.CodeID)
+	err = p.EmitEventContractInstantiated(ctx, stateDB, origin, msg.CodeID, res.Address, res.Data)
 	if err != nil {
 		return nil, err
 	}
 
 	// Return the response
-	return method.Outputs.Pack(res.Address, res.Data)
+	return method.Outputs.Pack(true)
 }
 
 // Execute executes wasmd execute from the precompile
@@ -99,11 +99,11 @@ func (p Precompile) Execute(
 	}
 
 	// Emit the event
-	err = p.EmitEventContractExecuted(ctx, stateDB, msg.Contract, origin, msg.Msg)
+	err = p.EmitEventContractExecuted(ctx, stateDB, msg.Contract, origin, res.Data)
 	if err != nil {
 		return nil, err
 	}
 
 	// Return the response
-	return method.Outputs.Pack(res.Data)
+	return method.Outputs.Pack(true)
 }

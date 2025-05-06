@@ -1,9 +1,6 @@
 package wasmd
 
 import (
-	"bytes"
-	"reflect"
-
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -21,7 +18,7 @@ const (
 )
 
 // EmitEventContractInstantiated emits the ContractInstantiated event
-func (p *Precompile) EmitEventContractInstantiated(ctx sdk.Context, stateDB vm.StateDB, contractAddress string, caller common.Address, codeID uint64) (err error) {
+func (p *Precompile) EmitEventContractInstantiated(ctx sdk.Context, stateDB vm.StateDB, caller common.Address, codeID uint64, contractAddress string, data []byte) (err error) {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeContractInstantiated]
 	topics := make([]common.Hash, 3)
@@ -30,26 +27,28 @@ func (p *Precompile) EmitEventContractInstantiated(ctx sdk.Context, stateDB vm.S
 	topics[0] = event.ID
 
 	// The second event is the contract address
-	topics[1], err = cmn.MakeTopic(contractAddress)
+	topics[1], err = cmn.MakeTopic(caller)
 	if err != nil {
 		return err
 	}
 
 	// The third event is the caller address
-	topics[2], err = cmn.MakeTopic(caller)
+	topics[2], err = cmn.MakeTopic(codeID)
 	if err != nil {
 		return err
 	}
 
-	// Prepare the event data
-	var b bytes.Buffer
-	b.Write(cmn.PackNum(reflect.ValueOf(codeID)))
+	// Parse the data
+	dataField, err := p.ABI.Events[EventTypeContractInstantiated].Inputs.NonIndexed().Pack(contractAddress, data)
+	if err != nil {
+		return err
+	}
 
 	// Write to the stateDB
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
 		Topics:      topics,
-		Data:        b.Bytes(),
+		Data:        dataField,
 		BlockNumber: uint64(ctx.BlockHeight()),
 	})
 

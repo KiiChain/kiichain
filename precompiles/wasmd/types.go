@@ -2,8 +2,12 @@ package wasmd
 
 import (
 	"fmt"
+	"math/big"
+	"reflect"
 
 	"github.com/ethereum/go-ethereum/common"
+
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -14,16 +18,17 @@ import (
 
 // ContractInstantiatedEvent is the event emitted when a contract is instantiated
 type ContractInstantiatedEvent struct {
-	ContractAddress common.Hash
 	Caller          common.Address
 	CodeID          uint64
+	ContractAddress string
+	Data            []byte
 }
 
 // ContractExecutedEvent is the event emitted when a contract is executed
 type ContractExecutedEvent struct {
 	ContractAddress common.Hash
 	Caller          common.Address
-	Msg             []byte
+	Data            []byte
 }
 
 // ParseQueryRawArgs parses the arguments for the raw query method
@@ -123,9 +128,9 @@ func NewMsgInstantiate(
 	}
 
 	// Parse the fifth arg, the funds
-	funds, ok := args[4].([]sdk.Coin)
-	if !ok {
-		return nil, fmt.Errorf("invalid funds")
+	funds, err := ConvertEVMCoinsToSDKCoins(args[4])
+	if err != nil {
+		return nil, fmt.Errorf("invalid funds: %w", err)
 	}
 
 	// Parse the sender
@@ -175,9 +180,9 @@ func NewMsgExecute(
 	}
 
 	// Parse the third arg, the funds
-	funds, ok := args[2].([]sdk.Coin)
-	if !ok {
-		return nil, fmt.Errorf("invalid funds")
+	funds, err := ConvertEVMCoinsToSDKCoins(args[2])
+	if err != nil {
+		return nil, fmt.Errorf("invalid funds: %w", err)
 	}
 
 	// Parse the sender
@@ -193,4 +198,31 @@ func NewMsgExecute(
 
 	// Create the MsgExecuteContract and return
 	return msgExecute, msgExecute.ValidateBasic()
+}
+
+// ConvertEVMCoinsToSDKCoins converts a slice of EVM coins to SDK coins
+func ConvertEVMCoinsToSDKCoins(input any) ([]sdk.Coin, error) {
+	v := reflect.ValueOf(input)
+
+	// Check if the input is a slice
+	if v.Kind() != reflect.Slice {
+		return nil, fmt.Errorf("expected slice, got %T", input)
+	}
+
+	// Create the response
+	var coins []sdk.Coin
+	for i := 0; i < v.Len(); i++ {
+		// Get the item
+		item := v.Index(i)
+
+		// Get their fields
+		denom := item.FieldByName("Denom").String()
+		amount := item.FieldByName("Amount").Interface().(*big.Int)
+
+		// Add to the array as a new coin
+		coins = append(coins, sdk.NewCoin(denom, math.NewIntFromBigInt(amount)))
+	}
+
+	// Return the response
+	return coins, nil
 }
