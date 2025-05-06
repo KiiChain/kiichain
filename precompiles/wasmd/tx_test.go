@@ -34,7 +34,7 @@ func (s *WasmdPrecompileTestSuite) TestInstantiate() {
 				s.CounterCodeID,
 				"Perfectly fine label",
 				[]byte(`"zero"`),
-				[]sdk.Coin{},
+				[]cmn.Coin{},
 			},
 			expectedResData: []byte{},
 		},
@@ -98,7 +98,7 @@ func (s *WasmdPrecompileTestSuite) TestInstantiate() {
 				[]byte(`"zero"`),
 				"invalid",
 			},
-			errContains: "invalid funds",
+			errContains: "expected slice, got string",
 		},
 		{
 			name: "invalid cosmwasm msg",
@@ -107,7 +107,7 @@ func (s *WasmdPrecompileTestSuite) TestInstantiate() {
 				s.CounterCodeID,
 				"Perfectly fine label",
 				[]byte(`invalid`),
-				[]sdk.Coin{},
+				[]cmn.Coin{},
 			},
 			errContains: "payload msg: invalid",
 		},
@@ -118,7 +118,7 @@ func (s *WasmdPrecompileTestSuite) TestInstantiate() {
 				s.CounterCodeID,
 				"Perfectly fine label",
 				[]byte(`{"invalid": "call"}`),
-				[]sdk.Coin{},
+				[]cmn.Coin{},
 			},
 			errContains: "Error parsing into type counter::msg::CounterInitMsg: unknown variant",
 		},
@@ -146,26 +146,10 @@ func (s *WasmdPrecompileTestSuite) TestInstantiate() {
 				success, err := s.Precompile.Unpack(wasmdprecompile.InstantiateMethod, res)
 				s.Require().NoError(err)
 
-				contractAddress, ok := success[0].(string)
+				// Check if the call was a success
+				successCall, ok := success[0].(bool)
 				s.Require().True(ok)
-
-				// The address must be a valid bech32 address
-				contractAccAddress, err := sdk.AccAddressFromBech32(contractAddress)
-				s.Require().NoError(err)
-
-				// The response data must match the expected data
-				resData, ok := success[1].([]byte)
-				s.Require().True(ok)
-				s.Require().Equal(tc.expectedResData, resData)
-
-				// Now we can query the keeper and check if the contract was created
-				admin, ok := tc.args[0].(common.Address)
-				s.Require().True(ok)
-				contractInfo := s.App.WasmKeeper.GetContractInfo(s.Ctx, contractAccAddress)
-				s.Require().NotNil(contractInfo)
-				s.Require().Equal(sdk.AccAddress(admin.Bytes()).String(), contractInfo.Admin)
-				s.Require().Equal(s.CounterCodeID, tc.args[1])
-				s.Require().Equal(tc.args[2], contractInfo.Label)
+				s.Require().True(successCall)
 
 				// Check if events were emitted
 				log := stateDB.Logs()[0] // Always zero index, since the db is initialized per test
@@ -179,11 +163,21 @@ func (s *WasmdPrecompileTestSuite) TestInstantiate() {
 				s.Require().NoError(err)
 
 				// Check if the data match
-				s.Require().Equal(crypto.Keccak256Hash([]byte(contractAddress)), instantiateEvent.ContractAddress)
 				s.Require().Equal(account.Addr, instantiateEvent.Caller)
-
-				// Check the event value
 				s.Require().Equal(tc.args[1], instantiateEvent.CodeID)
+				s.Require().Equal(tc.expectedResData, instantiateEvent.Data)
+
+				// Get the contract from the response
+				contractAddr := instantiateEvent.ContractAddress
+
+				// Now we can query the keeper and check if the contract was created
+				admin, ok := tc.args[0].(common.Address)
+				s.Require().True(ok)
+				contractInfo := s.App.WasmKeeper.GetContractInfo(s.Ctx, sdk.MustAccAddressFromBech32(contractAddr))
+				s.Require().NotNil(contractInfo)
+				s.Require().Equal(sdk.AccAddress(admin.Bytes()).String(), contractInfo.Admin)
+				s.Require().Equal(s.CounterCodeID, tc.args[1])
+				s.Require().Equal(tc.args[2], contractInfo.Label)
 			}
 		})
 	}
@@ -212,7 +206,7 @@ func (s *WasmdPrecompileTestSuite) TestExecute() {
 			args: []any{
 				contractAddr,
 				[]byte(`{"set": 34}`),
-				[]sdk.Coin{},
+				[]cmn.Coin{},
 			},
 			expectedResData: []byte{},
 		},
@@ -257,14 +251,14 @@ func (s *WasmdPrecompileTestSuite) TestExecute() {
 				[]byte(`"invalid"`),
 				"invalid",
 			},
-			errContains: "invalid funds",
+			errContains: "expected slice, got string",
 		},
 		{
 			name: "invalid args - invalid execute msg",
 			args: []any{
 				contractAddr,
 				[]byte(`{`),
-				[]sdk.Coin{},
+				[]cmn.Coin{},
 			},
 			errContains: "payload msg: invalid",
 		},
@@ -273,7 +267,7 @@ func (s *WasmdPrecompileTestSuite) TestExecute() {
 			args: []any{
 				contractAddr,
 				[]byte(`"invalid"`),
-				[]sdk.Coin{},
+				[]cmn.Coin{},
 			},
 			errContains: "Error parsing into type counter::msg::CounterExecMsg: unknown variant",
 		},
@@ -302,9 +296,9 @@ func (s *WasmdPrecompileTestSuite) TestExecute() {
 				s.Require().NoError(err)
 
 				// The response data must match the expected data
-				resData, ok := success[0].([]byte)
+				successCall, ok := success[0].(bool)
 				s.Require().True(ok)
-				s.Require().Equal(tc.expectedResData, resData)
+				s.Require().True(successCall)
 
 				// Now we can query the keeper and check if the contract was executed
 				contractAccAddress, err := sdk.AccAddressFromBech32(contractAddr)
@@ -329,7 +323,7 @@ func (s *WasmdPrecompileTestSuite) TestExecute() {
 				s.Require().Equal(account.Addr, executeEvent.Caller)
 
 				// Check the event value
-				s.Require().Equal(tc.args[1], executeEvent.Msg)
+				s.Require().Equal(tc.expectedResData, executeEvent.Data)
 			}
 		})
 	}
