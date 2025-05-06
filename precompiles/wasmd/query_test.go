@@ -29,8 +29,9 @@ func (s *WasmdPrecompileTestSuite) TestQueryRaw() {
 			expValue: []byte("0"),
 		},
 		{
-			name: "valid query - no response (invalid address)",
-			args: []any{contract, []byte(`{"valid": "query"}`)},
+			name:     "valid query - no response (invalid address)",
+			args:     []any{contract, []byte(`{"valid": "query"}`)},
+			expValue: []byte{},
 		},
 		{
 			name:        "empty args",
