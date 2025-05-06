@@ -82,7 +82,7 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 	)
 
 	// Get a funded EVM account and check balance transactions
-	key := s.setupEVMwithFunds(jsonRCP, chainEndpoint, valIdx)
+	key, _ := s.setupEVMwithFunds(jsonRCP, chainEndpoint, valIdx)
 
 	// Setup client
 	client, err := ethclient.Dial(jsonRCP)
@@ -119,8 +119,66 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 	})
 }
 
+// testEVM Tests EVM send and contract usage
+func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
+	var (
+		err           error
+		valIdx        = 0
+		c             = s.chainA
+		chainEndpoint = fmt.Sprintf("http://%s", s.valResources[c.id][valIdx].GetHostPort("1317/tcp"))
+	)
+
+	// Get a funded EVM account and check balance transactions
+	key, evmAddress := s.setupEVMwithFunds(jsonRCP, chainEndpoint, valIdx)
+
+	// Setup client
+	client, err := ethclient.Dial(jsonRCP)
+	s.Require().NoError(err)
+
+	// Deploy ERC20 contract
+	s.Run("Deploy and interact w/ ERC20", func() {
+		// 1. Prepare auth
+		auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1010))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Set optional params
+		auth.Value = big.NewInt(0)
+		auth.GasLimit = uint64(3000000) // gas limit
+		auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
+
+		// 2. Deploy
+		contractAddress, tx, erc20, err := mock.DeployERC20Mock(auth, client)
+		s.Require().NoError(err)
+
+		s.waitForTransaction(client, tx)
+		s.T().Logf("ContractAddress : %s", contractAddress.String())
+
+		// 3. Test minting and balance change
+		amount := big.NewInt(1000000000000000000)
+		auth.Nonce = big.NewInt(int64(tx.Nonce() + 1)) //update nounce
+
+		// Mint some ammount
+		mintTx, err := erc20.Mint(auth, evmAddress, amount)
+		s.Require().NoError(err)
+		s.waitForTransaction(client, mintTx)
+
+		// Setup call options
+		callOpts := &bind.CallOpts{
+			Pending: false,
+			Context: context.Background(),
+		}
+
+		// Balance should have changed
+		newBalance, err := erc20.BalanceOf(callOpts, evmAddress)
+		s.Require().NoError(err)
+		s.Require().Equal(amount, newBalance)
+	})
+}
+
 // setupEVMwithFunds sets up a new EVM account and sends funds from Alice to it, checking balance changes
-func (s *IntegrationTestSuite) setupEVMwithFunds(jsonRCP, chainEndpoint string, valIdx int) *ecdsa.PrivateKey {
+func (s *IntegrationTestSuite) setupEVMwithFunds(jsonRCP, chainEndpoint string, valIdx int) (*ecdsa.PrivateKey, common.Address) {
 	// 1. Create new account
 	// Make a key
 	key, err := crypto.HexToECDSA("88cbead91aee890d27bf06e003ade3d4e952427e88f88d31d61d3ef5e5d54305")
@@ -209,14 +267,15 @@ func (s *IntegrationTestSuite) setupEVMwithFunds(jsonRCP, chainEndpoint string, 
 		// Balance should have something now
 		s.Require().False(strings.HasPrefix(balance, "0x0"))
 	})
-	return key
+	return key, evmAddress
 }
 
 // waitForTransaction waits until transaction is mined, requiring its success
-func (s *IntegrationTestSuite) waitForTransaction(client *ethclient.Client, tx *geth.Transaction) {
+func (s *IntegrationTestSuite) waitForTransaction(client *ethclient.Client, tx *geth.Transaction) *geth.Receipt {
 	receipt, err := bind.WaitMined(context.Background(), client, tx)
 	s.Require().NoError(err)
 	s.Require().False(receipt.Status == geth.ReceiptStatusFailed)
+	return receipt
 }
 
 // HexifyFuncAddress turns an ABI function address and turns it into a hex value
