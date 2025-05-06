@@ -132,4 +132,5 @@ func (s *IntegrationTestSuite) TestEVM() {
 	jsonRPC := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("8545/tcp"))
 	s.testEVMQueries(jsonRPC)
 	s.testEVM(jsonRPC)
+	s.testERC20(jsonRPC)
 }
