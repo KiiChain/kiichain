@@ -66,7 +66,16 @@ func (s *WasmdPrecompileTestSuite) TestQueryRaw() {
 				s.Require().Contains(err.Error(), tc.errContains)
 			} else {
 				s.Require().NoError(err)
-				s.Require().Equal(res, tc.expValue)
+
+				// Decode the response
+				resUnpacked, err := s.Precompile.Unpack(wasmdprecompile.QueryRawMethod, res)
+				s.Require().NoError(err)
+
+				// Get the response bytes
+				resBytes, ok := resUnpacked[0].([]byte)
+				s.Require().True(ok)
+
+				s.Require().Equal(resBytes, tc.expValue)
 			}
 		})
 	}
@@ -131,7 +140,16 @@ func (s *WasmdPrecompileTestSuite) TestQuerySmart() {
 				s.Require().Contains(err.Error(), tc.errContains)
 			} else {
 				s.Require().NoError(err)
-				s.Require().Equal(res, tc.expValue)
+
+				// Decode the response
+				resUnpacked, err := s.Precompile.Unpack(wasmdprecompile.QuerySmartMethod, res)
+				s.Require().NoError(err)
+
+				// Get the response bytes
+				resBytes, ok := resUnpacked[0].([]byte)
+				s.Require().True(ok)
+
+				s.Require().Equal(resBytes, tc.expValue)
 			}
 		})
 	}

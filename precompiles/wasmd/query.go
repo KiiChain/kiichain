@@ -33,7 +33,7 @@ func (p *Precompile) QueryRaw(ctx sdk.Context, method *abi.Method, args []any) (
 	}
 
 	// Return the response
-	return res.Data, nil
+	return method.Outputs.Pack(res.Data)
 }
 
 // QuerySmart is a precompile method that handles smart queries from the contract to the wasmd module
@@ -53,6 +53,9 @@ func (p *Precompile) QuerySmart(ctx sdk.Context, method *abi.Method, args []any)
 		return nil, err
 	}
 
+	// Get the response as bytes
+	responseBytes := res.Data.Bytes()
+
 	// Return the response
-	return res.Data, nil
+	return method.Outputs.Pack(responseBytes)
 }
