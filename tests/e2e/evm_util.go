@@ -7,12 +7,12 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	geth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
+// sendEVM does a send native coin via EVM
 func sendEVM(
 	client *ethclient.Client,
 	privateKey *ecdsa.PrivateKey,
@@ -24,6 +24,7 @@ func sendEVM(
 	return EVMTransaction(client, privateKey, fromAddress, toAddress, amount, nil)
 }
 
+// EVMTransaction builds up an evm_sendTransaction and returns its receipt
 func EVMTransaction(
 	client *ethclient.Client,
 	privateKey *ecdsa.PrivateKey,
@@ -50,21 +51,12 @@ func EVMTransaction(
 		return geth.Receipt{}, fmt.Errorf("failed to get chain ID: %w", err)
 	}
 
-	// Estimate gas
-	// estimatedGas, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
-	// 	From: fromAddress,
-	// 	Data: contractBinary,
-	// })
-	// if err != nil {
-	// 	return geth.Receipt{}, fmt.Errorf("gas estimation failed: %v", err)
-	// }
-
 	// Create the transaction
 	tx := geth.NewTransaction(
 		nonce,
 		toAddress,
 		amount,
-		1500000,
+		1500000, // gas limit
 		gasPrice,
 		contractBinary, // contract bytes
 	)
@@ -93,18 +85,7 @@ func EVMTransaction(
 	return *receipt, nil
 }
 
-func EVMCallContract(
-	client *ethclient.Client,
-	contractAddress common.Address,
-	data []byte,
-) ([]byte, error) {
-	msg := ethereum.CallMsg{
-		To:   &contractAddress,
-		Data: data,
-	}
-	return client.CallContract(context.Background(), msg, nil)
-}
-
+// checkTransactionByHash returns a receipt from a given tx hash
 func checkTransactionByHash(client *ethclient.Client, txHash common.Hash) (*geth.Transaction, *geth.Receipt, error) {
 	// Get the transaction details
 	tx, isPending, err := client.TransactionByHash(context.Background(), txHash)
