@@ -1,4 +1,4 @@
-package v1_3
+package v130
 
 import (
 	"github.com/kiichain/kiichain/v1/app/upgrades"

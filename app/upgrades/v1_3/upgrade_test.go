@@ -1,4 +1,4 @@
-package v1_3_test
+package v130_test
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/kiichain/kiichain/v1/app/helpers"
-	"github.com/kiichain/kiichain/v1/app/upgrades/v1_3"
+	v130 "github.com/kiichain/kiichain/v1/app/upgrades/v1_3"
 	"github.com/kiichain/kiichain/v1/precompiles/wasmd"
 )
 
@@ -32,7 +32,7 @@ func TestUpgrade(t *testing.T) {
 	require.NoError(t, err)
 
 	// Now run add wasmd upgrade
-	err = v1_3.InstallNewPrecompile(ctx, &app.AppKeepers)
+	err = v130.InstallNewPrecompile(ctx, &app.AppKeepers)
 	require.NoError(t, err)
 
 	// Get the params again
