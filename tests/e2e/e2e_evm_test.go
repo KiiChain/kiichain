@@ -10,6 +10,7 @@ import (
 	"log"
 	"math/big"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -135,28 +136,26 @@ func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
 	client, err := ethclient.Dial(jsonRCP)
 	s.Require().NoError(err)
 
-	// Deploy ERC20 contract
-	s.Run("Deploy and interact w/ ERC20", func() {
-		// 1. Prepare auth
-		auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1010))
-		if err != nil {
-			log.Fatal(err)
-		}
+	// 1. Deploy ERC20 contract
+	// Prepare auth
+	auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1010))
+	if err != nil {
+		log.Fatal(err)
+	}
 
-		// Set optional params
-		auth.Value = big.NewInt(0)
-		auth.GasLimit = uint64(3000000) // gas limit
-		auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
+	// Set optional params
+	auth.Value = big.NewInt(0)
+	auth.GasLimit = uint64(3000000) // gas limit
+	auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
 
-		// 2. Deploy
-		contractAddress, tx, erc20, err := mock.DeployERC20Mock(auth, client)
-		s.Require().NoError(err)
+	// Deploy
+	contractAddress, tx, erc20, err := mock.DeployERC20Mock(auth, client)
+	s.Require().NoError(err)
+	s.waitForTransaction(client, tx)
 
-		s.waitForTransaction(client, tx)
-		s.T().Logf("ContractAddress : %s", contractAddress.String())
-
-		// 3. Test minting and balance change
-		amount := big.NewInt(1000000000000000000)
+	// Test minting and balance change
+	amount := big.NewInt(1000000000000000000)
+	s.Run("Interact w/ ERC20", func() {
 		auth.Nonce = big.NewInt(int64(tx.Nonce() + 1)) //update nounce
 
 		// Mint some ammount
@@ -174,6 +173,20 @@ func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
 		newBalance, err := erc20.BalanceOf(callOpts, evmAddress)
 		s.Require().NoError(err)
 		s.Require().Equal(amount, newBalance)
+	})
+
+	chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
+	senderAddress, _ := s.chainA.validators[0].keyInfo.GetAddress()
+	sender := senderAddress.String()
+
+	s.Run("Register ERC20 proposal", func() {
+		proposalCounter++
+		s.writeERC20RegisterProposal(c, contractAddress)
+		submitGovFlags := []string{configFile(proposalRegisterERC20)}
+
+		depositGovFlags := []string{strconv.Itoa(proposalCounter), depositAmount.String()}
+		voteGovFlags := []string{strconv.Itoa(proposalCounter), "yes"}
+		s.submitGovProposal(chainAAPIEndpoint, sender, proposalCounter, "RegisterERC20", submitGovFlags, depositGovFlags, voteGovFlags, "vote")
 	})
 }
 
