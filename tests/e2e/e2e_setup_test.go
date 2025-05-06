@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/spf13/viper"
@@ -71,6 +72,7 @@ const (
 	proposalExpeditedSoftwareUpgrade = "proposal_expedited_software_upgrade.json"
 	proposalSoftwareUpgrade          = "proposal_software_upgrade.json"
 	proposalCancelSoftwareUpgrade    = "proposal_cancel_software_upgrade.json"
+	proposalRegisterERC20            = "proposal_register_erc20.json"
 
 	hermesBinary              = "hermes"
 	hermesConfigWithGasPrices = "/root/.hermes/config.toml"
@@ -782,6 +784,29 @@ func (s *IntegrationTestSuite) writeExpeditedSoftwareUpgradeProp(c *chain) {
 }`
 
 	err := writeFile(filepath.Join(c.validators[0].configDir(), "config", proposalExpeditedSoftwareUpgrade), []byte(body))
+	s.Require().NoError(err)
+}
+
+func (s *IntegrationTestSuite) writeERC20RegisterProposal(c *chain, erc20Address common.Address) {
+	body := `{
+		"messages": [
+		 {
+		  "@type": "/cosmos.evm.erc20.v1.MsgRegisterERC20",
+		  "authority": "kii10d07y265gmmuvt4z0w9aw880jnsr700jrff0qv",
+		  "erc20addresses": [
+		    "%s"
+		  ]
+		 }
+		],
+		"metadata": "ipfs://CID",
+		"deposit": "100akii",
+		"title": "title",
+		"summary": "test"
+	   }`
+
+	propMsgBody := fmt.Sprintf(body, erc20Address.String())
+
+	err := writeFile(filepath.Join(c.validators[0].configDir(), "config", proposalRegisterERC20), []byte(propMsgBody))
 	s.Require().NoError(err)
 }
 
