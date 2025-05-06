@@ -66,7 +66,7 @@ interface IWasmd {
         string memory contractAddress,
         // the message to send to the contract
         bytes memory queryData
-    ) external returns (bytes memory data);
+    ) external view returns (bytes memory data);
 
     /// @dev This function is used to query a contract on the Wasmd protocol using a smart query.
     /// @param contractAddress The address of the contract to query.
@@ -77,5 +77,5 @@ interface IWasmd {
         string memory contractAddress,
         // the message to send to the contract
         bytes memory msg
-    ) external returns (bytes memory data);
+    ) external view returns (bytes memory data);
 }
