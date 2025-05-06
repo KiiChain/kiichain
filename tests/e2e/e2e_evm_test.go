@@ -156,9 +156,9 @@ func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
 	// Test minting and balance change
 	amount := big.NewInt(1000000000000000000)
 	s.Run("Interact w/ ERC20", func() {
-		auth.Nonce = big.NewInt(int64(tx.Nonce() + 1)) //update nounce
+		auth.Nonce = big.NewInt(int64(tx.Nonce() + 1)) // update nounce
 
-		// Mint some ammount
+		// Mint some amount
 		mintTx, err := erc20.Mint(auth, evmAddress, amount)
 		s.Require().NoError(err)
 		s.waitForTransaction(client, mintTx)
