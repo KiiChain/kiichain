@@ -3,6 +3,7 @@ package e2e
 import (
 	"bytes"
 	"context"
+	"crypto/ecdsa"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -31,6 +32,7 @@ const (
 	CounterBinary = "6080604052348015600e575f5ffd5b505f805560ce80601d5f395ff3fe6080604052348015600e575f5ffd5b50600436106030575f3560e01c80638ada066e146034578063d09de08a146048575b5f5ffd5b5f5460405190815260200160405180910390f35b604e6050565b005b60015f5f828254605f91906066565b9091555050565b8082018281125f831280158216821582161715609057634e487b7160e01b5f52601160045260245ffd5b50509291505056fea26469706673582212202eb4042585c41ce4809327e6d7a60c017098a1ca09ffc5893f6360047a5354b564736f6c634300081d0033"
 )
 
+// testEVMQueries Test EVM queries
 func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
 	s.Run("eth_blockNumber", func() {
 		res, err := httpEVMPostJSON(jsonRCP, "eth_blockNumber", []interface{}{})
@@ -70,6 +72,7 @@ func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
 	})
 }
 
+// testEVM Tests EVM send and contract usage
 func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 	var (
 		err           error
@@ -78,6 +81,46 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 		chainEndpoint = fmt.Sprintf("http://%s", s.valResources[c.id][valIdx].GetHostPort("1317/tcp"))
 	)
 
+	// Get a funded EVM account and check balance transactions
+	key := s.setupEVMwithFunds(jsonRCP, chainEndpoint, valIdx)
+
+	// Setup client
+	client, err := ethclient.Dial(jsonRCP)
+	s.Require().NoError(err)
+
+	// Deploy contract
+	s.Run("create and interact w/ contract", func() {
+		// Prepare auth
+		auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1010))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Set optional params
+		auth.Value = big.NewInt(0)
+		auth.GasLimit = uint64(3000000) // gas limit
+		auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
+
+		// Deploy
+		contractAddress, tx, counter, err := mock.DeployCounter(auth, client)
+		s.Require().NoError(err)
+
+		s.waitForTransaction(client, tx)
+		s.T().Logf("ContractAddress : %s", contractAddress.String())
+
+		// 6. Interact w/ contract and see changes
+		tx, err = counter.Increment(auth)
+		s.Require().NoError(err)
+		s.waitForTransaction(client, tx)
+
+		counterValue, err := counter.GetCounter(nil)
+		s.Require().NoError(err)
+		s.Require().Equal(big.NewInt(1), counterValue)
+	})
+}
+
+// setupEVMwithFunds sets up a new EVM account and sends funds from Alice to it, checking balance changes
+func (s *IntegrationTestSuite) setupEVMwithFunds(jsonRCP, chainEndpoint string, valIdx int) *ecdsa.PrivateKey {
 	// 1. Create new account
 	// Make a key
 	key, err := crypto.HexToECDSA("88cbead91aee890d27bf06e003ade3d4e952427e88f88d31d61d3ef5e5d54305")
@@ -117,7 +160,6 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 	s.execBankSend(s.chainA, valIdx, alice.String(), cosmosAddress, tokenAmount.String(), standardFees.String(), false)
 
 	var newBalance sdk.Coin
-
 	// Get balances of sender and recipient accounts
 	s.Require().Eventually(
 		func() bool {
@@ -167,38 +209,10 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 		// Balance should have something now
 		s.Require().False(strings.HasPrefix(balance, "0x0"))
 	})
-
-	// 5. Deploy contract
-	s.Run("create and interact w/ contract", func() {
-		// Prepare auth
-		auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1010))
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// Set optional params
-		auth.Value = big.NewInt(0)
-		auth.GasLimit = uint64(3000000) // gas limit
-		auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
-
-		// Deploy
-		contractAddress, tx, counter, err := mock.DeployCounter(auth, client)
-		s.Require().NoError(err)
-
-		s.waitForTransaction(client, tx)
-		s.T().Logf("ContractAddress : %s", contractAddress.String())
-
-		// 6. Interact w/ contract and see changes
-		tx, err = counter.Increment(auth)
-		s.Require().NoError(err)
-		s.waitForTransaction(client, tx)
-
-		counterValue, err := counter.GetCounter(nil)
-		s.Require().NoError(err)
-		s.Require().Equal(big.NewInt(1), counterValue)
-	})
+	return key
 }
 
+// waitForTransaction waits until transaction is mined, requiring its success
 func (s *IntegrationTestSuite) waitForTransaction(client *ethclient.Client, tx *geth.Transaction) {
 	receipt, err := bind.WaitMined(context.Background(), client, tx)
 	s.Require().NoError(err)
