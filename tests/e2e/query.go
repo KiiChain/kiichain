@@ -147,20 +147,20 @@ func queryGovProposal(endpoint string, proposalID int) (govtypesv1beta1.QueryPro
 	return govProposalResp, nil
 }
 
-func queryStakingPool(endpoint string) (stakingtypes.QueryPoolResponse, error) {
-	var stakingPoolResp stakingtypes.QueryPoolResponse
+func queryGovParam(endpoint string) (stakingtypes.QueryPoolResponse, error) {
+	var govParamResp stakingtypes.QueryPoolResponse
 
 	path := fmt.Sprintf("%s/cosmos/gov/v1beta1/params", endpoint)
 
 	body, err := httpGet(path)
 	if err != nil {
-		return stakingPoolResp, fmt.Errorf("failed to execute HTTP request: %w", err)
+		return govParamResp, fmt.Errorf("failed to execute HTTP request: %w", err)
 	}
-	if err := cdc.UnmarshalJSON(body, &stakingPoolResp); err != nil {
-		return stakingPoolResp, err
+	if err := cdc.UnmarshalJSON(body, &govParamResp); err != nil {
+		return govParamResp, err
 	}
 
-	return stakingPoolResp, nil
+	return govParamResp, nil
 }
 
 func queryGovTallingParam(endpoint string) ([]byte, error) {
