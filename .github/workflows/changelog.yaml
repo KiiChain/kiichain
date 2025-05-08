@@ -1,0 +1,16 @@
+name: Changelog Linter
+
+on:
+  pull_request:
+    branches:
+      - main
+permissions: read-all
+
+jobs:
+  check_diff:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Changelog for changes
+        uses: tarides/changelog-check-action@v3
+        with:
+          changelog: CHANGELOG.md
