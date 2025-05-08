@@ -18,6 +18,7 @@ var (
 	runRestInterfacesTest         = true
 	runRateLimitTest              = true
 	runEVMTest                    = true
+	runERC20Test                  = true
 
 	// skipIBCTests skips tests that uses IBC
 	skipIBCTests = os.Getenv("SKIP_IBC_TESTS") == "true"
@@ -121,6 +122,7 @@ func (s *IntegrationTestSuite) TestRateLimit() {
 	s.testRemoveRateLimit()
 }
 
+// TestEVM runs basic EVM tests. It is skipped if the variable is set
 func (s *IntegrationTestSuite) TestEVM() {
 	if !runEVMTest {
 		s.T().Skip()
@@ -128,5 +130,13 @@ func (s *IntegrationTestSuite) TestEVM() {
 	jsonRPC := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("8545/tcp"))
 	s.testEVMQueries(jsonRPC)
 	s.testEVM(jsonRPC)
+}
+
+// TestERC20 runs the ERC20 tests. It is skipped if the variable is set
+func (s *IntegrationTestSuite) TestERC20() {
+	if !runERC20Test {
+		s.T().Skip()
+	}
+	jsonRPC := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("8545/tcp"))
 	s.testERC20(jsonRPC)
 }
