@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
 	erc20types "github.com/cosmos/evm/x/erc20/types"
+
 	"github.com/kiichain/kiichain/v1/tests/e2e/mock"
 )
 
