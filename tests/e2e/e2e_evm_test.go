@@ -153,13 +153,22 @@ func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
 	s.Require().NoError(err)
 	s.waitForTransaction(client, tx)
 
+	// Setup alice information
+	publicKey, err := s.chainA.genesisAccounts[1].keyInfo.GetPubKey()
+	s.Require().NoError(err)
+	aliceEvmAddress, err := CosmosPubKeyToEVMAddress(publicKey)
+	s.Require().NoError(err)
+	alice, err := s.chainA.genesisAccounts[1].keyInfo.GetAddress()
+	s.Require().NoError(err)
+
 	// Test minting and balance change
 	amount := big.NewInt(1000000000000000000)
+	doubleAmount := big.NewInt(2000000000000000000)
 	s.Run("Interact w/ ERC20", func() {
 		auth.Nonce = big.NewInt(int64(tx.Nonce() + 1)) // update nounce
 
 		// Mint some amount
-		mintTx, err := erc20.Mint(auth, evmAddress, amount)
+		mintTx, err := erc20.Mint(auth, evmAddress, doubleAmount)
 		s.Require().NoError(err)
 		s.waitForTransaction(client, mintTx)
 
@@ -172,7 +181,17 @@ func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
 		// Balance should have changed
 		newBalance, err := erc20.BalanceOf(callOpts, evmAddress)
 		s.Require().NoError(err)
-		s.Require().Equal(amount, newBalance)
+		s.Require().Equal(doubleAmount, newBalance)
+
+		// Transfer some to alice
+		auth.Nonce = big.NewInt(int64(mintTx.Nonce() + 1)) // update nounce
+		transferTx, err := erc20.Transfer(auth, aliceEvmAddress, amount)
+		s.Require().NoError(err)
+		s.waitForTransaction(client, transferTx)
+
+		aliceBalance, err := erc20.BalanceOf(callOpts, aliceEvmAddress)
+		s.Require().NoError(err)
+		s.Require().Equal(amount, aliceBalance)
 	})
 
 	chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
@@ -187,6 +206,19 @@ func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
 		depositGovFlags := []string{strconv.Itoa(proposalCounter), depositAmount.String()}
 		voteGovFlags := []string{strconv.Itoa(proposalCounter), "yes"}
 		s.submitGovProposal(chainAAPIEndpoint, sender, proposalCounter, "RegisterERC20", submitGovFlags, depositGovFlags, voteGovFlags, "vote")
+	})
+
+	s.Run("ConvertERC20 to native", func() {
+		// Convert amount to native coins
+		s.convertERC20(c, valIdx, contractAddress, alice.String(), amount)
+
+		// Get specific erc20 native balance
+		denom := fmt.Sprintf("erc20/%s", contractAddress)
+		erc20Balance, err := getSpecificBalance(chainAAPIEndpoint, alice.String(), denom)
+		s.Require().NoError(err)
+		s.T().Logf("ERC20 Balance: %s", erc20Balance)
+		// converting to string since one is big int and the other is math int
+		s.Require().Equal(amount.String(), erc20Balance.Amount.String())
 	})
 }
 
