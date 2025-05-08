@@ -1,0 +1,36 @@
+name: "CodeQL"
+
+on:
+  pull_request:
+    paths:
+      - "**.go"
+  push:
+    branches:
+      - main
+    paths:
+      - "**.go"
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version: "1.23"
+        check-latest: true
+   
+   # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: "go"
+        queries: +security-and-quality,github/codeql/go/ql/src/experimental/InconsistentCode/DeferInLoop.ql@main,github/codeql/go/ql/src/experimental/Unsafe/WrongUsageOfUnsafe.ql@main,github/codeql/go/ql/src/experimental/CWE-369/DivideByZero.ql@main
+        packs: +crypto-com/cosmos-sdk-codeql
