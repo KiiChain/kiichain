@@ -54,6 +54,7 @@ jobs:
           path: ./profile.txt
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
+        if: env.GIT_DIFF
         with:
           files: ./profile.txt
           token: ${{ secrets.CODECOV_TOKEN }}
