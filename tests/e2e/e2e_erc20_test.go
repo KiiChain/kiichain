@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -143,4 +144,28 @@ func (s *IntegrationTestSuite) convertERC20(c *chain, valIdx int, contractAddres
 	}
 
 	s.executeKiichainTxCommand(ctx, c, kiichainCommand, valIdx, s.defaultExecValidation(c, valIdx))
+}
+
+// writeERC20RegisterProposal stores a file with the ERC20 Register proposal
+func (s *IntegrationTestSuite) writeERC20RegisterProposal(c *chain, erc20Address common.Address) {
+	body := `{
+		"messages": [
+		 {
+		  "@type": "/cosmos.evm.erc20.v1.MsgRegisterERC20",
+		  "authority": "kii10d07y265gmmuvt4z0w9aw880jnsr700jrff0qv",
+		  "erc20addresses": [
+		    "%s"
+		  ]
+		 }
+		],
+		"metadata": "ipfs://CID",
+		"deposit": "100akii",
+		"title": "title",
+		"summary": "test"
+	   }`
+
+	propMsgBody := fmt.Sprintf(body, erc20Address.String())
+
+	err := writeFile(filepath.Join(c.validators[0].configDir(), "config", proposalRegisterERC20), []byte(propMsgBody))
+	s.Require().NoError(err)
 }
