@@ -46,16 +46,16 @@ jobs:
       - name: test & coverage report creation
         if: env.GIT_DIFF
         run: |
-          go test -v -coverprofile=profile.out -covermode=atomic -coverpkg=./... $(go list ./... | grep -v -e '/tests/e2e' | grep -v -e '/tests/interchain')
+          go test -v -coverprofile=profile.txt -covermode=atomic -coverpkg=./... $(go list ./... | grep -v -e '/tests/e2e' | grep -v -e '/tests/interchain')
       - uses: actions/upload-artifact@v4
         if: env.GIT_DIFF
         with:
           name: "${{ github.sha }}-coverage"
-          path: ./profile.out
+          path: ./profile.txt
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          files: ./profile.out
+          files: ./profile.txt
           token: ${{ secrets.CODECOV_TOKEN }}
 
   repo-analysis:
