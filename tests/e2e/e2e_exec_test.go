@@ -6,10 +6,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ory/dockertest/v3/docker"
 
 	"cosmossdk.io/x/feegrant"
@@ -22,6 +24,8 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	erc20types "github.com/cosmos/evm/x/erc20/types"
 )
 
 const (
@@ -764,4 +768,27 @@ func (s *IntegrationTestSuite) defaultExecValidation(chain *chain, valIdx int) f
 		}
 		return false
 	}
+}
+
+func (s *IntegrationTestSuite) convertERC20(c *chain, valIdx int, contractAddress common.Address, sender string, amount *big.Int) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	kiichainCommand := []string{
+		kiichaindBinary,
+		txCommand,
+		erc20types.ModuleName,
+		"convert-erc20",
+		contractAddress.String(),
+		amount.String(), // not a coin
+		fmt.Sprintf("--from=%s", sender),
+		fmt.Sprintf("--%s=%s", flags.FlagChainID, c.id),
+		fmt.Sprintf("--%s=%s", flags.FlagGasPrices, "300000000akii"),
+		fmt.Sprintf("--%s=%s", flags.FlagGas, "5000000"),
+		"--keyring-backend=test",
+		"--output=json",
+		"-y",
+	}
+
+	s.executeKiichainTxCommand(ctx, c, kiichainCommand, valIdx, s.defaultExecValidation(c, valIdx))
 }
