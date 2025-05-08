@@ -395,3 +395,13 @@ proto-update-deps:
 	$(DOCKER) run --rm -v $(CURDIR)/proto:/workspace --workdir /workspace $(protoImageName) buf mod update
 
 .PHONY: proto-all proto-gen proto-swagger-gen proto-format proto-lint proto-check-breaking proto-update-deps
+
+###############################################################################
+###                                  EVM                                    ###
+###############################################################################
+
+PRECOMPILES_SRC = ./precompiles
+
+# Compile precompile artifacts
+compile-evm-precompiles:
+	@./precompiles/scripts/solc_to_hardhat.py $(PRECOMPILES_SRC)

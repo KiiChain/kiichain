@@ -43,6 +43,9 @@ const (
 	missingPath                         = "/missing_endpoint"
 	localMinGasPriceQueryPath           = "/cosmos/base/node/v1beta1/config"
 
+	// Wasm endpoints
+	wasmParamsPath = "/cosmwasm/wasm/v1/codes/params"
+
 	// EVM endpoints
 	evmBaseFee        = "/cosmos/evm/vm/v1/base_fee"
 	evmParams         = "/cosmos/evm/vm/v1/params"
@@ -95,6 +98,7 @@ func (s *IntegrationTestSuite) testRestInterfaces() {
 				{feeMarketBlockGas, 200},
 				{erc20Params, 200},
 				{erc20TokenPairs, 200},
+				{wasmParamsPath, 200},
 			}
 		)
 
