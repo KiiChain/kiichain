@@ -8,8 +8,9 @@ import (
 	"path/filepath"
 	"time"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 )
 
 // testWasmdCounter runs the wasm tests
@@ -44,7 +45,7 @@ func (s *IntegrationTestSuite) testWasmdCounter() {
 	s.WasmdInstantiateCLI(s.chainA, valIdx, from, 1, `"zero"`, "counter", from, standardFees.String(), false)
 
 	// Query contract address
-	contractAddress, err := s.queryWasmContractAddressAPI(chainEndpoint, from, 1, 0)
+	contractAddress, err := s.queryWasmContractAddressAPI(chainEndpoint, from, 0)
 	s.Require().NoError(err)
 	s.Require().NotEmpty(contractAddress)
 
@@ -147,7 +148,7 @@ func (s *IntegrationTestSuite) WasmdStoreCLI(c *chain, valIdx int, from, contrac
 }
 
 // queryWasmContractAddressAPI queries the contract address using the API
-func (s *IntegrationTestSuite) queryWasmContractAddressAPI(endpoint, creator string, codeID int, contractIdx int) (string, error) {
+func (s *IntegrationTestSuite) queryWasmContractAddressAPI(endpoint, creator string, contractIdx int) (string, error) {
 	// Create the request and get the response
 	body, err := httpGet(fmt.Sprintf("%s/cosmwasm/wasm/v1/contracts/creator/%s", endpoint, creator))
 	if err != nil {
