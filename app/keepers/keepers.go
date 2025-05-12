@@ -504,7 +504,7 @@ func NewAppKeeper(
 		bApp.GRPCQueryRouter(),
 		wasmDir,
 		wasmConfig,
-		wasmkeeper.BuiltInCapabilities(),
+		append(wasmkeeper.BuiltInCapabilities(), "kiichain"),
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		wasmOpts...,
 	)
