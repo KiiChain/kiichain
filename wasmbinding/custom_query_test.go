@@ -1,4 +1,4 @@
-package bindings_test
+package wasmbinding_test
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	app "github.com/kiichain/kiichain/v1/app"
-	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
+	bindings "github.com/kiichain/kiichain/v1/wasmbinding/types"
 )
 
 func TestQueryFullDenom(t *testing.T) {

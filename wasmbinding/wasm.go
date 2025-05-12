@@ -1,4 +1,4 @@
-package bindings
+package wasmbinding
 
 import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"

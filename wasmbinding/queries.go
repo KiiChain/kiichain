@@ -1,4 +1,4 @@
-package bindings
+package wasmbinding
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	bindingstypes "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
+	bindingstypes "github.com/kiichain/kiichain/v1/wasmbinding/types"
 	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
 )
 

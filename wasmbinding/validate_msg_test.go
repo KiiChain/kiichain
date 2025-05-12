@@ -1,4 +1,4 @@
-package bindings_test
+package wasmbinding_test
 
 import (
 	"fmt"
@@ -10,8 +10,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	wasmbinding "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings"
-	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
+	wasmbinding "github.com/kiichain/kiichain/v1/wasmbinding"
+	bindings "github.com/kiichain/kiichain/v1/wasmbinding/types"
 	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 

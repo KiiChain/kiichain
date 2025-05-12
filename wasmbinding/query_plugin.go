@@ -1,4 +1,4 @@
-package bindings
+package wasmbinding
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bindingstypes "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
+	bindingstypes "github.com/kiichain/kiichain/v1/wasmbinding/types"
 )
 
 // CustomQuerier dispatches custom CosmWasm bindings queries.

@@ -1,4 +1,4 @@
-package bindings_test
+package wasmbinding_test
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	wasmbinding "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings"
+	wasmbinding "github.com/kiichain/kiichain/v1/wasmbinding"
 )
 
 func TestFullDenom(t *testing.T) {

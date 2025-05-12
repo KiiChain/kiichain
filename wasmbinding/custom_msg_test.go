@@ -1,4 +1,4 @@
-package bindings_test
+package wasmbinding_test
 
 import (
 	"encoding/json"
@@ -15,7 +15,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	app "github.com/kiichain/kiichain/v1/app"
-	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
+	bindings "github.com/kiichain/kiichain/v1/wasmbinding/types"
 	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
