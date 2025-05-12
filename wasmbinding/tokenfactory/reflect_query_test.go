@@ -1,4 +1,4 @@
-package wasmbinding_test
+package tokenfactory_test
 
 import (
 	"encoding/json"
@@ -11,47 +11,53 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	app "github.com/kiichain/kiichain/v1/app"
-	bindings "github.com/kiichain/kiichain/v1/wasmbinding/types"
+	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
+	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/types"
 )
 
+// TestQueryDenomAdmin tests the GetDenomAdmin query
 func TestQueryFullDenom(t *testing.T) {
-	actor := RandomAccountAddress()
-	app, ctx := SetupCustomApp(t, actor)
+	actor := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, actor)
 
-	reflect := instantiateReflectContract(t, ctx, app, actor)
+	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)
 	require.NotEmpty(t, reflect)
 
 	// query full denom
-	query := bindings.TokenFactoryQuery{
-		FullDenom: &bindings.FullDenom{
+	query := bindingtypes.Query{
+		FullDenom: &bindingtypes.FullDenom{
 			CreatorAddr: reflect.String(),
 			Subdenom:    "ustart",
 		},
 	}
-	resp := bindings.FullDenomResponse{}
+	resp := bindingtypes.FullDenomResponse{}
 	queryCustom(t, ctx, app, reflect, query, &resp)
 
 	expected := fmt.Sprintf("factory/%s/ustart", reflect.String())
 	require.EqualValues(t, expected, resp.Denom)
 }
 
+// TestQueryDenomAdmin tests the GetDenomAdmin query
 type ReflectQuery struct {
 	Chain *ChainRequest `json:"chain,omitempty"`
 }
 
+// ChainRequest is the request to the chain
 type ChainRequest struct {
 	Request wasmvmtypes.QueryRequest `json:"request"`
 }
 
+// ChainResponse is the response from the chain
 type ChainResponse struct {
 	Data []byte `json:"data"`
 }
 
-func queryCustom(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contract sdk.AccAddress, request bindings.TokenFactoryQuery, response interface{}) {
+// queryCustom is a helper function to query the custom contract
+func queryCustom(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contract sdk.AccAddress, request bindingtypes.Query, response interface{}) {
 	t.Helper()
 	msgBz, err := json.Marshal(request)
 	require.NoError(t, err)
-	fmt.Println("queryCustom1", string(msgBz))
+	t.Log("queryCustom1", string(msgBz))
 
 	query := ReflectQuery{
 		Chain: &ChainRequest{
@@ -60,7 +66,7 @@ func queryCustom(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contract s
 	}
 	queryBz, err := json.Marshal(query)
 	require.NoError(t, err)
-	fmt.Println("queryCustom2", string(queryBz))
+	t.Log("queryCustom3", string(queryBz))
 
 	resBz, err := app.WasmKeeper.QuerySmart(ctx, contract, queryBz)
 	require.NoError(t, err)
