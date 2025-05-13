@@ -11,6 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	app "github.com/kiichain/kiichain/v1/app"
+	"github.com/kiichain/kiichain/v1/wasmbinding"
 	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
 	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory/types"
 )
@@ -55,7 +56,14 @@ type ChainResponse struct {
 // queryCustom is a helper function to query the custom contract
 func queryCustom(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contract sdk.AccAddress, request bindingtypes.Query, response interface{}) {
 	t.Helper()
-	msgBz, err := json.Marshal(request)
+
+	// Make the request a kiichain query
+	kiichainQuery := wasmbinding.KiichainQuery{
+		TokenFactory: &request,
+	}
+
+	// Marshal the request to JSON
+	msgBz, err := json.Marshal(kiichainQuery)
 	require.NoError(t, err)
 	t.Log("queryCustom1", string(msgBz))
 
