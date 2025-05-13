@@ -1,4 +1,4 @@
-package bindings_test
+package tokenfactory_test
 
 import (
 	"fmt"
@@ -10,36 +10,38 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	wasmbinding "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings"
-	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
+	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
+	wasmbinding "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
+	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/types"
 	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
+// TestCreateDenom tests the CreateDenom function
 func TestCreateDenom(t *testing.T) {
-	actor := RandomAccountAddress()
-	app, ctx := SetupCustomApp(t, actor)
+	actor := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	// Fund actor with 100 base denom creation fees
 	actorAmount := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
-	fundAccount(t, ctx, app, actor, actorAmount)
+	helpers.FundAccount(t, ctx, app, actor, actorAmount)
 
 	specs := map[string]struct {
-		createDenom *bindings.CreateDenom
+		createDenom *bindingtypes.CreateDenom
 		expErr      bool
 	}{
 		"valid sub-denom": {
-			createDenom: &bindings.CreateDenom{
+			createDenom: &bindingtypes.CreateDenom{
 				Subdenom: "MOON",
 			},
 		},
 		"empty sub-denom": {
-			createDenom: &bindings.CreateDenom{
+			createDenom: &bindingtypes.CreateDenom{
 				Subdenom: "",
 			},
 			expErr: false,
 		},
 		"invalid sub-denom": {
-			createDenom: &bindings.CreateDenom{
+			createDenom: &bindingtypes.CreateDenom{
 				Subdenom: "sub-denom_2",
 			},
 			expErr: false,
@@ -64,58 +66,59 @@ func TestCreateDenom(t *testing.T) {
 	}
 }
 
+// TestChangeAdmin tests the ChangeAdmin function
 func TestChangeAdmin(t *testing.T) {
 	const validDenom = "validdenom"
 
-	tokenCreator := RandomAccountAddress()
+	tokenCreator := helpers.RandomAccountAddress()
 
 	specs := map[string]struct {
 		actor       sdk.AccAddress
-		changeAdmin *bindings.ChangeAdmin
+		changeAdmin *bindingtypes.ChangeAdmin
 
 		expErrMsg string
 	}{
 		"valid": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &bindingtypes.ChangeAdmin{
 				Denom:           fmt.Sprintf("factory/%s/%s", tokenCreator.String(), validDenom),
-				NewAdminAddress: RandomBech32AccountAddress(),
+				NewAdminAddress: helpers.RandomBech32AccountAddress(),
 			},
 			actor: tokenCreator,
 		},
 		"typo in factory in denom name": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &bindingtypes.ChangeAdmin{
 				Denom:           fmt.Sprintf("facory/%s/%s", tokenCreator.String(), validDenom),
-				NewAdminAddress: RandomBech32AccountAddress(),
+				NewAdminAddress: helpers.RandomBech32AccountAddress(),
 			},
 			actor:     tokenCreator,
 			expErrMsg: "denom prefix is incorrect. Is: facory.  Should be: factory: invalid denom",
 		},
 		"invalid address in denom": {
-			changeAdmin: &bindings.ChangeAdmin{
-				Denom:           fmt.Sprintf("factory/%s/%s", RandomBech32AccountAddress(), validDenom),
-				NewAdminAddress: RandomBech32AccountAddress(),
+			changeAdmin: &bindingtypes.ChangeAdmin{
+				Denom:           fmt.Sprintf("factory/%s/%s", helpers.RandomBech32AccountAddress(), validDenom),
+				NewAdminAddress: helpers.RandomBech32AccountAddress(),
 			},
 			actor:     tokenCreator,
 			expErrMsg: "failed changing admin from message: unauthorized account",
 		},
 		"other denom name in 3 part name": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &bindingtypes.ChangeAdmin{
 				Denom:           fmt.Sprintf("factory/%s/%s", tokenCreator.String(), "invalid denom"),
-				NewAdminAddress: RandomBech32AccountAddress(),
+				NewAdminAddress: helpers.RandomBech32AccountAddress(),
 			},
 			actor:     tokenCreator,
 			expErrMsg: fmt.Sprintf("invalid denom: factory/%s/invalid denom", tokenCreator.String()),
 		},
 		"empty denom": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &bindingtypes.ChangeAdmin{
 				Denom:           "",
-				NewAdminAddress: RandomBech32AccountAddress(),
+				NewAdminAddress: helpers.RandomBech32AccountAddress(),
 			},
 			actor:     tokenCreator,
 			expErrMsg: "invalid denom: ",
 		},
 		"empty address": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &bindingtypes.ChangeAdmin{
 				Denom:           fmt.Sprintf("factory/%s/%s", tokenCreator.String(), validDenom),
 				NewAdminAddress: "",
 			},
@@ -123,15 +126,15 @@ func TestChangeAdmin(t *testing.T) {
 			expErrMsg: "address from bech32: empty address string is not allowed",
 		},
 		"creator is a different address": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &bindingtypes.ChangeAdmin{
 				Denom:           fmt.Sprintf("factory/%s/%s", tokenCreator.String(), validDenom),
-				NewAdminAddress: RandomBech32AccountAddress(),
+				NewAdminAddress: helpers.RandomBech32AccountAddress(),
 			},
-			actor:     RandomAccountAddress(),
+			actor:     helpers.RandomAccountAddress(),
 			expErrMsg: "failed changing admin from message: unauthorized account",
 		},
 		"change to the same address": {
-			changeAdmin: &bindings.ChangeAdmin{
+			changeAdmin: &bindingtypes.ChangeAdmin{
 				Denom:           fmt.Sprintf("factory/%s/%s", tokenCreator.String(), validDenom),
 				NewAdminAddress: tokenCreator.String(),
 			},
@@ -145,13 +148,13 @@ func TestChangeAdmin(t *testing.T) {
 	for name, spec := range specs {
 		t.Run(name, func(t *testing.T) {
 			// Setup
-			app, ctx := SetupCustomApp(t, tokenCreator)
+			app, ctx := helpers.SetupCustomApp(t, tokenCreator)
 
 			// Fund actor with 100 base denom creation fees
 			actorAmount := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
-			fundAccount(t, ctx, app, tokenCreator, actorAmount)
+			helpers.FundAccount(t, ctx, app, tokenCreator, actorAmount)
 
-			_, err := wasmbinding.PerformCreateDenom(&app.TokenFactoryKeeper, app.BankKeeper, ctx, tokenCreator, &bindings.CreateDenom{
+			_, err := wasmbinding.PerformCreateDenom(&app.TokenFactoryKeeper, app.BankKeeper, ctx, tokenCreator, &bindingtypes.CreateDenom{
 				Subdenom: validDenom,
 			})
 			require.NoError(t, err)
@@ -168,22 +171,23 @@ func TestChangeAdmin(t *testing.T) {
 	}
 }
 
+// TestMint tests the minting of tokens
 func TestMint(t *testing.T) {
-	creator := RandomAccountAddress()
-	app, ctx := SetupCustomApp(t, creator)
+	creator := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, creator)
 
 	// Fund actor with 100 base denom creation fees
 	tokenCreationFeeAmt := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
-	fundAccount(t, ctx, app, creator, tokenCreationFeeAmt)
+	helpers.FundAccount(t, ctx, app, creator, tokenCreationFeeAmt)
 
 	// Create denoms for valid mint tests
-	validDenom := bindings.CreateDenom{
+	validDenom := bindingtypes.CreateDenom{
 		Subdenom: "MOON",
 	}
 	_, err := wasmbinding.PerformCreateDenom(&app.TokenFactoryKeeper, app.BankKeeper, ctx, creator, &validDenom)
 	require.NoError(t, err)
 
-	emptyDenom := bindings.CreateDenom{
+	emptyDenom := bindingtypes.CreateDenom{
 		Subdenom: "",
 	}
 	_, err = wasmbinding.PerformCreateDenom(&app.TokenFactoryKeeper, app.BankKeeper, ctx, creator, &emptyDenom)
@@ -192,7 +196,7 @@ func TestMint(t *testing.T) {
 	validDenomStr := fmt.Sprintf("factory/%s/%s", creator.String(), validDenom.Subdenom)
 	emptyDenomStr := fmt.Sprintf("factory/%s/%s", creator.String(), emptyDenom.Subdenom)
 
-	lucky := RandomAccountAddress()
+	lucky := helpers.RandomAccountAddress()
 
 	// lucky was broke
 	balances := app.BankKeeper.GetAllBalances(ctx, lucky)
@@ -202,18 +206,18 @@ func TestMint(t *testing.T) {
 	require.True(t, ok)
 
 	specs := map[string]struct {
-		mint   *bindings.MintTokens
+		mint   *bindingtypes.MintTokens
 		expErr bool
 	}{
 		"valid mint": {
-			mint: &bindings.MintTokens{
+			mint: &bindingtypes.MintTokens{
 				Denom:         validDenomStr,
 				Amount:        amount,
 				MintToAddress: lucky.String(),
 			},
 		},
 		"empty sub-denom": {
-			mint: &bindings.MintTokens{
+			mint: &bindingtypes.MintTokens{
 				Denom:         emptyDenomStr,
 				Amount:        amount,
 				MintToAddress: lucky.String(),
@@ -221,7 +225,7 @@ func TestMint(t *testing.T) {
 			expErr: false,
 		},
 		"nonexistent sub-denom": {
-			mint: &bindings.MintTokens{
+			mint: &bindingtypes.MintTokens{
 				Denom:         fmt.Sprintf("factory/%s/%s", creator.String(), "SUN"),
 				Amount:        amount,
 				MintToAddress: lucky.String(),
@@ -229,7 +233,7 @@ func TestMint(t *testing.T) {
 			expErr: true,
 		},
 		"invalid sub-denom": {
-			mint: &bindings.MintTokens{
+			mint: &bindingtypes.MintTokens{
 				Denom:         "sub-denom_2",
 				Amount:        amount,
 				MintToAddress: lucky.String(),
@@ -237,7 +241,7 @@ func TestMint(t *testing.T) {
 			expErr: true,
 		},
 		"zero amount": {
-			mint: &bindings.MintTokens{
+			mint: &bindingtypes.MintTokens{
 				Denom:         validDenomStr,
 				Amount:        sdkmath.ZeroInt(),
 				MintToAddress: lucky.String(),
@@ -245,7 +249,7 @@ func TestMint(t *testing.T) {
 			expErr: true,
 		},
 		"negative amount": {
-			mint: &bindings.MintTokens{
+			mint: &bindingtypes.MintTokens{
 				Denom:         validDenomStr,
 				Amount:        amount.Neg(),
 				MintToAddress: lucky.String(),
@@ -253,7 +257,7 @@ func TestMint(t *testing.T) {
 			expErr: true,
 		},
 		"empty recipient": {
-			mint: &bindings.MintTokens{
+			mint: &bindingtypes.MintTokens{
 				Denom:         validDenomStr,
 				Amount:        amount,
 				MintToAddress: "",
@@ -261,7 +265,7 @@ func TestMint(t *testing.T) {
 			expErr: true,
 		},
 		"invalid recipient": {
-			mint: &bindings.MintTokens{
+			mint: &bindingtypes.MintTokens{
 				Denom:         validDenomStr,
 				Amount:        amount,
 				MintToAddress: "invalid",
@@ -287,28 +291,29 @@ func TestMint(t *testing.T) {
 	}
 }
 
+// TestBurn tests the burning of tokens
 func TestBurn(t *testing.T) {
-	creator := RandomAccountAddress()
-	app, ctx := SetupCustomApp(t, creator)
+	creator := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, creator)
 
 	// Fund actor with 100 base denom creation fees
 	tokenCreationFeeAmt := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
-	fundAccount(t, ctx, app, creator, tokenCreationFeeAmt)
+	helpers.FundAccount(t, ctx, app, creator, tokenCreationFeeAmt)
 
 	// Create denoms for valid burn tests
-	validDenom := bindings.CreateDenom{
+	validDenom := bindingtypes.CreateDenom{
 		Subdenom: "MOON",
 	}
 	_, err := wasmbinding.PerformCreateDenom(&app.TokenFactoryKeeper, app.BankKeeper, ctx, creator, &validDenom)
 	require.NoError(t, err)
 
-	emptyDenom := bindings.CreateDenom{
+	emptyDenom := bindingtypes.CreateDenom{
 		Subdenom: "",
 	}
 	_, err = wasmbinding.PerformCreateDenom(&app.TokenFactoryKeeper, app.BankKeeper, ctx, creator, &emptyDenom)
 	require.NoError(t, err)
 
-	lucky := RandomAccountAddress()
+	lucky := helpers.RandomAccountAddress()
 
 	// lucky was broke
 	balances := app.BankKeeper.GetAllBalances(ctx, lucky)
@@ -324,18 +329,18 @@ func TestBurn(t *testing.T) {
 	burnFromEnabled := types.IsCapabilityEnabled(capabilities, types.EnableBurnFrom)
 
 	specs := map[string]struct {
-		burn   *bindings.BurnTokens
+		burn   *bindingtypes.BurnTokens
 		expErr bool
 	}{
 		"valid burn": {
-			burn: &bindings.BurnTokens{
+			burn: &bindingtypes.BurnTokens{
 				Denom:  validDenomStr,
 				Amount: mintAmount,
 			},
 			expErr: false,
 		},
 		"non admin address": {
-			burn: &bindings.BurnTokens{
+			burn: &bindingtypes.BurnTokens{
 				Denom:           validDenomStr,
 				Amount:          mintAmount,
 				BurnFromAddress: lucky.String(),
@@ -343,28 +348,28 @@ func TestBurn(t *testing.T) {
 			expErr: !burnFromEnabled,
 		},
 		"empty sub-denom": {
-			burn: &bindings.BurnTokens{
+			burn: &bindingtypes.BurnTokens{
 				Denom:  emptyDenomStr,
 				Amount: mintAmount,
 			},
 			expErr: false,
 		},
 		"invalid sub-denom": {
-			burn: &bindings.BurnTokens{
+			burn: &bindingtypes.BurnTokens{
 				Denom:  "sub-denom_2",
 				Amount: mintAmount,
 			},
 			expErr: true,
 		},
 		"non-minted denom": {
-			burn: &bindings.BurnTokens{
+			burn: &bindingtypes.BurnTokens{
 				Denom:  fmt.Sprintf("factory/%s/%s", creator.String(), "SUN"),
 				Amount: mintAmount,
 			},
 			expErr: true,
 		},
 		"zero amount": {
-			burn: &bindings.BurnTokens{
+			burn: &bindingtypes.BurnTokens{
 				Denom:  validDenomStr,
 				Amount: sdkmath.ZeroInt(),
 			},
@@ -375,7 +380,7 @@ func TestBurn(t *testing.T) {
 			expErr: true,
 		},
 		"null burn": {
-			burn: &bindings.BurnTokens{
+			burn: &bindingtypes.BurnTokens{
 				Denom:  validDenomStr,
 				Amount: mintAmount.Neg(),
 			},
@@ -386,7 +391,7 @@ func TestBurn(t *testing.T) {
 	for name, spec := range specs {
 		t.Run(name, func(t *testing.T) {
 			// Mint valid denom str and empty denom string for burn test
-			mintBinding := &bindings.MintTokens{
+			mintBinding := &bindingtypes.MintTokens{
 				Denom:         validDenomStr,
 				Amount:        mintAmount,
 				MintToAddress: creator.String(),
@@ -394,7 +399,7 @@ func TestBurn(t *testing.T) {
 			err := wasmbinding.PerformMint(&app.TokenFactoryKeeper, app.BankKeeper, ctx, creator, mintBinding)
 			require.NoError(t, err)
 
-			emptyDenomMintBinding := &bindings.MintTokens{
+			emptyDenomMintBinding := &bindingtypes.MintTokens{
 				Denom:         emptyDenomStr,
 				Amount:        mintAmount,
 				MintToAddress: creator.String(),

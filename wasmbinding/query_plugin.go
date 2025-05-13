@@ -1,4 +1,4 @@
-package bindings
+package wasmbinding
 
 import (
 	"encoding/json"
@@ -10,28 +10,43 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bindingstypes "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
+	"github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
+	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/types"
 )
+
+// QueryPlugin is the query plugin for all cosmwasm bindings
+type QueryPlugin struct {
+	tokenfactoryHandler tokenfactory.QueryPlugin
+}
+
+// NewQueryPlugin returns a reference to a new QueryPlugin
+func NewQueryPlugin(th *tokenfactory.QueryPlugin) *QueryPlugin {
+	return &QueryPlugin{
+		tokenfactoryHandler: *th,
+	}
+}
 
 // CustomQuerier dispatches custom CosmWasm bindings queries.
 func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
 	return func(ctx sdk.Context, request json.RawMessage) ([]byte, error) {
-		var contractQuery bindingstypes.TokenFactoryQuery
+		// Unmarshal the requests as a query wrapper to be broken down per module
+		var contractQuery bindingtypes.Query
 		if err := json.Unmarshal(request, &contractQuery); err != nil {
-			return nil, errorsmod.Wrap(err, "kiichain query")
+			return nil, errorsmod.Wrap(err, "Error parsing request data")
 		}
 
+		// Match the query under the module
 		switch {
 		case contractQuery.FullDenom != nil:
 			creator := contractQuery.FullDenom.CreatorAddr
 			subdenom := contractQuery.FullDenom.Subdenom
 
-			fullDenom, err := GetFullDenom(creator, subdenom)
+			fullDenom, err := tokenfactory.GetFullDenom(creator, subdenom)
 			if err != nil {
 				return nil, errorsmod.Wrap(err, "kii full denom query")
 			}
 
-			res := bindingstypes.FullDenomResponse{
+			res := bindingtypes.FullDenomResponse{
 				Denom: fullDenom,
 			}
 
@@ -43,7 +58,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 			return bz, nil
 
 		case contractQuery.Admin != nil:
-			res, err := qp.GetDenomAdmin(ctx, contractQuery.Admin.Denom)
+			res, err := qp.tokenfactoryHandler.GetTokenfactoryDenomAdmin(ctx, contractQuery.Admin.Denom)
 			if err != nil {
 				return nil, err
 			}
@@ -56,7 +71,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 			return bz, nil
 
 		case contractQuery.Metadata != nil:
-			res, err := qp.GetMetadata(ctx, contractQuery.Metadata.Denom)
+			res, err := qp.tokenfactoryHandler.GetTokenfactoryMetadata(ctx, contractQuery.Metadata.Denom)
 			if err != nil {
 				return nil, err
 			}
@@ -69,7 +84,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 			return bz, nil
 
 		case contractQuery.DenomsByCreator != nil:
-			res, err := qp.GetDenomsByCreator(ctx, contractQuery.DenomsByCreator.Creator)
+			res, err := qp.tokenfactoryHandler.GetTokenfactoryDenomsByCreator(ctx, contractQuery.DenomsByCreator.Creator)
 			if err != nil {
 				return nil, err
 			}
@@ -82,7 +97,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 			return bz, nil
 
 		case contractQuery.Params != nil:
-			res, err := qp.GetParams(ctx)
+			res, err := qp.tokenfactoryHandler.GetTokenfactoryParams(ctx)
 			if err != nil {
 				return nil, err
 			}
@@ -95,26 +110,7 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 			return bz, nil
 
 		default:
-			return nil, wasmvmtypes.UnsupportedRequest{Kind: "unknown token query variant"}
+			return nil, wasmvmtypes.UnsupportedRequest{Kind: "unknown token factory query variant"}
 		}
-	}
-}
-
-// ConvertSdkCoinsToWasmCoins converts sdk type coins to wasm vm type coins
-func ConvertSdkCoinsToWasmCoins(coins []sdk.Coin) []wasmvmtypes.Coin {
-	var toSend []wasmvmtypes.Coin
-	for _, coin := range coins {
-		c := ConvertSdkCoinToWasmCoin(coin)
-		toSend = append(toSend, c)
-	}
-	return toSend
-}
-
-// ConvertSdkCoinToWasmCoin converts a sdk type coin to a wasm vm type coin
-func ConvertSdkCoinToWasmCoin(coin sdk.Coin) wasmvmtypes.Coin {
-	return wasmvmtypes.Coin{
-		Denom: coin.Denom,
-		// Note: tokenfactory tokens have 18 decimal places, so 10^22 is common, no longer in u64 range
-		Amount: coin.Amount.String(),
 	}
 }

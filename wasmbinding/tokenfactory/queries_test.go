@@ -1,4 +1,4 @@
-package bindings_test
+package tokenfactory_test
 
 import (
 	"fmt"
@@ -9,11 +9,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	wasmbinding "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings"
+	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
+	wasmbinding "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
 )
 
+// TestFullDenom tests the GetFullDenom function of the token factory
 func TestFullDenom(t *testing.T) {
-	actor := RandomAccountAddress()
+	actor := helpers.RandomAccountAddress()
 
 	specs := map[string]struct {
 		addr         string
@@ -62,9 +64,10 @@ func TestFullDenom(t *testing.T) {
 	}
 }
 
+// TestDenomAdmin tests the GetTokenfactoryDenomAdmin function of the token factory
 func TestDenomAdmin(t *testing.T) {
-	addr := RandomAccountAddress()
-	app, ctx := SetupCustomApp(t, addr)
+	addr := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, addr)
 
 	// set token creation fee to zero to make testing easier
 	tfParams := app.TokenFactoryKeeper.GetParams(ctx)
@@ -104,7 +107,7 @@ func TestDenomAdmin(t *testing.T) {
 		tc := tc
 
 		t.Run(tc.name, func(t *testing.T) {
-			resp, err := queryPlugin.GetDenomAdmin(ctx, tc.denom)
+			resp, err := queryPlugin.GetTokenfactoryDenomAdmin(ctx, tc.denom)
 			if tc.expectErr {
 				require.Error(t, err)
 			} else {

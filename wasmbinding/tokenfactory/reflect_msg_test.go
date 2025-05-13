@@ -1,4 +1,4 @@
-package bindings_test
+package tokenfactory_test
 
 import (
 	"encoding/json"
@@ -15,59 +15,62 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	app "github.com/kiichain/kiichain/v1/app"
-	bindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings/types"
+	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
+	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/types"
 	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
+// TestQueryFullDenom tests the query for full denom with a reflect contract
 func TestCreateDenomMsg(t *testing.T) {
-	creator := RandomAccountAddress()
-	app, ctx := SetupCustomApp(t, creator)
+	creator := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, creator)
 
-	lucky := RandomAccountAddress()
-	reflect := instantiateReflectContract(t, ctx, app, lucky)
+	lucky := helpers.RandomAccountAddress()
+	reflect := helpers.InstantiateReflectContract(t, ctx, app, lucky)
 	require.NotEmpty(t, reflect)
 
 	// Fund reflect contract with 100 base denom creation fees
 	reflectAmount := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
-	fundAccount(t, ctx, app, reflect, reflectAmount)
+	helpers.FundAccount(t, ctx, app, reflect, reflectAmount)
 
-	msg := bindings.TokenFactoryMsg{CreateDenom: &bindings.CreateDenom{
+	msg := bindingtypes.Msg{CreateDenom: &bindingtypes.CreateDenom{
 		Subdenom: "SUN",
 	}}
 	err := executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
 	require.NoError(t, err)
 
 	// query the denom and see if it matches
-	query := bindings.TokenFactoryQuery{
-		FullDenom: &bindings.FullDenom{
+	query := bindingtypes.Query{
+		FullDenom: &bindingtypes.FullDenom{
 			CreatorAddr: reflect.String(),
 			Subdenom:    "SUN",
 		},
 	}
-	resp := bindings.FullDenomResponse{}
+	resp := bindingtypes.FullDenomResponse{}
 	queryCustom(t, ctx, app, reflect, query, &resp)
 
 	require.Equal(t, resp.Denom, fmt.Sprintf("factory/%s/SUN", reflect.String()))
 }
 
+// TestMintMsg tests the minting of tokens with a reflect contract
 func TestMintMsg(t *testing.T) {
-	creator := RandomAccountAddress()
-	app, ctx := SetupCustomApp(t, creator)
+	creator := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, creator)
 
-	lucky := RandomAccountAddress()
-	reflect := instantiateReflectContract(t, ctx, app, lucky)
+	lucky := helpers.RandomAccountAddress()
+	reflect := helpers.InstantiateReflectContract(t, ctx, app, lucky)
 	require.NotEmpty(t, reflect)
 
 	// Fund reflect contract with 100 base denom creation fees
 	reflectAmount := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
-	fundAccount(t, ctx, app, reflect, reflectAmount)
+	helpers.FundAccount(t, ctx, app, reflect, reflectAmount)
 
 	// lucky was broke
 	balances := app.BankKeeper.GetAllBalances(ctx, lucky)
 	require.Empty(t, balances)
 
 	// Create denom for minting
-	msg := bindings.TokenFactoryMsg{CreateDenom: &bindings.CreateDenom{
+	msg := bindingtypes.Msg{CreateDenom: &bindingtypes.CreateDenom{
 		Subdenom: "SUN",
 	}}
 	err := executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
@@ -76,7 +79,7 @@ func TestMintMsg(t *testing.T) {
 
 	amount, ok := sdkmath.NewIntFromString("808010808")
 	require.True(t, ok)
-	msg = bindings.TokenFactoryMsg{MintTokens: &bindings.MintTokens{
+	msg = bindingtypes.Msg{MintTokens: &bindingtypes.MintTokens{
 		Denom:         sunDenom,
 		Amount:        amount,
 		MintToAddress: lucky.String(),
@@ -91,13 +94,13 @@ func TestMintMsg(t *testing.T) {
 	require.Contains(t, coin.Denom, "factory/")
 
 	// query the denom and see if it matches
-	query := bindings.TokenFactoryQuery{
-		FullDenom: &bindings.FullDenom{
+	query := bindingtypes.Query{
+		FullDenom: &bindingtypes.FullDenom{
 			CreatorAddr: reflect.String(),
 			Subdenom:    "SUN",
 		},
 	}
-	resp := bindings.FullDenomResponse{}
+	resp := bindingtypes.FullDenomResponse{}
 	queryCustom(t, ctx, app, reflect, query, &resp)
 
 	require.Equal(t, resp.Denom, coin.Denom)
@@ -113,20 +116,20 @@ func TestMintMsg(t *testing.T) {
 	require.Contains(t, coin.Denom, "factory/")
 
 	// query the denom and see if it matches
-	query = bindings.TokenFactoryQuery{
-		FullDenom: &bindings.FullDenom{
+	query = bindingtypes.Query{
+		FullDenom: &bindingtypes.FullDenom{
 			CreatorAddr: reflect.String(),
 			Subdenom:    "SUN",
 		},
 	}
-	resp = bindings.FullDenomResponse{}
+	resp = bindingtypes.FullDenomResponse{}
 	queryCustom(t, ctx, app, reflect, query, &resp)
 
 	require.Equal(t, resp.Denom, coin.Denom)
 
 	// now mint another amount / denom
 	// create it first
-	msg = bindings.TokenFactoryMsg{CreateDenom: &bindings.CreateDenom{
+	msg = bindingtypes.Msg{CreateDenom: &bindingtypes.CreateDenom{
 		Subdenom: "MOON",
 	}}
 	err = executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
@@ -134,7 +137,7 @@ func TestMintMsg(t *testing.T) {
 	moonDenom := fmt.Sprintf("factory/%s/%s", reflect.String(), msg.CreateDenom.Subdenom)
 
 	amount = amount.SubRaw(1)
-	msg = bindings.TokenFactoryMsg{MintTokens: &bindings.MintTokens{
+	msg = bindingtypes.Msg{MintTokens: &bindingtypes.MintTokens{
 		Denom:         moonDenom,
 		Amount:        amount,
 		MintToAddress: lucky.String(),
@@ -149,13 +152,13 @@ func TestMintMsg(t *testing.T) {
 	require.Contains(t, coin.Denom, "factory/")
 
 	// query the denom and see if it matches
-	query = bindings.TokenFactoryQuery{
-		FullDenom: &bindings.FullDenom{
+	query = bindingtypes.Query{
+		FullDenom: &bindingtypes.FullDenom{
 			CreatorAddr: reflect.String(),
 			Subdenom:    "MOON",
 		},
 	}
-	resp = bindings.FullDenomResponse{}
+	resp = bindingtypes.FullDenomResponse{}
 	queryCustom(t, ctx, app, reflect, query, &resp)
 
 	require.Equal(t, resp.Denom, coin.Denom)
@@ -166,37 +169,38 @@ func TestMintMsg(t *testing.T) {
 	require.Contains(t, coin.Denom, "factory/")
 
 	// query the denom and see if it matches
-	query = bindings.TokenFactoryQuery{
-		FullDenom: &bindings.FullDenom{
+	query = bindingtypes.Query{
+		FullDenom: &bindingtypes.FullDenom{
 			CreatorAddr: reflect.String(),
 			Subdenom:    "SUN",
 		},
 	}
-	resp = bindings.FullDenomResponse{}
+	resp = bindingtypes.FullDenomResponse{}
 	queryCustom(t, ctx, app, reflect, query, &resp)
 
 	require.Equal(t, resp.Denom, coin.Denom)
 }
 
+// TestForceTransfer tests the force transfer of tokens with a reflect contract
 func TestForceTransfer(t *testing.T) {
-	creator := RandomAccountAddress()
-	app, ctx := SetupCustomApp(t, creator)
+	creator := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, creator)
 
-	lucky := RandomAccountAddress()
-	rcpt := RandomAccountAddress()
-	reflect := instantiateReflectContract(t, ctx, app, lucky)
+	lucky := helpers.RandomAccountAddress()
+	rcpt := helpers.RandomAccountAddress()
+	reflect := helpers.InstantiateReflectContract(t, ctx, app, lucky)
 	require.NotEmpty(t, reflect)
 
 	// Fund reflect contract with 100 base denom creation fees
 	reflectAmount := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
-	fundAccount(t, ctx, app, reflect, reflectAmount)
+	helpers.FundAccount(t, ctx, app, reflect, reflectAmount)
 
 	// lucky was broke
 	balances := app.BankKeeper.GetAllBalances(ctx, lucky)
 	require.Empty(t, balances)
 
 	// Create denom for minting
-	msg := bindings.TokenFactoryMsg{CreateDenom: &bindings.CreateDenom{
+	msg := bindingtypes.Msg{CreateDenom: &bindingtypes.CreateDenom{
 		Subdenom: "SUN",
 	}}
 	err := executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
@@ -207,7 +211,7 @@ func TestForceTransfer(t *testing.T) {
 	require.True(t, ok)
 
 	// Mint new tokens to lucky
-	msg = bindings.TokenFactoryMsg{MintTokens: &bindings.MintTokens{
+	msg = bindingtypes.Msg{MintTokens: &bindingtypes.MintTokens{
 		Denom:         sunDenom,
 		Amount:        amount,
 		MintToAddress: lucky.String(),
@@ -221,7 +225,7 @@ func TestForceTransfer(t *testing.T) {
 
 	if forceTransferEnabled {
 		// Force move 100 tokens from lucky to rcpt
-		msg = bindings.TokenFactoryMsg{ForceTransfer: &bindings.ForceTransfer{
+		msg = bindingtypes.Msg{ForceTransfer: &bindingtypes.ForceTransfer{
 			Denom:       sunDenom,
 			Amount:      sdkmath.NewInt(100),
 			FromAddress: lucky.String(),
@@ -238,24 +242,25 @@ func TestForceTransfer(t *testing.T) {
 	}
 }
 
+// TestBurnMsg tests the burn of tokens with a reflect contract
 func TestBurnMsg(t *testing.T) {
-	creator := RandomAccountAddress()
-	app, ctx := SetupCustomApp(t, creator)
+	creator := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, creator)
 
-	lucky := RandomAccountAddress()
-	reflect := instantiateReflectContract(t, ctx, app, lucky)
+	lucky := helpers.RandomAccountAddress()
+	reflect := helpers.InstantiateReflectContract(t, ctx, app, lucky)
 	require.NotEmpty(t, reflect)
 
 	// Fund reflect contract with 100 base denom creation fees
 	reflectAmount := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(100)))
-	fundAccount(t, ctx, app, reflect, reflectAmount)
+	helpers.FundAccount(t, ctx, app, reflect, reflectAmount)
 
 	// lucky was broke
 	balances := app.BankKeeper.GetAllBalances(ctx, lucky)
 	require.Empty(t, balances)
 
 	// Create denom for minting
-	msg := bindings.TokenFactoryMsg{CreateDenom: &bindings.CreateDenom{
+	msg := bindingtypes.Msg{CreateDenom: &bindingtypes.CreateDenom{
 		Subdenom: "SUN",
 	}}
 	err := executeCustom(t, ctx, app, reflect, lucky, msg, sdk.Coin{})
@@ -265,7 +270,7 @@ func TestBurnMsg(t *testing.T) {
 	amount, ok := sdkmath.NewIntFromString("808010809")
 	require.True(t, ok)
 
-	msg = bindings.TokenFactoryMsg{MintTokens: &bindings.MintTokens{
+	msg = bindingtypes.Msg{MintTokens: &bindingtypes.MintTokens{
 		Denom:         sunDenom,
 		Amount:        amount,
 		MintToAddress: lucky.String(),
@@ -281,7 +286,7 @@ func TestBurnMsg(t *testing.T) {
 		// can burn from different address with burnFrom
 		amt, ok := sdkmath.NewIntFromString("1")
 		require.True(t, ok)
-		msg = bindings.TokenFactoryMsg{BurnTokens: &bindings.BurnTokens{
+		msg = bindingtypes.Msg{BurnTokens: &bindingtypes.BurnTokens{
 			Denom:           sunDenom,
 			Amount:          amt,
 			BurnFromAddress: lucky.String(),
@@ -294,7 +299,7 @@ func TestBurnMsg(t *testing.T) {
 		err = app.BankKeeper.SendCoins(ctx, lucky, reflect, luckyBalance)
 		require.NoError(t, err)
 
-		msg = bindings.TokenFactoryMsg{BurnTokens: &bindings.BurnTokens{
+		msg = bindingtypes.Msg{BurnTokens: &bindingtypes.BurnTokens{
 			Denom:           sunDenom,
 			Amount:          amount.Abs().Sub(sdkmath.NewInt(1)),
 			BurnFromAddress: reflect.String(),
@@ -304,20 +309,24 @@ func TestBurnMsg(t *testing.T) {
 	}
 }
 
+// ReflectExec is a wrapper for the reflect message
 type ReflectExec struct {
 	ReflectMsg    *ReflectMsgs    `json:"reflect_msg,omitempty"`
 	ReflectSubMsg *ReflectSubMsgs `json:"reflect_sub_msg,omitempty"`
 }
 
+// ReflectMsgs is a wrapper for the reflect message
 type ReflectMsgs struct {
 	Msgs []wasmvmtypes.CosmosMsg `json:"msgs"`
 }
 
+// ReflectSubMsgs is a wrapper for the reflect sub message
 type ReflectSubMsgs struct {
 	Msgs []wasmvmtypes.SubMsg `json:"msgs"`
 }
 
-func executeCustom(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contract sdk.AccAddress, sender sdk.AccAddress, msg bindings.TokenFactoryMsg, funds sdk.Coin) error { //nolint:unparam // funds is always nil but could change in the future.
+// executeCustom executes a custom message on the reflect contract
+func executeCustom(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contract sdk.AccAddress, sender sdk.AccAddress, msg bindingtypes.Msg, funds sdk.Coin) error { //nolint:unparam // funds is always nil but could change in the future.
 	t.Helper()
 	customBz, err := json.Marshal(msg)
 	require.NoError(t, err)

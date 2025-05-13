@@ -2,7 +2,7 @@ package types
 
 import "cosmossdk.io/math"
 
-type TokenFactoryMsg struct {
+type Msg struct {
 	/// Contracts can create denoms, namespaced under the contract's address.
 	/// A contract may create any number of independent sub-denoms.
 	CreateDenom *CreateDenom `json:"create_denom,omitempty"`

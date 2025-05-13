@@ -85,7 +85,7 @@ import (
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	tokenfactorybindings "github.com/kiichain/kiichain/v1/x/tokenfactory/bindings"
+	"github.com/kiichain/kiichain/v1/wasmbinding"
 	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
@@ -477,7 +477,7 @@ func NewAppKeeper(
 		tokenFactoryCapabilities,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
-	wasmOpts = append(wasmOpts, tokenfactorybindings.RegisterCustomPlugins(appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)...)
+	wasmOpts = append(wasmOpts, wasmbinding.RegisterCustomPlugins(appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)...)
 
 	// Must be called on PFMRouter AFTER TransferKeeper initialized
 	appKeepers.PFMRouterKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
@@ -504,7 +504,7 @@ func NewAppKeeper(
 		bApp.GRPCQueryRouter(),
 		wasmDir,
 		wasmConfig,
-		wasmkeeper.BuiltInCapabilities(),
+		append(wasmkeeper.BuiltInCapabilities(), "kiichain"),
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		wasmOpts...,
 	)
