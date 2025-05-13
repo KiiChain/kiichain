@@ -2,8 +2,6 @@ package types
 
 import (
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
-
-	"github.com/cosmos/cosmos-sdk/codec/types"
 )
 
 type Metadata struct {
@@ -37,6 +35,3 @@ type DenomUnit struct {
 type Params struct {
 	DenomCreationFee []wasmvmtypes.Coin `json:"denom_creation_fee"`
 }
-
-// EmptyMsgResp is used to return empty message responses
-var EmptyMsgResp = [][]*types.Any{}

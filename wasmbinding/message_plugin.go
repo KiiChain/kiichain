@@ -14,8 +14,14 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	tfbinding "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
-	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory/types"
+	tfbindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory/types"
+	"github.com/kiichain/kiichain/v1/wasmbinding/utils"
 )
+
+// KiichainMsg is the msg type for all cosmwasm bindings
+type KiichainMsg struct {
+	TokenFactory *tfbindingtypes.Msg `json:"token_factory,omitempty"`
+}
 
 // CustomMessageDecorator returns decorator for custom CosmWasm bindings messages
 func CustomMessageDecorator(bank bankkeeper.Keeper, tokenFactory *tfbinding.CustomMessenger) func(wasmkeeper.Messenger) wasmkeeper.Messenger {
@@ -43,27 +49,18 @@ func (m *CustomMessenger) DispatchMsg(ctx sdk.Context, contractAddr sdk.AccAddre
 	if msg.Custom != nil {
 		// only handle the happy path where this is really creating / minting / swapping ...
 		// leave everything else foro the wrapped version
-		var contractMsg bindingtypes.Msg
+		var contractMsg KiichainMsg
 		if err := json.Unmarshal(msg.Custom, &contractMsg); err != nil {
-			return nil, nil, bindingtypes.EmptyMsgResp, errorsmod.Wrap(err, "token factory msg")
+			return nil, nil, utils.EmptyMsgResp, errorsmod.Wrap(err, "error parsing message into KiichainMsg")
 		}
 
 		// Match the message
 		switch {
-		case contractMsg.CreateDenom != nil:
-			return m.tokenFactory.CreateDenom(ctx, contractAddr, contractMsg.CreateDenom)
-		case contractMsg.MintTokens != nil:
-			return m.tokenFactory.MintTokens(ctx, contractAddr, contractMsg.MintTokens)
-		case contractMsg.ChangeAdmin != nil:
-			return m.tokenFactory.ChangeAdmin(ctx, contractAddr, contractMsg.ChangeAdmin)
-		case contractMsg.BurnTokens != nil:
-			return m.tokenFactory.BurnTokens(ctx, contractAddr, contractMsg.BurnTokens)
-		case contractMsg.SetMetadata != nil:
-			return m.tokenFactory.SetMetadata(ctx, contractAddr, contractMsg.SetMetadata)
-		case contractMsg.ForceTransfer != nil:
-			return m.tokenFactory.ForceTransfer(ctx, contractAddr, contractMsg.ForceTransfer)
+		case contractMsg.TokenFactory != nil:
+			// Call the token factory custom message handler
+			return m.tokenFactory.DispatchMsg(ctx, contractAddr, contractIBCPortID, *contractMsg.TokenFactory)
 		default:
-			return nil, nil, bindingtypes.EmptyMsgResp, wasmvmtypes.UnsupportedRequest{Kind: "unknown token factory msg variant"}
+			return nil, nil, utils.EmptyMsgResp, wasmvmtypes.UnsupportedRequest{Kind: "unknown kiichain msg variant"}
 		}
 
 	}
