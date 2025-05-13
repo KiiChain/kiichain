@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/types"
+	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory/types"
 	"github.com/kiichain/kiichain/v1/wasmbinding/utils"
 	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
 )

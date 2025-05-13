@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
-	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/types"
+	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory/types"
 )
 
 // QueryPlugin is the query plugin for all cosmwasm bindings
