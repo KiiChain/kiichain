@@ -249,7 +249,7 @@ func PerformForceTransfer(f *tokenfactorykeeper.Keeper, ctx sdk.Context, contrac
 func (m *CustomMessenger) SetMetadata(ctx sdk.Context, contractAddr sdk.AccAddress, setMetadata *tfbindingtypes.SetMetadata) ([]sdk.Event, [][]byte, [][]*types.Any, error) {
 	err := PerformSetMetadata(m.tokenFactory, m.bank, ctx, contractAddr, setMetadata.Denom, setMetadata.Metadata)
 	if err != nil {
-		return nil, nil, utils.EmptyMsgResp, errorsmod.Wrap(err, "perform create denom")
+		return nil, nil, utils.EmptyMsgResp, errorsmod.Wrap(err, "perform set metadata")
 	}
 	return nil, nil, utils.EmptyMsgResp, nil
 }
