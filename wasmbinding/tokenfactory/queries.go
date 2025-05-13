@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 
+	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
+
 	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
 	tfbindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory/types"
 	"github.com/kiichain/kiichain/v1/wasmbinding/utils"
 	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
