@@ -9,24 +9,29 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/kiichain/kiichain/v1/wasmbinding/evm"
+	evmbindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/evm/types"
 	"github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
 	tfbindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory/types"
 )
 
 // KiichainQuery is the query type for all cosmwasm bindings
 type KiichainQuery struct {
-	TokenFactory *tfbindingtypes.Query `json:"token_factory,omitempty"`
+	TokenFactory *tfbindingtypes.Query  `json:"token_factory,omitempty"`
+	EVM          *evmbindingtypes.Query `json:"evm,omitempty"`
 }
 
 // QueryPlugin is the query plugin for all cosmwasm bindings
 type QueryPlugin struct {
 	tokenfactoryHandler tokenfactory.QueryPlugin
+	evmHandler          evm.QueryPlugin
 }
 
 // NewQueryPlugin returns a reference to a new QueryPlugin
-func NewQueryPlugin(th *tokenfactory.QueryPlugin) *QueryPlugin {
+func NewQueryPlugin(th *tokenfactory.QueryPlugin, evm *evm.QueryPlugin) *QueryPlugin {
 	return &QueryPlugin{
 		tokenfactoryHandler: *th,
+		evmHandler:          *evm,
 	}
 }
 
@@ -44,6 +49,9 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 		case contractQuery.TokenFactory != nil:
 			// Call the token factory custom querier
 			return qp.tokenfactoryHandler.HandleTokenFactoryQuery(ctx, *contractQuery.TokenFactory)
+		case contractQuery.EVM != nil:
+			// Call the EVM custom querier
+			return qp.evmHandler.HandleEVMQuery(ctx, *contractQuery.EVM)
 		default:
 			return nil, wasmvmtypes.UnsupportedRequest{Kind: "unknown query variant"}
 		}

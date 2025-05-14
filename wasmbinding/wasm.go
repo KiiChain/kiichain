@@ -5,6 +5,8 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
+	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
+	"github.com/kiichain/kiichain/v1/wasmbinding/evm"
 	tfbinding "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
 	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
 )
@@ -13,12 +15,14 @@ import (
 func RegisterCustomPlugins(
 	bank bankkeeper.Keeper,
 	tokenFactory *tokenfactorykeeper.Keeper,
+	evmKeeper *evmkeeper.Keeper,
 ) []wasmkeeper.Option {
 	// Register custom query plugins
 	tokenFactoryQueryPlugin := tfbinding.NewQueryPlugin(bank, tokenFactory)
+	evmQueryPlugin := evm.NewQueryPlugin(evmKeeper)
 
 	// Create the central query plugin
-	queryPlugin := NewQueryPlugin(tokenFactoryQueryPlugin)
+	queryPlugin := NewQueryPlugin(tokenFactoryQueryPlugin, evmQueryPlugin)
 
 	// Register custom message handler decorators
 	queryPluginOpt := wasmkeeper.WithQueryPlugins(&wasmkeeper.QueryPlugins{
