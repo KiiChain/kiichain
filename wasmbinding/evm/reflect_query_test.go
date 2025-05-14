@@ -1,0 +1,190 @@
+package evm_test
+
+import (
+	"encoding/json"
+	"math/big"
+	"testing"
+
+	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/stretchr/testify/require"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	app "github.com/kiichain/kiichain/v1/app"
+	mock "github.com/kiichain/kiichain/v1/tests/e2e/mock"
+	"github.com/kiichain/kiichain/v1/wasmbinding"
+	evmbindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/evm/types"
+	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
+)
+
+// TestQueryEthCall test the EthCall query
+func TestQueryEthCall(t *testing.T) {
+	actor := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, actor)
+
+	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)
+	require.NotEmpty(t, reflect)
+
+	// Deploy the counter contract
+	contractAddr := deployCounter(t, ctx, app)
+	require.NotEmpty(t, contractAddr)
+	// Increment the counter
+	incrementCounter(t, ctx, app, contractAddr)
+
+	// Prepare ABI call data for getCounter()
+	counterABI, err := mock.CounterMetaData.GetAbi()
+	require.NoError(t, err)
+
+	// Prepare the input data for the getCounter function
+	inputData, err := counterABI.Pack("getCounter")
+	require.NoError(t, err)
+
+	// Perform the eth_call query
+	query := evmbindingtypes.Query{
+		EthCall: &evmbindingtypes.EthCall{
+			Contract: contractAddr.Hex(),
+			Data:     hexutil.Encode(inputData),
+		},
+	}
+	resp := evmbindingtypes.EthCall{}
+	err = queryCustom(t, ctx, app, reflect, query, &resp)
+	require.NoError(t, err)
+
+	// Decode the response data
+	resultBytes, err := hexutil.Decode(resp.Data)
+	require.NoError(t, err)
+
+	// Unpack the ABI result
+	var counterValue *big.Int
+	err = counterABI.UnpackIntoInterface(&counterValue, "getCounter", resultBytes)
+	require.NoError(t, err)
+
+	// Check the expected value (0 if freshly deployed)
+	require.EqualValues(t, 1, counterValue.Int64())
+}
+
+// TestQueryEthCallWithError test the EthCall query with an error
+func TestQueryEthCallWithError(t *testing.T) {
+	actor := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, actor)
+
+	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)
+	require.NotEmpty(t, reflect)
+
+	contractAddr := deployCounter(t, ctx, app)
+
+	// Perform the eth_call query
+	query := evmbindingtypes.Query{
+		EthCall: &evmbindingtypes.EthCall{
+			Contract: contractAddr.Hex(),
+			Data:     hexutil.Encode([]byte("0xdeadbeef")), // Random data, it will revert
+		},
+	}
+	resp := evmbindingtypes.EthCall{}
+	err := queryCustom(t, ctx, app, reflect, query, &resp)
+	require.ErrorContains(t, err, "codespace: evm_wasmbinding, code: 1")
+}
+
+// deployCounter deploys the counter contract
+func deployCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.Address {
+	// Select the from as the erc20 module address
+	from := common.BytesToAddress(authtypes.NewModuleAddress(erc20types.ModuleName).Bytes())
+
+	// Set the data
+	counterABI, err := mock.CounterMetaData.GetAbi()
+	require.NoError(t, err)
+	ctorArgs, err := counterABI.Pack("")
+	require.NoError(t, err)
+	deployData := append(common.FromHex(mock.CounterBin), ctorArgs...)
+
+	// Deploy the contract
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, nil, deployData, true)
+	require.NoError(t, err)
+	require.NotNil(t, res.Ret)
+
+	// Derive the deployed contract address
+	nonce := app.EVMKeeper.GetNonce(ctx, from)
+	contractAddr := crypto.CreateAddress(from, nonce-1)
+	return contractAddr
+}
+
+// incrementCounter increments the counter in the contract
+func incrementCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contractAddr common.Address) {
+	// Sender must be an account with ETH balance and nonce tracking
+	from := common.BytesToAddress(authtypes.NewModuleAddress(erc20types.ModuleName).Bytes())
+
+	// Load the ABI and pack the increment() call
+	counterABI, err := mock.CounterMetaData.GetAbi()
+	require.NoError(t, err)
+	inputData, err := counterABI.Pack("increment")
+	require.NoError(t, err)
+
+	// Send transaction to call increment
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true)
+	require.NoError(t, err)
+	require.NotNil(t, res)
+}
+
+// TestQueryDenomAdmin tests the GetDenomAdmin query
+type ReflectQuery struct {
+	Chain *ChainRequest `json:"chain,omitempty"`
+}
+
+// ChainRequest is the request to the chain
+type ChainRequest struct {
+	Request wasmvmtypes.QueryRequest `json:"request"`
+}
+
+// ChainResponse is the response from the chain
+type ChainResponse struct {
+	Data []byte `json:"data"`
+}
+
+// queryCustom is a helper function to query the custom contract
+func queryCustom(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contract sdk.AccAddress, request evmbindingtypes.Query, response interface{}) error {
+	t.Helper()
+
+	// Make the request a kiichain query
+	kiichainQuery := wasmbinding.KiichainQuery{
+		EVM: &request,
+	}
+
+	// Marshal the request to JSON
+	msgBz, err := json.Marshal(kiichainQuery)
+	if err != nil {
+		return err
+	}
+	t.Log("queryCustom1", string(msgBz))
+
+	query := ReflectQuery{
+		Chain: &ChainRequest{
+			Request: wasmvmtypes.QueryRequest{Custom: msgBz},
+		},
+	}
+	queryBz, err := json.Marshal(query)
+	if err != nil {
+		return err
+	}
+	t.Log("queryCustom3", string(queryBz))
+
+	resBz, err := app.WasmKeeper.QuerySmart(ctx, contract, queryBz)
+	if err != nil {
+		return err
+	}
+	var resp ChainResponse
+	err = json.Unmarshal(resBz, &resp)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(resp.Data, response)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
