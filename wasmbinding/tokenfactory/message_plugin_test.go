@@ -12,7 +12,7 @@ import (
 
 	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
 	wasmbinding "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
-	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/types"
+	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory/types"
 	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 

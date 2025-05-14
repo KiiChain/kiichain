@@ -15,8 +15,9 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	app "github.com/kiichain/kiichain/v1/app"
+	"github.com/kiichain/kiichain/v1/wasmbinding"
 	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
-	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/types"
+	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory/types"
 	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
@@ -328,7 +329,13 @@ type ReflectSubMsgs struct {
 // executeCustom executes a custom message on the reflect contract
 func executeCustom(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contract sdk.AccAddress, sender sdk.AccAddress, msg bindingtypes.Msg, funds sdk.Coin) error { //nolint:unparam // funds is always nil but could change in the future.
 	t.Helper()
-	customBz, err := json.Marshal(msg)
+
+	// Make the request a kiichain msg
+	kiichainMsg := wasmbinding.KiichainMsg{
+		TokenFactory: &msg,
+	}
+
+	customBz, err := json.Marshal(kiichainMsg)
 	require.NoError(t, err)
 
 	reflectMsg := ReflectExec{
