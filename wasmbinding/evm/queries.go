@@ -40,7 +40,7 @@ func (qp *QueryPlugin) HandleEVMQuery(ctx sdk.Context, evmQuery evmbindingtypes.
 	switch {
 	case evmQuery.EthCall != nil:
 		res, err := qp.HandleEthCall(ctx, evmQuery.EthCall)
-		if err.Error() == vm.ErrExecutionReverted.Error() {
+		if err != nil && (err.Error() == vm.ErrExecutionReverted.Error()) {
 			return nil, ErrExecutionReverted
 		}
 		if err != nil {
