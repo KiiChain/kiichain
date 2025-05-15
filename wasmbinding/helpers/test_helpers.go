@@ -32,7 +32,7 @@ func CreateTestInput(t *testing.T) (*app.KiichainApp, sdk.Context) {
 	valConsAddr, err := allVal[0].GetConsAddr()
 	require.NoError(t, err)
 
-	// Set a final context witht the proposer address for the EVM module
+	// Set a final context with the proposer address for the EVM module
 	ctx = chain.BaseApp.NewUncachedContext(true, tenderminttypes.Header{Height: 1, ChainID: "testing_1010-1", Time: time.Now().UTC(), ProposerAddress: valConsAddr})
 	return chain, sdk.UnwrapSDKContext(ctx)
 }

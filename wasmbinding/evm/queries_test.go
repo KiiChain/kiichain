@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/stretchr/testify/require"
+
 	mock "github.com/kiichain/kiichain/v1/tests/e2e/mock"
 	evmwasmbinding "github.com/kiichain/kiichain/v1/wasmbinding/evm"
 	evmbindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/evm/types"
-
 	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
-	"github.com/stretchr/testify/require"
 )
 
 // TestHandleEVMQuery tests the HandleEVMQuery function

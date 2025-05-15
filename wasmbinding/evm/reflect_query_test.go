@@ -12,9 +12,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	erc20types "github.com/cosmos/evm/x/erc20/types"
+
 	app "github.com/kiichain/kiichain/v1/app"
 	mock "github.com/kiichain/kiichain/v1/tests/e2e/mock"
 	"github.com/kiichain/kiichain/v1/wasmbinding"
@@ -92,6 +93,7 @@ func TestQueryEthCallWithError(t *testing.T) {
 
 // deployCounter deploys the counter contract
 func deployCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.Address {
+	t.Helper()
 	// Select the from as the erc20 module address
 	from := common.BytesToAddress(authtypes.NewModuleAddress(erc20types.ModuleName).Bytes())
 
@@ -115,6 +117,7 @@ func deployCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.A
 
 // incrementCounter increments the counter in the contract
 func incrementCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contractAddr common.Address) {
+	t.Helper()
 	// Sender must be an account with ETH balance and nonce tracking
 	from := common.BytesToAddress(authtypes.NewModuleAddress(erc20types.ModuleName).Bytes())
 

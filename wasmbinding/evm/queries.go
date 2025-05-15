@@ -7,16 +7,19 @@ import (
 	"fmt"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	emvconfig "github.com/cosmos/evm/server/config"
-	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
-	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/gogo/status"
-	evmbindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/evm/types"
 	"google.golang.org/grpc/codes"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	emvconfig "github.com/cosmos/evm/server/config"
+	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
+
+	evmbindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/evm/types"
 )
 
 // QueryPlugin is a custom query plugin for the EVM module
