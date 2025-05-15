@@ -80,11 +80,13 @@ func (qp *QueryPlugin) HandleEthCall(ctx sdk.Context, call *evmbindingtypes.EthC
 	}
 
 	// Build the request
+	chainID := qp.evmKeeper.GetParams(ctx).ChainConfig.ChainId
+	proposer := ctx.BlockHeader().ProposerAddress
 	req := evmtypes.EthCallRequest{
 		Args:            bz,
 		GasCap:          emvconfig.DefaultGasCap,
-		ChainId:         int64(qp.evmKeeper.GetParams(ctx).ChainConfig.ChainId),
-		ProposerAddress: sdk.ConsAddress(ctx.BlockHeader().ProposerAddress),
+		ChainId:         int64(chainID),
+		ProposerAddress: sdk.ConsAddress(proposer),
 	}
 
 	// Build a timeout and wrap the context
