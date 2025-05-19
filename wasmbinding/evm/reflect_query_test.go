@@ -92,6 +92,109 @@ func TestQueryEthCallWithError(t *testing.T) {
 	require.ErrorContains(t, err, "codespace: evm_wasmbinding, code: 1")
 }
 
+// TestQueryERC20Information test the ERC20Information query
+func TestQueryERC20Information(t *testing.T) {
+	actor := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, actor)
+
+	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)
+	require.NotEmpty(t, reflect)
+
+	// Deploy the counter contract
+	contractAddr := deployERC20(t, ctx, app)
+	require.NotEmpty(t, contractAddr)
+
+	// Perform the ERC20Information query
+	query := evmbindingtypes.Query{
+		ERC20Information: &evmbindingtypes.ERC20InformationRequest{
+			Contract: contractAddr.Hex(),
+		},
+	}
+	resp := evmbindingtypes.ERC20InformationResponse{}
+	err := queryCustom(t, ctx, app, reflect, query, &resp)
+	require.NoError(t, err)
+
+	// Check the expected value (0 if freshly deployed)
+	require.EqualValues(t, "Test", resp.Name)
+	require.EqualValues(t, "TEST", resp.Symbol)
+	require.EqualValues(t, 18, resp.Decimals)
+}
+
+// TestQueryERC20Balance test the ERC20Balance query
+func TestQueryERC20Balance(t *testing.T) {
+	actor := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, actor)
+
+	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)
+	require.NotEmpty(t, reflect)
+
+	// Deploy the counter contract
+	contractAddr := deployERC20(t, ctx, app)
+	require.NotEmpty(t, contractAddr)
+
+	// Create a new account
+	account := createAccountAndRegister(t, ctx, app)
+	require.NotEmpty(t, account)
+
+	// Mint some tokens to the account
+	mintAmount := big.NewInt(1000)
+	mintERC20(t, ctx, app, contractAddr, account, mintAmount)
+
+	// Perform the ERC20Balance query
+	query := evmbindingtypes.Query{
+		ERC20Balance: &evmbindingtypes.ERC20BalanceRequest{
+			Contract: contractAddr.Hex(),
+			Address:  account.Hex(),
+		},
+	}
+	resp := evmbindingtypes.ERC20BalanceResponse{}
+	err := queryCustom(t, ctx, app, reflect, query, &resp)
+	require.NoError(t, err)
+
+	// Check the expected value
+	require.EqualValues(t, mintAmount.String(), resp.Balance)
+}
+
+// TestQueryERC20Allowance test the ERC20Allowance query
+func TestQueryERC20Allowance(t *testing.T) {
+	actor := helpers.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, actor)
+
+	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)
+	require.NotEmpty(t, reflect)
+
+	// Deploy the counter contract
+	contractAddr := deployERC20(t, ctx, app)
+	require.NotEmpty(t, contractAddr)
+
+	// Create a new account
+	account := createAccountAndRegister(t, ctx, app)
+	require.NotEmpty(t, account)
+
+	// Mint some tokens to the account
+	mintAmount := big.NewInt(1000)
+	mintERC20(t, ctx, app, contractAddr, account, mintAmount)
+
+	// Create an allowance for the actor
+	spender := common.BytesToAddress(actor.Bytes())
+	createERC20Allowance(t, ctx, app, contractAddr, account, spender, mintAmount)
+
+	// Perform the ERC20Allowance query
+	query := evmbindingtypes.Query{
+		ERC20Allowance: &evmbindingtypes.ERC20AllowanceRequest{
+			Contract: contractAddr.Hex(),
+			Owner:    account.Hex(),
+			Spender:  spender.Hex(),
+		},
+	}
+	resp := evmbindingtypes.ERC20AllowanceResponse{}
+	err := queryCustom(t, ctx, app, reflect, query, &resp)
+	require.NoError(t, err)
+
+	// Check the expected value
+	require.EqualValues(t, mintAmount.String(), resp.Allowance)
+}
+
 // deployCounter deploys the counter contract
 func deployCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.Address {
 	t.Helper()
