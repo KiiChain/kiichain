@@ -118,9 +118,9 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// Now we call the method based on the function
 	switch method.Name {
 	case TransferMethod:
-		bz, err = p.transfer(ctx, method, args, evm.Origin)
+		bz, err = p.transfer(ctx, method, stateDB, args, evm.Origin)
 	case TransferWithDefaultTimeoutMethod:
-		bz, err = p.transferWithDefaultTimeout(ctx, method, args, evm.Origin)
+		bz, err = p.transferWithDefaultTimeout(ctx, method, stateDB, args, evm.Origin)
 	default:
 		// If default error out
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
@@ -146,8 +146,8 @@ func (p Precompile) EVMKeeper() evmkeeper.Keeper {
 	return p.evmKeeper
 }
 
+// IsTransaction checks if the method is a transaction
 func (Precompile) IsTransaction(method *abi.Method) bool {
-	// Check if the method is a transaction
 	switch method.Name {
 	case TransferMethod, TransferWithDefaultTimeoutMethod:
 		return true
