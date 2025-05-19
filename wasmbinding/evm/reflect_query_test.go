@@ -247,7 +247,7 @@ func deployERC20(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.Add
 	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
 	ctorArgs, err := erc20ABI.Pack("", "Test", "TEST", uint8(18))
 	require.NoError(t, err)
-	deployData := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
+	deployData := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 
 	// Deploy the contract
 	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, nil, deployData, true)
