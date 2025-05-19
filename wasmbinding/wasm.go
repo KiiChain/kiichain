@@ -6,8 +6,9 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
-
 	evmwasmbinding "github.com/kiichain/kiichain/v1/wasmbinding/evm"
+
+	"github.com/kiichain/kiichain/v1/wasmbinding/bech32"
 	tfbinding "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
 	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
 )
@@ -21,9 +22,10 @@ func RegisterCustomPlugins(
 	// Register custom query plugins
 	tokenFactoryQueryPlugin := tfbinding.NewQueryPlugin(bank, tokenFactory)
 	evmQueryPlugin := evmwasmbinding.NewQueryPlugin(evmKeeper)
+	bech32QueryPlugin := bech32.NewQueryPlugin()
 
 	// Create the central query plugin
-	queryPlugin := NewQueryPlugin(tokenFactoryQueryPlugin, evmQueryPlugin)
+	queryPlugin := NewQueryPlugin(tokenFactoryQueryPlugin, evmQueryPlugin, bech32QueryPlugin)
 
 	// Register custom message handler decorators
 	queryPluginOpt := wasmkeeper.WithQueryPlugins(&wasmkeeper.QueryPlugins{
