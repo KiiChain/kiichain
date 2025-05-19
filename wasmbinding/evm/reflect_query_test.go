@@ -14,6 +14,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	"github.com/cosmos/evm/contracts"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 
 	app "github.com/kiichain/kiichain/v1/app"
@@ -47,12 +48,12 @@ func TestQueryEthCall(t *testing.T) {
 
 	// Perform the eth_call query
 	query := evmbindingtypes.Query{
-		EthCall: &evmbindingtypes.EthCall{
+		EthCall: &evmbindingtypes.EthCallRequest{
 			Contract: contractAddr.Hex(),
 			Data:     hexutil.Encode(inputData),
 		},
 	}
-	resp := evmbindingtypes.EthCall{}
+	resp := evmbindingtypes.EthCallRequest{}
 	err = queryCustom(t, ctx, app, reflect, query, &resp)
 	require.NoError(t, err)
 
@@ -81,12 +82,12 @@ func TestQueryEthCallWithError(t *testing.T) {
 
 	// Perform the eth_call query
 	query := evmbindingtypes.Query{
-		EthCall: &evmbindingtypes.EthCall{
+		EthCall: &evmbindingtypes.EthCallRequest{
 			Contract: contractAddr.Hex(),
 			Data:     hexutil.Encode([]byte("0xdeadbeef")), // Random data, it will revert
 		},
 	}
-	resp := evmbindingtypes.EthCall{}
+	resp := evmbindingtypes.EthCallRequest{}
 	err := queryCustom(t, ctx, app, reflect, query, &resp)
 	require.ErrorContains(t, err, "codespace: evm_wasmbinding, code: 1")
 }
@@ -131,6 +132,75 @@ func incrementCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contr
 	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true)
 	require.NoError(t, err)
 	require.NotNil(t, res)
+}
+
+// deployERC20 deploys an ERC20 contract
+func deployERC20(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.Address {
+	t.Helper()
+	// Select the from as the erc20 module address
+	from := common.BytesToAddress(authtypes.NewModuleAddress(erc20types.ModuleName).Bytes())
+
+	// Set the data
+	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
+	ctorArgs, err := erc20ABI.Pack("", "Test", "TEST", uint8(18))
+	require.NoError(t, err)
+	deployData := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
+
+	// Deploy the contract
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, nil, deployData, true)
+	require.NoError(t, err)
+	require.NotNil(t, res.Ret)
+
+	// Derive the deployed contract address
+	nonce := app.EVMKeeper.GetNonce(ctx, from)
+	contractAddr := crypto.CreateAddress(from, nonce-1)
+	return contractAddr
+}
+
+// mintERC20 mints an ERC20 token
+func mintERC20(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contractAddr common.Address, to common.Address, amount *big.Int) {
+	t.Helper()
+	// Sender must be an account with ETH balance and nonce tracking
+	from := common.BytesToAddress(authtypes.NewModuleAddress(erc20types.ModuleName).Bytes())
+
+	// Load the ABI and pack the mint() call
+	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
+	inputData, err := erc20ABI.Pack("mint", to, amount)
+	require.NoError(t, err)
+
+	// Send transaction to call mint
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true)
+	require.NoError(t, err)
+	require.NotNil(t, res)
+}
+
+// createERC20Allowance creates an ERC20 allowance
+func createERC20Allowance(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contractAddr common.Address, owner common.Address, spender common.Address, amount *big.Int) {
+	t.Helper()
+	// Load the ABI and pack the mint() call
+	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
+	inputData, err := erc20ABI.Pack("approve", spender, amount)
+	require.NoError(t, err)
+
+	// Send transaction to call mint
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, owner, &contractAddr, inputData, true)
+	require.NoError(t, err)
+	require.NotNil(t, res)
+}
+
+// createAccount creates the account and register using the auth module
+func createAccountAndRegister(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.Address {
+	t.Helper()
+
+	// Create a new account
+	randomAccount := helpers.RandomAccountAddress()
+
+	// Create the account in the auth module
+	accountI := app.AccountKeeper.NewAccountWithAddress(ctx, randomAccount)
+	app.AccountKeeper.SetAccount(ctx, accountI)
+
+	// Return the account as common address
+	return common.BytesToAddress(accountI.GetAddress().Bytes())
 }
 
 // TestQueryDenomAdmin tests the GetDenomAdmin query
