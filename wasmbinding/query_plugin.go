@@ -9,6 +9,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/kiichain/kiichain/v1/wasmbinding/bech32"
+	bech32bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/bech32/types"
 	"github.com/kiichain/kiichain/v1/wasmbinding/evm"
 	evmbindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/evm/types"
 	"github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
@@ -17,21 +19,24 @@ import (
 
 // KiichainQuery is the query type for all cosmwasm bindings
 type KiichainQuery struct {
-	TokenFactory *tfbindingtypes.Query  `json:"token_factory,omitempty"`
-	EVM          *evmbindingtypes.Query `json:"evm,omitempty"`
+	TokenFactory *tfbindingtypes.Query     `json:"token_factory,omitempty"`
+	EVM          *evmbindingtypes.Query    `json:"evm,omitempty"`
+	Bech32       *bech32bindingtypes.Query `json:"bech32,omitempty"`
 }
 
 // QueryPlugin is the query plugin for all cosmwasm bindings
 type QueryPlugin struct {
 	tokenfactoryHandler tokenfactory.QueryPlugin
 	evmHandler          evm.QueryPlugin
+	bech32Handler       bech32.QueryPlugin
 }
 
 // NewQueryPlugin returns a reference to a new QueryPlugin
-func NewQueryPlugin(th *tokenfactory.QueryPlugin, evm *evm.QueryPlugin) *QueryPlugin {
+func NewQueryPlugin(th *tokenfactory.QueryPlugin, evm *evm.QueryPlugin, bech32 *bech32.QueryPlugin) *QueryPlugin {
 	return &QueryPlugin{
 		tokenfactoryHandler: *th,
 		evmHandler:          *evm,
+		bech32Handler:       *bech32,
 	}
 }
 
@@ -52,6 +57,9 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 		case contractQuery.EVM != nil:
 			// Call the EVM custom querier
 			return qp.evmHandler.HandleEVMQuery(ctx, *contractQuery.EVM)
+		case contractQuery.Bech32 != nil:
+			// Call the bech32 custom querier
+			return qp.bech32Handler.HandleBech32Query(ctx, *contractQuery.Bech32)
 		default:
 			return nil, wasmvmtypes.UnsupportedRequest{Kind: "unknown query variant"}
 		}
