@@ -60,7 +60,7 @@ func (qp *QueryPlugin) HandleBech32Query(ctx sdk.Context, bech32Query bech32bind
 	}
 }
 
-// HandleBech32ToHex handles the bech32 to hex conversion
+// HandleHexToBech32 handles the hex to bech32 conversion
 func HandleHexToBech32(req bech32bindingtypes.HexToBech32) (*bech32bindingtypes.HexToBech32Response, error) {
 	// Convert the hex string to a address
 	address := common.HexToAddress(req.Address)
