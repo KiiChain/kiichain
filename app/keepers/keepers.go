@@ -84,6 +84,8 @@ import (
 	ibctransferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
+	ibcclientkeeper "github.com/cosmos/ibc-go/v8/modules/core/02-client/keeper"
+	ibcconnectionkeeper "github.com/cosmos/ibc-go/v8/modules/core/03-connection/keeper"
 
 	"github.com/kiichain/kiichain/v1/wasmbinding"
 	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
@@ -115,6 +117,8 @@ type AppKeepers struct {
 	ICAControllerKeeper   icacontrollerkeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
 	TransferKeeper        ibctransferkeeper.Keeper
+	clientKeeper          ibcclientkeeper.Keeper
+	connectionKeeper      ibcconnectionkeeper.Keeper
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	AuthzKeeper           authzkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
@@ -565,6 +569,8 @@ func NewAppKeeper(
 		appKeepers.Erc20Keeper,
 		appKeepers.AuthzKeeper,
 		appKeepers.TransferKeeper,
+		appKeepers.clientKeeper,
+		appKeepers.connectionKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.EVMKeeper,
 		*appKeepers.GovKeeper,
