@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// NewMsgTransfer creates a new Transfer message
 func NewMsgTransfer(
 	ctx sdk.Context,
 	method *abi.Method,
@@ -78,6 +79,7 @@ func NewMsgTransfer(
 	return &msg, nil
 }
 
+// NewMsgTransferDefaultTimeout builds a new transfer message while collecting timeout information
 func (p Precompile) NewMsgTransferDefaultTimeout(
 	ctx sdk.Context,
 	method *abi.Method,
@@ -140,6 +142,7 @@ func (p Precompile) NewMsgTransferDefaultTimeout(
 	return &msg, msg.ValidateBasic()
 }
 
+// getChannelConnection gets the channel connection from the channel keeper
 func (p Precompile) getChannelConnection(ctx sdk.Context, port string, channelID string) (*connectiontypes.ConnectionEnd, error) {
 	channel, found := p.channelKeeper.GetChannel(ctx, port, channelID)
 	if !found {
@@ -154,6 +157,7 @@ func (p Precompile) getChannelConnection(ctx sdk.Context, port string, channelID
 	return &connection, nil
 }
 
+// getConsensusLatestHeight obtains the consensus latest height
 func (p Precompile) getConsensusLatestHeight(ctx sdk.Context, connection connectiontypes.ConnectionEnd) (*clienttypes.Height, error) {
 	clientState, found := p.clientKeeper.GetClientState(ctx, connection.ClientId)
 
@@ -168,6 +172,7 @@ func (p Precompile) getConsensusLatestHeight(ctx sdk.Context, connection connect
 	}, nil
 }
 
+// GetAdjustedHeight calculates the default timeout height
 func GetAdjustedHeight(latestConsensusHeight clienttypes.Height) (clienttypes.Height, error) {
 	defaultTimeoutHeight, err := clienttypes.ParseHeight(types.DefaultRelativePacketTimeoutHeight)
 	if err != nil {
@@ -180,6 +185,7 @@ func GetAdjustedHeight(latestConsensusHeight clienttypes.Height) (clienttypes.He
 	return absoluteHeight, nil
 }
 
+// GetAdjustedTimestamp creates default timestamp from height and unix
 func (p Precompile) GetAdjustedTimestamp(ctx sdk.Context, clientId string, height clienttypes.Height) (uint64, error) {
 	consensusState, found := p.clientKeeper.GetClientConsensusState(ctx, clientId, height)
 	var consensusStateTimestamp uint64
@@ -210,6 +216,7 @@ type ValidatedArgs struct {
 	amount                *big.Int
 }
 
+// validateCommonArgs validates common transfer args
 func validateCommonArgs(ctx sdk.Context, args []interface{}, caller common.Address) (*ValidatedArgs, error) {
 	senderKiiAddr, err := GetKiiAddressByEvmAddress(ctx, caller)
 	if err != nil {
@@ -256,6 +263,7 @@ func validateCommonArgs(ctx sdk.Context, args []interface{}, caller common.Addre
 	}, nil
 }
 
+// addMemo adds the memo string to the transfer
 func addMemo(memoArg interface{}, transferMsg types.MsgTransfer) types.MsgTransfer {
 	memo := ""
 	if memoArg != nil {
@@ -265,6 +273,7 @@ func addMemo(memoArg interface{}, transferMsg types.MsgTransfer) types.MsgTransf
 	return transferMsg
 }
 
+// ValidateArgsLength checks if the length of the args is as expected
 func ValidateArgsLength(args []interface{}, length int) error {
 	if len(args) != length {
 		return fmt.Errorf("expected %d arguments but got %d", length, len(args))
@@ -273,6 +282,7 @@ func ValidateArgsLength(args []interface{}, length int) error {
 	return nil
 }
 
+// GetKiiAddressByEvmAddress transforms evm address into a kii address
 func GetKiiAddressByEvmAddress(ctx sdk.Context, evmAddress common.Address) (sdk.AccAddress, error) {
 	cosmosAddr := sdk.AccAddress(evmAddress.Bytes()) // Check this is working as intended
 	return cosmosAddr, nil
