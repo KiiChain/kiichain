@@ -3,9 +3,10 @@ package bech32_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/kiichain/kiichain/v1/wasmbinding/bech32"
 	bech32bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/bech32/types"
-	"github.com/stretchr/testify/require"
 )
 
 // TestHexToBech32 tests the HexToBech32 function of the bech32 module

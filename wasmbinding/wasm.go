@@ -6,9 +6,9 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
-	evmwasmbinding "github.com/kiichain/kiichain/v1/wasmbinding/evm"
 
 	"github.com/kiichain/kiichain/v1/wasmbinding/bech32"
+	evmwasmbinding "github.com/kiichain/kiichain/v1/wasmbinding/evm"
 	tfbinding "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
 	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
 )

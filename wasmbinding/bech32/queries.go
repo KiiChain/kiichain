@@ -6,8 +6,10 @@ import (
 	"strings"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	bech32bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/bech32/types"
 )
 
