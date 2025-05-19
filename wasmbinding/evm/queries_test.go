@@ -131,6 +131,27 @@ func TestHandleERC20Information(t *testing.T) {
 				TotalSupply: "0",
 			},
 		},
+		{
+			name: "invalid - Invalid contract address format",
+			query: evmbindingtypes.ERC20InformationRequest{
+				Contract: "not-an-address",
+			},
+			errContains: "abi: attempting to unmarshall",
+		},
+		{
+			name: "invalid - Empty contract address",
+			query: evmbindingtypes.ERC20InformationRequest{
+				Contract: "",
+			},
+			errContains: "abi: attempting to unmarshall an empty string",
+		},
+		{
+			name: "invalid - Non-ERC20 contract address",
+			query: evmbindingtypes.ERC20InformationRequest{
+				Contract: deployCounter(t, ctx, app).String(),
+			},
+			errContains: "execution reverted",
+		},
 	}
 
 	// Iterate over the test cases
@@ -179,6 +200,19 @@ func TestHandleERC20Balance(t *testing.T) {
 			expected: &evmbindingtypes.ERC20BalanceResponse{
 				Balance: "100",
 			},
+		},
+		{
+			name:        "invalid - Empty contract address",
+			query:       evmbindingtypes.ERC20BalanceRequest{},
+			errContains: "abi: attempting to unmarshall an empty string",
+		},
+		{
+			name: "invalid - Non-ERC20 contract address",
+			query: evmbindingtypes.ERC20BalanceRequest{
+				Contract: deployCounter(t, ctx, app).String(),
+				Address:  common.Address(actor.Bytes()).String(),
+			},
+			errContains: "execution reverted",
 		},
 	}
 
@@ -231,6 +265,20 @@ func TestHandleERC20Allowance(t *testing.T) {
 			expected: &evmbindingtypes.ERC20AllowanceResponse{
 				Allowance: "100",
 			},
+		},
+		{
+			name:        "invalid - Empty contract address",
+			query:       evmbindingtypes.ERC20AllowanceRequest{},
+			errContains: "abi: attempting to unmarshall an empty string",
+		},
+		{
+			name: "invalid - Non-ERC20 contract address",
+			query: evmbindingtypes.ERC20AllowanceRequest{
+				Contract: deployCounter(t, ctx, app).String(),
+				Owner:    actor.String(),
+				Spender:  actor2.String(),
+			},
+			errContains: "execution reverted",
 		},
 	}
 
