@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/big"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -15,7 +16,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/cosmos/evm/contracts"
 	emvconfig "github.com/cosmos/evm/server/config"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
@@ -53,54 +56,222 @@ func (qp *QueryPlugin) HandleEVMQuery(ctx sdk.Context, evmQuery evmbindingtypes.
 		}
 
 		return bz, nil
+	case evmQuery.ERC20Information != nil:
+		res, err := qp.HandleERC20Information(ctx, evmQuery.ERC20Information)
+		if err != nil {
+			return nil, fmt.Errorf("failed to handle ERC20 information: %w", err)
+		}
+
+		bz, err := json.Marshal(res)
+		if err != nil {
+			return nil, fmt.Errorf("failed to JSON marshal ERC20 information: %w", err)
+		}
+		return bz, nil
+	case evmQuery.ERC20Balance != nil:
+		res, err := qp.HandleERC20Balance(ctx, evmQuery.ERC20Balance)
+		if err != nil {
+			return nil, fmt.Errorf("failed to handle ERC20 balance: %w", err)
+		}
+		bz, err := json.Marshal(res)
+		if err != nil {
+			return nil, fmt.Errorf("failed to JSON marshal ERC20 balance: %w", err)
+		}
+		return bz, nil
+	case evmQuery.ERC20Allowance != nil:
+		res, err := qp.HandleERC20Allowance(ctx, evmQuery.ERC20Allowance)
+		if err != nil {
+			return nil, fmt.Errorf("failed to handle ERC20 allowance: %w", err)
+		}
+		bz, err := json.Marshal(res)
+		if err != nil {
+			return nil, fmt.Errorf("failed to JSON marshal ERC20 allowance: %w", err)
+		}
+		return bz, nil
 	default:
 		return nil, wasmvmtypes.UnsupportedRequest{Kind: "unknown token factory query variant"}
 	}
 }
 
 // HandleEthCall handles the EthCall query
-func (qp *QueryPlugin) HandleEthCall(ctx sdk.Context, call *evmbindingtypes.EthCall) (*evmbindingtypes.EthCallResponse, error) {
-	// Parse the to and the data
+func (qp *QueryPlugin) HandleEthCall(ctx sdk.Context, call *evmbindingtypes.EthCallRequest) (*evmbindingtypes.EthCallResponse, error) {
+	// Prepare the request data
+	chainID := qp.evmKeeper.GetParams(ctx).ChainConfig.ChainId
+	proposer := ctx.BlockHeader().ProposerAddress
 	to := common.HexToAddress(call.Contract)
+
+	// Parse the to and the data
 	data, err := hexutil.Decode(call.Data)
 	if err != nil {
 		return nil, err
 	}
 
-	// Build the arguments
-	args := evmtypes.TransactionArgs{
-		To:   &to,
-		Data: (*hexutil.Bytes)(&data),
-	}
-
-	// Parse the arguments
-	bz, err := json.Marshal(&args)
+	// Build the eth call request
+	req, err := buildEthCallRequest(to, data, chainID, proposer)
 	if err != nil {
 		return nil, err
 	}
 
-	// Build the request
-	chainID := qp.evmKeeper.GetParams(ctx).ChainConfig.ChainId
-	proposer := ctx.BlockHeader().ProposerAddress
-	req := evmtypes.EthCallRequest{
-		Args:            bz,
-		GasCap:          emvconfig.DefaultGasCap,
-		ChainId:         int64(chainID),
-		ProposerAddress: sdk.ConsAddress(proposer),
-	}
-
 	// Build a timeout and wrap the context
 	timeout := emvconfig.DefaultEVMTimeout
-	var cancel context.CancelFunc
-	var ctxWrapped context.Context
-	ctxWrapped, cancel = context.WithTimeout(ctx, timeout)
-
-	// Make sure the context is canceled when the call has completed
-	// this makes sure resources are cleaned up.
+	ctxWrapped, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
 	// Call the EVM keeper
-	res, err := qp.evmKeeper.EthCall(ctxWrapped, &req)
+	res, err := qp.callEVMAndHandleRevertError(ctxWrapped, req)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get the response
+	return &evmbindingtypes.EthCallResponse{Data: hexutil.Encode(res.Ret)}, nil
+}
+
+// HandleERC20Information handles the ERC20Information query
+// Since we are using a ABI, we don't need to timeout the call
+func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingtypes.ERC20InformationRequest) (*evmbindingtypes.ERC20InformationResponse, error) {
+	// Prepare the request data
+	to := common.HexToAddress(call.Contract)
+	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
+
+	// Response object
+	res := &evmbindingtypes.ERC20InformationResponse{}
+
+	// Query the decimals
+	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "decimals")
+	if err != nil {
+		return nil, err
+	}
+	// Unpack the decimals
+	unpacked, err := erc20ABI.Unpack("decimals", callRes.Ret)
+	if err != nil {
+		return nil, err
+	}
+	// Get the decimals
+	decimals, ok := unpacked[0].(uint8)
+	if !ok {
+		return nil, errors.New("decimals is not a big.Int")
+	}
+	res.Decimals = decimals
+
+	// Query the name
+	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "name")
+	if err != nil {
+		return nil, err
+	}
+	// Unpack the name
+	unpacked, err = erc20ABI.Unpack("name", callRes.Ret)
+	if err != nil {
+		return nil, err
+	}
+	// Get the name
+	name, ok := unpacked[0].(string)
+	if !ok {
+		return nil, errors.New("name is not a string")
+	}
+	res.Name = name
+
+	// Query the symbol
+	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "symbol")
+	if err != nil {
+		return nil, err
+	}
+	// Unpack the symbol
+	unpacked, err = erc20ABI.Unpack("symbol", callRes.Ret)
+	if err != nil {
+		return nil, err
+	}
+	// Get the symbol
+	symbol, ok := unpacked[0].(string)
+	if !ok {
+		return nil, errors.New("symbol is not a string")
+	}
+	res.Symbol = symbol
+
+	// Query the total supply
+	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "totalSupply")
+	if err != nil {
+		return nil, err
+	}
+	// Unpack the total supply
+	unpacked, err = erc20ABI.Unpack("totalSupply", callRes.Ret)
+	if err != nil {
+		return nil, err
+	}
+	// Get the total supply
+	totalSupply, ok := unpacked[0].(*big.Int)
+	if !ok {
+		return nil, errors.New("totalSupply is not a big.Int")
+	}
+	res.TotalSupply = totalSupply.String()
+
+	return res, nil
+}
+
+// HandleERC20Balance handles the ERC20Balance query
+func (qp *QueryPlugin) HandleERC20Balance(ctx sdk.Context, call *evmbindingtypes.ERC20BalanceRequest) (*evmbindingtypes.ERC20BalanceResponse, error) {
+	// Prepare the request data
+	to := common.HexToAddress(call.Contract)
+	address := common.HexToAddress(call.Address)
+	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
+
+	// Response object
+	res := &evmbindingtypes.ERC20BalanceResponse{}
+
+	// Query the balance
+	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "balanceOf", address)
+	if err != nil {
+		return nil, err
+	}
+	// Unpack the balance
+	unpacked, err := erc20ABI.Unpack("balanceOf", callRes.Ret)
+	if err != nil {
+		return nil, err
+	}
+	// Get the balance
+	balance, ok := unpacked[0].(*big.Int)
+	if !ok {
+		return nil, errors.New("balance is not a big.Int")
+	}
+	res.Balance = balance.String()
+
+	return res, nil
+}
+
+// HandleERC20Allowance handles the ERC20Allowance query
+func (qp *QueryPlugin) HandleERC20Allowance(ctx sdk.Context, call *evmbindingtypes.ERC20AllowanceRequest) (*evmbindingtypes.ERC20AllowanceResponse, error) {
+	// Prepare the request data
+	to := common.HexToAddress(call.Contract)
+	owner := common.HexToAddress(call.Owner)
+	spender := common.HexToAddress(call.Spender)
+	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
+
+	// Response object
+	res := &evmbindingtypes.ERC20AllowanceResponse{}
+
+	// Query the allowance
+	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "allowance", owner, spender)
+	if err != nil {
+		return nil, err
+	}
+	// Unpack the allowance
+	unpacked, err := erc20ABI.Unpack("allowance", callRes.Ret)
+	if err != nil {
+		return nil, err
+	}
+	// Get the allowance
+	allowance, ok := unpacked[0].(*big.Int)
+	if !ok {
+		return nil, errors.New("allowance is not a big.Int")
+	}
+	res.Allowance = allowance.String()
+
+	return res, nil
+}
+
+// callEVMAndHandleRevertError calls the EVM and handles revert errors
+func (qp *QueryPlugin) callEVMAndHandleRevertError(ctx context.Context, req *evmtypes.EthCallRequest) (*evmtypes.MsgEthereumTxResponse, error) {
+	// Call the EVM keeper
+	res, err := qp.evmKeeper.EthCall(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -110,8 +281,7 @@ func (qp *QueryPlugin) HandleEthCall(ctx sdk.Context, call *evmbindingtypes.EthC
 		return nil, err
 	}
 
-	// Get the response
-	return &evmbindingtypes.EthCallResponse{Data: hexutil.Encode(res.Ret)}, nil
+	return res, nil
 }
 
 // handleRevertError returns revert related error
@@ -127,4 +297,27 @@ func handleRevertError(vmError string, ret []byte) error {
 		return evmtypes.NewExecErrorWithReason(ret)
 	}
 	return nil
+}
+
+// buildEthCallRequest builds the EVM query call
+func buildEthCallRequest(to common.Address, data hexutil.Bytes, chainID uint64, proposer []byte) (*evmtypes.EthCallRequest, error) {
+	// Build the arguments
+	args := evmtypes.TransactionArgs{
+		To:   &to,
+		Data: &data,
+	}
+
+	// Parse the arguments
+	bz, err := json.Marshal(&args)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the request
+	return &evmtypes.EthCallRequest{
+		Args:            bz,
+		GasCap:          emvconfig.DefaultGasCap,
+		ChainId:         int64(chainID),
+		ProposerAddress: sdk.ConsAddress(proposer),
+	}, nil
 }
