@@ -56,7 +56,7 @@ func (qp *QueryPlugin) HandleBech32Query(ctx sdk.Context, bech32Query bech32bind
 
 		return bz, nil
 	default:
-		return nil, wasmvmtypes.UnsupportedRequest{Kind: "unknown token factory query variant"}
+		return nil, wasmvmtypes.UnsupportedRequest{Kind: "unknown bech32 query variant"}
 	}
 }
 
