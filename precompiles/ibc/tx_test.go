@@ -11,11 +11,8 @@ import (
 
 // TestPrecompileTransferWithDefaultTimeout calls IBC precompile transfer with default timeout
 func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
-	// Get and setup path
+	// Get path and testcoin
 	path := s.path
-	s.coordinator.Setup(path)
-
-	// Get up test coin
 	coin := ibctesting.TestCoin
 
 	// Get the method
@@ -56,7 +53,7 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 			args: []any{
 				"invalid",
 			},
-			errContains: "invalid number of arguments; expected 6; got: 1",
+			errContains: "expected 6 arguments but got 1",
 		},
 	}
 
