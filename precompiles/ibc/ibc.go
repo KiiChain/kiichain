@@ -13,7 +13,6 @@ import (
 	cmn "github.com/cosmos/evm/precompiles/common"
 	ibctransferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 	"github.com/cosmos/evm/x/vm/core/vm"
-	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 )
 
 const (
@@ -36,7 +35,6 @@ var _ vm.PrecompiledContract = &Precompile{}
 type Precompile struct {
 	cmn.Precompile
 	transferKeeper   ibctransferkeeper.Keeper
-	evmKeeper        evmkeeper.Keeper
 	clientKeeper     clientkeeper.Keeper
 	connectionKeeper connectionkeeper.Keeper
 	channelKeeper    channelkeeper.Keeper
@@ -47,7 +45,6 @@ type Precompile struct {
 
 func NewPrecompile(
 	transferKeeper ibctransferkeeper.Keeper,
-	evmKeeper evmkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper) (*Precompile, error) {
@@ -60,7 +57,6 @@ func NewPrecompile(
 	// Setup keepers
 	p := &Precompile{
 		transferKeeper:   transferKeeper,
-		evmKeeper:        evmKeeper,
 		clientKeeper:     clientKeeper,
 		connectionKeeper: connectionKeeper,
 		channelKeeper:    channelKeeper,
@@ -118,9 +114,9 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// Now we call the method based on the function
 	switch method.Name {
 	case TransferMethod:
-		bz, err = p.transfer(ctx, method, stateDB, args, evm.Origin)
+		bz, err = p.Transfer(ctx, method, stateDB, args, evm.Origin)
 	case TransferWithDefaultTimeoutMethod:
-		bz, err = p.transferWithDefaultTimeout(ctx, method, stateDB, args, evm.Origin)
+		bz, err = p.TransferWithDefaultTimeout(ctx, method, stateDB, args, evm.Origin)
 	default:
 		// If default error out
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
@@ -140,10 +136,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	}
 
 	return bz, nil
-}
-
-func (p Precompile) EVMKeeper() evmkeeper.Keeper {
-	return p.evmKeeper
 }
 
 // IsTransaction checks if the method is a transaction

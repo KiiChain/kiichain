@@ -8,7 +8,7 @@ import (
 )
 
 // transfer does a IBC transfer with custom timeout options
-func (p Precompile) transfer(ctx sdk.Context, method *abi.Method, stateDB vm.StateDB, args []interface{}, caller common.Address) ([]byte, error) {
+func (p Precompile) Transfer(ctx sdk.Context, method *abi.Method, stateDB vm.StateDB, args []interface{}, caller common.Address) ([]byte, error) {
 	// Build and validate msg
 	msg, err := NewMsgTransfer(ctx, method, caller, args)
 	if err != nil {
@@ -30,8 +30,8 @@ func (p Precompile) transfer(ctx sdk.Context, method *abi.Method, stateDB vm.Sta
 	return method.Outputs.Pack(true)
 }
 
-// transferWithDefaultTimeout does a IBC transfer with default timeout options
-func (p Precompile) transferWithDefaultTimeout(ctx sdk.Context, method *abi.Method, stateDB vm.StateDB, args []interface{}, caller common.Address) ([]byte, error) {
+// TransferWithDefaultTimeout does a IBC transfer with default timeout options
+func (p Precompile) TransferWithDefaultTimeout(ctx sdk.Context, method *abi.Method, stateDB vm.StateDB, args []interface{}, caller common.Address) ([]byte, error) {
 	// Build and validate message
 	msg, err := p.NewMsgTransferDefaultTimeout(ctx, method, caller, args)
 	if err != nil {
