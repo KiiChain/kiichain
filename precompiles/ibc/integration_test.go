@@ -49,7 +49,7 @@ func TestIBCPrecompileTestSuite(t *testing.T) {
 
 func (s *IBCPrecompileTestSuite) SetupTest() {
 	// Set the DefaultBondDenom as default
-	sdk.DefaultBondDenom = "stake"
+	sdk.DefaultBondDenom = "tkii"
 	ibctesting.DefaultTestingAppInit = KiichainAppIniterTempDir
 
 	// Start a new keyring
@@ -73,8 +73,9 @@ func (s *IBCPrecompileTestSuite) SetupTest() {
 	path.EndpointB.ChannelConfig.PortID = ibctesting.TransferPort
 	path.EndpointA.ChannelConfig.Version = "ics20-1"
 	path.EndpointB.ChannelConfig.Version = "ics20-1"
-	s.coordinator.Setup(s.path)
+
 	s.path = path
+	s.coordinator.Setup(s.path)
 
 	// Setup ibc precompile on chain A
 	pc, err := ibcprecompile.NewPrecompile(
