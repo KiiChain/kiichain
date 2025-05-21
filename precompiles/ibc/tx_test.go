@@ -26,7 +26,7 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 	port := path.EndpointA.ChannelConfig.PortID
 	channel := path.EndpointA.ChannelID
 	denom := coin.Denom
-	amount := coin.Amount
+	amount := coin.Amount.BigInt()
 	memo := "test"
 
 	// Create the test cases
