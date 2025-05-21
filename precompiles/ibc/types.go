@@ -14,6 +14,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+type TransferEvent struct {
+	Caller   common.Address
+	Denom    string
+	Receiver string
+	Data     []byte
+}
+
 // NewMsgTransfer creates a new Transfer message
 func NewMsgTransfer(
 	ctx sdk.Context,
