@@ -69,8 +69,11 @@ func (s *IBCPrecompileTestSuite) SetupTest() {
 
 	// Create path / channel betweed A and B
 	path := ibctesting.NewPath(s.chainA, s.chainB)
-	path.EndpointA.ChannelConfig.PortID = ibctesting.MockFeePort
-	path.EndpointB.ChannelConfig.PortID = ibctesting.MockFeePort
+	path.EndpointA.ChannelConfig.PortID = ibctesting.TransferPort
+	path.EndpointB.ChannelConfig.PortID = ibctesting.TransferPort
+	path.EndpointA.ChannelConfig.Version = "ics20-1"
+	path.EndpointB.ChannelConfig.Version = "ics20-1"
+	s.coordinator.Setup(s.path)
 	s.path = path
 
 	// Setup ibc precompile on chain A
