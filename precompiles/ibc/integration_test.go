@@ -16,6 +16,7 @@ import (
 	"github.com/cosmos/evm/x/vm/statedb"
 	kiichainApp "github.com/kiichain/kiichain/v1/app"
 	ibcprecompile "github.com/kiichain/kiichain/v1/precompiles/ibc"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
 // These integration tests were modified to work with the KiichainApp
@@ -49,7 +50,7 @@ func TestIBCPrecompileTestSuite(t *testing.T) {
 
 func (s *IBCPrecompileTestSuite) SetupTest() {
 	// Set the DefaultBondDenom as default
-	sdk.DefaultBondDenom = "tkii"
+	sdk.DefaultBondDenom = "stake"
 	ibctesting.DefaultTestingAppInit = KiichainAppIniterTempDir
 
 	// Start a new keyring
@@ -83,6 +84,9 @@ func (s *IBCPrecompileTestSuite) SetupTest() {
 		chain.App.GetIBCKeeper().ConnectionKeeper, chain.App.GetIBCKeeper().ChannelKeeper)
 	s.Require().NoError(err)
 	s.Precompile = pc
+
+	// Fund user 0 on chain A
+	s.fundAddress(s.keyring.GetKey(0).AccAddr, chain)
 }
 
 // GetStateDB returns the state database for the precompile from a given chain
@@ -97,4 +101,27 @@ func (s *IBCPrecompileTestSuite) GetStateDB(chain *ibctesting.TestChain) *stated
 		chain.App.(*kiichainApp.KiichainApp).EVMKeeper,
 		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash)),
 	)
+}
+
+func (s *IBCPrecompileTestSuite) fundAddress(address sdk.AccAddress, chain *ibctesting.TestChain) {
+	// Define coin amount and name
+	coins := sdk.NewCoins(
+		ibctesting.TestCoin, // IBC test coin (1000000stake)
+	)
+	// Mint
+	err := chain.GetSimApp().BankKeeper.MintCoins(
+		chain.GetContext(),
+		types.ModuleName,
+		coins,
+	)
+	s.Require().NoError(err)
+
+	// Send
+	err = chain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(
+		chain.GetContext(),
+		types.ModuleName,
+		address,
+		coins,
+	)
+	s.Require().NoError(err)
 }
