@@ -21,7 +21,7 @@ func (p *Precompile) EmitEventTransfer(
 	ctx sdk.Context,
 	stateDB vm.StateDB,
 	caller common.Address,
-	toAddress, denom, port, channel string,
+	receiver, denom, port, channel string,
 	amount *big.Int,
 	revisionHeight clienttypes.Height,
 	timeoutTimestamp uint64,
@@ -40,7 +40,7 @@ func (p *Precompile) EmitEventTransfer(
 	}
 
 	// The third event is the caller address
-	topics[2], err = cmn.MakeTopic(toAddress)
+	topics[2], err = cmn.MakeTopic(receiver)
 	if err != nil {
 		return err
 	}
