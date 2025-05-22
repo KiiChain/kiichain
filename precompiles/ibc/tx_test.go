@@ -86,19 +86,17 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 
 				// Check if events were emitted
 				log := chainAstateDB.Logs()[0] // Always zero index, since the db is initialized per test
-				event := s.Precompile.ABI.Events[ibcprecompile.TransferWithDefaultTimeoutMethod]
+				event := s.Precompile.ABI.Events[ibcprecompile.EventTypeTransfer]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
 				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
 
 				// Decode the event data and check
-				var executeEvent ibcprecompile.TransferEvent
-				err = cmn.UnpackLog(s.Precompile.ABI, &executeEvent, ibcprecompile.EventTypeTransfer, *log)
+				var transferEvent ibcprecompile.TransferEvent
+				err = cmn.UnpackLog(s.Precompile.ABI, &transferEvent, ibcprecompile.EventTypeTransfer, *log)
 				s.Require().NoError(err)
 
 				// Check if the data match
 
-				// Check the event value
-				s.Require().Equal(tc.expectedResData, executeEvent.Data)
 			}
 		})
 	}

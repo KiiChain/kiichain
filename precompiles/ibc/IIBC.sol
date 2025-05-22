@@ -24,7 +24,7 @@ interface IBC {
     /// @param revisionHeight The revision height for the transfer.
     /// @param timeoutTimestamp The timeout timestamp for the transfer.
     event Transfer(
-        string indexed caller,
+        address indexed caller,
         string indexed toAddress,
         string indexed denom,
         string port,

@@ -15,10 +15,15 @@ import (
 )
 
 type TransferEvent struct {
-	Caller   common.Address
-	Denom    string
-	Receiver string
-	Data     []byte
+	Caller           common.Address
+	Denom            string
+	Receiver         string
+	Port             string
+	Channel          string
+	Amount           *big.Int
+	RevisionNumber   uint64
+	RevisionHeight   uint64
+	TimeoutTimestamp uint64
 }
 
 // NewMsgTransfer creates a new Transfer message

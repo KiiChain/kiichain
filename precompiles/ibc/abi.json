@@ -8,9 +8,9 @@
       "inputs": [
         {
           "indexed": true,
-          "internalType": "string",
+          "internalType": "address",
           "name": "caller",
-          "type": "string"
+          "type": "address"
         },
         {
           "indexed": true,
