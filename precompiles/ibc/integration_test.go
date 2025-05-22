@@ -103,13 +103,14 @@ func (s *IBCPrecompileTestSuite) GetStateDB(chain *ibctesting.TestChain) *stated
 	)
 }
 
+// fundAddress adds default funds to a given address
 func (s *IBCPrecompileTestSuite) fundAddress(address sdk.AccAddress, chain *ibctesting.TestChain) {
 	// Define coin amount and name
 	coins := sdk.NewCoins(
 		ibctesting.TestCoin, // IBC test coin (1000000stake)
 	)
 	// Mint
-	err := chain.GetSimApp().BankKeeper.MintCoins(
+	err := chain.App.(*kiichainApp.KiichainApp).BankKeeper.MintCoins(
 		chain.GetContext(),
 		types.ModuleName,
 		coins,
@@ -117,7 +118,7 @@ func (s *IBCPrecompileTestSuite) fundAddress(address sdk.AccAddress, chain *ibct
 	s.Require().NoError(err)
 
 	// Send
-	err = chain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(
+	err = chain.App.(*kiichainApp.KiichainApp).BankKeeper.SendCoinsFromModuleToAccount(
 		chain.GetContext(),
 		types.ModuleName,
 		address,
