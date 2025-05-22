@@ -4,12 +4,14 @@ import (
 	"embed"
 	"fmt"
 
+	storetypes "cosmossdk.io/store/types"
 	clientkeeper "github.com/cosmos/ibc-go/v8/modules/core/02-client/keeper"
 	connectionkeeper "github.com/cosmos/ibc-go/v8/modules/core/03-connection/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	cmn "github.com/cosmos/evm/precompiles/common"
 	ibctransferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 	"github.com/cosmos/evm/x/vm/core/vm"
@@ -47,15 +49,23 @@ func NewPrecompile(
 	transferKeeper ibctransferkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
-	channelKeeper channelkeeper.Keeper) (*Precompile, error) {
+	channelKeeper channelkeeper.Keeper,
+	authzKeeper authzkeeper.Keeper) (*Precompile, error) {
 	// Load abi
-	newAbi, err := cmn.LoadABI(f, "abi.json")
+	abi, err := cmn.LoadABI(f, "abi.json")
 	if err != nil {
 		return nil, err
 	}
 
 	// Setup keepers
 	p := &Precompile{
+		Precompile: cmn.Precompile{
+			ABI:                  abi,
+			AuthzKeeper:          authzKeeper,
+			KvGasConfig:          storetypes.KVGasConfig(),
+			TransientKVGasConfig: storetypes.TransientGasConfig(),
+			ApprovalExpiration:   cmn.DefaultExpirationDuration,
+		},
 		transferKeeper:   transferKeeper,
 		clientKeeper:     clientKeeper,
 		connectionKeeper: connectionKeeper,
@@ -63,7 +73,7 @@ func NewPrecompile(
 	}
 
 	// Set method IDs
-	for name, m := range newAbi.Methods {
+	for name, m := range abi.Methods {
 		switch name {
 		case TransferMethod:
 			p.TransferID = m.ID

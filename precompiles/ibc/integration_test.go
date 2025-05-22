@@ -81,7 +81,8 @@ func (s *IBCPrecompileTestSuite) SetupTest() {
 	// Setup ibc precompile on chain A
 	pc, err := ibcprecompile.NewPrecompile(
 		chain.App.(*kiichainApp.KiichainApp).TransferKeeper, chain.App.GetIBCKeeper().ClientKeeper,
-		chain.App.GetIBCKeeper().ConnectionKeeper, chain.App.GetIBCKeeper().ChannelKeeper)
+		chain.App.GetIBCKeeper().ConnectionKeeper, chain.App.GetIBCKeeper().ChannelKeeper,
+		chain.App.(*kiichainApp.KiichainApp).AuthzKeeper)
 	s.Require().NoError(err)
 	s.Precompile = pc
 
