@@ -1,7 +1,10 @@
 package ibc
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -14,6 +17,9 @@ func (p Precompile) Transfer(ctx sdk.Context, method *abi.Method, stateDB vm.Sta
 	if err != nil {
 		return nil, err
 	}
+
+	// Log the call
+	p.transferLog(ctx, method, msg)
 
 	// Transfer
 	_, err = p.transferKeeper.Transfer(ctx, msg)
@@ -38,6 +44,9 @@ func (p Precompile) TransferWithDefaultTimeout(ctx sdk.Context, method *abi.Meth
 		return nil, err
 	}
 
+	// Log the call
+	p.transferLog(ctx, method, msg)
+
 	// Transfer
 	_, err = p.transferKeeper.Transfer(ctx, msg)
 	if err != nil {
@@ -51,4 +60,16 @@ func (p Precompile) TransferWithDefaultTimeout(ctx sdk.Context, method *abi.Meth
 	}
 
 	return method.Outputs.Pack(true)
+}
+
+func (p Precompile) transferLog(ctx sdk.Context, method *abi.Method, msg *types.MsgTransfer) {
+	p.Logger(ctx).Debug(
+		"tx called",
+		"method", method.Name,
+		"args", fmt.Sprintf(
+			"{ sender: %s, receiver: %s, port: %s, channel: %s, token: %s%s, heght: %d of number %d, timeoutStamp: %d, memo: %s }",
+			msg.Sender, msg.Receiver, msg.SourcePort, msg.SourceChannel, msg.Token.Amount, msg.Token.Denom,
+			msg.TimeoutHeight.RevisionHeight, msg.TimeoutHeight.RevisionNumber, msg.TimeoutTimestamp, msg.Memo,
+		),
+	)
 }

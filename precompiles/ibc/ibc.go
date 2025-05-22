@@ -11,6 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 
+	"cosmossdk.io/log"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	cmn "github.com/cosmos/evm/precompiles/common"
 	ibctransferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
@@ -156,4 +158,9 @@ func (Precompile) IsTransaction(method *abi.Method) bool {
 	default:
 		return false
 	}
+}
+
+// Logger returns the logger for the precompile
+func (p Precompile) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("evm extension", "ibc")
 }
