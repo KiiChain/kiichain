@@ -4,6 +4,67 @@
   "sourceName": "./precompiles/ibc/IIBC.sol",
   "abi": [
     {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "caller",
+          "type": "string"
+        },
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "toAddress",
+          "type": "string"
+        },
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "denom",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "port",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "channel",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "revisionNumber",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "revisionHeight",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "timeoutTimestamp",
+          "type": "uint64"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
       "inputs": [
         {
           "internalType": "string",
@@ -21,21 +82,14 @@
           "type": "string"
         },
         {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "denom",
-              "type": "string"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct Coin",
-          "name": "coin",
-          "type": "tuple"
+          "internalType": "string",
+          "name": "denom",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
         },
         {
           "internalType": "uint64",
@@ -87,21 +141,14 @@
           "type": "string"
         },
         {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "denom",
-              "type": "string"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct Coin",
-          "name": "coin",
-          "type": "tuple"
+          "internalType": "string",
+          "name": "denom",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
         },
         {
           "internalType": "string",
