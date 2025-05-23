@@ -46,8 +46,7 @@ func NewMsgTransfer(
 
 	if validatedArgs.amount.Cmp(big.NewInt(0)) == 0 {
 		// short circuit
-		_, rerr := method.Outputs.Pack(true)
-		return nil, rerr
+		return nil, errors.New("Amount is zero, transaction is invalid")
 	}
 
 	coin := sdk.Coin{
