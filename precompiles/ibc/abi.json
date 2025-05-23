@@ -15,7 +15,7 @@
         {
           "indexed": true,
           "internalType": "string",
-          "name": "toAddress",
+          "name": "receiver",
           "type": "string"
         },
         {
@@ -68,7 +68,7 @@
       "inputs": [
         {
           "internalType": "string",
-          "name": "toAddress",
+          "name": "receiver",
           "type": "string"
         },
         {
@@ -127,7 +127,7 @@
       "inputs": [
         {
           "internalType": "string",
-          "name": "toAddress",
+          "name": "receiver",
           "type": "string"
         },
         {
