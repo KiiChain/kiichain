@@ -220,6 +220,25 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 				// Check if the data match
 				s.Require().Equal(transferEvent.Amount, amount)
 				s.Require().Equal(transferEvent.Port, port)
+
+				// Check package commitment
+				// Get the next sequence to find our packet
+				seq, found := s.chainA.App.GetIBCKeeper().ChannelKeeper.GetNextSequenceSend(
+					s.chainA.GetContext(),
+					ibctesting.TransferPort,
+					s.path.EndpointA.ChannelID,
+				)
+				s.Require().True(found)
+				s.Require().Greater(seq, uint64(0), "sequence should increment")
+
+				// Check packet commitment exists
+				commitment := s.chainA.App.GetIBCKeeper().ChannelKeeper.GetPacketCommitment(
+					s.chainA.GetContext(),
+					ibctesting.TransferPort,
+					s.path.EndpointA.ChannelID,
+					seq-1, // The packet we just sent
+				)
+				s.Require().NotEmpty(commitment, "packet commitment should exist")
 			}
 		})
 	}
