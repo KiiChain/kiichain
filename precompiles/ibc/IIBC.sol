@@ -23,6 +23,7 @@ interface IBC {
     /// @param revisionNumber The revision number for the transfer.
     /// @param revisionHeight The revision height for the transfer.
     /// @param timeoutTimestamp The timeout timestamp for the transfer.
+    /// @param memo The timeout timestamp for the transfer.
     event Transfer(
         address indexed caller,
         string indexed receiver,
@@ -32,7 +33,8 @@ interface IBC {
         uint256 amount,
         uint64 revisionNumber,
         uint64 revisionHeight,
-        uint64 timeoutTimestamp
+        uint64 timeoutTimestamp,
+        string memo
     );
 
     /// @dev This function is used to transfer a given coin via IBC.

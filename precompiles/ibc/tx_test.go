@@ -229,6 +229,7 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 				s.Require().Equal(transferEvent.Port, args[1])
 				s.Require().Equal(transferEvent.Channel, args[2])
 				s.Require().Equal(transferEvent.Amount, args[4])
+				s.Require().Equal(transferEvent.Memo, args[5])
 
 				// Get the next sequence to find our packet sequence
 				seq, found := s.chainA.App.GetIBCKeeper().ChannelKeeper.GetNextSequenceSend(
@@ -360,6 +361,7 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransfer() {
 				s.Require().Equal(transferEvent.RevisionNumber, args[5])
 				s.Require().Equal(transferEvent.RevisionHeight, args[6])
 				s.Require().Equal(transferEvent.TimeoutTimestamp, args[7])
+				s.Require().Equal(transferEvent.Memo, args[8])
 
 				// Get next sequence to check packet commitment
 				seq, found := s.chainA.App.GetIBCKeeper().ChannelKeeper.GetNextSequenceSend(

@@ -30,7 +30,7 @@ func (p Precompile) Transfer(ctx sdk.Context, method *abi.Method, stateDB vm.Sta
 	}
 
 	// Emit the event
-	err = p.EmitEventTransfer(ctx, stateDB, caller, msg.Receiver, msg.Token.Denom, msg.SourcePort, msg.SourceChannel, msg.Token.Amount.BigInt(), msg.TimeoutHeight, msg.TimeoutTimestamp)
+	err = p.EmitEventTransfer(ctx, stateDB, caller, msg.Receiver, msg.Token.Denom, msg.SourcePort, msg.SourceChannel, msg.Token.Amount.BigInt(), msg.TimeoutHeight, msg.TimeoutTimestamp, msg.Memo)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (p Precompile) TransferWithDefaultTimeout(ctx sdk.Context, method *abi.Meth
 	}
 
 	// Emit the event
-	err = p.EmitEventTransfer(ctx, stateDB, caller, msg.Receiver, msg.Token.Denom, msg.SourcePort, msg.SourceChannel, msg.Token.Amount.BigInt(), msg.TimeoutHeight, msg.TimeoutTimestamp)
+	err = p.EmitEventTransfer(ctx, stateDB, caller, msg.Receiver, msg.Token.Denom, msg.SourcePort, msg.SourceChannel, msg.Token.Amount.BigInt(), msg.TimeoutHeight, msg.TimeoutTimestamp, msg.Memo)
 	if err != nil {
 		return nil, err
 	}

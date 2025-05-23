@@ -27,6 +27,7 @@ type TransferEvent struct {
 	RevisionNumber   uint64
 	RevisionHeight   uint64
 	TimeoutTimestamp uint64
+	Memo             string
 }
 
 // NewMsgTransfer creates a new Transfer message

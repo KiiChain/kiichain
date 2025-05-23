@@ -28,6 +28,7 @@ func (p *Precompile) EmitEventTransfer(
 	amount *big.Int,
 	height clienttypes.Height,
 	timeoutTimestamp uint64,
+	memo string,
 ) (err error) {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeTransfer]
@@ -55,7 +56,7 @@ func (p *Precompile) EmitEventTransfer(
 	}
 
 	// Parse the data
-	dataField, err := p.ABI.Events[EventTypeTransfer].Inputs.NonIndexed().Pack(port, channel, amount, height.RevisionNumber, height.RevisionHeight, timeoutTimestamp)
+	dataField, err := p.ABI.Events[EventTypeTransfer].Inputs.NonIndexed().Pack(port, channel, amount, height.RevisionNumber, height.RevisionHeight, timeoutTimestamp, memo)
 	if err != nil {
 		return err
 	}

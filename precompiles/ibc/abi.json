@@ -59,6 +59,12 @@
           "internalType": "uint64",
           "name": "timeoutTimestamp",
           "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "memo",
+          "type": "string"
         }
       ],
       "name": "Transfer",
