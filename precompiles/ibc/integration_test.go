@@ -99,7 +99,7 @@ func (s *IBCPrecompileTestSuite) GetStateDB(chain *ibctesting.TestChain) *stated
 	// Return the statedb
 	return statedb.New(
 		ctx,
-		chain.App.(*kiichainApp.KiichainApp).EVMKeeper,
+		getApp(chain).EVMKeeper,
 		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash)),
 	)
 }
@@ -111,7 +111,7 @@ func (s *IBCPrecompileTestSuite) fundAddress(address sdk.AccAddress, chain *ibct
 		ibctesting.TestCoin, // IBC test coin (1000000stake)
 	)
 	// Mint
-	err := chain.App.(*kiichainApp.KiichainApp).BankKeeper.MintCoins(
+	err := getApp(chain).BankKeeper.MintCoins(
 		chain.GetContext(),
 		types.ModuleName,
 		coins,
@@ -119,11 +119,15 @@ func (s *IBCPrecompileTestSuite) fundAddress(address sdk.AccAddress, chain *ibct
 	s.Require().NoError(err)
 
 	// Send
-	err = chain.App.(*kiichainApp.KiichainApp).BankKeeper.SendCoinsFromModuleToAccount(
+	err = getApp(chain).BankKeeper.SendCoinsFromModuleToAccount(
 		chain.GetContext(),
 		types.ModuleName,
 		address,
 		coins,
 	)
 	s.Require().NoError(err)
+}
+
+func getApp(chain *ibctesting.TestChain) *kiichainApp.KiichainApp {
+	return chain.App.(*kiichainApp.KiichainApp)
 }
