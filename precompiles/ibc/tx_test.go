@@ -161,7 +161,7 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 				args[4] = big.NewInt(0)
 				return args
 			},
-			errContains: "Amount is zero",
+			errContains: "amount is zero",
 		},
 		{
 			name: "negative amount",
