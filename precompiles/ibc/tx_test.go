@@ -1,6 +1,8 @@
 package ibc_test
 
 import (
+	"math/big"
+
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/testutil"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
@@ -48,12 +50,132 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 			},
 			expectedResData: []byte{},
 		},
+
+		// Argument length validation
 		{
 			name: "invalid args - different than 6",
 			args: []any{
 				"invalid",
 			},
 			errContains: "expected 6 arguments but got 1",
+		},
+
+		// Receiver validation
+		{
+			name: "invalid receiver - empty string",
+			args: []any{
+				"",
+				port,
+				channel,
+				denom,
+				amount,
+				memo,
+			},
+			errContains: "receiverAddress is not a string or empty",
+		},
+		{
+			name: "invalid receiver - wrong type",
+			args: []any{
+				12345, // not a string
+				port,
+				channel,
+				denom,
+				amount,
+				memo,
+			},
+			errContains: "receiverAddress is not a string or empty",
+		},
+
+		// Port validation
+		{
+			name: "invalid port - empty string",
+			args: []any{
+				receiver,
+				"",
+				channel,
+				denom,
+				amount,
+				memo,
+			},
+			errContains: "port cannot be empty",
+		},
+		{
+			name: "invalid port - wrong type",
+			args: []any{
+				receiver,
+				12345, // not a string
+				channel,
+				denom,
+				amount,
+				memo,
+			},
+			errContains: "port is not a string",
+		},
+
+		// Channel validation
+		{
+			name: "invalid channel - empty string",
+			args: []any{
+				receiver,
+				port,
+				"",
+				denom,
+				amount,
+				memo,
+			},
+			errContains: "channelID cannot be empty",
+		},
+		{
+			name: "invalid channel - wrong type",
+			args: []any{
+				receiver,
+				port,
+				12345, // not a string
+				denom,
+				amount,
+				memo,
+			},
+			errContains: "channelID is not a string",
+		},
+
+		// Denom validation
+		{
+			name: "invalid denom - empty string",
+			args: []any{
+				receiver,
+				port,
+				channel,
+				"",
+				amount,
+				memo,
+			},
+			errContains: "invalid denom",
+		},
+
+		// Zero amount
+		{
+			name: "Invalid amount - zero value",
+			args: []any{
+				receiver,
+				port,
+				channel,
+				denom,
+				big.NewInt(0),
+				memo,
+			},
+			errContains: "Amount is zero",
+		},
+		{
+			name: "invalid amount - wrong type",
+			args: []any{
+				receiver,
+				port,
+				channel,
+				denom,
+				"not-a-bigint", // not a *big.Int
+				memo,
+			},
+			errContains: "amount is not a big.Int",
 		},
 	}
 
