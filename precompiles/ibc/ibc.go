@@ -4,16 +4,19 @@ import (
 	"embed"
 	"fmt"
 
-	storetypes "cosmossdk.io/store/types"
-	clientkeeper "github.com/cosmos/ibc-go/v8/modules/core/02-client/keeper"
-	connectionkeeper "github.com/cosmos/ibc-go/v8/modules/core/03-connection/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 
+	clientkeeper "github.com/cosmos/ibc-go/v8/modules/core/02-client/keeper"
+	connectionkeeper "github.com/cosmos/ibc-go/v8/modules/core/03-connection/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
+
 	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+
 	cmn "github.com/cosmos/evm/precompiles/common"
 	ibctransferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 	"github.com/cosmos/evm/x/vm/core/vm"
@@ -52,7 +55,8 @@ func NewPrecompile(
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
-	authzKeeper authzkeeper.Keeper) (*Precompile, error) {
+	authzKeeper authzkeeper.Keeper,
+) (*Precompile, error) {
 	// Load abi
 	abi, err := cmn.LoadABI(f, "abi.json")
 	if err != nil {

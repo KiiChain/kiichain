@@ -14,6 +14,7 @@ import (
 
 	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
 	"github.com/cosmos/evm/x/vm/statedb"
+
 	kiichainApp "github.com/kiichain/kiichain/v1/app"
 	ibcprecompile "github.com/kiichain/kiichain/v1/precompiles/ibc"
 	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"

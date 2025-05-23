@@ -3,11 +3,13 @@ package ibc
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // transfer does a IBC transfer with custom timeout options

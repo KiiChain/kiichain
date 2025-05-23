@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"math/big"
 
-	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/common"
+
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type TransferEvent struct {
@@ -98,7 +101,6 @@ func (p Precompile) NewMsgTransferDefaultTimeout(
 	sender common.Address,
 	args []interface{},
 ) (*types.MsgTransfer, error) {
-
 	if err := ValidateArgsLength(args, 6); err != nil {
 		return nil, err
 	}
@@ -118,7 +120,6 @@ func (p Precompile) NewMsgTransferDefaultTimeout(
 	}
 
 	connection, err := p.getChannelConnection(ctx, validatedArgs.port, validatedArgs.channelID)
-
 	if err != nil {
 		return nil, err
 	}

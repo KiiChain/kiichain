@@ -3,12 +3,15 @@ package ibc
 import (
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	cmn "github.com/cosmos/evm/precompiles/common"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
+
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	cmn "github.com/cosmos/evm/precompiles/common"
 )
 
 const (
