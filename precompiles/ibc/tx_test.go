@@ -2,9 +2,12 @@ package ibc_test
 
 import (
 	"math/big"
+	"strings"
+	"time"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/testutil"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -23,159 +26,156 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 	// Get an account from the keyring
 	sender := s.keyring.GetKey(0)
 
-	// Prepare valid info
-	receiver := s.keyring.GetKey(1).Addr.String()
-	port := path.EndpointA.ChannelConfig.PortID
-	channel := path.EndpointA.ChannelID
-	denom := coin.Denom
-	amount := coin.Amount.BigInt()
-	memo := "test"
+	// Base valid args
+	validArgs := []any{
+		s.keyring.GetKey(1).Addr.String(),   // receiver
+		path.EndpointA.ChannelConfig.PortID, // port
+		path.EndpointA.ChannelID,            // channel
+		coin.Denom,                          // denom
+		coin.Amount.BigInt(),                // amount
+		"test memo",                         // memo
+	}
 
-	// Create the test cases
 	tc := []struct {
-		name            string
-		args            []any
-		errContains     string
-		expectedResData []byte
+		name        string
+		modifyArgs  func([]any) []any
+		errContains string
 	}{
+		// Original test cases
 		{
-			name: "valid execute",
-			args: []any{
-				receiver,
-				port,
-				channel,
-				denom,
-				amount,
-				memo,
-			},
-			expectedResData: []byte{},
+			name:       "valid execute",
+			modifyArgs: func(args []any) []any { return args },
 		},
-
-		// Argument length validation
+		// Invalid number of args
 		{
-			name: "invalid args - different than 6",
-			args: []any{
-				"invalid",
-			},
+			name:        "invalid args length",
+			modifyArgs:  func(args []any) []any { return args[:1] },
 			errContains: "expected 6 arguments but got 1",
 		},
-
 		// Receiver validation
 		{
-			name: "invalid receiver - empty string",
-			args: []any{
-				"",
-				port,
-				channel,
-				denom,
-				amount,
-				memo,
+			name: "empty receiver",
+			modifyArgs: func(args []any) []any {
+				args[0] = ""
+				return args
 			},
 			errContains: "receiverAddress is not a string or empty",
 		},
 		{
 			name: "invalid receiver - wrong type",
-			args: []any{
-				12345, // not a string
-				port,
-				channel,
-				denom,
-				amount,
-				memo,
+			modifyArgs: func(args []any) []any {
+				args[0] = 12345
+				return args
 			},
 			errContains: "receiverAddress is not a string or empty",
 		},
-
+		{
+			name: "receiver too long",
+			modifyArgs: func(args []any) []any {
+				args[0] = strings.Repeat("a", transfertypes.MaximumReceiverLength+1)
+				return args
+			},
+			errContains: "recipient address must not exceed",
+		},
 		// Port validation
 		{
 			name: "invalid port - empty string",
-			args: []any{
-				receiver,
-				"",
-				channel,
-				denom,
-				amount,
-				memo,
+			modifyArgs: func(args []any) []any {
+				args[1] = ""
+				return args
 			},
 			errContains: "port cannot be empty",
 		},
 		{
 			name: "invalid port - wrong type",
-			args: []any{
-				receiver,
-				12345, // not a string
-				channel,
-				denom,
-				amount,
-				memo,
+			modifyArgs: func(args []any) []any {
+				args[1] = 1234
+				return args
 			},
 			errContains: "port is not a string",
 		},
-
+		{
+			name: "invalid port - malformed",
+			modifyArgs: func(args []any) []any {
+				args[1] = "invalid*port"
+				return args
+			},
+			errContains: "channel not found",
+		},
 		// Channel validation
 		{
 			name: "invalid channel - empty string",
-			args: []any{
-				receiver,
-				port,
-				"",
-				denom,
-				amount,
-				memo,
+			modifyArgs: func(args []any) []any {
+				args[2] = ""
+				return args
 			},
 			errContains: "channelID cannot be empty",
 		},
 		{
 			name: "invalid channel - wrong type",
-			args: []any{
-				receiver,
-				port,
-				12345, // not a string
-				denom,
-				amount,
-				memo,
+			modifyArgs: func(args []any) []any {
+				args[2] = 1234
+				return args
 			},
 			errContains: "channelID is not a string",
 		},
-
+		{
+			name: "invalid channel - malformed",
+			modifyArgs: func(args []any) []any {
+				args[2] = "invalid*channel"
+				return args
+			},
+			errContains: "channel not found",
+		},
 		// Denom validation
 		{
 			name: "invalid denom - empty string",
-			args: []any{
-				receiver,
-				port,
-				channel,
-				"",
-				amount,
-				memo,
+			modifyArgs: func(args []any) []any {
+				args[3] = ""
+				return args
 			},
 			errContains: "invalid denom",
 		},
-
-		// Zero amount
 		{
-			name: "Invalid amount - zero value",
-			args: []any{
-				receiver,
-				port,
-				channel,
-				denom,
-				big.NewInt(0),
-				memo,
+			name: "invalid denom - empty",
+			modifyArgs: func(args []any) []any {
+				args[3] = ""
+				return args
+			},
+			errContains: "invalid denom",
+		},
+		{
+			name: "invalid denom - malformed",
+			modifyArgs: func(args []any) []any {
+				args[3] = "invalid*denom"
+				return args
+			},
+			errContains: "invalid coins",
+		},
+		{
+			name: "zero amount",
+			modifyArgs: func(args []any) []any {
+				args[4] = big.NewInt(0)
+				return args
 			},
 			errContains: "Amount is zero",
 		},
 		{
-			name: "invalid amount - wrong type",
-			args: []any{
-				receiver,
-				port,
-				channel,
-				denom,
-				"not-a-bigint", // not a *big.Int
-				memo,
+			name: "negative amount",
+			modifyArgs: func(args []any) []any {
+				args[4] = big.NewInt(-100)
+				return args
 			},
-			errContains: "amount is not a big.Int",
+			errContains: "invalid coins",
+		},
+		// memo validation
+		{
+			name: "memo too long",
+			modifyArgs: func(args []any) []any {
+				args[5] = strings.Repeat("a", transfertypes.MaximumMemoLength+1)
+				return args
+			},
+			errContains: "memo must not exceed",
 		},
 	}
 
@@ -188,8 +188,9 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 			// Create the contract from the precompile contract
 			_, ctx := testutil.NewPrecompileContract(s.T(), s.chainA.GetContext(), sender.Addr, s.Precompile, 200000)
 
+			args := tc.modifyArgs(append([]any(nil), validArgs...))
 			// Execute the contract using the precompile
-			res, err := s.Precompile.TransferWithDefaultTimeout(ctx, &method, chainAstateDB, tc.args, sender.Addr)
+			res, err := s.Precompile.TransferWithDefaultTimeout(ctx, &method, chainAstateDB, args, sender.Addr)
 
 			// Check if the error contains the expected string
 			if tc.errContains != "" {
@@ -218,8 +219,8 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 				s.Require().NoError(err)
 
 				// Check if the data match
-				s.Require().Equal(transferEvent.Amount, amount)
-				s.Require().Equal(transferEvent.Port, port)
+				s.Require().Equal(transferEvent.Amount, args[4])
+				s.Require().Equal(transferEvent.Port, args[1])
 
 				// Check package commitment
 				// Get the next sequence to find our packet
@@ -239,6 +240,149 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 					seq-1, // The packet we just sent
 				)
 				s.Require().NotEmpty(commitment, "packet commitment should exist")
+			}
+		})
+	}
+}
+
+func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithTimeout() {
+	// Get path and testcoin
+	path := s.path
+	coin := ibctesting.TestCoin
+
+	// Get the method
+	method := s.Precompile.Methods[ibcprecompile.TransferMethod] // Changed to TransferMethod
+
+	// Get accounts
+	sender := s.keyring.GetKey(0)
+	receiver := s.keyring.GetKey(1).Addr.String()
+
+	// Prepare common args
+	port := path.EndpointA.ChannelConfig.PortID
+	channel := path.EndpointA.ChannelID
+	denom := coin.Denom
+	amount := coin.Amount.BigInt()
+	memo := "test"
+
+	// Prepare timeout parameters
+	revisionNumber := uint64(1)
+	revisionHeight := uint64(1000)
+	timeoutTimestamp := uint64(time.Now().Add(1 * time.Hour).UnixNano())
+
+	// Create test cases, I'm not testing what is already checked on default timeout
+	tc := []struct {
+		name            string
+		args            []any
+		errContains     string
+		expectedResData []byte
+	}{
+		{
+			name: "valid execute with timeout",
+			args: []any{
+				receiver,
+				port,
+				channel,
+				denom,
+				amount,
+				revisionNumber,
+				revisionHeight,
+				timeoutTimestamp,
+				memo,
+			},
+			expectedResData: []byte{},
+		},
+		{
+			name: "invalid args - different than 9",
+			args: []any{
+				"invalid",
+			},
+			errContains: "expected 9 arguments but got 1",
+		},
+		{
+			name: "invalid revision number - wrong type",
+			args: []any{
+				receiver,
+				port,
+				channel,
+				denom,
+				amount,
+				"not-a-uint", // invalid revision number
+				revisionHeight,
+				timeoutTimestamp,
+				memo,
+			},
+			errContains: "revisionNumber is not a uint64",
+		},
+		{
+			name: "invalid revision height - wrong type",
+			args: []any{
+				receiver,
+				port,
+				channel,
+				denom,
+				amount,
+				revisionNumber,
+				"not-a-uint", // invalid revision height
+				timeoutTimestamp,
+				memo,
+			},
+			errContains: "revisionHeight is not a uint64",
+		},
+		{
+			name: "invalid timeout timestamp - wrong type",
+			args: []any{
+				receiver,
+				port,
+				channel,
+				denom,
+				amount,
+				revisionNumber,
+				revisionHeight,
+				"not-a-uint", // invalid timestamp
+				memo,
+			},
+			errContains: "timeoutTimestamp is not a uint64",
+		},
+	}
+
+	for _, tc := range tc {
+		s.Run(tc.name, func() {
+			chainAstateDB := s.GetStateDB(s.chainA)
+			_, ctx := testutil.NewPrecompileContract(s.T(), s.chainA.GetContext(), sender.Addr, s.Precompile, 200000)
+
+			res, err := s.Precompile.Transfer(ctx, &method, chainAstateDB, tc.args, sender.Addr)
+
+			if tc.errContains != "" {
+				s.Require().ErrorContains(err, tc.errContains)
+			} else {
+				s.Require().NoError(err)
+
+				// Verify successful execution
+				success, err := s.Precompile.Unpack(ibcprecompile.TransferMethod, res)
+				s.Require().NoError(err)
+				s.Require().True(success[0].(bool))
+
+				// Verify event emission
+				log := chainAstateDB.Logs()[0]
+				event := s.Precompile.ABI.Events[ibcprecompile.EventTypeTransfer]
+				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
+
+				// Verify timeout parameters in the packet
+				seq, found := s.chainA.App.GetIBCKeeper().ChannelKeeper.GetNextSequenceSend(
+					s.chainA.GetContext(),
+					ibctesting.TransferPort,
+					path.EndpointA.ChannelID,
+				)
+				s.Require().True(found)
+
+				// Verify packet commitment
+				commitment := s.chainA.App.GetIBCKeeper().ChannelKeeper.GetPacketCommitment(
+					s.chainA.GetContext(),
+					ibctesting.TransferPort,
+					path.EndpointA.ChannelID,
+					seq-1,
+				)
+				s.Require().NotEmpty(commitment)
 			}
 		})
 	}
