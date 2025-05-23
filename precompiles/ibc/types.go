@@ -16,8 +16,8 @@ import (
 
 type TransferEvent struct {
 	Caller           common.Address
-	Denom            string
-	Receiver         string
+	Denom            common.Hash
+	Receiver         common.Hash
 	Port             string
 	Channel          string
 	Amount           *big.Int
@@ -109,8 +109,7 @@ func (p Precompile) NewMsgTransferDefaultTimeout(
 
 	if validatedArgs.amount.Cmp(big.NewInt(0)) == 0 {
 		// short circuit
-		_, err := method.Outputs.Pack(true)
-		return nil, err
+		return nil, errors.New("Amount is zero, transaction is invalid")
 	}
 
 	coin := sdk.Coin{
