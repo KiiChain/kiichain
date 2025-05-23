@@ -14,6 +14,7 @@ import (
 
 	"github.com/kiichain/kiichain/v1/ante"
 	kiichain "github.com/kiichain/kiichain/v1/app"
+	kiichainApp "github.com/kiichain/kiichain/v1/app"
 	"github.com/kiichain/kiichain/v1/app/params"
 )
 
@@ -70,4 +71,8 @@ func KiichainAppIniter() (ibctesting.TestingApp, map[string]json.RawMessage) {
 	testApp := ibctesting.TestingApp(app)
 
 	return testApp, app.ModuleBasics.DefaultGenesis(app.AppCodec())
+}
+
+func GetApp(chain *ibctesting.TestChain) *kiichainApp.KiichainApp {
+	return chain.App.(*kiichainApp.KiichainApp)
 }

@@ -51,8 +51,10 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 		},
 		// Invalid number of args
 		{
-			name:        "invalid args length",
-			modifyArgs:  func(args []any) []any { return args[:1] },
+			name: "invalid args length",
+			modifyArgs: func(args []any) []any {
+				return args[:1]
+			},
 			errContains: "expected 6 arguments but got 1",
 		},
 		// Receiver validation
@@ -223,12 +225,12 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 				err = cmn.UnpackLog(s.Precompile.ABI, &transferEvent, ibcprecompile.EventTypeTransfer, *log)
 				s.Require().NoError(err)
 
-				// Check if the data match
-				s.Require().Equal(transferEvent.Amount, args[4])
+				// Check if the data matches
 				s.Require().Equal(transferEvent.Port, args[1])
+				s.Require().Equal(transferEvent.Channel, args[2])
+				s.Require().Equal(transferEvent.Amount, args[4])
 
-				// Check package commitment
-				// Get the next sequence to find our packet
+				// Get the next sequence to find our packet sequence
 				seq, found := s.chainA.App.GetIBCKeeper().ChannelKeeper.GetNextSequenceSend(
 					s.chainA.GetContext(),
 					ibctesting.TransferPort,
@@ -284,8 +286,10 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransfer() {
 			modifyArgs: func(args []any) []any { return args },
 		},
 		{
-			name:        "invalid args - different than 9",
-			modifyArgs:  func(args []any) []any { return args[:1] },
+			name: "invalid args - different than 9",
+			modifyArgs: func(args []any) []any {
+				return args[:1]
+			},
 			errContains: "expected 9 arguments but got 1",
 		},
 		{
@@ -349,11 +353,15 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransfer() {
 				err = cmn.UnpackLog(s.Precompile.ABI, &transferEvent, ibcprecompile.EventTypeTransfer, *log)
 				s.Require().NoError(err)
 
-				// Check if the data match
-				s.Require().Equal(transferEvent.TimeoutTimestamp, args[7])
+				// Check if the data matches
+				s.Require().Equal(transferEvent.Port, args[1])
+				s.Require().Equal(transferEvent.Channel, args[2])
+				s.Require().Equal(transferEvent.Amount, args[4])
+				s.Require().Equal(transferEvent.RevisionNumber, args[5])
 				s.Require().Equal(transferEvent.RevisionHeight, args[6])
+				s.Require().Equal(transferEvent.TimeoutTimestamp, args[7])
 
-				// Verify timeout parameters in the packet
+				// Get next sequence to check packet commitment
 				seq, found := s.chainA.App.GetIBCKeeper().ChannelKeeper.GetNextSequenceSend(
 					s.chainA.GetContext(),
 					ibctesting.TransferPort,

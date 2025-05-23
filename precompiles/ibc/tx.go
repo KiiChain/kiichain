@@ -12,7 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// transfer does a IBC transfer with custom timeout options
+// Transfer does a IBC transfer with custom timeout options
 func (p Precompile) Transfer(ctx sdk.Context, method *abi.Method, stateDB vm.StateDB, args []interface{}, caller common.Address) ([]byte, error) {
 	// Build and validate msg
 	msg, err := NewMsgTransfer(ctx, method, caller, args)
@@ -21,7 +21,7 @@ func (p Precompile) Transfer(ctx sdk.Context, method *abi.Method, stateDB vm.Sta
 	}
 
 	// Log the call
-	p.transferLog(ctx, method, msg)
+	p.logTransfer(ctx, method, msg)
 
 	// Transfer
 	_, err = p.transferKeeper.Transfer(ctx, msg)
@@ -47,7 +47,7 @@ func (p Precompile) TransferWithDefaultTimeout(ctx sdk.Context, method *abi.Meth
 	}
 
 	// Log the call
-	p.transferLog(ctx, method, msg)
+	p.logTransfer(ctx, method, msg)
 
 	// Transfer
 	_, err = p.transferKeeper.Transfer(ctx, msg)
@@ -64,7 +64,7 @@ func (p Precompile) TransferWithDefaultTimeout(ctx sdk.Context, method *abi.Meth
 	return method.Outputs.Pack(true)
 }
 
-func (p Precompile) transferLog(ctx sdk.Context, method *abi.Method, msg *types.MsgTransfer) {
+func (p Precompile) logTransfer(ctx sdk.Context, method *abi.Method, msg *types.MsgTransfer) {
 	p.Logger(ctx).Debug(
 		"tx called",
 		"method", method.Name,
