@@ -46,7 +46,7 @@ func NewMsgTransfer(
 
 	if validatedArgs.amount.Cmp(big.NewInt(0)) == 0 {
 		// short circuit
-		return nil, errors.New("Amount is zero, transaction is invalid")
+		return nil, errors.New("amount is zero, transaction is invalid")
 	}
 
 	coin := sdk.Coin{
@@ -110,7 +110,7 @@ func (p Precompile) NewMsgTransferDefaultTimeout(
 
 	if validatedArgs.amount.Cmp(big.NewInt(0)) == 0 {
 		// short circuit
-		return nil, errors.New("Amount is zero, transaction is invalid")
+		return nil, errors.New("amount is zero, transaction is invalid")
 	}
 
 	coin := sdk.Coin{
@@ -197,8 +197,8 @@ func GetAdjustedHeight(latestConsensusHeight clienttypes.Height) (clienttypes.He
 }
 
 // GetAdjustedTimestamp creates default timestamp from height and unix
-func (p Precompile) GetAdjustedTimestamp(ctx sdk.Context, clientId string, height clienttypes.Height) (uint64, error) {
-	consensusState, found := p.clientKeeper.GetClientConsensusState(ctx, clientId, height)
+func (p Precompile) GetAdjustedTimestamp(ctx sdk.Context, clientID string, height clienttypes.Height) (uint64, error) {
+	consensusState, found := p.clientKeeper.GetClientConsensusState(ctx, clientID, height)
 	var consensusStateTimestamp uint64
 	if found {
 		consensusStateTimestamp = consensusState.GetTimestamp()
@@ -210,12 +210,10 @@ func (p Precompile) GetAdjustedTimestamp(ctx sdk.Context, clientId string, heigh
 		now := uint64(blockTime)
 		if now > consensusStateTimestamp {
 			return now + defaultRelativePacketTimeoutTimestamp, nil
-		} else {
-			return consensusStateTimestamp + defaultRelativePacketTimeoutTimestamp, nil
 		}
-	} else {
-		return 0, errors.New("block time is not greater than Jan 1st, 1970 12:00 AM")
+		return consensusStateTimestamp + defaultRelativePacketTimeoutTimestamp, nil
 	}
+	return 0, errors.New("block time is not greater than Jan 1st, 1970 12:00 AM")
 }
 
 type ValidatedArgs struct {

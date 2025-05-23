@@ -8,8 +8,6 @@ import (
 
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 
-	"cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
@@ -18,17 +16,6 @@ import (
 	kiichainApp "github.com/kiichain/kiichain/v1/app"
 	ibcprecompile "github.com/kiichain/kiichain/v1/precompiles/ibc"
 	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
-)
-
-// These integration tests were modified to work with the KiichainApp
-// Sources:
-// * Transfer tests: https://github.com/cosmos/ibc-go/blob/v7.3.2/modules/apps/29-fee/transfer_test.go#L13
-// * ICA tests: https://github.com/cosmos/ibc-go/blob/v7.3.2/modules/apps/29-fee/ica_test.go#L94
-var (
-	// transfer + IBC fee test variables
-	defaultRecvFee    = sdk.Coins{sdk.Coin{Denom: "stake", Amount: math.NewInt(100)}}
-	defaultAckFee     = sdk.Coins{sdk.Coin{Denom: "stake", Amount: math.NewInt(200)}}
-	defaultTimeoutFee = sdk.Coins{sdk.Coin{Denom: "stake", Amount: math.NewInt(300)}}
 )
 
 type IBCPrecompileTestSuite struct {

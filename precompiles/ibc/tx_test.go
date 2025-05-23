@@ -291,7 +291,7 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransfer() {
 		{
 			name: "invalid revision number - wrong type",
 			modifyArgs: func(args []any) []any {
-				args[5] = "not-a-uint"
+				args[5] = "not a number"
 				return args
 			},
 			errContains: "revisionNumber is not a uint64",
