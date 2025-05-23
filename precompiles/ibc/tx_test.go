@@ -182,13 +182,15 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 	// Loop and execute the test cases
 	for _, tc := range tc {
 		s.Run(tc.name, func() {
+			// Apply args modification
+			args := tc.modifyArgs(append([]any(nil), validArgs...))
+
 			// Get the state db
 			chainAstateDB := s.GetStateDB(s.chainA)
 
 			// Create the contract from the precompile contract
 			_, ctx := testutil.NewPrecompileContract(s.T(), s.chainA.GetContext(), sender.Addr, s.Precompile, 200000)
 
-			args := tc.modifyArgs(append([]any(nil), validArgs...))
 			// Execute the contract using the precompile
 			res, err := s.Precompile.TransferWithDefaultTimeout(ctx, &method, chainAstateDB, args, sender.Addr)
 
@@ -245,7 +247,7 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 	}
 }
 
-func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithTimeout() {
+func (s *IBCPrecompileTestSuite) TestPrecompileTransfer() {
 	// Get path and testcoin
 	path := s.path
 	coin := ibctesting.TestCoin
@@ -255,91 +257,55 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithTimeout() {
 
 	// Get accounts
 	sender := s.keyring.GetKey(0)
-	receiver := s.keyring.GetKey(1).Addr.String()
 
-	// Prepare common args
-	port := path.EndpointA.ChannelConfig.PortID
-	channel := path.EndpointA.ChannelID
-	denom := coin.Denom
-	amount := coin.Amount.BigInt()
-	memo := "test"
+	// Base valid args
+	validArgs := []any{
+		s.keyring.GetKey(1).Addr.String(),   // receiver
+		path.EndpointA.ChannelConfig.PortID, // port
+		path.EndpointA.ChannelID,            // channel
+		coin.Denom,                          // denom
+		coin.Amount.BigInt(),                // amount
+		uint64(1),                           // revisionNumber
+		uint64(1000),                        // revisionHeight
+		uint64(time.Now().Add(1 * time.Hour).UnixNano()), // timeoutTimestamp
+		"test memo", // memo
+	}
 
-	// Prepare timeout parameters
-	revisionNumber := uint64(1)
-	revisionHeight := uint64(1000)
-	timeoutTimestamp := uint64(time.Now().Add(1 * time.Hour).UnixNano())
-
-	// Create test cases, I'm not testing what is already checked on default timeout
 	tc := []struct {
-		name            string
-		args            []any
-		errContains     string
-		expectedResData []byte
+		name        string
+		modifyArgs  func([]any) []any
+		errContains string
 	}{
 		{
-			name: "valid execute with timeout",
-			args: []any{
-				receiver,
-				port,
-				channel,
-				denom,
-				amount,
-				revisionNumber,
-				revisionHeight,
-				timeoutTimestamp,
-				memo,
-			},
-			expectedResData: []byte{},
+			name:       "valid execute with timeout",
+			modifyArgs: func(args []any) []any { return args },
 		},
 		{
-			name: "invalid args - different than 9",
-			args: []any{
-				"invalid",
-			},
+			name:        "invalid args - different than 9",
+			modifyArgs:  func(args []any) []any { return args[:1] },
 			errContains: "expected 9 arguments but got 1",
 		},
 		{
 			name: "invalid revision number - wrong type",
-			args: []any{
-				receiver,
-				port,
-				channel,
-				denom,
-				amount,
-				"not-a-uint", // invalid revision number
-				revisionHeight,
-				timeoutTimestamp,
-				memo,
+			modifyArgs: func(args []any) []any {
+				args[5] = "not-a-uint"
+				return args
 			},
 			errContains: "revisionNumber is not a uint64",
 		},
 		{
 			name: "invalid revision height - wrong type",
-			args: []any{
-				receiver,
-				port,
-				channel,
-				denom,
-				amount,
-				revisionNumber,
-				"not-a-uint", // invalid revision height
-				timeoutTimestamp,
-				memo,
+			modifyArgs: func(args []any) []any {
+				args[6] = "not-a-uint"
+				return args
 			},
 			errContains: "revisionHeight is not a uint64",
 		},
 		{
 			name: "invalid timeout timestamp - wrong type",
-			args: []any{
-				receiver,
-				port,
-				channel,
-				denom,
-				amount,
-				revisionNumber,
-				revisionHeight,
-				"not-a-uint", // invalid timestamp
-				memo,
+			modifyArgs: func(args []any) []any {
+				args[7] = "not-a-uint"
+				return args
 			},
 			errContains: "timeoutTimestamp is not a uint64",
 		},
@@ -347,10 +313,17 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithTimeout() {
 
 	for _, tc := range tc {
 		s.Run(tc.name, func() {
+			// Apply args modification
+			args := tc.modifyArgs(append([]any(nil), validArgs...))
+
+			// Get stateDB
 			chainAstateDB := s.GetStateDB(s.chainA)
+
+			// Create precompile
 			_, ctx := testutil.NewPrecompileContract(s.T(), s.chainA.GetContext(), sender.Addr, s.Precompile, 200000)
 
-			res, err := s.Precompile.Transfer(ctx, &method, chainAstateDB, tc.args, sender.Addr)
+			// Call transfer
+			res, err := s.Precompile.Transfer(ctx, &method, chainAstateDB, args, sender.Addr)
 
 			if tc.errContains != "" {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -366,6 +339,16 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithTimeout() {
 				log := chainAstateDB.Logs()[0]
 				event := s.Precompile.ABI.Events[ibcprecompile.EventTypeTransfer]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
+				s.Require().Equal(log.BlockNumber, uint64(ctx.BlockHeight()))
+
+				// Decode the event data and check
+				var transferEvent ibcprecompile.TransferEvent
+				err = cmn.UnpackLog(s.Precompile.ABI, &transferEvent, ibcprecompile.EventTypeTransfer, *log)
+				s.Require().NoError(err)
+
+				// Check if the data match
+				s.Require().Equal(transferEvent.TimeoutTimestamp, args[7])
+				s.Require().Equal(transferEvent.RevisionHeight, args[6])
 
 				// Verify timeout parameters in the packet
 				seq, found := s.chainA.App.GetIBCKeeper().ChannelKeeper.GetNextSequenceSend(
