@@ -45,9 +45,6 @@ type Precompile struct {
 	clientKeeper     clientkeeper.Keeper
 	connectionKeeper connectionkeeper.Keeper
 	channelKeeper    channelkeeper.Keeper
-
-	TransferID                   []byte
-	TransferWithDefaultTimeoutID []byte
 }
 
 func NewPrecompile(
@@ -76,16 +73,6 @@ func NewPrecompile(
 		clientKeeper:     clientKeeper,
 		connectionKeeper: connectionKeeper,
 		channelKeeper:    channelKeeper,
-	}
-
-	// Set method IDs
-	for name, m := range abi.Methods {
-		switch name {
-		case TransferMethod:
-			p.TransferID = m.ID
-		case TransferWithDefaultTimeoutMethod:
-			p.TransferWithDefaultTimeoutID = m.ID
-		}
 	}
 
 	// Set the address of the precompile
