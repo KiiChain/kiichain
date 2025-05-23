@@ -15,7 +15,7 @@ IBC constant IBC_CONTRACT = IBC(
 interface IBC {
     /// @dev This event is emitted when a transfer is done via IBC with this precompile.
     /// @param caller The caller of the transfer.
-    /// @param toAddress The receiver address.
+    /// @param receiver The receiver address.
     /// @param port The IBC port.
     /// @param channel The IBC channel.
     /// @param denom The coin denom.
@@ -25,7 +25,7 @@ interface IBC {
     /// @param timeoutTimestamp The timeout timestamp for the transfer.
     event Transfer(
         address indexed caller,
-        string indexed toAddress,
+        string indexed receiver,
         string indexed denom,
         string port,
         string channel,
@@ -36,7 +36,7 @@ interface IBC {
     );
 
     /// @dev This function is used to transfer a given coin via IBC.
-    /// @param toAddress The receiver address.
+    /// @param receiver The receiver address.
     /// @param port The IBC port.
     /// @param channel The IBC channel.
     /// @param denom The coin denom.
@@ -47,7 +47,7 @@ interface IBC {
     /// @param memo Memo message for the transfer.
     /// @return success A boolean indicating whether the transfer was successful.
     function transfer(
-        string memory toAddress,
+        string memory receiver,
         string memory port,
         string memory channel,
         string memory denom,
@@ -59,7 +59,7 @@ interface IBC {
     ) external returns (bool success);
 
     /// @dev This function is used to transfer a given coin via IBC.
-    /// @param toAddress The receiver address.
+    /// @param receiver The receiver address.
     /// @param port The IBC port.
     /// @param channel The IBC channel.
     /// @param denom The coin denom.
@@ -67,7 +67,7 @@ interface IBC {
     /// @param memo Memo message for the transfer.
     /// @return success A boolean indicating whether the transfer was successful.
     function transferWithDefaultTimeout(
-        string memory toAddress,
+        string memory receiver,
         string memory port,
         string memory channel,
         string memory denom,
