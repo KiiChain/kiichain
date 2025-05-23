@@ -254,9 +254,9 @@ func validateCommonArgs(ctx sdk.Context, args []interface{}, caller common.Addre
 		return nil, errors.New("channelID cannot be empty")
 	}
 
-	denom := args[3].(string)
-	if denom == "" {
-		return nil, errors.New("invalid denom")
+	denom, ok := args[3].(string)
+	if !ok || denom == "" {
+		return nil, errors.New("denom is not a string or is empty")
 	}
 
 	amount, ok := args[4].(*big.Int)
@@ -277,7 +277,9 @@ func validateCommonArgs(ctx sdk.Context, args []interface{}, caller common.Addre
 func addMemo(memoArg interface{}, transferMsg types.MsgTransfer) types.MsgTransfer {
 	memo := ""
 	if memoArg != nil {
-		memo = memoArg.(string)
+		if m, ok := memoArg.(string); ok {
+			memo = m
+		}
 	}
 	transferMsg.Memo = memo
 	return transferMsg

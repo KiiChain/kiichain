@@ -139,7 +139,7 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 				args[3] = ""
 				return args
 			},
-			errContains: "invalid denom",
+			errContains: "denom is not a string or is empty",
 		},
 		{
 			name: "invalid denom - empty",
@@ -147,7 +147,7 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 				args[3] = ""
 				return args
 			},
-			errContains: "invalid denom",
+			errContains: "denom is not a string or is empty",
 		},
 		{
 			name: "invalid denom - malformed",

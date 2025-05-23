@@ -69,7 +69,7 @@ func (p Precompile) logTransfer(ctx sdk.Context, method *abi.Method, msg *types.
 		"tx called",
 		"method", method.Name,
 		"args", fmt.Sprintf(
-			"{ sender: %s, receiver: %s, port: %s, channel: %s, token: %s%s, heght: %d of number %d, timeoutStamp: %d, memo: %s }",
+			"{ sender: %s, receiver: %s, port: %s, channel: %s, token: %s%s, height: %d of number %d, timeoutStamp: %d, memo: %s }",
 			msg.Sender, msg.Receiver, msg.SourcePort, msg.SourceChannel, msg.Token.Amount, msg.Token.Denom,
 			msg.TimeoutHeight.RevisionHeight, msg.TimeoutHeight.RevisionNumber, msg.TimeoutTimestamp, msg.Memo,
 		),
