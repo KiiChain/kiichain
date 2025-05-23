@@ -218,7 +218,8 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 				s.Require().NoError(err)
 
 				// Check if the data match
-
+				s.Require().Equal(transferEvent.Amount, amount)
+				s.Require().Equal(transferEvent.Port, port)
 			}
 		})
 	}
