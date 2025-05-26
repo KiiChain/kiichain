@@ -31,7 +31,7 @@ ballot threshold: 20 power units
 func TestMidBlocker(t *testing.T) {
 	t.Run("Success case - Exchange rate created on KVStore", func(t *testing.T) {
 		// Reset blockchain state
-		input, handler := SetUp(t)
+		input, msgServer := SetUp(t)
 		ctx := input.Ctx
 		oracleKeeper := input.OracleKeeper
 
@@ -45,7 +45,7 @@ func TestMidBlocker(t *testing.T) {
 		// Multiple validators submit their votes
 		for i := 0; i < 3; i++ {
 			voteMsg := types.NewMsgAggregateExchangeRateVote(exchangeRate, keeper.Addrs[i], keeper.ValAddrs[i])
-			_, err := handler(ctx, voteMsg)
+			_, err := msgServer.AggregateExchangeRateVote(ctx, voteMsg)
 			require.NoError(t, err)
 		}
 
@@ -60,7 +60,7 @@ func TestMidBlocker(t *testing.T) {
 
 	t.Run("Success case - snapshot created", func(t *testing.T) {
 		// Reset blockchain state
-		input, handler := SetUp(t)
+		input, msgServer := SetUp(t)
 		ctx := input.Ctx
 		oracleKeeper := input.OracleKeeper
 
@@ -74,7 +74,7 @@ func TestMidBlocker(t *testing.T) {
 		// Multiple validators submit their votes
 		for i := 0; i < 3; i++ {
 			voteMsg := types.NewMsgAggregateExchangeRateVote(exchangeRate, keeper.Addrs[i], keeper.ValAddrs[i])
-			_, err := handler(ctx, voteMsg)
+			_, err := msgServer.AggregateExchangeRateVote(ctx, voteMsg)
 			require.NoError(t, err)
 		}
 
@@ -90,7 +90,7 @@ func TestMidBlocker(t *testing.T) {
 
 	t.Run("Error case - Ballot power less than threshold", func(t *testing.T) {
 		// Reset blockchain state
-		input, handler := SetUp(t)
+		input, msgServer := SetUp(t)
 		ctx := input.Ctx
 		oracleKeeper := input.OracleKeeper
 
@@ -103,7 +103,7 @@ func TestMidBlocker(t *testing.T) {
 
 		// Only one validator votes (insufficient power)
 		voteMsg := types.NewMsgAggregateExchangeRateVote(exchangeRate, keeper.Addrs[0], keeper.ValAddrs[0])
-		_, err := handler(ctx, voteMsg)
+		_, err := msgServer.AggregateExchangeRateVote(ctx, voteMsg)
 		require.NoError(t, err)
 
 		MidBlocker(ctx, oracleKeeper) // rate did not storage on KVStore, ballot below ballot threshold
@@ -115,7 +115,7 @@ func TestMidBlocker(t *testing.T) {
 
 	t.Run("Validator does not vote - AbstainCount should increase", func(t *testing.T) {
 		// Reset blockchain state
-		input, handler := SetUp(t)
+		input, msgServer := SetUp(t)
 		ctx := input.Ctx
 		oracleKeeper := input.OracleKeeper
 
@@ -129,7 +129,7 @@ func TestMidBlocker(t *testing.T) {
 		// Only two validators vote, one validator abstains
 		for i := 0; i < 2; i++ {
 			voteMsg := types.NewMsgAggregateExchangeRateVote(exchangeRate, keeper.Addrs[i], keeper.ValAddrs[i])
-			_, err := handler(ctx, voteMsg)
+			_, err := msgServer.AggregateExchangeRateVote(ctx, voteMsg)
 			require.NoError(t, err)
 		}
 
@@ -142,7 +142,7 @@ func TestMidBlocker(t *testing.T) {
 
 	t.Run("Validator votes out of acceptable range - Should count as Miss", func(t *testing.T) {
 		// Reset blockchain state
-		input, handler := SetUp(t)
+		input, msgServer := SetUp(t)
 		ctx := input.Ctx
 		oracleKeeper := input.OracleKeeper
 
@@ -156,13 +156,13 @@ func TestMidBlocker(t *testing.T) {
 		// Validator submits an incorrect exchange rate
 		wrongRate := "100000000.0" + utils.MicroAtomDenom
 		voteMsg := types.NewMsgAggregateExchangeRateVote(wrongRate, keeper.Addrs[0], keeper.ValAddrs[0])
-		_, err := handler(ctx, voteMsg)
+		_, err := msgServer.AggregateExchangeRateVote(ctx, voteMsg)
 		require.NoError(t, err)
 
 		// Other validators submit correct votes
 		for i := 1; i < 3; i++ {
 			voteMsg := types.NewMsgAggregateExchangeRateVote(exchangeRate, keeper.Addrs[i], keeper.ValAddrs[i])
-			_, err := handler(ctx, voteMsg)
+			_, err := msgServer.AggregateExchangeRateVote(ctx, voteMsg)
 			require.NoError(t, err)
 		}
 
@@ -220,7 +220,7 @@ func TestMidBlocker(t *testing.T) {
 
 func TestOracleDrop(t *testing.T) {
 	// Reset blockchain state
-	input, handler := SetUp(t)
+	input, msgServer := SetUp(t)
 	ctx := input.Ctx
 	oracleKeeper := input.OracleKeeper
 	ctx = input.Ctx.WithBlockHeight(1)
@@ -234,7 +234,7 @@ func TestOracleDrop(t *testing.T) {
 
 	// simulate val 0 votation
 	voteMsg := types.NewMsgAggregateExchangeRateVote(exchangeRate, keeper.Addrs[0], keeper.ValAddrs[0])
-	_, err := handler(ctx.WithBlockHeight(9), voteMsg)
+	_, err := msgServer.AggregateExchangeRateVote(ctx.WithBlockHeight(9), voteMsg)
 	require.NoError(t, err)
 
 	// Immediately swap halt after an illiquid oracle vote
@@ -270,7 +270,8 @@ func TestEndblocker(t *testing.T) {
 		Endblocker(ctx, oracleKeeper)
 
 		// Check if validator was jailed
-		validator := oracleKeeper.StakingKeeper.Validator(ctx, operator)
+		validator, err := oracleKeeper.StakingKeeper.Validator(ctx, operator)
+		require.NoError(t, err)
 		require.True(t, validator.IsJailed())
 
 		// Check if validator was slashed (power reduced)
@@ -305,7 +306,8 @@ func TestEndblocker(t *testing.T) {
 		Endblocker(ctx, oracleKeeper)
 
 		// Check if validator was jailed
-		validator := oracleKeeper.StakingKeeper.Validator(ctx, operator)
+		validator, err := oracleKeeper.StakingKeeper.Validator(ctx, operator)
+		require.NoError(t, err)
 		require.False(t, validator.IsJailed())
 
 		// vaidator must keep its voting power

@@ -3,7 +3,7 @@ package oracle_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	"github.com/kiichain/kiichain/v1/x/oracle"
 	"github.com/kiichain/kiichain/v1/x/oracle/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
@@ -18,7 +18,7 @@ func TestExportInitGenesis(t *testing.T) {
 	ctx := input.Ctx
 
 	// Prepare genesis to be exported
-	exchangeRateVote, err := types.NewAggregateExchangeRateVote(types.ExchangeRateTuples{{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(123)}}, keeper.ValAddrs[0])
+	exchangeRateVote, err := types.NewAggregateExchangeRateVote(types.ExchangeRateTuples{{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(123)}}, keeper.ValAddrs[0])
 	require.NoError(t, err)
 
 	snapshot1 := types.NewPriceSnapshot(int64(3600),
@@ -26,15 +26,15 @@ func TestExportInitGenesis(t *testing.T) {
 			{
 				Denom: utils.MicroAtomDenom,
 				OracleExchangeRate: types.OracleExchangeRate{
-					ExchangeRate: sdk.NewDec(12),
-					LastUpdate:   sdk.NewInt(3600),
+					ExchangeRate: math.LegacyNewDec(12),
+					LastUpdate:   math.NewInt(3600),
 				},
 			},
 			{
 				Denom: utils.MicroEthDenom,
 				OracleExchangeRate: types.OracleExchangeRate{
-					ExchangeRate: sdk.NewDec(10),
-					LastUpdate:   sdk.NewInt(3600),
+					ExchangeRate: math.LegacyNewDec(10),
+					LastUpdate:   math.NewInt(3600),
 				},
 			},
 		},
@@ -45,22 +45,22 @@ func TestExportInitGenesis(t *testing.T) {
 			{
 				Denom: utils.MicroAtomDenom,
 				OracleExchangeRate: types.OracleExchangeRate{
-					ExchangeRate: sdk.NewDec(15),
-					LastUpdate:   sdk.NewInt(3700),
+					ExchangeRate: math.LegacyNewDec(15),
+					LastUpdate:   math.NewInt(3700),
 				},
 			},
 			{
 				Denom: utils.MicroEthDenom,
 				OracleExchangeRate: types.OracleExchangeRate{
-					ExchangeRate: sdk.NewDec(13),
-					LastUpdate:   sdk.NewInt(3700),
+					ExchangeRate: math.LegacyNewDec(13),
+					LastUpdate:   math.NewInt(3700),
 				},
 			},
 		},
 	)
 
 	oracleKeeper.SetFeederDelegation(ctx, keeper.ValAddrs[0], keeper.Addrs[1])
-	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, sdk.NewDec(123))
+	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, math.LegacyNewDec(123))
 	oracleKeeper.SetAggregateExchangeRateVote(ctx, keeper.ValAddrs[0], exchangeRateVote)
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)

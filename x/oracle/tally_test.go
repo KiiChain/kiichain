@@ -3,8 +3,9 @@ package oracle
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
@@ -19,7 +20,7 @@ func TestPickReferenceDenom(t *testing.T) {
 
 	// **** Prepare staking environment (set total bonded power as 100 )
 	// Create handlers
-	stakingHandler := staking.NewHandler(stakingKeeper)
+	msgServer := stakingkeeper.NewMsgServerImpl(&stakingKeeper)
 
 	// Create validators
 	stakingAmount := sdk.TokensFromConsensusPower(50, sdk.DefaultPowerReduction)
@@ -27,19 +28,19 @@ func TestPickReferenceDenom(t *testing.T) {
 	val1 := keeper.NewTestMsgCreateValidator(keeper.ValAddrs[1], keeper.ValPubKeys[1], stakingAmount)
 
 	// Register validators
-	_, err := stakingHandler(ctx, val0)
+	_, err := msgServer.CreateValidator(ctx, val0)
 	require.NoError(t, err)
-	_, err = stakingHandler(ctx, val1)
+	_, err = msgServer.CreateValidator(ctx, val1)
 	require.NoError(t, err)
 
 	// execute staking endblocker to start validators bonding
-	staking.EndBlocker(ctx, stakingKeeper)
+	stakingKeeper.EndBlocker(ctx)
 	// ********
 
 	// Modify the oracle param vote threshold
 	params := oracleKeeper.GetParams(ctx)
-	params.VoteThreshold = sdk.NewDecWithPrec(66, 2) // 0.66
-	oracleKeeper.SetParams(ctx, params)              // Update params
+	params.VoteThreshold = math.LegacyNewDecWithPrec(66, 2) // 0.66
+	oracleKeeper.SetParams(ctx, params)                     // Update params
 
 	// Create voting targets
 	votingTarget := map[string]types.Denom{
@@ -51,29 +52,29 @@ func TestPickReferenceDenom(t *testing.T) {
 
 	// Create vote map (the voting (ballot) per denom)
 	uatomBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(4000), Power: int64(20), Voter: keeper.ValAddrs[0]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(4100), Power: int64(10), Voter: keeper.ValAddrs[1]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(4200), Power: int64(30), Voter: keeper.ValAddrs[3]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(5000), Power: int64(30), Voter: keeper.ValAddrs[4]},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4000), Power: int64(20), Voter: keeper.ValAddrs[0]},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4100), Power: int64(10), Voter: keeper.ValAddrs[1]},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4200), Power: int64(30), Voter: keeper.ValAddrs[3]},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(5000), Power: int64(30), Voter: keeper.ValAddrs[4]},
 	}
 
 	uethBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroEthDenom, ExchangeRate: sdk.NewDec(10000), Power: int64(20), Voter: keeper.ValAddrs[0]},
-		{Denom: utils.MicroEthDenom, ExchangeRate: sdk.NewDec(9580), Power: int64(30), Voter: keeper.ValAddrs[3]},
-		{Denom: utils.MicroEthDenom, ExchangeRate: sdk.NewDec(10300), Power: int64(30), Voter: keeper.ValAddrs[4]},
+		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(10000), Power: int64(20), Voter: keeper.ValAddrs[0]},
+		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(9580), Power: int64(30), Voter: keeper.ValAddrs[3]},
+		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(10300), Power: int64(30), Voter: keeper.ValAddrs[4]},
 	}
 
 	uusdcBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: sdk.NewDec(20000), Power: int64(20), Voter: keeper.ValAddrs[0]},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: sdk.NewDec(20100), Power: int64(10), Voter: keeper.ValAddrs[1]},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: sdk.NewDec(19580), Power: int64(30), Voter: keeper.ValAddrs[3]},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: sdk.NewDec(20300), Power: int64(30), Voter: keeper.ValAddrs[4]},
+		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(20000), Power: int64(20), Voter: keeper.ValAddrs[0]},
+		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(20100), Power: int64(10), Voter: keeper.ValAddrs[1]},
+		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(19580), Power: int64(30), Voter: keeper.ValAddrs[3]},
+		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(20300), Power: int64(30), Voter: keeper.ValAddrs[4]},
 	}
 
 	ukiiBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroKiiDenom, ExchangeRate: sdk.NewDec(30000), Power: int64(20), Voter: keeper.ValAddrs[0]},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: sdk.NewDec(30100), Power: int64(10), Voter: keeper.ValAddrs[1]},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: sdk.NewDec(29580), Power: int64(30), Voter: keeper.ValAddrs[3]},
+		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(30000), Power: int64(20), Voter: keeper.ValAddrs[0]},
+		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(30100), Power: int64(10), Voter: keeper.ValAddrs[1]},
+		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(29580), Power: int64(30), Voter: keeper.ValAddrs[3]},
 	}
 
 	voteMap := map[string]types.ExchangeRateBallot{
@@ -97,20 +98,20 @@ func TestPickReferenceDenom(t *testing.T) {
 
 func TestBallotIsPassing(t *testing.T) {
 	uatomBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(4000), Power: int64(20), Voter: keeper.ValAddrs[0]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(4100), Power: int64(10), Voter: keeper.ValAddrs[1]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(4200), Power: int64(30), Voter: keeper.ValAddrs[3]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(5000), Power: int64(30), Voter: keeper.ValAddrs[4]},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4000), Power: int64(20), Voter: keeper.ValAddrs[0]},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4100), Power: int64(10), Voter: keeper.ValAddrs[1]},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4200), Power: int64(30), Voter: keeper.ValAddrs[3]},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(5000), Power: int64(30), Voter: keeper.ValAddrs[4]},
 	}
 
 	// must return true because the threshold is lower than the ballot power
-	power, ispassing := ballotIsPassing(uatomBallot, sdk.NewInt(80))
-	require.Equal(t, sdk.NewInt(90), power)
+	power, ispassing := ballotIsPassing(uatomBallot, math.NewInt(80))
+	require.Equal(t, math.NewInt(90), power)
 	require.True(t, ispassing)
 
 	// must return false because the threshold is higher than the ballot power
-	power, ispassing = ballotIsPassing(uatomBallot, sdk.NewInt(100))
-	require.Equal(t, sdk.NewInt(90), power)
+	power, ispassing = ballotIsPassing(uatomBallot, math.NewInt(100))
+	require.Equal(t, math.NewInt(90), power)
 	require.False(t, ispassing)
 }
 
@@ -120,7 +121,7 @@ func TestTally(t *testing.T) {
 	ctx := input.Ctx
 
 	// Create handlers
-	stakingHandler := staking.NewHandler(stakingKeeper)
+	msgServer := stakingkeeper.NewMsgServerImpl(&stakingKeeper)
 
 	// Create validators
 	stakingAmount := sdk.TokensFromConsensusPower(10, sdk.DefaultPowerReduction)
@@ -128,36 +129,42 @@ func TestTally(t *testing.T) {
 	val1 := keeper.NewTestMsgCreateValidator(keeper.ValAddrs[1], keeper.ValPubKeys[1], stakingAmount)
 
 	// Register validators
-	_, err := stakingHandler(ctx, val0)
+	_, err := msgServer.CreateValidator(ctx, val0)
 	require.NoError(t, err)
-	_, err = stakingHandler(ctx, val1)
+	_, err = msgServer.CreateValidator(ctx, val1)
 	require.NoError(t, err)
 
 	// execute staking endblocker to start validators bonding
-	staking.EndBlocker(ctx, stakingKeeper)
+	stakingKeeper.EndBlocker(ctx)
 
 	// Get claim map
 	validatorClaimMap := make(map[string]types.Claim)
 	powerReduction := stakingKeeper.PowerReduction(ctx)
 
-	iterator := stakingKeeper.ValidatorsPowerStoreIterator(ctx)
+	iterator, err := stakingKeeper.ValidatorsPowerStoreIterator(ctx)
+	require.NoError(t, err)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		valAddr := sdk.ValAddress(iterator.Value())        // Get validator address
-		validator := stakingKeeper.Validator(ctx, valAddr) // get validator by address
+		valAddr := sdk.ValAddress(iterator.Value())             // Get validator address
+		validator, err := stakingKeeper.Validator(ctx, valAddr) // get validator by address
+		require.NoError(t, err)
 
 		valPower := validator.GetConsensusPower(powerReduction)
 		operator := validator.GetOperator()
-		claim := types.NewClaim(valPower, 0, 0, false, operator)
 
-		validatorClaimMap[operator.String()] = claim // Assign the validator on the list to receive
+		// Get the operator as a valaddress
+		operatorValAddr := sdk.ValAddress(operator)
+
+		claim := types.NewClaim(valPower, 0, 0, false, operatorValAddr)
+
+		validatorClaimMap[operator] = claim // Assign the validator on the list to receive
 	}
 
 	uatomBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(4160), Power: int64(10), Voter: keeper.ValAddrs[0]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(4180), Power: int64(20), Voter: keeper.ValAddrs[1]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(4200), Power: int64(30), Voter: keeper.ValAddrs[2]}, // weighted median
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(5000), Power: int64(40), Voter: keeper.ValAddrs[3]},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4160), Power: int64(10), Voter: keeper.ValAddrs[0]},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4180), Power: int64(20), Voter: keeper.ValAddrs[1]},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4200), Power: int64(30), Voter: keeper.ValAddrs[2]}, // weighted median
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(5000), Power: int64(40), Voter: keeper.ValAddrs[3]},
 	}
 
 	// median = 4200
@@ -167,8 +174,8 @@ func TestTally(t *testing.T) {
 	// upper limit = 4242
 	// lower limit = 4158
 
-	weightedMedian := Tally(ctx, uatomBallot, sdk.NewDecWithPrec(2, 2), validatorClaimMap)
-	require.Equal(t, sdk.NewDec(4200), weightedMedian)
+	weightedMedian := Tally(ctx, uatomBallot, math.LegacyNewDecWithPrec(2, 2), validatorClaimMap)
+	require.Equal(t, math.LegacyNewDec(4200), weightedMedian)
 
 	// validate validators who voted
 	for validator, claim := range validatorClaimMap {

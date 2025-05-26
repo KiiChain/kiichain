@@ -19,15 +19,16 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) {
 	if utils.IsPeriodLastBlock(ctx, params.VotePeriod) {
 		validatorClaimMap := make(map[string]types.Claim) // here I will store the claim per validator
 
-		iterator := k.StakingKeeper.ValidatorsPowerStoreIterator(ctx)
+		iterator, _ := k.StakingKeeper.ValidatorsPowerStoreIterator(ctx) // FIXME: handle the error properly
+
 		defer iterator.Close()
 
 		powerReduction := k.StakingKeeper.PowerReduction(ctx) // Get the power reduction factor
 
 		// Iterate over validators and register only the bonded ones
 		for ; iterator.Valid(); iterator.Next() {
-			valAddr := sdk.ValAddress(iterator.Value())          // Get validator address
-			validator := k.StakingKeeper.Validator(ctx, valAddr) // get validator by address
+			valAddr := sdk.ValAddress(iterator.Value())             // Get validator address
+			validator, _ := k.StakingKeeper.Validator(ctx, valAddr) // FIXME: handle the error properly
 
 			// add bonded validators
 			if validator.IsBonded() {

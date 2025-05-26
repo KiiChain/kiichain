@@ -3,19 +3,23 @@ package oracle
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/keeper"
+	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/stretchr/testify/require"
+	protov2 "google.golang.org/protobuf/proto"
 )
 
 var (
 	stakingAmount       = sdk.TokensFromConsensusPower(10, sdk.DefaultPowerReduction)
-	randomAExchangeRate = sdk.NewDec(1700)
-	randomBExchangeRate = sdk.NewDecWithPrec(4882, 2)
+	randomAExchangeRate = math.LegacyNewDec(1700)
+	randomBExchangeRate = math.LegacyNewDecWithPrec(4882, 2)
 )
 
-func SetUp(t *testing.T) (keeper.TestInput, sdk.Handler) {
+// SetUp returns the message server
+func SetUp(t *testing.T) (keeper.TestInput, types.MsgServer) {
 	input := keeper.CreateTestInput(t)
 	oracleKeeper := input.OracleKeeper
 	stakingKeeper := input.StakingKeeper
@@ -27,13 +31,14 @@ func SetUp(t *testing.T) (keeper.TestInput, sdk.Handler) {
 	params.SlashWindow = 100
 	oracleKeeper.SetParams(ctx, params)
 
-	stakingParams := stakingKeeper.GetParams(ctx)
-	stakingParams.MinCommissionRate = sdk.NewDecWithPrec(0, 2) // 0.00
+	stakingParams, err := stakingKeeper.GetParams(ctx)
+	require.NoError(t, err)
+	stakingParams.MinCommissionRate = math.LegacyNewDecWithPrec(0, 2) // 0.00
 	stakingKeeper.SetParams(ctx, stakingParams)
 
 	// Create handlers
-	oracleHandler := NewHandler(oracleKeeper)
-	stakingHandler := staking.NewHandler(stakingKeeper)
+	oracleMsgServer := keeper.NewMsgServer(oracleKeeper)
+	stakingMsgServer := stakingkeeper.NewMsgServerImpl(&stakingKeeper)
 
 	// Create validators
 	val0 := keeper.NewTestMsgCreateValidator(keeper.ValAddrs[0], keeper.ValPubKeys[0], stakingAmount)
@@ -41,15 +46,39 @@ func SetUp(t *testing.T) (keeper.TestInput, sdk.Handler) {
 	val2 := keeper.NewTestMsgCreateValidator(keeper.ValAddrs[2], keeper.ValPubKeys[2], stakingAmount)
 
 	// Register validators
-	_, err := stakingHandler(ctx, val0)
+	_, err = stakingMsgServer.CreateValidator(ctx, val0)
 	require.NoError(t, err)
-	_, err = stakingHandler(ctx, val1)
+	_, err = stakingMsgServer.CreateValidator(ctx, val1)
 	require.NoError(t, err)
-	_, err = stakingHandler(ctx, val2)
+	_, err = stakingMsgServer.CreateValidator(ctx, val2)
 	require.NoError(t, err)
 
 	// execute staking endblocker to start validators bonding
-	staking.EndBlocker(ctx, stakingKeeper)
+	stakingKeeper.EndBlocker(ctx)
 
-	return input, oracleHandler
+	return input, oracleMsgServer
+}
+
+// TestTx is a mock transaction type for testing purposes
+type TestTx struct {
+	msgs []sdk.Msg
+}
+
+// NewTestTx creates a new TestTx with the provided messages
+func NewTestTx(msgs []sdk.Msg) TestTx {
+	return TestTx{msgs: msgs}
+}
+
+// GetMsgs returns the messages contained in the TestTx
+func (t TestTx) GetMsgs() []sdk.Msg {
+	return t.msgs
+}
+
+// ValidateBasic performs basic validation on the TestTx
+func (t TestTx) ValidateBasic() error {
+	return nil
+}
+
+func (t TestTx) GetMsgsV2() ([]protov2.Message, error) {
+	return nil, nil
 }
