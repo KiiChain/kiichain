@@ -1,6 +1,8 @@
 package types
 
 import (
+	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -37,34 +39,34 @@ func (msg MsgAggregateExchangeRateVote) ValidateBasic() error {
 	// Check valid feeder address
 	_, err := sdk.AccAddressFromBech32(msg.Feeder)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid feeder address (%s)", err)
+		return errors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid feeder address (%s)", err)
 	}
 
 	// Check valid validator address
 	_, err = sdk.ValAddressFromBech32(msg.Validator)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid operator address (%s)", err)
+		return errors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid operator address (%s)", err)
 	}
 
 	// Check valid quantity exchange rates
 	if len(msg.ExchangeRates) == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "must provide at least one oracle exchange rate")
+		return errors.Wrap(sdkerrors.ErrUnknownRequest, "must provide at least one oracle exchange rate")
 	}
 
 	// Check exchange rate size
 	if len(msg.ExchangeRates) > 4096 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "exchange rates string can not exceed 4096 characters")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "exchange rates string can not exceed 4096 characters")
 	}
 
 	exchangeRates, err := ParseExchangeRateTuples(msg.ExchangeRates)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "failed to parse exchange rates string cause: "+err.Error())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, "failed to parse exchange rates string cause: "+err.Error())
 	}
 
 	for _, rate := range exchangeRates {
 		// Check overflow on exchange rate values
-		if rate.ExchangeRate.BigInt().BitLen() > 255+sdk.DecimalPrecisionBits {
-			return sdkerrors.Wrap(ErrInvalidExchangeRate, "overflow exchange rate")
+		if rate.ExchangeRate.BigInt().BitLen() > 255+math.LegacyDecimalPrecisionBits {
+			return errors.Wrap(ErrInvalidExchangeRate, "overflow exchange rate")
 		}
 	}
 	return nil
@@ -95,13 +97,13 @@ func (msg MsgDelegateFeedConsent) ValidateBasic() error {
 	// Validate operator (validator) account
 	_, err := sdk.ValAddressFromBech32(msg.Operator)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid operator address (%s)", err)
+		return errors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid operator address (%s)", err)
 	}
 
 	// Validate delegate address
 	_, err = sdk.AccAddressFromBech32(msg.Delegate)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid delegate address (%s)", err)
+		return errors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid delegate address (%s)", err)
 	}
 
 	return nil

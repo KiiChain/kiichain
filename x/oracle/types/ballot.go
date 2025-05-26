@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 
+	sdkMath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -32,14 +33,14 @@ func NewClaim(power, weight, winCount int64, didVote bool, recipient sdk.ValAddr
 
 // VoteForTally is the struct that represents the validator's vote
 type VoteForTally struct {
-	Denom        string         // What denom validator is voting
-	ExchangeRate sdk.Dec        // Rate for that specific denom
-	Voter        sdk.ValAddress // Voter (the validator)
-	Power        int64          // Validator's power
+	Denom        string            // What denom validator is voting
+	ExchangeRate sdkMath.LegacyDec // Rate for that specific denom
+	Voter        sdk.ValAddress    // Voter (the validator)
+	Power        int64             // Validator's power
 }
 
 // NewVoteForTally creates a new instance of VoteForTally with the input parameters
-func NewVoteForTally(rate sdk.Dec, denom string, voter sdk.ValAddress, power int64) VoteForTally {
+func NewVoteForTally(rate sdkMath.LegacyDec, denom string, voter sdk.ValAddress, power int64) VoteForTally {
 	return VoteForTally{
 		Denom:        denom,
 		ExchangeRate: rate,
@@ -52,8 +53,8 @@ func NewVoteForTally(rate sdk.Dec, denom string, voter sdk.ValAddress, power int
 type ExchangeRateBallot []VoteForTally
 
 // ToMap returns organized exchange rate map by validator
-func (ex ExchangeRateBallot) ToMap() map[string]sdk.Dec {
-	exchangeRateMap := make(map[string]sdk.Dec) // recipient to return
+func (ex ExchangeRateBallot) ToMap() map[string]sdkMath.LegacyDec {
+	exchangeRateMap := make(map[string]sdkMath.LegacyDec) // recipient to return
 
 	for _, vote := range ex { // Iterate the ExchangeRateBallot (remember is []VoteForTally)
 		if vote.ExchangeRate.IsPositive() {
@@ -96,7 +97,7 @@ func (ex ExchangeRateBallot) Power() int64 {
 // WeightedMedianWithAssertion returns the median weighted by the power
 // of the exchange rate vote. Must be sorted because I selected
 // the exchange rate that the accomulated power is equal or major to 50% of total power
-func (ex ExchangeRateBallot) WeightedMedianWithAssertion() sdk.Dec {
+func (ex ExchangeRateBallot) WeightedMedianWithAssertion() sdkMath.LegacyDec {
 	// Validate if the exchange rate is sorted
 	if !sort.IsSorted(ex) {
 		panic("ballot must be sorted")
@@ -116,17 +117,17 @@ func (ex ExchangeRateBallot) WeightedMedianWithAssertion() sdk.Dec {
 		}
 	}
 
-	return sdk.ZeroDec() // Return zero if the ballot doesn't have exchange rates
+	return sdkMath.LegacyZeroDec() // Return zero if the ballot doesn't have exchange rates
 }
 
-func (ex ExchangeRateBallot) ToCrossRateWithSort(bases map[string]sdk.Dec) ExchangeRateBallot {
+func (ex ExchangeRateBallot) ToCrossRateWithSort(bases map[string]sdkMath.LegacyDec) ExchangeRateBallot {
 	ballot := ex.ToCrossRate(bases)
 	sort.Sort(ballot)
 	return ballot
 }
 
 // ToCrossRate return cross_rate(base/exchange_rate) ballot
-func (ex ExchangeRateBallot) ToCrossRate(bases map[string]sdk.Dec) ExchangeRateBallot {
+func (ex ExchangeRateBallot) ToCrossRate(bases map[string]sdkMath.LegacyDec) ExchangeRateBallot {
 	// Iterate over the exchange rates
 	crossRateBallot := make(ExchangeRateBallot, 0, len(ex))
 
@@ -141,7 +142,7 @@ func (ex ExchangeRateBallot) ToCrossRate(bases map[string]sdk.Dec) ExchangeRateB
 				defer func() {
 					if r := recover(); r != nil {
 						// if overflow, set exchange rate to 0 and power to 0
-						vote.ExchangeRate = sdk.ZeroDec()
+						vote.ExchangeRate = sdkMath.LegacyZeroDec()
 						vote.Power = 0
 					}
 				}()
@@ -149,7 +150,7 @@ func (ex ExchangeRateBallot) ToCrossRate(bases map[string]sdk.Dec) ExchangeRateB
 			}()
 		} else {
 			// If we can't get exchange rate, convert the vote as abstain vote
-			vote.ExchangeRate = sdk.ZeroDec()
+			vote.ExchangeRate = sdkMath.LegacyZeroDec()
 			vote.Power = 0
 		}
 
@@ -160,21 +161,21 @@ func (ex ExchangeRateBallot) ToCrossRate(bases map[string]sdk.Dec) ExchangeRateB
 }
 
 // StandardDeviation calculates the standard deviation by the power
-func (ex ExchangeRateBallot) StandardDeviation(median sdk.Dec) (standardDeviation sdk.Dec) {
+func (ex ExchangeRateBallot) StandardDeviation(median sdkMath.LegacyDec) (standardDeviation sdkMath.LegacyDec) {
 	// Validate the Ballot has votes
 	if len(ex) == 0 {
-		return sdk.ZeroDec()
+		return sdkMath.LegacyZeroDec()
 	}
 
 	// Panic handler (returns zero)
 	defer func() {
 		e := recover()
 		if e != nil {
-			standardDeviation = sdk.ZeroDec()
+			standardDeviation = sdkMath.LegacyZeroDec()
 		}
 	}()
 
-	sum := sdk.ZeroDec()
+	sum := sdkMath.LegacyZeroDec()
 	for _, votes := range ex {
 		deviation := votes.ExchangeRate.Sub(median) // calculate the ex - median
 		sum = sum.Add(deviation.Mul(deviation))     // Calculate sum += (ex - median)^2
@@ -184,8 +185,8 @@ func (ex ExchangeRateBallot) StandardDeviation(median sdk.Dec) (standardDeviatio
 
 	floatNum, _ := strconv.ParseFloat(variance.String(), 64)
 	floatNum = math.Sqrt(floatNum)
-	standardDeviation, _ = sdk.NewDecFromStr(fmt.Sprintf("%f", floatNum))
+
+	standardDeviation, _ = sdkMath.LegacyNewDecFromStr(fmt.Sprintf("%f", floatNum))
 
 	return
-
 }

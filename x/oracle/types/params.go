@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
 	"gopkg.in/yaml.v2"
@@ -23,10 +23,10 @@ var (
 
 // Default parameter value
 var (
-	DefaultVotePeriod    = uint64(2)                  // Voting every two blocks
-	DefaultSlashWindow   = utils.BlocksPerDay * 2     // 2 days for oracle slashing
-	DefaultVoteThreshold = sdk.NewDecWithPrec(667, 3) // 0.667 | 66.7%
-	DefaultRewardBand    = sdk.NewDecWithPrec(2, 2)   // 0.02% | 2%
+	DefaultVotePeriod    = uint64(2)                         // Voting every two blocks
+	DefaultSlashWindow   = utils.BlocksPerDay * 2            // 2 days for oracle slashing
+	DefaultVoteThreshold = math.LegacyNewDecWithPrec(667, 3) // 0.667 | 66.7%
+	DefaultRewardBand    = math.LegacyNewDecWithPrec(2, 2)   // 0.02% | 2%
 	DefaultWhitelist     = DenomList{
 		{Name: utils.MicroBtcDenom},
 		{Name: utils.MicroEthDenom},
@@ -36,8 +36,8 @@ var (
 		{Name: utils.MicroUsdtDenom},
 		{Name: utils.MicroUsdcDenom},
 	}
-	DefaultSlashFraction     = sdk.NewDecWithPrec(0, 4) // 0.00 | 0%
-	DefaultMinValidPerWindow = sdk.NewDecWithPrec(5, 2) // 0.05 | 5%
+	DefaultSlashFraction     = math.LegacyNewDecWithPrec(0, 4) // 0.00 | 0%
+	DefaultMinValidPerWindow = math.LegacyNewDecWithPrec(5, 2) // 0.05 | 5%
 	DefaultLookbackDuration  = uint64(3600)
 )
 
@@ -89,15 +89,15 @@ func (p Params) Validate() error {
 	if p.VotePeriod == 0 {
 		return fmt.Errorf("oracle parameter VotePeriod must be > 0, is %d", p.VotePeriod)
 	}
-	if p.VoteThreshold.LTE(sdk.NewDecWithPrec(33, 2)) {
+	if p.VoteThreshold.LTE(math.LegacyNewDecWithPrec(33, 2)) {
 		return fmt.Errorf("oracle parameter VoteThreshold must be greater than 33 percent")
 	}
 
-	if p.RewardBand.GT(sdk.OneDec()) || p.RewardBand.IsNegative() {
+	if p.RewardBand.GT(math.LegacyOneDec()) || p.RewardBand.IsNegative() {
 		return fmt.Errorf("oracle parameter RewardBand must be between [0, 1]")
 	}
 
-	if p.SlashFraction.GT(sdk.OneDec()) || p.SlashFraction.IsNegative() {
+	if p.SlashFraction.GT(math.LegacyOneDec()) || p.SlashFraction.IsNegative() {
 		return fmt.Errorf("oracle parameter SlashFraction must be between [0, 1]")
 	}
 
@@ -109,7 +109,7 @@ func (p Params) Validate() error {
 		return fmt.Errorf("oracle parameter SlashWindow must be divisible by VotePeriod")
 	}
 
-	if p.MinValidPerWindow.GT(sdk.OneDec()) || p.MinValidPerWindow.IsNegative() {
+	if p.MinValidPerWindow.GT(math.LegacyOneDec()) || p.MinValidPerWindow.IsNegative() {
 		return fmt.Errorf("oracle parameter MinValidPerWindow must be between [0, 1]")
 	}
 
@@ -134,7 +134,7 @@ func validateVotePeriod(i interface{}) error {
 }
 
 func validateVoteThreshold(i interface{}) error {
-	v, ok := i.(sdk.Dec) // Data type must be Decimal from cosmos sdk
+	v, ok := i.(math.LegacyDec) // Data type must be Decimal from cosmos sdk
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -143,7 +143,7 @@ func validateVoteThreshold(i interface{}) error {
 		return fmt.Errorf("vote threshold must be bigger than 0%%: %s", v)
 	}
 
-	if v.GT(sdk.OneDec()) { // Parameter cannot be greater than 1.00
+	if v.GT(math.LegacyOneDec()) { // Parameter cannot be greater than 1.00
 		return fmt.Errorf("vote threshold too large: %s", v)
 	}
 
@@ -151,7 +151,7 @@ func validateVoteThreshold(i interface{}) error {
 }
 
 func validateRewardBand(i interface{}) error {
-	v, ok := i.(sdk.Dec) // Data type must be Decimal from cosmos sdk
+	v, ok := i.(math.LegacyDec) // Data type must be Decimal from cosmos sdk
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -160,7 +160,7 @@ func validateRewardBand(i interface{}) error {
 		return fmt.Errorf("reward band must be positive: %s", v)
 	}
 
-	if v.GT(sdk.OneDec()) { // Parameter cannot be greater than 1.00
+	if v.GT(math.LegacyOneDec()) { // Parameter cannot be greater than 1.00
 		return fmt.Errorf("reward band is too large: %s", v)
 	}
 
@@ -183,7 +183,7 @@ func validateWhitelist(i interface{}) error {
 }
 
 func validateSlashFraction(i interface{}) error {
-	v, ok := i.(sdk.Dec) // Data type must be Decimal from cosmos sdk
+	v, ok := i.(math.LegacyDec) // Data type must be Decimal from cosmos sdk
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -192,7 +192,7 @@ func validateSlashFraction(i interface{}) error {
 		return fmt.Errorf("slash fraction must be positive: %s", v)
 	}
 
-	if v.GT(sdk.OneDec()) { // Parameter cannot be greater than 1.00
+	if v.GT(math.LegacyOneDec()) { // Parameter cannot be greater than 1.00
 		return fmt.Errorf("slash fraction is too large: %s", v)
 	}
 
@@ -213,7 +213,7 @@ func validateSlashWindow(i interface{}) error {
 }
 
 func validateMinValidPerWindow(i interface{}) error {
-	v, ok := i.(sdk.Dec) // Data type must be Decimal from cosmos sdk
+	v, ok := i.(math.LegacyDec) // Data type must be Decimal from cosmos sdk
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -222,7 +222,7 @@ func validateMinValidPerWindow(i interface{}) error {
 		return fmt.Errorf("min valid per window must be positive: %s", v)
 	}
 
-	if v.GT(sdk.OneDec()) { // Parameter cannot be greater than 1.00
+	if v.GT(math.LegacyOneDec()) { // Parameter cannot be greater than 1.00
 		return fmt.Errorf("min valid per window is too large: %s", v)
 	}
 

@@ -3,6 +3,7 @@ package types
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -19,14 +20,14 @@ func TestNewAggregateExchangeRateVote(t *testing.T) {
 		{
 			name: "Valid inputs with multiple exchanges rates (tuples)",
 			exchangeRateTuples: ExchangeRateTuples{
-				{Denom: "BTC/USD", ExchangeRate: sdk.NewDec(45000)},
-				{Denom: "ETH/USD", ExchangeRate: sdk.NewDec(3000)},
+				{Denom: "BTC/USD", ExchangeRate: math.LegacyNewDec(45000)},
+				{Denom: "ETH/USD", ExchangeRate: math.LegacyNewDec(3000)},
 			},
 			voter: sdk.ValAddress([]byte("validator1")),
 			expected: AggregateExchangeRateVote{
 				ExchangeRateTuples: ExchangeRateTuples{
-					{Denom: "BTC/USD", ExchangeRate: sdk.NewDec(45000)},
-					{Denom: "ETH/USD", ExchangeRate: sdk.NewDec(3000)},
+					{Denom: "BTC/USD", ExchangeRate: math.LegacyNewDec(45000)},
+					{Denom: "ETH/USD", ExchangeRate: math.LegacyNewDec(3000)},
 				},
 				Voter: sdk.ValAddress([]byte("validator1")).String(),
 			},
@@ -57,26 +58,26 @@ func TestNewExchangeRateTuple(t *testing.T) {
 	testCases := []struct {
 		name         string
 		denom        string
-		exchangeRage sdk.Dec
+		exchangeRage math.LegacyDec
 		expected     ExchangeRateTuple
 	}{
 		{
 			name:         "Valid inputs",
 			denom:        "BTC/USD",
-			exchangeRage: sdk.NewDec(45000),
+			exchangeRage: math.LegacyNewDec(45000),
 			expected: ExchangeRateTuple{
 				Denom:        "BTC/USD",
-				ExchangeRate: sdk.NewDec(45000),
+				ExchangeRate: math.LegacyNewDec(45000),
 			},
 		},
 
 		{
 			name:         "Empty exchange rate",
 			denom:        "",
-			exchangeRage: sdk.NewDec(3000),
+			exchangeRage: math.LegacyNewDec(3000),
 			expected: ExchangeRateTuple{
 				Denom:        "",
-				ExchangeRate: sdk.NewDec(3000),
+				ExchangeRate: math.LegacyNewDec(3000),
 			},
 		},
 	}

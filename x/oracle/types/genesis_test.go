@@ -62,8 +62,8 @@ func TestDefaultGenesisState(t *testing.T) {
 
 func TestValidateGenesis(t *testing.T) {
 	genState := DefaultGenesisState()
-	require.NoError(t, ValidateGenesis(genState))
+	require.NoError(t, genState.Validate())
 
 	genState.Params.VotePeriod = 0
-	require.Error(t, ValidateGenesis(genState))
+	require.Error(t, genState.Validate())
 }

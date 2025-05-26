@@ -4,6 +4,7 @@ import (
 	"sort"
 	"testing"
 
+	sdkMath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -30,7 +31,7 @@ func TestNewClaim(t *testing.T) {
 
 func TestNewVoteForTally(t *testing.T) {
 	denom := "ukii"
-	rate := sdk.NewDec(1)
+	rate := sdkMath.LegacyNewDec(1)
 	voter := sdk.ValAddress([]byte("validator1"))
 	power := int64(10)
 
@@ -56,17 +57,17 @@ func TestToMapExchangeRateBallot(t *testing.T) {
 	power := int64(10)
 
 	ballot := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(1), denom, voter1, power),
-		NewVoteForTally(sdk.NewDec(2), denom, voter2, power),
-		NewVoteForTally(sdk.NewDec(3), denom, voter3, power),
-		NewVoteForTally(sdk.NewDec(4), denom, voter4, power),
+		NewVoteForTally(sdkMath.LegacyNewDec(1), denom, voter1, power),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denom, voter2, power),
+		NewVoteForTally(sdkMath.LegacyNewDec(3), denom, voter3, power),
+		NewVoteForTally(sdkMath.LegacyNewDec(4), denom, voter4, power),
 	}
 
-	reference := map[string]sdk.Dec{
-		"validator1": sdk.NewDec(1),
-		"validator2": sdk.NewDec(2),
-		"validator3": sdk.NewDec(3),
-		"validator4": sdk.NewDec(4),
+	reference := map[string]sdkMath.LegacyDec{
+		"validator1": sdkMath.LegacyNewDec(1),
+		"validator2": sdkMath.LegacyNewDec(2),
+		"validator3": sdkMath.LegacyNewDec(3),
+		"validator4": sdkMath.LegacyNewDec(4),
 	}
 
 	require.Equal(t, reference, ballot.ToMap())
@@ -82,17 +83,17 @@ func TestSortInterfaceExchangeRateBallot(t *testing.T) {
 	power := int64(10)
 
 	ballot := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(3), denom, voter3, power),
-		NewVoteForTally(sdk.NewDec(4), denom, voter4, power),
-		NewVoteForTally(sdk.NewDec(1), denom, voter1, power),
-		NewVoteForTally(sdk.NewDec(2), denom, voter2, power),
+		NewVoteForTally(sdkMath.LegacyNewDec(3), denom, voter3, power),
+		NewVoteForTally(sdkMath.LegacyNewDec(4), denom, voter4, power),
+		NewVoteForTally(sdkMath.LegacyNewDec(1), denom, voter1, power),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denom, voter2, power),
 	}
 
 	sortedBallot := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(1), denom, voter1, power),
-		NewVoteForTally(sdk.NewDec(2), denom, voter2, power),
-		NewVoteForTally(sdk.NewDec(3), denom, voter3, power),
-		NewVoteForTally(sdk.NewDec(4), denom, voter4, power),
+		NewVoteForTally(sdkMath.LegacyNewDec(1), denom, voter1, power),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denom, voter2, power),
+		NewVoteForTally(sdkMath.LegacyNewDec(3), denom, voter3, power),
+		NewVoteForTally(sdkMath.LegacyNewDec(4), denom, voter4, power),
 	}
 
 	// Validate ExchangeRateBallot implements sort.Interface
@@ -108,8 +109,8 @@ func TestSortInterfaceExchangeRateBallot(t *testing.T) {
 
 	// Validate the swap method
 	ballot.Swap(0, 1)
-	require.Equal(t, sdk.NewDec(4), ballot[0].ExchangeRate)
-	require.Equal(t, sdk.NewDec(3), ballot[1].ExchangeRate)
+	require.Equal(t, sdkMath.LegacyNewDec(4), ballot[0].ExchangeRate)
+	require.Equal(t, sdkMath.LegacyNewDec(3), ballot[1].ExchangeRate)
 
 	// Validate sort process (sort by exchangeRate value)
 	sort.Sort(ballot)
@@ -126,27 +127,27 @@ func TestWeightedMedianWithAssertion(t *testing.T) {
 	voter4 := sdk.ValAddress([]byte("validator4"))
 
 	ballot := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(3), denom, voter3, 30),
-		NewVoteForTally(sdk.NewDec(4), denom, voter4, 40),
-		NewVoteForTally(sdk.NewDec(1), denom, voter1, 10),
-		NewVoteForTally(sdk.NewDec(2), denom, voter2, 20),
+		NewVoteForTally(sdkMath.LegacyNewDec(3), denom, voter3, 30),
+		NewVoteForTally(sdkMath.LegacyNewDec(4), denom, voter4, 40),
+		NewVoteForTally(sdkMath.LegacyNewDec(1), denom, voter1, 10),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denom, voter2, 20),
 	}
 
 	// This must returns panic because ballot is not sorted
 	require.Panics(t, func() { ballot.WeightedMedianWithAssertion() })
 
 	sortedBallot := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(1), denom, voter1, 10),
-		NewVoteForTally(sdk.NewDec(2), denom, voter2, 20),
-		NewVoteForTally(sdk.NewDec(3), denom, voter3, 30), // 3 is the median rate
-		NewVoteForTally(sdk.NewDec(4), denom, voter4, 40),
+		NewVoteForTally(sdkMath.LegacyNewDec(1), denom, voter1, 10),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denom, voter2, 20),
+		NewVoteForTally(sdkMath.LegacyNewDec(3), denom, voter3, 30), // 3 is the median rate
+		NewVoteForTally(sdkMath.LegacyNewDec(4), denom, voter4, 40),
 	}
 
-	require.Equal(t, sdk.NewDec(3), sortedBallot.WeightedMedianWithAssertion())
+	require.Equal(t, sdkMath.LegacyNewDec(3), sortedBallot.WeightedMedianWithAssertion())
 
 	// This must returns zero because there is no votes
 	emptyBallot := ExchangeRateBallot{}
-	require.Equal(t, sdk.ZeroDec(), emptyBallot.WeightedMedianWithAssertion())
+	require.Equal(t, sdkMath.LegacyZeroDec(), emptyBallot.WeightedMedianWithAssertion())
 }
 
 func TestStandardDeviation(t *testing.T) {
@@ -158,20 +159,20 @@ func TestStandardDeviation(t *testing.T) {
 	voter4 := sdk.ValAddress([]byte("validator4"))
 
 	ballot := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(1), denom, voter1, 10),
-		NewVoteForTally(sdk.NewDec(2), denom, voter2, 20),
-		NewVoteForTally(sdk.NewDec(3), denom, voter3, 30), // 3 is the median rate
-		NewVoteForTally(sdk.NewDec(4), denom, voter4, 40),
+		NewVoteForTally(sdkMath.LegacyNewDec(1), denom, voter1, 10),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denom, voter2, 20),
+		NewVoteForTally(sdkMath.LegacyNewDec(3), denom, voter3, 30), // 3 is the median rate
+		NewVoteForTally(sdkMath.LegacyNewDec(4), denom, voter4, 40),
 	}
 
 	// Must return zero (no votes)
 	emptyBallot := ExchangeRateBallot{}
-	require.Equal(t, sdk.ZeroDec(), emptyBallot.StandardDeviation(sdk.ZeroDec()))
+	require.Equal(t, sdkMath.LegacyZeroDec(), emptyBallot.StandardDeviation(sdkMath.LegacyZeroDec()))
 
 	// Calculate the standard deviation
 	median := ballot.WeightedMedianWithAssertion()
 	deviation := ballot.StandardDeviation(median)
-	require.Equal(t, sdk.NewDecWithPrec(1224745, 6), deviation)
+	require.Equal(t, sdkMath.LegacyNewDecWithPrec(1224745, 6), deviation)
 }
 
 func TestToCrossRate(t *testing.T) {
@@ -184,24 +185,24 @@ func TestToCrossRate(t *testing.T) {
 	voter4 := sdk.ValAddress([]byte("validator4"))
 
 	referenceBallot := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(6), denom, voter3, 30),
-		NewVoteForTally(sdk.NewDec(2), denom, voter1, 10),
-		NewVoteForTally(sdk.NewDec(8), denom, voter4, 40),
-		NewVoteForTally(sdk.NewDec(4), denom, voter2, 20),
+		NewVoteForTally(sdkMath.LegacyNewDec(6), denom, voter3, 30),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denom, voter1, 10),
+		NewVoteForTally(sdkMath.LegacyNewDec(8), denom, voter4, 40),
+		NewVoteForTally(sdkMath.LegacyNewDec(4), denom, voter2, 20),
 	}
 
 	ballot := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter3, 30),
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter1, 10),
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter4, 40),
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter2, 20),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter3, 30),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter1, 10),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter4, 40),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter2, 20),
 	}
 
 	expectedCrossRate := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(3), denomRefernce, voter3, 30),
-		NewVoteForTally(sdk.NewDec(1), denomRefernce, voter1, 10),
-		NewVoteForTally(sdk.NewDec(4), denomRefernce, voter4, 40),
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter2, 20),
+		NewVoteForTally(sdkMath.LegacyNewDec(3), denomRefernce, voter3, 30),
+		NewVoteForTally(sdkMath.LegacyNewDec(1), denomRefernce, voter1, 10),
+		NewVoteForTally(sdkMath.LegacyNewDec(4), denomRefernce, voter4, 40),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter2, 20),
 	}
 
 	// Calculate the cross rate as:
@@ -226,26 +227,26 @@ func TestToCrossRateNotFound(t *testing.T) {
 	voter6 := sdk.ValAddress([]byte("validator6"))
 
 	referenceBallot := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(6), denom, voter3, 30),
-		NewVoteForTally(sdk.NewDec(2), denom, voter1, 10),
-		NewVoteForTally(sdk.NewDec(8), denom, voter4, 40),
-		NewVoteForTally(sdk.NewDec(4), denom, voter2, 20),
+		NewVoteForTally(sdkMath.LegacyNewDec(6), denom, voter3, 30),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denom, voter1, 10),
+		NewVoteForTally(sdkMath.LegacyNewDec(8), denom, voter4, 40),
+		NewVoteForTally(sdkMath.LegacyNewDec(4), denom, voter2, 20),
 	}
 
 	ballot := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter5, 10),
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter6, 30),
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter4, 40),
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter2, 20),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter5, 10),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter6, 30),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter4, 40),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter2, 20),
 	}
 
 	// must returns zero because val6 is not on referenceBallot
 	// must returns zero because val5 is not on referenceBallot
 	expectedCrossRate := ExchangeRateBallot{
-		NewVoteForTally(sdk.ZeroDec(), denomRefernce, voter5, 0),
-		NewVoteForTally(sdk.ZeroDec(), denomRefernce, voter6, 0),
-		NewVoteForTally(sdk.NewDec(4), denomRefernce, voter4, 40),
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter2, 20),
+		NewVoteForTally(sdkMath.LegacyZeroDec(), denomRefernce, voter5, 0),
+		NewVoteForTally(sdkMath.LegacyZeroDec(), denomRefernce, voter6, 0),
+		NewVoteForTally(sdkMath.LegacyNewDec(4), denomRefernce, voter4, 40),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter2, 20),
 	}
 
 	crossRate := ballot.ToCrossRate(referenceBallot.ToMap())
@@ -262,25 +263,25 @@ func TestToCrossRateWithSort(t *testing.T) {
 	voter4 := sdk.ValAddress([]byte("validator4"))
 
 	referenceBallot := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(6), denom, voter3, 30),
-		NewVoteForTally(sdk.NewDec(2), denom, voter1, 10),
-		NewVoteForTally(sdk.NewDec(8), denom, voter4, 40),
-		NewVoteForTally(sdk.NewDec(4), denom, voter2, 20),
+		NewVoteForTally(sdkMath.LegacyNewDec(6), denom, voter3, 30),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denom, voter1, 10),
+		NewVoteForTally(sdkMath.LegacyNewDec(8), denom, voter4, 40),
+		NewVoteForTally(sdkMath.LegacyNewDec(4), denom, voter2, 20),
 	}
 
 	ballot := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter3, 30),
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter1, 10),
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter4, 40),
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter2, 20),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter3, 30),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter1, 10),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter4, 40),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter2, 20),
 	}
 
 	// expected cross rate and SORTED
 	expectedCrossRate := ExchangeRateBallot{
-		NewVoteForTally(sdk.NewDec(1), denomRefernce, voter1, 10),
-		NewVoteForTally(sdk.NewDec(2), denomRefernce, voter2, 20),
-		NewVoteForTally(sdk.NewDec(3), denomRefernce, voter3, 30),
-		NewVoteForTally(sdk.NewDec(4), denomRefernce, voter4, 40),
+		NewVoteForTally(sdkMath.LegacyNewDec(1), denomRefernce, voter1, 10),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), denomRefernce, voter2, 20),
+		NewVoteForTally(sdkMath.LegacyNewDec(3), denomRefernce, voter3, 30),
+		NewVoteForTally(sdkMath.LegacyNewDec(4), denomRefernce, voter4, 40),
 	}
 
 	// must calcualte the cross rate and sort the response
