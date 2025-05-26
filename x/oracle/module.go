@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -13,11 +14,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/kiichain/kiichain/v1/x/oracle/client/cli"
-	"github.com/kiichain/kiichain/v1/x/oracle/client/rest"
 	"github.com/kiichain/kiichain/v1/x/oracle/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 var (
@@ -25,11 +24,23 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{} // Indirect implement the AppModuleBasic interface
 )
 
-// ********************* IMPLEMENT AppModuleBasic INTERFACE ******************
+// ConsensusVersion defines the current x/oracle module consensus version.
+const ConsensusVersion = 1
+
+// ----------------------------------------------------------------------------
+// AppModuleBasic
+// ----------------------------------------------------------------------------
 
 // AppModuleBasic defines the basic application module
 type AppModuleBasic struct {
 	cdc codec.Codec
+}
+
+// NewAppModuleBasic creates a new AppModuleBasic object
+func NewAppModuleBasic(cdc codec.Codec) AppModuleBasic {
+	return AppModuleBasic{
+		cdc: cdc,
+	}
 }
 
 // Name returns the module name
@@ -37,6 +48,7 @@ func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
+// RegisterLegacyAminoCodec registers the module's types on the LegacyAmino codec
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	types.RegisterCodec(cdc)
 }
@@ -52,29 +64,17 @@ func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 }
 
 // ValidateGenesis performs a genesis state validation
-func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
-	var data types.GenesisState
-	err := cdc.UnmarshalJSON(bz, &data)
+func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
+	var genState types.GenesisState
+	err := cdc.UnmarshalJSON(bz, &genState)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
 	}
-	return types.ValidateGenesis(&data)
-}
-
-// ValidateGenesisStream performs a genesis validation in a streaming fashion
-func (appModule AppModuleBasic) ValidateGenesisStream(cdc codec.JSONCodec, config client.TxEncodingConfig, genesisCh <-chan json.RawMessage) error {
-	for genesis := range genesisCh {
-		err := appModule.ValidateGenesis(cdc, config, genesis)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return genState.Validate()
 }
 
 // RegisterRESTRoutes registers the REST routes
 func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, router *mux.Router) {
-	rest.RegisterRoutes(clientCtx, router)
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC query routes
@@ -95,7 +95,9 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
 
-// ****************************************************************************
+// ----------------------------------------------------------------------------
+// AppModule
+// ----------------------------------------------------------------------------
 
 // AppModule implements an application module (AppModule interface)
 type AppModule struct {
@@ -117,9 +119,19 @@ func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, accountKeeper types.Acc
 	}
 }
 
-// ********************* IMPLEMENT AppModule INTERFACE ************************
-// ConsensusVersion returns the version the module's version
-func (AppModule) ConsensusVersion() uint64 { return 6 }
+// IsAppModule implements the AppModule interface
+func (AppModule) IsAppModule() {}
+
+// IsOnePerModuleType implements the AppModule interface
+func (AppModule) IsOnePerModuleType() {}
+
+// Name returns the module name
+func (am AppModule) Name() string {
+	return am.AppModuleBasic.Name()
+}
+
+// QuerierRoute returns the module's querier router name
+func (am AppModule) QuerierRoute() string { return types.QuerierRoute }
 
 // RegisterServices registers the module services
 func (am AppModule) RegisterServices(cfg module.Configurator) {
@@ -144,41 +156,12 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 	return cdc.MustMarshalJSON(&genesis)
 }
 
-// ExportGenesisStream returns genesis state as json bytes in a streaming fashion
-func (am AppModule) ExportGenesisStream(ctx sdk.Context, cdc codec.JSONCodec) <-chan json.RawMessage {
-	ch := make(chan json.RawMessage)
-	go func() {
-		ch <- am.ExportGenesis(ctx, cdc)
-		close(ch)
-	}()
-	return ch
-}
-
-// LegacyQuerierHandler returns the module sdk.Querier (deprecated)
-func (am AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {
-	return nil
-}
-
-// Route returns the module's routing key (deprecated)
-func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, NewHandler(am.Kepper))
-}
-
-// QuerierRoute returns the module's querier router name
-func (am AppModule) QuerierRoute() string { return types.QuerierRoute }
-
-// BeginBlock returns the module's begin blocker
-func (am AppModule) BeginBlock(_ sdk.Context, _ int64) {}
-
-// MidBlock returns the module's mid blocker
-func (am AppModule) MidBlock(ctx sdk.Context, _ int64) {
-	MidBlocker(ctx, am.Kepper)
-}
+// ConsensusVersion returns the version the module's version
+func (AppModule) ConsensusVersion() uint64 { return 6 }
 
 // EndBlock returns the module's end blocker
-func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) (res []abci.ValidatorUpdate) {
+func (am AppModule) EndBlock(ctx sdk.Context) (res []abci.ValidatorUpdate) {
+	MidBlocker(ctx, am.Kepper)
 	Endblocker(ctx, am.Kepper)
 	return []abci.ValidatorUpdate{}
 }
-
-// ****************************************************************************

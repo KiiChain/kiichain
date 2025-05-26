@@ -31,10 +31,14 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 			// add bonded validators
 			if validator.IsBonded() {
-				valPower := validator.GetConsensusPower(powerReduction)  // Get validator's power
-				operator := validator.GetOperator()                      // Get address to receive coins
-				claim := types.NewClaim(valPower, 0, 0, false, operator) // Create claim object
-				validatorClaimMap[operator.String()] = claim             // Assign the validator on the list to receive
+				valPower := validator.GetConsensusPower(powerReduction) // Get validator's power
+				operator := validator.GetOperator()                     // Get address to receive coins
+
+				// Parse the operator address
+				operatorAddr, _ := sdk.ValAddressFromBech32(operator)
+
+				claim := types.NewClaim(valPower, 0, 0, false, operatorAddr) // Create claim object
+				validatorClaimMap[operator] = claim                          // Assign the validator on the list to receive
 			}
 		}
 
