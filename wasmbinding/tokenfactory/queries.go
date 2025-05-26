@@ -23,7 +23,7 @@ type QueryPlugin struct {
 	tokenFactoryKeeper *tokenfactorykeeper.Keeper
 }
 
-// QueryPlugin returns a reference to a new QueryPlugin for the token factory module
+// NewQueryPlugin returns a reference to a new QueryPlugin for the token factory module
 func NewQueryPlugin(b bankkeeper.Keeper, tfk *tokenfactorykeeper.Keeper) *QueryPlugin {
 	return &QueryPlugin{
 		bankKeeper:         b,

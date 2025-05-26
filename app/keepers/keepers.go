@@ -481,7 +481,7 @@ func NewAppKeeper(
 		tokenFactoryCapabilities,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
-	wasmOpts = append(wasmOpts, wasmbinding.RegisterCustomPlugins(appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper)...)
+	wasmOpts = append(wasmOpts, wasmbinding.RegisterCustomPlugins(appKeepers.BankKeeper, &appKeepers.TokenFactoryKeeper, appKeepers.EVMKeeper)...)
 
 	// Must be called on PFMRouter AFTER TransferKeeper initialized
 	appKeepers.PFMRouterKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
