@@ -10,6 +10,7 @@ import (
 
 	"github.com/kiichain/kiichain/v1/app/helpers"
 	v130 "github.com/kiichain/kiichain/v1/app/upgrades/v1_3"
+	"github.com/kiichain/kiichain/v1/precompiles/ibc"
 	"github.com/kiichain/kiichain/v1/precompiles/wasmd"
 )
 
@@ -32,7 +33,7 @@ func TestUpgrade(t *testing.T) {
 	require.NoError(t, err)
 
 	// Now run add wasmd upgrade
-	err = v130.InstallNewPrecompile(ctx, &app.AppKeepers)
+	err = v130.InstallNewPrecompiles(ctx, &app.AppKeepers)
 	require.NoError(t, err)
 
 	// Get the params again
@@ -43,4 +44,5 @@ func TestUpgrade(t *testing.T) {
 	require.Contains(t, evmParams.ActiveStaticPrecompiles, "0x0000000000000000000000000000000000000001")
 	require.Contains(t, evmParams.ActiveStaticPrecompiles, "0x0000000000000000000000000000000000000002")
 	require.Contains(t, evmParams.ActiveStaticPrecompiles, wasmd.WasmdPrecompileAddress)
+	require.Contains(t, evmParams.ActiveStaticPrecompiles, ibc.IBCPrecompileAddress)
 }
