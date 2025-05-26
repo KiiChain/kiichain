@@ -33,9 +33,9 @@ func DefaultGenesisState() *GenesisState {
 	}
 }
 
-// ValidateGenesis executes the Validate function for an input genesis data
-func ValidateGenesis(data *GenesisState) error {
-	return data.Params.Validate()
+// Validate validates the genesis state
+func (gs GenesisState) Validate() error {
+	return gs.Params.Validate()
 }
 
 // GetGenesisStateFromAppState returns the x/oracle genesisState

@@ -4,15 +4,15 @@ import (
 	"testing"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewPriceSnapshotItem(t *testing.T) {
 	rate := OracleExchangeRate{
-		ExchangeRate:        sdk.NewDec(11),
-		LastUpdate:          sdk.NewInt(10),
+		ExchangeRate:        math.LegacyNewDec(11),
+		LastUpdate:          math.NewInt(10),
 		LastUpdateTimestamp: time.Now().Unix(),
 	}
 
@@ -20,8 +20,8 @@ func TestNewPriceSnapshotItem(t *testing.T) {
 	expected := PriceSnapshotItem{
 		Denom: utils.MicroAtomDenom,
 		OracleExchangeRate: OracleExchangeRate{
-			ExchangeRate:        sdk.NewDec(11),
-			LastUpdate:          sdk.NewInt(10),
+			ExchangeRate:        math.LegacyNewDec(11),
+			LastUpdate:          math.NewInt(10),
 			LastUpdateTimestamp: time.Now().Unix(),
 		},
 	}
@@ -36,16 +36,16 @@ func TestNewPriceSnapshotItem(t *testing.T) {
 func TestNewPriceSnapshot(t *testing.T) {
 	// price item 1
 	rate1 := OracleExchangeRate{
-		ExchangeRate:        sdk.NewDec(11),
-		LastUpdate:          sdk.NewInt(10),
+		ExchangeRate:        math.LegacyNewDec(11),
+		LastUpdate:          math.NewInt(10),
 		LastUpdateTimestamp: time.Now().Unix(),
 	}
 	item1 := NewPriceSnapshotItem(utils.MicroAtomDenom, rate1)
 
 	// price item 2
 	rate2 := OracleExchangeRate{
-		ExchangeRate:        sdk.NewDec(22),
-		LastUpdate:          sdk.NewInt(10),
+		ExchangeRate:        math.LegacyNewDec(22),
+		LastUpdate:          math.NewInt(10),
 		LastUpdateTimestamp: time.Now().Unix(),
 	}
 	item2 := NewPriceSnapshotItem(utils.MicroEthDenom, rate2)
@@ -61,8 +61,8 @@ func TestNewPriceSnapshot(t *testing.T) {
 			PriceSnapshotItem{
 				Denom: utils.MicroAtomDenom,
 				OracleExchangeRate: OracleExchangeRate{
-					ExchangeRate:        sdk.NewDec(11),
-					LastUpdate:          sdk.NewInt(10),
+					ExchangeRate:        math.LegacyNewDec(11),
+					LastUpdate:          math.NewInt(10),
 					LastUpdateTimestamp: time.Now().Unix(),
 				},
 			},
@@ -70,8 +70,8 @@ func TestNewPriceSnapshot(t *testing.T) {
 			PriceSnapshotItem{
 				Denom: utils.MicroEthDenom,
 				OracleExchangeRate: OracleExchangeRate{
-					ExchangeRate:        sdk.NewDec(22),
-					LastUpdate:          sdk.NewInt(10),
+					ExchangeRate:        math.LegacyNewDec(22),
+					LastUpdate:          math.NewInt(10),
 					LastUpdateTimestamp: time.Now().Unix(),
 				},
 			},

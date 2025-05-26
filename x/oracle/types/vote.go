@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"gopkg.in/yaml.v2"
 )
@@ -30,7 +31,7 @@ func (a AggregateExchangeRateVote) String() string {
 }
 
 // NewExchangeRateTuple creates a new ExchangeRateTuple instance
-func NewExchangeRateTuple(denom string, exchangeRage sdk.Dec) ExchangeRateTuple {
+func NewExchangeRateTuple(denom string, exchangeRage math.LegacyDec) ExchangeRateTuple {
 	return ExchangeRateTuple{
 		Denom:        denom,
 		ExchangeRate: exchangeRage,

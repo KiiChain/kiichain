@@ -3,7 +3,7 @@ package types
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,25 +19,25 @@ func TestParamsValid(t *testing.T) {
 
 	// small vote threshold
 	p2 := DefaultParams()
-	p2.VoteThreshold = sdk.ZeroDec()
+	p2.VoteThreshold = math.LegacyZeroDec()
 	err = p2.Validate()
 	require.Error(t, err)
 
 	// negative reward band
 	p3 := DefaultParams()
-	p3.RewardBand = sdk.NewDecWithPrec(-1, 2)
+	p3.RewardBand = math.LegacyNewDecWithPrec(-1, 2)
 	err = p3.Validate()
 	require.Error(t, err)
 
 	// negative slash fraction
 	p4 := DefaultParams()
-	p4.SlashFraction = sdk.NewDec(-1)
+	p4.SlashFraction = math.LegacyNewDec(-1)
 	err = p4.Validate()
 	require.Error(t, err)
 
 	// negative min valid per window
 	p5 := DefaultParams()
-	p5.MinValidPerWindow = sdk.NewDec(-1)
+	p5.MinValidPerWindow = math.LegacyNewDec(-1)
 	err = p5.Validate()
 	require.Error(t, err)
 

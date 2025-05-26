@@ -1,6 +1,10 @@
 package types
 
 import (
+	context "context"
+
+	corestore "cosmossdk.io/core/store"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -10,13 +14,13 @@ import (
 // StakingKeeper is expected keeper for staking module, because I need to handle
 // reward and slashink on my oracle module
 type StakingKeeper interface {
-	Validator(ctx sdk.Context, address sdk.ValAddress) stakingtypes.ValidatorI //Retrieves a validator's information
-	TotalBondedTokens(ctx sdk.Context) sdk.Int                                 // Retrieves total staked tokens (useful for slashing calculations)
-	Slash(sdk.Context, sdk.ConsAddress, int64, int64, sdk.Dec)                 // Slashes a validator or delegate who fails to vote in the oracle
-	Jail(ctx sdk.Context, consAddr sdk.ConsAddress)                            // Jail a validator or delegator
-	ValidatorsPowerStoreIterator(ctx sdk.Context) sdk.Iterator                 // Used to computing validator rankings or total power
-	MaxValidators(ctx sdk.Context) uint32                                      // Return the maximum amount of bonded validators
-	PowerReduction(ctx sdk.Context) (res sdk.Int)                              //Returns the power reduction factor,
+	Validator(ctx sdk.Context, address sdk.ValAddress) stakingtypes.ValidatorI                                                        //Retrieves a validator's information
+	TotalBondedTokens(ctx sdk.Context) math.Int                                                                                       // Retrieves total staked tokens (useful for slashing calculations)
+	Slash(ctx context.Context, consAddr sdk.ConsAddress, infractionHeight, power int64, slashFactor math.LegacyDec) (math.Int, error) // Slashes a validator or delegate who fails to vote in the oracle
+	Jail(ctx sdk.Context, consAddr sdk.ConsAddress)                                                                                   // Jail a validator or delegator
+	ValidatorsPowerStoreIterator(ctx sdk.Context) corestore.Iterator                                                                  // Used to computing validator rankings or total power
+	MaxValidators(ctx sdk.Context) uint32                                                                                             // Return the maximum amount of bonded validators
+	PowerReduction(ctx sdk.Context) (res math.Int)                                                                                    //Returns the power reduction factor,
 }
 
 // AccountKeeper is expected keeper for auth module, because I need to handle
