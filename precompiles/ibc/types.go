@@ -17,6 +17,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// TransferEvent represents the solidity event that is logged
 type TransferEvent struct {
 	Caller           common.Address
 	Denom            common.Hash
@@ -217,6 +218,7 @@ func (p Precompile) GetAdjustedTimestamp(ctx sdk.Context, clientID string, heigh
 	return 0, errors.New("block time is not greater than Jan 1st, 1970 12:00 AM")
 }
 
+// ValidatedArgs stores common args that have been validated
 type ValidatedArgs struct {
 	senderKiiAddr         sdk.AccAddress
 	receiverAddressString string

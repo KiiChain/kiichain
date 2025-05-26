@@ -39,6 +39,7 @@ var f embed.FS
 // Precompile is a struct that implements the PrecompiledContract interface
 var _ vm.PrecompiledContract = &Precompile{}
 
+// Precompile defines the struct for the ibc precompile
 type Precompile struct {
 	cmn.Precompile
 	transferKeeper   ibctransferkeeper.Keeper
@@ -47,6 +48,7 @@ type Precompile struct {
 	channelKeeper    channelkeeper.Keeper
 }
 
+// NewPrecompile defines creates a new instance of ibc precompile
 func NewPrecompile(
 	transferKeeper ibctransferkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,

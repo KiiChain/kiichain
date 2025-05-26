@@ -64,6 +64,7 @@ func (p Precompile) TransferWithDefaultTimeout(ctx sdk.Context, method *abi.Meth
 	return method.Outputs.Pack(true)
 }
 
+// logTransfer logs a given transfer in the debug stream
 func (p Precompile) logTransfer(ctx sdk.Context, method *abi.Method, msg *types.MsgTransfer) {
 	p.Logger(ctx).Debug(
 		"tx called",
