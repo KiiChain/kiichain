@@ -44,7 +44,7 @@ func CreateUpgradeHandler(
 	}
 }
 
-// InstallNewPrecompile is a placeholder for installing new precompiles.
+// InstallNewPrecompiles is a placeholder for installing new precompiles.
 func InstallNewPrecompiles(ctx sdk.Context, keepers *keepers.AppKeepers) error {
 	// Log the upgrade
 	ctx.Logger().Info("Installing new precompile for wasmd")
