@@ -3,7 +3,7 @@ package keeper
 import (
 	"strconv"
 
-	cosmostelemetry "github.com/cosmos/cosmos-sdk/telemetry"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 )
@@ -32,12 +32,15 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) {
 		}
 
 		// rate = successVotes / total votes
-		validVoteRate := sdk.NewDec(int64(successCount)).QuoInt64(int64(totalVotes))
+		validVoteRate := math.LegacyNewDec(int64(successCount)).QuoInt64(int64(totalVotes))
 
 		// penalize the validator whose the valid rate is smaller than the min threshold
 		if validVoteRate.LT(minValidPerWindow) {
-			validator := k.StakingKeeper.Validator(ctx, operator) // get validator
-			if validator.IsBonded() && !validator.IsJailed() {    // only bonded validators can be slashed
+			validator, err := k.StakingKeeper.Validator(ctx, operator) // get validator
+			if err != nil {
+				panic(err)
+			}
+			if validator.IsBonded() && !validator.IsJailed() { // only bonded validators can be slashed
 				consAddr, err := validator.GetConsAddr()
 				if err != nil {
 					panic(err)
@@ -46,7 +49,6 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) {
 				consensusPower := validator.GetConsensusPower(powerReduction)
 				k.StakingKeeper.Slash(ctx, consAddr, distributionHeight, consensusPower, slashFraction) // slash validator
 				k.StakingKeeper.Jail(ctx, consAddr)                                                     // Jail validator
-				cosmostelemetry.IncrValidatorSlashedCounter(consAddr.String(), "oracle")
 			}
 		}
 

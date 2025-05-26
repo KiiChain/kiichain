@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/tendermint/tendermint/libs/log"
-
+	"cosmossdk.io/errors"
+	"cosmossdk.io/log"
+	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
@@ -16,9 +17,9 @@ import (
 
 // Keeper manages the oracle module's state
 type Keeper struct {
-	cdc        codec.BinaryCodec // Codec for binary serialization
-	storeKey   sdk.StoreKey      // storage key to access the module's state
-	memKey     sdk.StoreKey
+	cdc        codec.BinaryCodec   // Codec for binary serialization
+	storeKey   storetypes.StoreKey // storage key to access the module's state
+	memKey     storetypes.StoreKey
 	paramSpace paramstypes.Subspace // Manages the module's parameters allowing dynamical settings
 
 	accountKeeper types.AccountKeeper
@@ -29,7 +30,7 @@ type Keeper struct {
 }
 
 // NewKeeper creates an oracle Keeper instance
-func NewKeeper(cdc codec.BinaryCodec, storeKey sdk.StoreKey, memKey sdk.StoreKey, paramSpace paramstypes.Subspace,
+func NewKeeper(cdc codec.BinaryCodec, storeKey storetypes.StoreKey, memKey storetypes.StoreKey, paramSpace paramstypes.Subspace,
 	accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper, StakingKeeper types.StakingKeeper,
 	distrName string) Keeper {
 	// Ensure oracle module account is set
@@ -63,12 +64,12 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // **************************** EXCHANGE RATE LOGIC ***************************
 
 // GetBaseExchangeRate is used to get the exchange rate by denom from the KVStore
-func (k Keeper) GetBaseExchangeRate(ctx sdk.Context, denom string) (sdk.Dec, sdk.Int, int64, error) {
+func (k Keeper) GetBaseExchangeRate(ctx sdk.Context, denom string) (math.LegacyDec, math.Int, int64, error) {
 	// Get ExchangeRate from KVStore
 	store := ctx.KVStore(k.storeKey) // Get the oracle module's store
 	byteData := store.Get(types.GetExchangeRateKey(denom))
 	if byteData == nil {
-		return sdk.ZeroDec(), sdk.ZeroInt(), 0, sdkerrors.Wrap(types.ErrUnknownDenom, denom)
+		return math.LegacyZeroDec(), math.ZeroInt(), 0, errors.Wrap(types.ErrUnknownDenom, denom)
 	}
 
 	// Decode ExchangeRate
@@ -78,9 +79,9 @@ func (k Keeper) GetBaseExchangeRate(ctx sdk.Context, denom string) (sdk.Dec, sdk
 }
 
 // SetBaseExchangeRate is used to set the exchange rate by denom on the KVStore
-func (k Keeper) SetBaseExchangeRate(ctx sdk.Context, denom string, exchangeRate sdk.Dec) {
+func (k Keeper) SetBaseExchangeRate(ctx sdk.Context, denom string, exchangeRate math.LegacyDec) {
 	store := ctx.KVStore(k.storeKey) // Get the oracle module's store
-	currentHeight := sdk.NewInt(ctx.BlockHeight())
+	currentHeight := math.NewInt(ctx.BlockHeight())
 	blockTimestamp := ctx.BlockTime().UnixMilli()
 
 	rate := types.OracleExchangeRate{
@@ -94,7 +95,7 @@ func (k Keeper) SetBaseExchangeRate(ctx sdk.Context, denom string, exchangeRate 
 }
 
 // SetBaseExchangeRateWithEvent calls SetBaseExchangeRate and generate an event about that denom creation
-func (k Keeper) SetBaseExchangeRateWithEvent(ctx sdk.Context, denom string, exchangeRate sdk.Dec) {
+func (k Keeper) SetBaseExchangeRateWithEvent(ctx sdk.Context, denom string, exchangeRate math.LegacyDec) {
 	// Set exchange rate by denom
 	k.SetBaseExchangeRate(ctx, denom, exchangeRate)
 
@@ -118,7 +119,7 @@ func (k Keeper) DeleteBaseExchangeRate(ctx sdk.Context, denom string) {
 // IterateBaseExchangeRates iterate over the exchange rate list and perform vallback function
 func (k Keeper) IterateBaseExchangeRates(ctx sdk.Context, handler func(denom string, exchangeRate types.OracleExchangeRate) bool) {
 	store := ctx.KVStore(k.storeKey)
-	iter := sdk.KVStorePrefixIterator(store, types.ExchangeRateKey)
+	iter := storetypes.KVStorePrefixIterator(store, types.ExchangeRateKey)
 	defer iter.Close()
 
 	// Iterate the whole exchangeRate list
@@ -159,7 +160,7 @@ func (k Keeper) SetFeederDelegation(ctx sdk.Context, valAddr sdk.ValAddress, del
 // IterateFeederDelegations iterate over the delegated list and perform vallback function
 func (k Keeper) IterateFeederDelegations(ctx sdk.Context, handler func(valAddr sdk.ValAddress, delegatedFeeder sdk.AccAddress) bool) {
 	store := ctx.KVStore(k.storeKey)
-	iter := sdk.KVStorePrefixIterator(store, types.FeederDelegationKey)
+	iter := storetypes.KVStorePrefixIterator(store, types.FeederDelegationKey)
 	defer iter.Close()
 
 	for ; iter.Valid(); iter.Next() {
@@ -181,14 +182,17 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 	if !feederAddr.Equals(valAddr) {
 		delegator := k.GetFeederDelegation(ctx, valAddr) // Get the delegated address by validator address
 		if !delegator.Equals(feederAddr) {
-			return sdkerrors.Wrap(types.ErrNoVotingPermission, feederAddr.String())
+			return errors.Wrap(types.ErrNoVotingPermission, feederAddr.String())
 		}
 	}
 
 	// Validate the feeder addr is a validator, if so, validate if is bonded (allowed to validate blocks)
-	validator := k.StakingKeeper.Validator(ctx, valAddr)
+	validator, err := k.StakingKeeper.Validator(ctx, valAddr)
+	if err != nil {
+		return errors.Wrapf(stakingtypes.ErrNoValidatorFound, "validator %s not found", valAddr.String())
+	}
 	if valAddr == nil || !validator.IsBonded() {
-		return sdkerrors.Wrapf(stakingtypes.ErrNoValidatorFound, "validator %s is not active set", valAddr.String())
+		return errors.Wrapf(stakingtypes.ErrNoValidatorFound, "validator %s is not active set", valAddr.String())
 	}
 
 	return nil
@@ -275,7 +279,7 @@ func (k Keeper) DeleteVotePenaltyCounter(ctx sdk.Context, operator sdk.ValAddres
 // IterateVotePenaltyCounters iterates over penalty counters in the store and perform vallback function
 func (k Keeper) IterateVotePenaltyCounters(ctx sdk.Context, handler func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) bool) {
 	store := ctx.KVStore(k.storeKey)
-	iter := sdk.KVStorePrefixIterator(store, types.VotePenaltyCounterKey)
+	iter := storetypes.KVStorePrefixIterator(store, types.VotePenaltyCounterKey)
 	defer iter.Close()
 
 	for ; iter.Valid(); iter.Next() {
@@ -299,7 +303,7 @@ func (k Keeper) GetAggregateExchangeRateVote(ctx sdk.Context, voter sdk.ValAddre
 	store := ctx.KVStore(k.storeKey)
 	byteData := store.Get(types.GetAggregateExchangeRateVoteKey(voter))
 	if byteData == nil {
-		err := sdkerrors.Wrap(types.ErrNoAggregateVote, voter.String())
+		err := errors.Wrap(types.ErrNoAggregateVote, voter.String())
 		return types.AggregateExchangeRateVote{}, err // Return custom error
 	}
 
@@ -325,7 +329,7 @@ func (k Keeper) DeleteAggregateExchangeRateVote(ctx sdk.Context, voter sdk.ValAd
 // IterateAggregateExchangeRateVotes iterates over exchange rate votes in the store and perform vallback function
 func (k Keeper) IterateAggregateExchangeRateVotes(ctx sdk.Context, handler func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) bool) {
 	store := ctx.KVStore(k.storeKey)
-	iter := sdk.KVStorePrefixIterator(store, types.AggregateExchangeRateVoteKey)
+	iter := storetypes.KVStorePrefixIterator(store, types.AggregateExchangeRateVoteKey)
 	defer iter.Close()
 
 	for ; iter.Valid(); iter.Next() {
@@ -377,7 +381,7 @@ func (k Keeper) GetVoteTarget(ctx sdk.Context, denom string) (types.Denom, error
 	store := ctx.KVStore(k.storeKey)
 	byteData := store.Get(types.GetVoteTargetKey(denom))
 	if byteData == nil {
-		err := sdkerrors.Wrap(types.ErrNoVoteTarget, denom)
+		err := errors.Wrap(types.ErrNoVoteTarget, denom)
 		return types.Denom{}, err // Return custom error
 	}
 
@@ -397,7 +401,7 @@ func (k Keeper) SetVoteTarget(ctx sdk.Context, denom string) {
 // IterateVoteTargets iterates over denoms in the store and perform vallback function
 func (k Keeper) IterateVoteTargets(ctx sdk.Context, handler func(denom string, denomInfo types.Denom) bool) {
 	store := ctx.KVStore(k.storeKey)
-	iter := sdk.KVStorePrefixIterator(store, types.VoteTargetKey)
+	iter := storetypes.KVStorePrefixIterator(store, types.VoteTargetKey)
 	defer iter.Close()
 
 	for ; iter.Valid(); iter.Next() {
@@ -420,9 +424,9 @@ func (k Keeper) DeleteVoteTargets(ctx sdk.Context) {
 }
 
 // getAllKeysForPrefix helper function, returns an array with the elements inside a prefix
-func (k Keeper) getAllKeysForPrefix(store sdk.KVStore, prefix []byte) [][]byte {
+func (k Keeper) getAllKeysForPrefix(store storetypes.KVStore, prefix []byte) [][]byte {
 	keys := [][]byte{}
-	iter := sdk.KVStorePrefixIterator(store, prefix)
+	iter := storetypes.KVStorePrefixIterator(store, prefix)
 	defer iter.Close()
 
 	for ; iter.Valid(); iter.Next() {
@@ -496,7 +500,7 @@ func (k Keeper) AddPriceSnapshot(ctx sdk.Context, snapshot types.PriceSnapshot) 
 // IteratePriceSnapshots iterates over the snapshot list and execute the handler
 func (k Keeper) IteratePriceSnapshots(ctx sdk.Context, handler func(snapshot types.PriceSnapshot) bool) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.PriceSnapshotKey)
+	iterator := storetypes.KVStorePrefixIterator(store, types.PriceSnapshotKey)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -511,7 +515,7 @@ func (k Keeper) IteratePriceSnapshots(ctx sdk.Context, handler func(snapshot typ
 // IteratePriceSnapshotsReverse REVERSE iterates over the snapshot list and execute the handler
 func (k Keeper) IteratePriceSnapshotsReverse(ctx sdk.Context, handler func(snapshot types.PriceSnapshot) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStoreReversePrefixIterator(store, types.PriceSnapshotKey)
+	iterator := storetypes.KVStoreReversePrefixIterator(store, types.PriceSnapshotKey)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -568,9 +572,9 @@ func (k Keeper) CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (types.O
 		return oracleTwaps, err
 	}
 
-	var timeTraversed int64                   // last time analyzed
-	twapByDenom := make(map[string]sdk.Dec)   // Here I will store the calculated twap by denom
-	durationByDenom := make(map[string]int64) // Here I will the analyzed duration by denom
+	var timeTraversed int64                        // last time analyzed
+	twapByDenom := make(map[string]math.LegacyDec) // Here I will store the calculated twap by denom
+	durationByDenom := make(map[string]int64)      // Here I will the analyzed duration by denom
 
 	// get targets exchange rate
 	targetsMap := make(map[string]struct{}) // here I store the collected targets from the KVStore
@@ -605,7 +609,7 @@ func (k Keeper) CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (types.O
 			// Check if the twap by denom exist, if so initialize the average with 0
 			_, exist := twapByDenom[denom]
 			if !exist {
-				twapByDenom[denom] = sdk.ZeroDec()
+				twapByDenom[denom] = math.LegacyZeroDec()
 				durationByDenom[denom] = 0
 			}
 
@@ -637,7 +641,7 @@ func (k Keeper) CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (types.O
 		denomDuration := durationByDenom[denomKey]    // Get duration
 
 		// validate divide by zero
-		denomTwap := sdk.ZeroDec()
+		denomTwap := math.LegacyZeroDec()
 		if denomDuration != 0 {
 			denomTwap = denomTimeWeightedSum.QuoInt64(denomDuration)
 		}

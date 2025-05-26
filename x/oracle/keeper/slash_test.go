@@ -3,8 +3,9 @@ package keeper
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
 )
@@ -19,36 +20,42 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 	addr1, val1 := ValAddrs[0], ValPubKeys[0]
 	addr2, val2 := ValAddrs[1], ValPubKeys[1]
 	amount := sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction)
-	sh := staking.NewHandler(stakingKeeper)
+	msgServer := stakingkeeper.NewMsgServerImpl(&stakingKeeper)
 	ctx := input.Ctx
 
 	// Validators created
-	_, err := sh(ctx, NewTestMsgCreateValidator(addr1, val1, amount))
+	_, err := msgServer.CreateValidator(ctx, NewTestMsgCreateValidator(addr1, val1, amount))
 	require.NoError(t, err)
-	_, err = sh(ctx, NewTestMsgCreateValidator(addr2, val2, amount))
+	_, err = msgServer.CreateValidator(ctx, NewTestMsgCreateValidator(addr2, val2, amount))
 	require.NoError(t, err)
-	staking.EndBlocker(ctx, stakingKeeper)
+	stakingKeeper.EndBlocker(ctx)
 
 	balance1 := bankKeeper.GetAllBalances(ctx, sdk.AccAddress(addr1))
-	expectedBalance := sdk.NewCoins(sdk.NewCoin(stakingKeeper.GetParams(ctx).BondDenom, InitTokens.Sub(amount)))
-	bondedTokens1 := stakingKeeper.Validator(ctx, addr1).GetBondedTokens()
+	stakingParams, err := stakingKeeper.GetParams(ctx)
+	require.NoError(t, err)
+	expectedBalance := sdk.NewCoins(sdk.NewCoin(stakingParams.BondDenom, InitTokens.Sub(amount)))
+	getVal1, err := stakingKeeper.Validator(ctx, addr1)
+	require.NoError(t, err)
+	bondedTokens1 := getVal1.GetBondedTokens()
 	require.Equal(t, balance1, expectedBalance)
 	require.Equal(t, amount, bondedTokens1)
 
 	balance2 := bankKeeper.GetAllBalances(ctx, sdk.AccAddress(addr2))
-	bondedTokens2 := stakingKeeper.Validator(ctx, addr2).GetBondedTokens()
+	getVal2, err := stakingKeeper.Validator(ctx, addr2)
+	require.NoError(t, err)
+	bondedTokens2 := getVal2.GetBondedTokens()
 	require.Equal(t, balance2, expectedBalance)
 	require.Equal(t, amount, bondedTokens2)
 
 	//Define slash fraction
-	votePeriodsPerWindow := sdk.NewDec(int64(oracleKeeper.SlashWindow(input.Ctx))).QuoInt64(int64(oracleKeeper.VotePeriod(input.Ctx))).TruncateInt64()
+	votePeriodsPerWindow := math.LegacyNewDec(int64(oracleKeeper.SlashWindow(input.Ctx))).QuoInt64(int64(oracleKeeper.VotePeriod(input.Ctx))).TruncateInt64()
 	slashFraction := oracleKeeper.SlashFraction(input.Ctx)
 	minValidVotes := oracleKeeper.MinValidPerWindow(input.Ctx).MulInt64(votePeriodsPerWindow).TruncateInt64()
 
 	t.Run("no slash", func(t *testing.T) {
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow-minValidVotes), 0, uint64(minValidVotes))
 		oracleKeeper.SlashAndResetCounters(input.Ctx)
-		staking.EndBlocker(input.Ctx, stakingKeeper)
+		stakingKeeper.EndBlocker(ctx)
 
 		validator, _ := stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
 		require.Equal(t, amount, validator.GetBondedTokens())
@@ -57,7 +64,7 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 	t.Run("no slash - total votes is greater than votes per window", func(t *testing.T) {
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow), 0, uint64(votePeriodsPerWindow))
 		oracleKeeper.SlashAndResetCounters(input.Ctx)
-		staking.EndBlocker(input.Ctx, stakingKeeper)
+		stakingKeeper.EndBlocker(ctx)
 
 		validator, _ := stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
 		require.Equal(t, amount, validator.GetBondedTokens())

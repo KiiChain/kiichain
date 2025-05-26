@@ -3,6 +3,7 @@ package keeper
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
@@ -37,7 +38,7 @@ func TestQueryExchangeRate(t *testing.T) {
 	querier := NewQueryServer(oracleKeeper)
 
 	// insert data on the module
-	rate := sdk.NewDec(12)
+	rate := math.LegacyNewDec(12)
 	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, rate)
 
 	// query params
@@ -58,7 +59,7 @@ func TestQueryExchangeRates(t *testing.T) {
 	querier := NewQueryServer(oracleKeeper)
 
 	// insert data on the module
-	rate := sdk.NewDec(12)
+	rate := math.LegacyNewDec(12)
 	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, rate)
 	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, rate)
 
@@ -81,7 +82,7 @@ func TestQueryActives(t *testing.T) {
 	querier := NewQueryServer(oracleKeeper)
 
 	// insert data on the module
-	rate := sdk.NewDec(12)
+	rate := math.LegacyNewDec(12)
 	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, rate)
 	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, rate)
 
@@ -133,23 +134,23 @@ func TestQueryPriceSnapshotHistory(t *testing.T) {
 	// insert data on the module
 	snapShot1 := types.NewPriceSnapshot(1, types.PriceSnapshotItems{
 		types.NewPriceSnapshotItem(utils.MicroEthDenom, types.OracleExchangeRate{
-			ExchangeRate: sdk.NewDec(11),
-			LastUpdate:   sdk.NewInt(20),
+			ExchangeRate: math.LegacyNewDec(11),
+			LastUpdate:   math.NewInt(20),
 		}),
 		types.NewPriceSnapshotItem(utils.MicroAtomDenom, types.OracleExchangeRate{
-			ExchangeRate: sdk.NewDec(12),
-			LastUpdate:   sdk.NewInt(20),
+			ExchangeRate: math.LegacyNewDec(12),
+			LastUpdate:   math.NewInt(20),
 		}),
 	})
 
 	snapShot2 := types.NewPriceSnapshot(2, types.PriceSnapshotItems{
 		types.NewPriceSnapshotItem(utils.MicroEthDenom, types.OracleExchangeRate{
-			ExchangeRate: sdk.NewDec(21),
-			LastUpdate:   sdk.NewInt(30),
+			ExchangeRate: math.LegacyNewDec(21),
+			LastUpdate:   math.NewInt(30),
 		}),
 		types.NewPriceSnapshotItem(utils.MicroAtomDenom, types.OracleExchangeRate{
-			ExchangeRate: sdk.NewDec(22),
-			LastUpdate:   sdk.NewInt(30),
+			ExchangeRate: math.LegacyNewDec(22),
+			LastUpdate:   math.NewInt(30),
 		}),
 	})
 
@@ -179,13 +180,13 @@ func TestQueryTwaps(t *testing.T) {
 
 	// insert data on the module
 	exchangeRate1 := types.OracleExchangeRate{
-		ExchangeRate:        sdk.NewDec(1),
-		LastUpdate:          sdk.NewInt(1),
+		ExchangeRate:        math.LegacyNewDec(1),
+		LastUpdate:          math.NewInt(1),
 		LastUpdateTimestamp: 1,
 	}
 	exchangeRate2 := types.OracleExchangeRate{
-		ExchangeRate:        sdk.NewDec(2),
-		LastUpdate:          sdk.NewInt(2),
+		ExchangeRate:        math.LegacyNewDec(2),
+		LastUpdate:          math.NewInt(2),
 		LastUpdateTimestamp: 2,
 	}
 	snapshotItem1 := types.NewPriceSnapshotItem(utils.MicroKiiDenom, exchangeRate1)
@@ -210,7 +211,7 @@ func TestQueryTwaps(t *testing.T) {
 	// validation
 	require.NoError(t, err)
 	require.Equal(t, utils.MicroEthDenom, res.OracleTwap[0].Denom)
-	require.Equal(t, sdk.NewDec(2), res.OracleTwap[0].Twap)
+	require.Equal(t, math.LegacyNewDec(2), res.OracleTwap[0].Twap)
 }
 
 func TestQueryFeederDelegation(t *testing.T) {
