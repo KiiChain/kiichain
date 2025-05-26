@@ -1,0 +1,44 @@
+syntax = "proto3";
+package kiichain.oracle.v1beta1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/kiichain/kiichain/x/oracle/types";
+
+service Msg {
+  // AggregateExchangeRateVote defines the method for submitting an 
+  // aggregate exchange rate vote
+  rpc AggregateExchangeRateVote(MsgAggregateExchangeRateVote) returns (MsgAggregateExchangeRateVoteResponse);
+  
+  // DelegateFeedConsent defines the method for delegate the prive voting 
+  rpc DelegateFeedConsent(MsgDelegateFeedConsent) returns (MsgDelegateFeedConsentResponse);
+}
+
+// MsgAggregateExchangeRateVote represent the message to submit
+// an aggregate exchange rate vote
+message MsgAggregateExchangeRateVote{
+    option (gogoproto.equal) = false;
+    option (gogoproto.goproto_getters) = false;
+
+    string exchange_rates = 1 [(gogoproto.moretags) = "yaml:\"exchange_rates\""];
+    string feeder = 2 [(gogoproto.moretags) = "yaml:\"feeder\""];
+    string validator = 3 [(gogoproto.moretags) = "yaml:\"validator\""];
+}
+
+// MsgAggregateExchangeRateVoteResponse defines the MsgAggregateExchangeRateVote response
+message MsgAggregateExchangeRateVoteResponse {}
+
+
+// MsgDelegateFeedConsent represents a message to delegate oracle voting 
+// rights to another address
+message MsgDelegateFeedConsent{
+    option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string operator = 1 [(gogoproto.moretags) = "yaml:\"operator\""];
+  string delegate = 2 [(gogoproto.moretags) = "yaml:\"delegate\""];
+}
+
+
+// MsgDelegateFeedConsent defines the Msg MsgDelegateFeedConsent response type
+message MsgDelegateFeedConsentResponse {}

@@ -1,0 +1,161 @@
+syntax = "proto3";
+package kiichain.oracle.v1beta1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/kiichain/kiichain/x/oracle/types";
+
+// Params defines the parameters for the module
+message Params {
+    option (gogoproto.equal)            = true;
+    option (gogoproto.goproto_stringer) = false; // Allow custom logs 
+    
+    // The number of blocks per voting 
+    uint64 vote_period =1 [(gogoproto.moretags) = "yaml:\"vote_period\""];
+
+    // Minimun percentage of validators required to approve a price. For instance, if vote_threshold = "0.5" at least 50% of validators must submit votes 
+    // "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
+    string vote_threshold = 2 [
+        (gogoproto.moretags) = "yaml:\"vote_threshold\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", 
+        (gogoproto.nullable) = false 
+    ];        
+
+    // Acceptable desviation from the media price (higher and lower)
+    // "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
+    string reward_band = 3 [
+        (gogoproto.moretags) = "yaml:\"reward_band\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", 
+        (gogoproto.nullable) = false
+    ];
+
+    // List of allowed assets 
+    // DenomList is a custom data type, defined on x/oracle/types/denom.go
+    repeated Denom whitelist = 4 [
+        (gogoproto.moretags) = "yaml:\"whitelist\"",
+        (gogoproto.castrepeated) = "DenomList", 
+        (gogoproto.nullable) = false
+    ];
+
+    // How much stake is slashed if a validator fails to submit votes 
+    // "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
+    string slash_fraction = 5 [
+        (gogoproto.moretags) = "yaml:\"slash_fraction\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", 
+        (gogoproto.nullable) = false
+    ];
+
+    // Define the window (in blocks) to vote, if not receive penalties due to bad performance
+    uint64 slash_window = 6 [(gogoproto.moretags) = "yaml:\"slash_window\""];
+
+    // Minimum percentage of voting on windows to avoid slashing. For instance, if min_valid_per_window = 0.8, then a validator must submit votes in 80% of windows to avoid slashing 
+    // "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
+    string min_valid_per_window = 7 [
+        (gogoproto.moretags) = "yaml:\"min_valid_per_window\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", 
+        (gogoproto.nullable) = false
+    ];
+
+    // How far back (in blocks) the module can compute historical price metrics 
+    uint64 lookback_duration = 9 [(gogoproto.moretags) = "yaml:\"lookback_duration\""];
+    
+}
+
+// Data type which has the name of the currency 
+message Denom {
+    option (gogoproto.equal)            = false; // Do not generate the Equal function 
+    option (gogoproto.goproto_stringer) = false; // Do not generate the String function 
+    option (gogoproto.goproto_getters) = false;  
+
+    // Stores the name of a token pair, e.g: "BTC/USD"
+    string name = 1 [(gogoproto.moretags) = "yaml:\"name\""];
+}
+
+// Data type to submit multiple exchange rates in one transaction 
+// ExchangeRateTuples is a custom data type, defined on x/oracle/types/vote.go
+message AggregateExchangeRateVote {
+    option (gogoproto.equal)            = false;
+    option (gogoproto.goproto_getters)  = false;
+    option (gogoproto.goproto_stringer) = false;
+
+    repeated ExchangeRateTuple exchange_rate_tuples = 1 [
+        (gogoproto.moretags) = "yaml:\"exchange_rate_tuples\"",
+        (gogoproto.castrepeated) = "ExchangeRateTuples", 
+        (gogoproto.nullable) = false
+    ];
+
+    string voter = 2 [(gogoproto.moretags) = "yaml:\"voter\""];
+}
+
+// Data type that represet a signle exchange rate vote inside AggregateExchangeRateVote
+message ExchangeRateTuple{
+    option (gogoproto.equal)            = false;
+    option (gogoproto.goproto_getters)  = false;
+    option (gogoproto.goproto_stringer) = false;
+
+    string denom = 1 [(gogoproto.moretags) = "yaml:\"denom\""];
+    string exchange_rate = 2 [
+        (gogoproto.moretags)   = "yaml:\"exchange_rate\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable)   = false
+    ];
+}
+
+// Data type that stores the final calculated exchange rate after all votes were 
+// aggregated to that single exchange, record the last block height and timestamp when rate was updated 
+message OracleExchangeRate {
+    option (gogoproto.equal)            = false;
+    option (gogoproto.goproto_getters)  = false;
+    option (gogoproto.goproto_stringer) = false;
+
+    string exchange_rate = 1 [
+        (gogoproto.moretags)   = "yaml:\"exchange_rate\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable)   = false
+    ];
+
+    string last_update = 2 [
+        (gogoproto.moretags)   = "yaml:\"last_update\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+        (gogoproto.nullable)   = false
+    ];
+
+    int64 last_update_timestamp = 3 [(gogoproto.moretags)   = "yaml:\"last_update_timestamp\""];
+}
+
+// Data type represents one historical price record for a single exchange rate 
+message PriceSnapshotItem {
+    string denom = 1;
+    OracleExchangeRate oracle_exchange_rate = 2 [(gogoproto.nullable)   = false];
+}
+
+// Data type represents a list of prices snapshots for all currencies at an specific time
+// PriceSnapshotItems is a custom type, defined on x/orcale/types/snapshots.go
+message PriceSnapshot {
+    int64 snapshot_timestamp = 1 [(gogoproto.moretags)     = "yaml:\"snapshot_timestamp\""];
+    
+    repeated PriceSnapshotItem price_snapshot_items = 2 [
+        (gogoproto.moretags)     = "yaml:\"price_snapshot_items\"",
+        (gogoproto.castrepeated) = "PriceSnapshotItems", 
+        (gogoproto.nullable)     = false
+    ];
+}
+
+// Twap = Time-weighted average price
+// Data type that computes the average price over an specific period of time
+message OracleTwap {
+    string denom = 1;
+    string twap = 2 [
+        (gogoproto.moretags)   = "yaml:\"twap\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable)   = false
+    ];
+    int64 lookback_seconds = 3;
+}
+
+// Data type that tracks the voting behavior per validator
+message VotePenaltyCounter {
+    uint64 miss_count = 1;
+    uint64 abstain_count = 2;
+    uint64 success_count = 3;
+}

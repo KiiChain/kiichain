@@ -1,0 +1,192 @@
+syntax = "proto3";
+package kiichain.oracle.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "kiichain/oracle/v1beta1/params.proto";
+
+option go_package = "github.com/kiichain/kiichain/x/oracle/types";
+
+// Query defines the gRPC querier service
+service Query{
+    // ExchangeRate returns exchange rate of a specific denom
+    rpc ExchangeRate(QueryExchangeRateRequest) returns (QueryExchangeRateResponse){
+        option (google.api.http).get = "/kiichain/oracle/denoms/{denom}/exchange_rate";
+    }
+
+    // ExchangeRates returns the exchange rate for all denoms
+    rpc ExchangeRates(QueryExchangeRatesRequest) returns (QueryExchangeRatesResponse){
+        option (google.api.http).get = "/kiichain/oracle/denoms/exchange_rates";
+    }
+
+    // Actives returns all actives denoms on the module's KVStore
+    rpc Actives (QueryActivesRequest) returns (QueryActivesResponse){
+        option (google.api.http).get = "/kiichain/oracle/denoms/actives";
+    }
+
+    // VoteTargets returns all vote targets denoms 
+    rpc VoteTargets (QueryVoteTargetsRequest) returns (QueryVoteTargetsResponse){
+        option (google.api.http).get = "/kiichain/oracle/denoms/vote_targets";
+    }
+
+    // PriceSnapshotHistory returns the history of price snapshots for all assets
+    rpc PriceSnapshotHistory(QueryPriceSnapshotHistoryRequest) returns (QueryPriceSnapshotHistoryResponse){
+        option (google.api.http).get = "/kiichain/oracle/denoms/price_snapshot_history";
+    }
+
+    // Twap = Time-weighted average price
+    // Twaps returns the list of the average price over an specific period of time and denom
+    rpc Twaps (QueryTwapsRequest) returns (QueryTwapsResponse){
+        option (google.api.http).get = "/kiichain/oracle/denoms/twaps/{lookback_seconds}";
+    }
+
+    // FeederDelegation returns the delegator by the validator address
+    rpc FeederDelegation (QueryFeederDelegationRequest) returns (QueryFeederDelegationResponse){
+        option (google.api.http).get = "/kiichain/oracle/validators/{validator_addr}/feeder";
+    }
+
+    // VotePenaltyCounter returns the voting behavior by an specific validator
+    rpc VotePenaltyCounter (QueryVotePenaltyCounterRequest) returns (QueryVotePenaltyCounterResponse){
+        option (google.api.http).get = "/kiichain/oracle/validators/{validator_addr}/vote_penalty_counter";
+    }
+
+    // SlashWindow returns slash window informacion 
+    rpc SlashWindow(QuerySlashWindowRequest) returns (QuerySlashWindowResponse){
+        option (google.api.http).get = "/kiichain/oracle/slash_window";
+    }
+
+    // Params returns the Oracle module's params
+    rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+        option (google.api.http).get = "/kiichain/oracle/params";
+    }
+}
+
+// QueryExchangeRateRequest is the request for the Query/ExchangeRate rpc method
+message QueryExchangeRateRequest {
+    option (gogoproto.equal)           = false;
+    option (gogoproto.goproto_getters) = false;
+
+    // denom defines the exchange rate denom to search
+    string denom = 1;
+}
+
+// QueryExchangeRateResponse is the response for the Query/ExchangeRate rpc method
+message QueryExchangeRateResponse{
+    option (gogoproto.equal)           = false;
+    option (gogoproto.goproto_getters) = false;
+
+    OracleExchangeRate oracle_exchange_rate = 1 [(gogoproto.nullable) = true];
+}
+
+// QueryExchangeRatesRequest is the response for the Query/ExchangeRates rpc method
+message QueryExchangeRatesRequest{}
+
+// QueryExchangeRatesResponse is the response for the Query/ExchangeRatess rpc method
+// DenomOracleExchangeRatePairs is the alias of the element denom_oracle_exchange_rate after generating the code 
+message QueryExchangeRatesResponse{
+    option (gogoproto.equal)           = false;
+    option (gogoproto.goproto_getters) = false;
+
+    repeated DenomOracleExchangeRate denom_oracle_exchange_rate = 1 [
+        (gogoproto.castrepeated) = "DenomOracleExchangeRatePairs",  
+        (gogoproto.nullable) = false
+    ];
+}
+
+// QueryActivesResponse is the request for the Query/Actives rpc method
+message QueryActivesRequest{}
+
+// QueryActivesResponse is the response for the Query/Actives rpc method
+message QueryActivesResponse{
+    repeated string actives =1;
+}
+
+// DenomOracleExchangeRate is the data type that represents an set of denom - exchange rate values
+message DenomOracleExchangeRate {
+    string denom = 1;
+    OracleExchangeRate oracle_exchange_rate = 2 [(gogoproto.nullable) = true];
+}
+
+// QueryVoteTargetsRequest is the request for the Query/VoteTargets rpc method
+message QueryVoteTargetsRequest {}
+
+// QueryVoteTargetsRequest is the response for the Query/VoteTargets rpc method
+message QueryVoteTargetsResponse {
+    repeated string vote_targets =1;
+}
+
+// QueryPriceSnapshotHistoryRequest is the request for the Query/PriceSnapshotHistory rpc method
+message QueryPriceSnapshotHistoryRequest{}
+
+// QueryPriceSnapshotHistoryResponse is the response for the Query/PriceSnapshotHistory rpc method
+// PriceSnapshots is the alias of the price_snapshot element 
+message QueryPriceSnapshotHistoryResponse{
+    repeated PriceSnapshot price_snapshot = 1 [
+        (gogoproto.nullable) = false,
+        (gogoproto.castrepeated) = "PriceSnapshots"
+    ];
+}
+
+// QueryTwapsRequest is the request for the Query/Twaps rpc method
+message QueryTwapsRequest{
+    // time to lookback on the snapshots array 
+    uint64 lookback_seconds = 1;
+} 
+
+// QueryTwapsRequest is the response for the Query/Twaps rpc method
+// OracleTwaps is the alias of the oracle_twap array element 
+message QueryTwapsResponse{
+    // Twap = Time-weighted average price
+    // oracle_twap is the average price over an specific period of time and denom
+    repeated OracleTwap oracle_twap =1 [
+        (gogoproto.nullable) = false,
+        (gogoproto.castrepeated) = "OracleTwaps"
+    ];
+}
+
+// QueryFeederDelegationResponse is the request for the Query/FeederDelegation rpc method
+message QueryFeederDelegationRequest{
+    option (gogoproto.equal)           = false;
+    option (gogoproto.goproto_getters) = false;
+
+    // validator address to query for
+    string validator_addr = 1;
+}
+
+// QueryFeederDelegationResponse is the response for the Query/FeederDelegation rpc method
+message QueryFeederDelegationResponse{
+    // delegated address 
+    string feed_addr =1; 
+}
+
+// QueryVotePenaltyCounterRequest is the request for the Query/VotePenaltyCounter rpc
+message QueryVotePenaltyCounterRequest{
+    option (gogoproto.equal)           = false;
+    option (gogoproto.goproto_getters) = false;
+
+    string validator_addr = 1;
+}
+
+// QueryVotePenaltyCounterResponse is the response for the Query/VotePenaltyCounter rpc
+message QueryVotePenaltyCounterResponse{
+    // Returns the voting behavior per validator
+    VotePenaltyCounter vote_penalty_counter =1;
+}
+
+// QuerySlashWindowRequest is the request for the Query/SlashWindow rpc
+message QuerySlashWindowRequest{}
+
+// QuerySlashWindowResponse is the response for the Query/SlashWindow rpc
+message QuerySlashWindowResponse{
+    // window_progress defines the number of voting periods
+    uint64 window_progress = 1;
+}
+
+// QueryParamsResponse is the request for the Query/Params rpc method
+message QueryParamsRequest{}
+
+// QueryParamsResponse is the response for the Query/Params rpc method
+message QueryParamsResponse{
+    // return the params module's params
+    Params params = 1;
+}
