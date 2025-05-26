@@ -3,7 +3,7 @@ package oracle
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	"github.com/kiichain/kiichain/v1/x/oracle/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
@@ -260,8 +260,8 @@ func TestEndblocker(t *testing.T) {
 
 		// update MinValidPerWindow
 		params := oracleKeeper.GetParams(ctx)
-		params.MinValidPerWindow = sdk.NewDecWithPrec(50, 2) // 50%
-		params.SlashFraction = sdk.NewDecWithPrec(50, 2)     // 50%
+		params.MinValidPerWindow = math.LegacyNewDecWithPrec(50, 2) // 50%
+		params.SlashFraction = math.LegacyNewDecWithPrec(50, 2)     // 50%
 		oracleKeeper.SetParams(ctx, params)
 
 		// Execute EndBlocker on the last block of slash window
@@ -295,8 +295,8 @@ func TestEndblocker(t *testing.T) {
 
 		// update MinValidPerWindow
 		params := oracleKeeper.GetParams(ctx)
-		params.MinValidPerWindow = sdk.NewDecWithPrec(50, 2) // 50%
-		params.SlashFraction = sdk.NewDecWithPrec(50, 2)     // 50%
+		params.MinValidPerWindow = math.LegacyNewDecWithPrec(50, 2) // 50%
+		params.SlashFraction = math.LegacyNewDecWithPrec(50, 2)     // 50%
 		oracleKeeper.SetParams(ctx, params)
 
 		// Execute EndBlocker on the last block of slash window
@@ -333,9 +333,9 @@ func TestEndblocker(t *testing.T) {
 		oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)
 
 		// Aggregate base exchange rate
-		oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, sdk.NewDec(1))
-		oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, sdk.NewDec(2))
-		oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroKiiDenom, sdk.NewDec(3)) // extra denom
+		oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, math.LegacyNewDec(1))
+		oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, math.LegacyNewDec(2))
+		oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroKiiDenom, math.LegacyNewDec(3)) // extra denom
 
 		// Execute EndBlocker on the last block of slash window
 		params := oracleKeeper.GetParams(ctx)
