@@ -4,9 +4,11 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	kiiparams "github.com/kiichain/kiichain/v1/app/params"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
 	"github.com/stretchr/testify/require"
@@ -15,7 +17,7 @@ import (
 func TestNewKeeper(t *testing.T) {
 	// Prepare the test environment
 	init := CreateTestInput(t)
-	encodingConfig := MakeEncodingConfig()
+	encodingConfig := kiiparams.MakeEncodingConfig()
 	cdc := encodingConfig.Marshaler
 
 	// Create a new Keeper without causing a panic
@@ -58,16 +60,16 @@ func TestExchangeRateLogic(t *testing.T) {
 	const ETH_USD = "ETC/USD"
 	const ATOM_USD = "ATOM/USD"
 
-	btcUsdExchangeRate := sdk.NewDecWithPrec(100, int64(OracleDecPrecision)).MulInt64(1e6)
-	ethUsdExchangeRate := sdk.NewDecWithPrec(200, int64(OracleDecPrecision)).MulInt64(1e6)
-	atomUsdExchangeRate := sdk.NewDecWithPrec(300, int64(OracleDecPrecision)).MulInt64(1e6)
+	btcUsdExchangeRate := math.LegacyNewDecWithPrec(100, int64(OracleDecPrecision)).MulInt64(1e6)
+	ethUsdExchangeRate := math.LegacyNewDecWithPrec(200, int64(OracleDecPrecision)).MulInt64(1e6)
+	atomUsdExchangeRate := math.LegacyNewDecWithPrec(300, int64(OracleDecPrecision)).MulInt64(1e6)
 
 	// ***** First exchange rate insertion
 	oracleKeeper.SetBaseExchangeRate(ctx, BTC_USD, btcUsdExchangeRate)               // Set exchange rates on KVStore
 	btcUsdRate, lastUpdate, _, err := oracleKeeper.GetBaseExchangeRate(ctx, BTC_USD) // Get exchange rate from KVStore
 	require.NoError(t, err, "Expected no error getting BTC/USD exchange rate")
 	require.Equal(t, btcUsdExchangeRate, btcUsdRate, "Expected got the same exchange rate as ")
-	require.Equal(t, sdk.ZeroInt(), lastUpdate) // There is no previous updates
+	require.Equal(t, math.ZeroInt(), lastUpdate) // There is no previous updates
 
 	// simulate time pass
 	ctx = ctx.WithBlockHeight(3) // Update block height
@@ -79,7 +81,7 @@ func TestExchangeRateLogic(t *testing.T) {
 	ethUsdRate, lastUpdate, lastUpdateTimestamp, err := oracleKeeper.GetBaseExchangeRate(ctx, ETH_USD) // Get exchange rate from KVStore
 	require.NoError(t, err)
 	require.Equal(t, ethUsdExchangeRate, ethUsdRate)
-	require.Equal(t, sdk.NewInt(3), lastUpdate)
+	require.Equal(t, math.NewInt(3), lastUpdate)
 	require.Equal(t, ts.UnixMilli(), lastUpdateTimestamp)
 
 	// simulate time pass
@@ -128,7 +130,7 @@ func TestExchangeRateLogic(t *testing.T) {
 	// Validations
 	require.NoError(t, err)
 	require.Equal(t, atomUsdExchangeRate, atomUsdRate)
-	require.Equal(t, sdk.NewInt(15), lastUpdate)
+	require.Equal(t, math.NewInt(15), lastUpdate)
 	require.Equal(t, newTime.UnixMilli(), lastUpdateTimestamp)
 	require.True(t, eventValidation())
 
@@ -161,11 +163,11 @@ func TestParams(t *testing.T) {
 
 	// test custom params
 	votePeriod := uint64(10)
-	voteThreshold := sdk.NewDecWithPrec(33, 2) // 0.033
-	rewardBand := sdk.NewDecWithPrec(1, 2)     // 0.01
-	slashFraccion := sdk.NewDecWithPrec(1, 2)  // 0.01
+	voteThreshold := math.LegacyNewDecWithPrec(33, 2) // 0.033
+	rewardBand := math.LegacyNewDecWithPrec(1, 2)     // 0.01
+	slashFraccion := math.LegacyNewDecWithPrec(1, 2)  // 0.01
 	slashwindow := uint64(1000)
-	minValPerWindow := sdk.NewDecWithPrec(1, 4) // 0.0001
+	minValPerWindow := math.LegacyNewDecWithPrec(1, 4) // 0.0001
 	whiteList := types.DenomList{{Name: utils.MicroKiiDenom}, {Name: utils.MicroAtomDenom}}
 	lookbackDuration := uint64(3600)
 
@@ -223,24 +225,33 @@ func TestValidateFeeder(t *testing.T) {
 	stakingKeeper := init.StakingKeeper
 	ctx := init.Ctx
 	amount := sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction) // staking power tokens
-	stakingHandler := staking.NewHandler(stakingKeeper)
+	msgServer := stakingkeeper.NewMsgServerImpl(&stakingKeeper)
 
 	// Create validators
 	val1Addr, val1PubKey := ValAddrs[0], ValPubKeys[0]
 	val2Addr, val2PubKey := ValAddrs[1], ValPubKeys[1]
-	_, err := stakingHandler(ctx, NewTestMsgCreateValidator(val1Addr, val1PubKey, amount)) // Create validator
+	_, err := msgServer.CreateValidator(ctx, NewTestMsgCreateValidator(val1Addr, val1PubKey, amount)) // Create validator
 	require.NoError(t, err)
-	_, err = stakingHandler(ctx, NewTestMsgCreateValidator(val2Addr, val2PubKey, amount)) // Create validator
+	_, err = msgServer.CreateValidator(ctx, NewTestMsgCreateValidator(val2Addr, val2PubKey, amount)) // Create validator
 	require.NoError(t, err)
-	staking.EndBlocker(ctx, stakingKeeper) // assign the endblocker
+	stakingKeeper.EndBlocker(ctx)
 
 	// Validate validator's bonded tokens
-	bondDenomDefault := stakingKeeper.GetParams(ctx).BondDenom                       // Get bonded denom from module params
+	stakingParams, err := stakingKeeper.GetParams(ctx)
+	bondDenomDefault := stakingParams.BondDenom
 	reference := sdk.NewCoins(sdk.NewCoin(bondDenomDefault, InitTokens.Sub(amount))) // Create balance reference, Suppose to be 100 Kii
 	balanceVal1 := init.BankKeeper.GetAllBalances(ctx, sdk.AccAddress(val1Addr))
 	balanceVal2 := init.BankKeeper.GetAllBalances(ctx, sdk.AccAddress(val2Addr))
-	bondedVal1 := stakingKeeper.Validator(ctx, val1Addr).GetBondedTokens()
-	bondedVal2 := stakingKeeper.Validator(ctx, val2Addr).GetBondedTokens()
+
+	// Get the validators
+	val1, err := stakingKeeper.Validator(ctx, val1Addr)
+	require.NoError(t, err)
+	val2, err := stakingKeeper.Validator(ctx, val2Addr)
+	require.NoError(t, err)
+
+	// Get the bonded tokens for each validator
+	bondedVal1 := val1.GetBondedTokens()
+	bondedVal2 := val2.GetBondedTokens()
 
 	// Validation
 	require.Equal(t, reference, balanceVal1)
@@ -353,9 +364,9 @@ func TestAggregateExchangeRateLogic(t *testing.T) {
 
 	// Create and set exchange rate
 	exchangeRate := types.ExchangeRateTuples{
-		{Denom: "BTC/USD", ExchangeRate: sdk.NewDec(1)},
-		{Denom: "ETH/USD", ExchangeRate: sdk.NewDec(2)},
-		{Denom: "ATOM/USD", ExchangeRate: sdk.NewDec(3)},
+		{Denom: "BTC/USD", ExchangeRate: math.LegacyNewDec(1)},
+		{Denom: "ETH/USD", ExchangeRate: math.LegacyNewDec(2)},
+		{Denom: "ATOM/USD", ExchangeRate: math.LegacyNewDec(3)},
 	}
 	exchangeRateVote, err := types.NewAggregateExchangeRateVote(exchangeRate, ValAddrs[0])
 	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[0], exchangeRateVote)
@@ -374,9 +385,9 @@ func TestAggregateExchangeRateLogic(t *testing.T) {
 
 	// Create and aggregate invalid exchange rate
 	exchangeRate = types.ExchangeRateTuples{
-		{Denom: "BTC/USD", ExchangeRate: sdk.NewDec(0)},
-		{Denom: "ETH/USD", ExchangeRate: sdk.NewDec(-1)},
-		{Denom: "ATOM/USD", ExchangeRate: sdk.NewDec(2)},
+		{Denom: "BTC/USD", ExchangeRate: math.LegacyNewDec(0)},
+		{Denom: "ETH/USD", ExchangeRate: math.LegacyNewDec(-1)},
+		{Denom: "ATOM/USD", ExchangeRate: math.LegacyNewDec(2)},
 	}
 	_, err = types.NewAggregateExchangeRateVote(exchangeRate, ValAddrs[0])
 	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[0], exchangeRateVote)
@@ -391,18 +402,18 @@ func TestIterateAggregateExchangeRateVotes(t *testing.T) {
 
 	// Aggregate exchange rates
 	exchangeRate1 := types.ExchangeRateTuples{
-		{Denom: "BTC/USD", ExchangeRate: sdk.NewDec(1)},
-		{Denom: "ETH/USD", ExchangeRate: sdk.NewDec(2)},
-		{Denom: "ATOM/USD", ExchangeRate: sdk.NewDec(3)},
+		{Denom: "BTC/USD", ExchangeRate: math.LegacyNewDec(1)},
+		{Denom: "ETH/USD", ExchangeRate: math.LegacyNewDec(2)},
+		{Denom: "ATOM/USD", ExchangeRate: math.LegacyNewDec(3)},
 	}
 	exchangeRateVote1, err := types.NewAggregateExchangeRateVote(exchangeRate1, ValAddrs[0]) // Upload rates by val 0
 	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[0], exchangeRateVote1)
 	require.NoError(t, err)
 
 	exchangeRate2 := types.ExchangeRateTuples{
-		{Denom: "BTC/USD", ExchangeRate: sdk.NewDec(4)},
-		{Denom: "ETH/USD", ExchangeRate: sdk.NewDec(5)},
-		{Denom: "ATOM/USD", ExchangeRate: sdk.NewDec(6)},
+		{Denom: "BTC/USD", ExchangeRate: math.LegacyNewDec(4)},
+		{Denom: "ETH/USD", ExchangeRate: math.LegacyNewDec(5)},
+		{Denom: "ATOM/USD", ExchangeRate: math.LegacyNewDec(6)},
 	}
 	exchangeRateVote2, err := types.NewAggregateExchangeRateVote(exchangeRate2, ValAddrs[1]) // Upload rates by val 1
 	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[1], exchangeRateVote2)
@@ -434,9 +445,9 @@ func TestRemoveExcessFeeds(t *testing.T) {
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)
 
 	// Aggregate base exchange rate
-	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, sdk.NewDec(1))
-	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, sdk.NewDec(2))
-	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroKiiDenom, sdk.NewDec(3)) // extra denom
+	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, math.LegacyNewDec(1))
+	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, math.LegacyNewDec(2))
+	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroKiiDenom, math.LegacyNewDec(3)) // extra denom
 
 	// remove excess
 	oracleKeeper.RemoveExcessFeeds(ctx)
@@ -495,13 +506,13 @@ func TestPriceSnapshotLogic(t *testing.T) {
 
 	// Snapshot Data
 	exchangeRate1 := types.OracleExchangeRate{
-		ExchangeRate:        sdk.NewDec(1),
-		LastUpdate:          sdk.NewInt(1),
+		ExchangeRate:        math.LegacyNewDec(1),
+		LastUpdate:          math.NewInt(1),
 		LastUpdateTimestamp: 1,
 	}
 	exchangeRate2 := types.OracleExchangeRate{
-		ExchangeRate:        sdk.NewDec(2),
-		LastUpdate:          sdk.NewInt(2),
+		ExchangeRate:        math.LegacyNewDec(2),
+		LastUpdate:          math.NewInt(2),
 		LastUpdateTimestamp: 2,
 	}
 	snapshotItem1 := types.NewPriceSnapshotItem(utils.MicroKiiDenom, exchangeRate1)
@@ -551,13 +562,13 @@ func TestAddPriceSnapshot(t *testing.T) {
 	// priceSnapshot initial data
 	ctx = ctx.WithBlockTime(time.Unix(3500, 0)) // by default LookbackDuration is 3600
 	exchangeRate1 := types.OracleExchangeRate{
-		ExchangeRate:        sdk.NewDec(1),
-		LastUpdate:          sdk.NewInt(1),
+		ExchangeRate:        math.LegacyNewDec(1),
+		LastUpdate:          math.NewInt(1),
 		LastUpdateTimestamp: 1,
 	}
 	exchangeRate2 := types.OracleExchangeRate{
-		ExchangeRate:        sdk.NewDec(2),
-		LastUpdate:          sdk.NewInt(2),
+		ExchangeRate:        math.LegacyNewDec(2),
+		LastUpdate:          math.NewInt(2),
 		LastUpdateTimestamp: 2,
 	}
 	snapshotItem1 := types.NewPriceSnapshotItem(utils.MicroKiiDenom, exchangeRate1)
@@ -580,8 +591,8 @@ func TestAddPriceSnapshot(t *testing.T) {
 
 	// Create new snapshot
 	exchangeRate3 := types.OracleExchangeRate{
-		ExchangeRate:        sdk.NewDec(3),
-		LastUpdate:          sdk.NewInt(4),
+		ExchangeRate:        math.LegacyNewDec(3),
+		LastUpdate:          math.NewInt(4),
 		LastUpdateTimestamp: 3,
 	}
 	snapshotItem3 := types.NewPriceSnapshotItem(utils.MicroKiiDenom, exchangeRate3)

@@ -5,8 +5,9 @@ import (
 	"strings"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
 	"github.com/stretchr/testify/require"
@@ -21,7 +22,7 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 	ctx := init.Ctx
 
 	// Create handlers
-	stakingHandler := staking.NewHandler(stakingKeeper)
+	msgServer := stakingkeeper.NewMsgServerImpl(&stakingKeeper)
 
 	// Create validators
 	stakingAmount := sdk.TokensFromConsensusPower(10, sdk.DefaultPowerReduction)
@@ -29,27 +30,26 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 	val1 := NewTestMsgCreateValidator(ValAddrs[1], ValPubKeys[1], stakingAmount)
 
 	// Register validators
-	_, err := stakingHandler(ctx, val0)
+	_, err := msgServer.CreateValidator(ctx, val0)
 	require.NoError(t, err)
-	_, err = stakingHandler(ctx, val1)
+	_, err = msgServer.CreateValidator(ctx, val1)
 	require.NoError(t, err)
 
-	// execute staking endblocker to start validators bonding
-	staking.EndBlocker(ctx, stakingKeeper)
+	// execute staking endblocker to start validators bon
 
 	// Simulate aggregation exchange rate process
 	exchangeRate1 := types.ExchangeRateTuples{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(1)},
-		{Denom: utils.MicroEthDenom, ExchangeRate: sdk.NewDec(2)},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: sdk.NewDec(3)},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: sdk.NewDec(4)},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(1)},
+		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(2)},
+		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(3)},
+		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4)},
 	}
 
 	exchangeRate2 := types.ExchangeRateTuples{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(1)},
-		{Denom: utils.MicroEthDenom, ExchangeRate: sdk.NewDec(2)},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: sdk.NewDec(3)},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: sdk.NewDec(4)},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(1)},
+		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(2)},
+		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(3)},
+		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4)},
 	}
 
 	exchangeRateVote1, err := types.NewAggregateExchangeRateVote(exchangeRate1, ValAddrs[0]) // Aggregate rate tuples from Val0
@@ -64,38 +64,45 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 	validatorClaimMap := make(map[string]types.Claim)
 	powerReduction := stakingKeeper.PowerReduction(ctx)
 
-	iterator := stakingKeeper.ValidatorsPowerStoreIterator(ctx)
+	iterator, err := stakingKeeper.ValidatorsPowerStoreIterator(ctx)
+	require.NoError(t, err)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		valAddr := sdk.ValAddress(iterator.Value())        // Get validator address
-		validator := stakingKeeper.Validator(ctx, valAddr) // get validator by address
+		valAddr := sdk.ValAddress(iterator.Value())             // Get validator address
+		validator, err := stakingKeeper.Validator(ctx, valAddr) // get validator by address
+		require.NoError(t, err)
 
 		valPower := validator.GetConsensusPower(powerReduction)
 		operator := validator.GetOperator()
-		claim := types.NewClaim(valPower, 0, 0, false, operator)
 
-		validatorClaimMap[operator.String()] = claim // Assign the validator on the list to receive
+		// Get the operator as a valaddress
+		operatorAddr, err := sdk.ValAddressFromBech32(operator)
+		require.NoError(t, err)
+
+		claim := types.NewClaim(valPower, 0, 0, false, operatorAddr)
+
+		validatorClaimMap[operator] = claim // Assign the validator on the list to receive
 	}
 
 	// Create expected result (with denom organized alphabetically)
 	uatomBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(1), Power: int64(10), Voter: ValAddrs[0]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(1), Power: int64(10), Voter: ValAddrs[1]},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(1), Power: int64(10), Voter: ValAddrs[0]},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(1), Power: int64(10), Voter: ValAddrs[1]},
 	}
 
 	uethBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroEthDenom, ExchangeRate: sdk.NewDec(2), Power: int64(10), Voter: ValAddrs[0]},
-		{Denom: utils.MicroEthDenom, ExchangeRate: sdk.NewDec(2), Power: int64(10), Voter: ValAddrs[1]},
+		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(2), Power: int64(10), Voter: ValAddrs[0]},
+		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(2), Power: int64(10), Voter: ValAddrs[1]},
 	}
 
 	uusdcBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: sdk.NewDec(3), Power: int64(10), Voter: ValAddrs[0]},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: sdk.NewDec(3), Power: int64(10), Voter: ValAddrs[1]},
+		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(3), Power: int64(10), Voter: ValAddrs[0]},
+		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(3), Power: int64(10), Voter: ValAddrs[1]},
 	}
 
 	ukiiBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroKiiDenom, ExchangeRate: sdk.NewDec(4), Power: int64(10), Voter: ValAddrs[0]},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: sdk.NewDec(4), Power: int64(10), Voter: ValAddrs[1]},
+		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4), Power: int64(10), Voter: ValAddrs[0]},
+		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4), Power: int64(10), Voter: ValAddrs[1]},
 	}
 
 	sort.Sort(uatomBallot)
@@ -121,7 +128,7 @@ func TestClearBallots(t *testing.T) {
 	ctx := init.Ctx
 
 	// Create handlers
-	stakingHandler := staking.NewHandler(stakingKeeper)
+	msgServer := stakingkeeper.NewMsgServerImpl(&stakingKeeper)
 
 	// Create validators
 	stakingAmount := sdk.TokensFromConsensusPower(10, sdk.DefaultPowerReduction)
@@ -129,27 +136,27 @@ func TestClearBallots(t *testing.T) {
 	val1 := NewTestMsgCreateValidator(ValAddrs[1], ValPubKeys[1], stakingAmount)
 
 	// Register validators
-	_, err := stakingHandler(ctx, val0)
+	_, err := msgServer.CreateValidator(ctx, val0)
 	require.NoError(t, err)
-	_, err = stakingHandler(ctx, val1)
+	_, err = msgServer.CreateValidator(ctx, val1)
 	require.NoError(t, err)
 
 	// execute staking endblocker to start validators bonding
-	staking.EndBlocker(ctx, stakingKeeper)
+	stakingKeeper.EndBlocker(ctx)
 
 	// Simulate aggregation exchange rate process
 	exchangeRate1 := types.ExchangeRateTuples{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(1)},
-		{Denom: utils.MicroEthDenom, ExchangeRate: sdk.NewDec(2)},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: sdk.NewDec(3)},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: sdk.NewDec(4)},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(1)},
+		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(2)},
+		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(3)},
+		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4)},
 	}
 
 	exchangeRate2 := types.ExchangeRateTuples{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: sdk.NewDec(1)},
-		{Denom: utils.MicroEthDenom, ExchangeRate: sdk.NewDec(2)},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: sdk.NewDec(3)},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: sdk.NewDec(4)},
+		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(1)},
+		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(2)},
+		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(3)},
+		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4)},
 	}
 
 	exchangeRateVote1, err := types.NewAggregateExchangeRateVote(exchangeRate1, ValAddrs[0]) // Aggregate rate tuples from Val0

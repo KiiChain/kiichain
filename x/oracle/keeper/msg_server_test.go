@@ -3,8 +3,9 @@ package keeper
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
 	"github.com/stretchr/testify/require"
@@ -16,7 +17,7 @@ func TestAggregateExchangeRateVote(t *testing.T) {
 	oracleKeeper := input.OracleKeeper
 	stakingKeeper := input.StakingKeeper
 	ctx := input.Ctx
-	stakingHandler := staking.NewHandler(stakingKeeper)
+	msgServerStaking := stakingkeeper.NewMsgServerImpl(&stakingKeeper)
 
 	// create msg server
 	msgServer := NewMsgServer(oracleKeeper)
@@ -26,14 +27,14 @@ func TestAggregateExchangeRateVote(t *testing.T) {
 	val := NewTestMsgCreateValidator(ValAddrs[0], ValPubKeys[0], stakingAmount)
 
 	// Register validators
-	_, err := stakingHandler(ctx, val)
+	_, err := msgServerStaking.CreateValidator(ctx, val)
 	require.NoError(t, err)
 
 	// execute staking endblocker to start validators bonding
-	staking.EndBlocker(ctx, stakingKeeper)
+	stakingKeeper.EndBlocker(ctx)
 
 	// send messages
-	exchangeRate := sdk.NewDec(12).String() + utils.MicroUsdcDenom
+	exchangeRate := math.LegacyNewDec(12).String() + utils.MicroUsdcDenom
 	context := sdk.WrapSDKContext(ctx)
 	_, err = msgServer.AggregateExchangeRateVote(context, types.NewMsgAggregateExchangeRateVote(exchangeRate, Addrs[0], ValAddrs[0]))
 
@@ -47,7 +48,7 @@ func TestDelegateFeedConsent(t *testing.T) {
 	oracleKeeper := input.OracleKeeper
 	stakingKeeper := input.StakingKeeper
 	ctx := input.Ctx
-	stakingHandler := staking.NewHandler(stakingKeeper)
+	msgServerStaking := stakingkeeper.NewMsgServerImpl(&stakingKeeper)
 
 	// create msg server
 	msgServer := NewMsgServer(oracleKeeper)
@@ -57,11 +58,11 @@ func TestDelegateFeedConsent(t *testing.T) {
 	val := NewTestMsgCreateValidator(ValAddrs[0], ValPubKeys[0], stakingAmount)
 
 	// Register validators
-	_, err := stakingHandler(ctx, val)
+	_, err := msgServerStaking.CreateValidator(ctx, val)
 	require.NoError(t, err)
 
 	// execute staking endblocker to start validators bonding
-	staking.EndBlocker(ctx, stakingKeeper)
+	stakingKeeper.EndBlocker(ctx)
 
 	// send messages
 	context := sdk.WrapSDKContext(ctx)

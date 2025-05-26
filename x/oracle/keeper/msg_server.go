@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -50,20 +51,20 @@ func (ms msgServer) AggregateExchangeRateVote(ctx context.Context, msg *types.Ms
 	// Convert string exchange rates to specific data types
 	exchangeRates, err := types.ParseExchangeRateTuples(msg.ExchangeRates)
 	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, err.Error())
+		return nil, errors.Wrap(sdkerrors.ErrInvalidCoins, err.Error())
 	}
 
 	// Check all denoms are in the vote target
 	for _, exchangeRate := range exchangeRates {
 		if !ms.IsVoteTarget(sdkCtx, exchangeRate.Denom) {
-			return nil, sdkerrors.Wrap(types.ErrUnknownDenom, exchangeRate.Denom)
+			return nil, errors.Wrap(types.ErrUnknownDenom, exchangeRate.Denom)
 		}
 	}
 
 	// aggregate the exchange rate prices from the feeder
 	aggregateExchangeRateVote, err := types.NewAggregateExchangeRateVote(exchangeRates, valAddress)
 	if err != nil {
-		return nil, sdkerrors.Wrap(types.ErrAggregateVoteInvalidRate, exchangeRates.String())
+		return nil, errors.Wrap(types.ErrAggregateVoteInvalidRate, exchangeRates.String())
 	}
 
 	ms.SetAggregateExchangeRateVote(sdkCtx, valAddress, aggregateExchangeRateVote)
@@ -103,9 +104,9 @@ func (ms msgServer) DelegateFeedConsent(ctx context.Context, msg *types.MsgDeleg
 	}
 
 	// check if the operador address is a validator (must be, because the operator is a validator)
-	val := ms.StakingKeeper.Validator(sdkCtx, validatorAddress)
-	if val == nil {
-		return nil, sdkerrors.Wrap(stakingtypes.ErrNoValidatorFound, msg.Operator)
+	val, err := ms.StakingKeeper.Validator(sdkCtx, validatorAddress)
+	if err != nil || val == nil {
+		return nil, errors.Wrap(stakingtypes.ErrNoValidatorFound, msg.Operator)
 	}
 
 	// Assign the delegator from the validator address
