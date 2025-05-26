@@ -1,13 +1,12 @@
 package oracle
 
 import (
-	"encoding/hex"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkacltypes "github.com/cosmos/cosmos-sdk/types/accesscontrol"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"cosmossdk.io/errors"
 	"github.com/kiichain/kiichain/v1/x/oracle/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 )
@@ -68,7 +67,7 @@ func (spd SpammingPreventionDecorator) CheckOracleSpamming(ctx sdk.Context, msgs
 			// check if the validator has voted on that block height
 			spamPreventionHeight := spd.oracleKepper.GetSpamPreventionCounter(ctx, valAddr)
 			if spamPreventionHeight == currentHeight {
-				return sdkerrors.Wrap(sdkerrors.ErrAlreadyExists, fmt.Sprintf("the validator has already submitted a vote at the current height=%d", currentHeight))
+				return errors.Wrap(sdkerrors.ErrConflict, fmt.Sprintf("the validator has already submitted a vote at the current height=%d", currentHeight))
 			}
 
 			// set the anti spam block height
@@ -79,48 +78,6 @@ func (spd SpammingPreventionDecorator) CheckOracleSpamming(ctx sdk.Context, msgs
 		}
 	}
 	return nil
-}
-
-// AnteDeps implements the AnteFullDecorator interface, required to register SpammingPreventionDecorator as decorator
-func (spd SpammingPreventionDecorator) AnteDeps(txDeps []sdkacltypes.AccessOperation, tx sdk.Tx, txIndex int, next sdk.AnteDepGenerator) ([]sdkacltypes.AccessOperation, error) {
-	deps := []sdkacltypes.AccessOperation{} // Here I will store the dependencies
-
-	// Iterate over all messages inside the transaction
-	for _, msg := range tx.GetMsgs() {
-		switch msg := msg.(type) {
-
-		// Process the aggregate exchange rate messages
-		case *types.MsgAggregateExchangeRateVote:
-			valAddrs, _ := sdk.ValAddressFromBech32(msg.Feeder)
-			deps = append(deps, []sdkacltypes.AccessOperation{
-				// validate feeder
-				{
-					ResourceType:       sdkacltypes.ResourceType_KV_ORACLE_FEEDERS,
-					AccessType:         sdkacltypes.AccessType_READ,
-					IdentifierTemplate: hex.EncodeToString(types.GetFeederDelegationKey(valAddrs)),
-				},
-
-				// Validate the validator exists
-				{
-					ResourceType:       sdkacltypes.ResourceType_KV_STAKING_VALIDATOR,
-					AccessType:         sdkacltypes.AccessType_READ,
-					IdentifierTemplate: hex.EncodeToString(stakingtypes.GetValidatorKey(valAddrs)),
-				},
-
-				// Check exchange rate exists
-				{
-					ResourceType:       sdkacltypes.ResourceType_KV_ORACLE_AGGREGATE_VOTES,
-					AccessType:         sdkacltypes.AccessType_READ,
-					IdentifierTemplate: hex.EncodeToString(types.GetAggregateExchangeRateVoteKey(valAddrs)),
-				},
-			}...)
-		default:
-			continue
-		}
-	}
-
-	// add the new dependencies (deps) with the previous ones (txDeps) and are passed to the next decorator
-	return next(append(txDeps, deps...), tx, txIndex)
 }
 
 // VoteAloneDecorator implements the AnteFullDecorator needed to be registrated as a decorator
@@ -148,16 +105,9 @@ func (VoteAloneDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, 
 	}
 
 	if oracleVote && otherMsg {
-		return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "oracle votes cannot be in the same tx as other messages")
+		return ctx, errors.Wrap(sdkerrors.ErrInvalidRequest, "oracle votes cannot be in the same tx as other messages")
 	}
 
 	// Continue on the next decorator
 	return next(ctx, tx, simulate)
-}
-
-// AnteDeps implements the AnteDepDecorator interface
-// AnteDeps collects the dependencies the vote alone decorator needs
-func (VoteAloneDecorator) AnteDeps(txDeps []sdkacltypes.AccessOperation, tx sdk.Tx, txIndex int, next sdk.AnteDepGenerator) (newTxDeps []sdkacltypes.AccessOperation, err error) {
-	// requires no dependencies
-	return next(txDeps, tx, txIndex)
 }

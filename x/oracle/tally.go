@@ -1,6 +1,7 @@
 package oracle
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
@@ -16,7 +17,7 @@ func pickReferenceDenom(ctx sdk.Context, k keeper.Keeper, voteTargets map[string
 
 	// Get total bonded power
 	powerReductionFactor := k.StakingKeeper.PowerReduction(ctx)                             // get the power reduction
-	totalBondedTokens := k.StakingKeeper.TotalBondedTokens(ctx)                             // total of tokens in staking
+	totalBondedTokens, _ := k.StakingKeeper.TotalBondedTokens(ctx)                          // total of tokens in staking
 	totalBondedPower := sdk.TokensToConsensusPower(totalBondedTokens, powerReductionFactor) // Get the blockchain vote power
 
 	// Get threshold (minimum power necessary to considerate a successful ballot)
@@ -61,8 +62,8 @@ func pickReferenceDenom(ctx sdk.Context, k keeper.Keeper, voteTargets map[string
 
 // ballotIsPassing calculate the sum of each vote power per denom, then check
 // if the ballot power is greater than the threshold
-func ballotIsPassing(ballot types.ExchangeRateBallot, thresholdVotes sdk.Int) (sdk.Int, bool) {
-	ballotPower := sdk.NewInt(ballot.Power()) // Get the validator power
+func ballotIsPassing(ballot types.ExchangeRateBallot, thresholdVotes math.Int) (math.Int, bool) {
+	ballotPower := math.NewInt(ballot.Power()) // Get the validator power
 
 	// return ballot power and if the ballot is greater than the threshold
 	return ballotPower, !ballotPower.IsZero() && ballotPower.GTE(thresholdVotes)
@@ -71,7 +72,7 @@ func ballotIsPassing(ballot types.ExchangeRateBallot, thresholdVotes sdk.Int) (s
 // Tally calculates the median and returns it. Sets the set of voters to be rewarded, i.e. voted within
 // a reasonable spread from the weighted median to the store
 // CONTRACT: ex must be sorted
-func Tally(_ sdk.Context, ex types.ExchangeRateBallot, rewardBand sdk.Dec, validatorClaimMap map[string]types.Claim) (weightedMedian sdk.Dec) {
+func Tally(_ sdk.Context, ex types.ExchangeRateBallot, rewardBand math.LegacyDec, validatorClaimMap map[string]types.Claim) (weightedMedian math.LegacyDec) {
 	weightedMedian = ex.WeightedMedianWithAssertion() // Get weighted median
 
 	// Check if result is on the reward interval
