@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/kiichain/kiichain/v1/app/keepers"
+	"github.com/kiichain/kiichain/v1/precompiles/ibc"
 	"github.com/kiichain/kiichain/v1/precompiles/wasmd"
 )
 
@@ -32,7 +33,7 @@ func CreateUpgradeHandler(
 		}
 
 		// Install the new precompile
-		err = InstallNewPrecompile(ctx, keepers)
+		err = InstallNewPrecompiles(ctx, keepers)
 		if err != nil {
 			return vm, err
 		}
@@ -43,13 +44,14 @@ func CreateUpgradeHandler(
 	}
 }
 
-// InstallNewPrecompile is a placeholder for installing new precompiles.
-func InstallNewPrecompile(ctx sdk.Context, keepers *keepers.AppKeepers) error {
+// InstallNewPrecompiles is a placeholder for installing new precompiles.
+func InstallNewPrecompiles(ctx sdk.Context, keepers *keepers.AppKeepers) error {
 	// Log the upgrade
 	ctx.Logger().Info("Installing new precompile for wasmd")
 
 	// Install the new address
 	return keepers.EVMKeeper.EnableStaticPrecompiles(ctx, []common.Address{
 		common.HexToAddress(wasmd.WasmdPrecompileAddress),
+		common.HexToAddress(ibc.IBCPrecompileAddress),
 	}...)
 }
