@@ -14,18 +14,18 @@ message Params {
     uint64 vote_period =1 [(gogoproto.moretags) = "yaml:\"vote_period\""];
 
     // Minimun percentage of validators required to approve a price. For instance, if vote_threshold = "0.5" at least 50% of validators must submit votes 
-    // "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
+    // "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
     string vote_threshold = 2 [
         (gogoproto.moretags) = "yaml:\"vote_threshold\"",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", 
+        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
         (gogoproto.nullable) = false 
     ];        
 
     // Acceptable desviation from the media price (higher and lower)
-    // "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
+    // "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
     string reward_band = 3 [
         (gogoproto.moretags) = "yaml:\"reward_band\"",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", 
+        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
         (gogoproto.nullable) = false
     ];
 
@@ -38,10 +38,10 @@ message Params {
     ];
 
     // How much stake is slashed if a validator fails to submit votes 
-    // "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
+    // "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
     string slash_fraction = 5 [
         (gogoproto.moretags) = "yaml:\"slash_fraction\"",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", 
+        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
         (gogoproto.nullable) = false
     ];
 
@@ -49,10 +49,10 @@ message Params {
     uint64 slash_window = 6 [(gogoproto.moretags) = "yaml:\"slash_window\""];
 
     // Minimum percentage of voting on windows to avoid slashing. For instance, if min_valid_per_window = 0.8, then a validator must submit votes in 80% of windows to avoid slashing 
-    // "github.com/cosmos/cosmos-sdk/types.Dec" = Cosmos SDK decimal data type
+    // "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
     string min_valid_per_window = 7 [
         (gogoproto.moretags) = "yaml:\"min_valid_per_window\"",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", 
+        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
         (gogoproto.nullable) = false
     ];
 
@@ -96,7 +96,7 @@ message ExchangeRateTuple{
     string denom = 1 [(gogoproto.moretags) = "yaml:\"denom\""];
     string exchange_rate = 2 [
         (gogoproto.moretags)   = "yaml:\"exchange_rate\"",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
         (gogoproto.nullable)   = false
     ];
 }
@@ -110,7 +110,7 @@ message OracleExchangeRate {
 
     string exchange_rate = 1 [
         (gogoproto.moretags)   = "yaml:\"exchange_rate\"",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
         (gogoproto.nullable)   = false
     ];
 
@@ -147,7 +147,7 @@ message OracleTwap {
     string denom = 1;
     string twap = 2 [
         (gogoproto.moretags)   = "yaml:\"twap\"",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
         (gogoproto.nullable)   = false
     ];
     int64 lookback_seconds = 3;
