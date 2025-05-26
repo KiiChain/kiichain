@@ -40,7 +40,7 @@ func TestUpgrade(t *testing.T) {
 	evmParams = app.EVMKeeper.GetParams(ctx)
 
 	// Check that the precompiles was added
-	require.Len(t, evmParams.ActiveStaticPrecompiles, 3)
+	require.Len(t, evmParams.ActiveStaticPrecompiles, 4)
 	require.Contains(t, evmParams.ActiveStaticPrecompiles, "0x0000000000000000000000000000000000000001")
 	require.Contains(t, evmParams.ActiveStaticPrecompiles, "0x0000000000000000000000000000000000000002")
 	require.Contains(t, evmParams.ActiveStaticPrecompiles, wasmd.WasmdPrecompileAddress)
