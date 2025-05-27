@@ -25,7 +25,6 @@ func TestNewKeeper(t *testing.T) {
 		NewKeeper(
 			cdc,
 			init.OracleKeeper.storeKey,
-			init.OracleKeeper.memKey,
 			init.OracleKeeper.paramSpace,
 			init.AccountKeeper,
 			init.BankKeeper,
@@ -38,7 +37,6 @@ func TestNewKeeper(t *testing.T) {
 	oracleKeeper := NewKeeper(
 		cdc,
 		init.OracleKeeper.storeKey,
-		init.OracleKeeper.memKey,
 		init.OracleKeeper.paramSpace,
 		init.AccountKeeper,
 		init.BankKeeper,
