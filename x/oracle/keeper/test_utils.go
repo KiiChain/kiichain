@@ -12,6 +12,7 @@ import (
 	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"github.com/cosmos/cosmos-sdk/runtime"
+	"github.com/cosmos/cosmos-sdk/testutil/integration"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -39,8 +40,6 @@ import (
 	stakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"cosmossdk.io/math"
-	"cosmossdk.io/store"
-	"cosmossdk.io/store/metrics"
 	storetypes "cosmossdk.io/store/types"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 
@@ -50,8 +49,6 @@ import (
 	"github.com/cometbft/cometbft/crypto"
 	"github.com/cometbft/cometbft/crypto/secp256k1"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-
-	dbm "github.com/cosmos/cosmos-db"
 )
 
 const faucetAccountName = "faucet"
@@ -120,37 +117,31 @@ type TestInput struct {
 // prepares memory storage and create testing accounts with funds
 func CreateTestInput(t *testing.T) TestInput {
 	// Create the KV store to each module (each one needs this to store its data)
-	keyAccount := storetypes.NewKVStoreKey(authTypes.StoreKey)
-	keyBank := storetypes.NewKVStoreKey(bankTypes.StoreKey)
-	keyDist := storetypes.NewKVStoreKey(distTypes.StoreKey)
-	keyStaking := storetypes.NewKVStoreKey(stakingTypes.StoreKey)
 	keyOracle := storetypes.NewKVStoreKey(types.StoreKey)
 	keyParams := storetypes.NewKVStoreKey(paramsTypes.StoreKey)
 
-	keys := storetypes.NewKVStoreKeys(authTypes.StoreKey, bankTypes.StoreKey, distTypes.StoreKey, stakingTypes.StoreKey)
+	keys := storetypes.NewKVStoreKeys(
+		authTypes.StoreKey,
+		bankTypes.StoreKey,
+		distTypes.StoreKey,
+		stakingTypes.StoreKey,
+		paramsTypes.StoreKey,
+		types.StoreKey,
+		paramsTypes.TStoreKey,
+	)
 
 	authority := authtypes.NewModuleAddress("gov")
 
-	memKeys := storetypes.NewMemoryStoreKeys(types.MemStoreKey)          // Create the memory KV store for the oracle
 	tKeyParams := storetypes.NewTransientStoreKey(paramsTypes.TStoreKey) // create a KV store for temporal parameters
 
-	db := dbm.NewMemDB()                                                                         // Create on memory DB
-	ms := store.NewCommitMultiStore(db, log.NewNopLogger(), metrics.NewNoOpMetrics())            // create the multistore to handle the KV stores
-	ctx := sdk.NewContext(ms, tmproto.Header{Time: time.Now().UTC()}, false, log.NewNopLogger()) // Create new context
+	cms := integration.CreateMultiStore(keys, log.NewTestLogger(t))                               // create the multistore to handle the KV stores
+	ctx := sdk.NewContext(cms, tmproto.Header{Time: time.Now().UTC()}, false, log.NewNopLogger()) // Create new context
+
 	encodingConfig := kiiparams.MakeEncodingConfig()
+	// Register the auth interface
+	authtypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
+
 	appCodec, legacyAmino := encodingConfig.Marshaler, encodingConfig.Amino
-
-	// mount each KVStore on the multistore (ms)
-	ms.MountStoreWithDB(keyAccount, storetypes.StoreTypeIAVL, db)                   // mount as Merkle trees type
-	ms.MountStoreWithDB(keyBank, storetypes.StoreTypeIAVL, db)                      // mount as Merkle trees type
-	ms.MountStoreWithDB(keyParams, storetypes.StoreTypeIAVL, db)                    // mount as Merkle trees type
-	ms.MountStoreWithDB(tKeyParams, storetypes.StoreTypeIAVL, db)                   // mount as Merkle trees type
-	ms.MountStoreWithDB(keyOracle, storetypes.StoreTypeIAVL, db)                    // mount as Merkle trees type
-	ms.MountStoreWithDB(keyStaking, storetypes.StoreTypeIAVL, db)                   // mount as Merkle trees type
-	ms.MountStoreWithDB(keyDist, storetypes.StoreTypeIAVL, db)                      // mount as Merkle trees type
-	ms.MountStoreWithDB(memKeys[types.MemStoreKey], storetypes.StoreTypeMemory, db) // mount as temporal memory type
-
-	require.NoError(t, ms.LoadLatestVersion()) // Test multistore doesn't returns error
 
 	// Set permissions and blacklist for accounts
 	blackListAddrs := map[string]bool{
@@ -179,8 +170,8 @@ func CreateTestInput(t *testing.T) TestInput {
 		runtime.NewKVStoreService(keys[authtypes.StoreKey]),
 		authtypes.ProtoBaseAccount,
 		maccPerms,
-		addresscodec.NewBech32Codec(sdk.Bech32MainPrefix),
-		sdk.Bech32MainPrefix,
+		addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
+		sdk.GetConfig().GetBech32AccountAddrPrefix(),
 		authority.String(),
 	)
 	bankKeeper := bankkeeper.NewBaseKeeper(
@@ -226,20 +217,20 @@ func CreateTestInput(t *testing.T) TestInput {
 	stakingKeeper.SetHooks(stakingTypes.NewMultiStakingHooks(distKeeper.Hooks()))
 
 	// Create empty module accounts and assign permissions
-	faucetAcc := authTypes.NewEmptyModuleAccount(faucetAccountName, authTypes.Minter, authTypes.Burner) // Account with the tokens
-	feeCollectorAcc := authTypes.NewEmptyModuleAccount(authTypes.FeeCollectorName)                      // Create fee collector account
-	notBondedPoolAcc := authTypes.NewEmptyModuleAccount(stakingTypes.NotBondedPoolName, authTypes.Burner, authTypes.Staking)
-	bondPoolAcc := authTypes.NewEmptyModuleAccount(stakingTypes.BondedPoolName, authTypes.Burner, authTypes.Staking)
-	distAcc := authTypes.NewEmptyModuleAccount(distTypes.ModuleName)
-	oracleAcc := authTypes.NewEmptyModuleAccount(types.ModuleName, authTypes.Minter)
+	// faucetAcc := authTypes.NewEmptyModuleAccount(faucetAccountName, authTypes.Minter, authTypes.Burner) // Account with the tokens
+	// feeCollectorAcc := authTypes.NewEmptyModuleAccount(authTypes.FeeCollectorName)                      // Create fee collector account
+	// notBondedPoolAcc := authTypes.NewEmptyModuleAccount(stakingTypes.NotBondedPoolName, authTypes.Burner, authTypes.Staking)
+	// bondPoolAcc := authTypes.NewEmptyModuleAccount(stakingTypes.BondedPoolName, authTypes.Burner, authTypes.Staking)
+	// distAcc := authTypes.NewEmptyModuleAccount(distTypes.ModuleName)
+	// oracleAcc := authTypes.NewEmptyModuleAccount(types.ModuleName, authTypes.Minter)
 
 	// Assign accounts on the account keeper
-	accountKeeper.SetModuleAccount(ctx, faucetAcc)
-	accountKeeper.SetModuleAccount(ctx, feeCollectorAcc)
-	accountKeeper.SetModuleAccount(ctx, notBondedPoolAcc)
-	accountKeeper.SetModuleAccount(ctx, bondPoolAcc)
-	accountKeeper.SetModuleAccount(ctx, distAcc)
-	accountKeeper.SetModuleAccount(ctx, oracleAcc)
+	// accountKeeper.SetModuleAccount(ctx, faucetAcc)
+	// accountKeeper.SetModuleAccount(ctx, feeCollectorAcc)
+	// accountKeeper.SetModuleAccount(ctx, notBondedPoolAcc)
+	// accountKeeper.SetModuleAccount(ctx, bondPoolAcc)
+	// accountKeeper.SetModuleAccount(ctx, distAcc)
+	// accountKeeper.SetModuleAccount(ctx, oracleAcc)
 
 	// Create total supply of my testing env and mint on the faucetAcc
 	totalSupply := kiiCoins
@@ -256,7 +247,7 @@ func CreateTestInput(t *testing.T) TestInput {
 
 	// Send initial funds to testing accounts
 	for _, addr := range Addrs {
-		accountKeeper.SetAccount(ctx, authTypes.NewBaseAccountWithAddress(addr)) // Ensure the account exists
+		// accountKeeper.SetAccount(ctx, authTypes.NewBaseAccountWithAddress(addr)) // Ensure the account exists
 		err := bankKeeper.SendCoinsFromModuleToAccount(ctx, faucetAccountName, addr, InitialCoins)
 		require.NoError(t, err) // Validate the operation
 	}
@@ -266,7 +257,7 @@ func CreateTestInput(t *testing.T) TestInput {
 	require.NotNil(t, addr, "Oracle account was not set")
 
 	// Set Oracle module
-	oracleKeeper := NewKeeper(appCodec, keyOracle, memKeys[types.MemStoreKey], paramsKeeper.Subspace(types.ModuleName),
+	oracleKeeper := NewKeeper(appCodec, keyOracle, paramsKeeper.Subspace(types.ModuleName),
 		accountKeeper, bankKeeper, stakingKeeper, distTypes.ModuleName)
 
 	oracleParams := types.DefaultParams()

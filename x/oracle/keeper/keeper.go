@@ -17,20 +17,17 @@ import (
 
 // Keeper manages the oracle module's state
 type Keeper struct {
-	cdc        codec.BinaryCodec   // Codec for binary serialization
-	storeKey   storetypes.StoreKey // storage key to access the module's state
-	memKey     storetypes.StoreKey
+	cdc        codec.BinaryCodec    // Codec for binary serialization
+	storeKey   storetypes.StoreKey  // storage key to access the module's state
 	paramSpace paramstypes.Subspace // Manages the module's parameters allowing dynamical settings
 
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	StakingKeeper types.StakingKeeper
-
-	distrName string
 }
 
 // NewKeeper creates an oracle Keeper instance
-func NewKeeper(cdc codec.BinaryCodec, storeKey storetypes.StoreKey, memKey storetypes.StoreKey, paramSpace paramstypes.Subspace,
+func NewKeeper(cdc codec.BinaryCodec, storeKey storetypes.StoreKey, paramSpace paramstypes.Subspace,
 	accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper, StakingKeeper types.StakingKeeper,
 	distrName string) Keeper {
 	// Ensure oracle module account is set
@@ -47,12 +44,10 @@ func NewKeeper(cdc codec.BinaryCodec, storeKey storetypes.StoreKey, memKey store
 	return Keeper{
 		cdc:           cdc,
 		storeKey:      storeKey,
-		memKey:        memKey,
 		paramSpace:    paramSpace,
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
 		StakingKeeper: StakingKeeper,
-		distrName:     distrName,
 	}
 }
 
@@ -539,7 +534,7 @@ func (k Keeper) DeletePriceSnapshot(ctx sdk.Context, timestamp int64) {
 
 // GetSpamPreventionCounter returns the stored block heigh by the validator (in that heigh the validator voted)
 func (k Keeper) GetSpamPreventionCounter(ctx sdk.Context, valAddr sdk.ValAddress) int64 {
-	store := ctx.KVStore(k.memKey) // Get oracle module's KVStore
+	store := ctx.KVStore(k.storeKey) // Get oracle module's KVStore
 	byteData := store.Get(types.GetSpamPreventionCounterKey(valAddr))
 	if byteData == nil {
 		return -1 // Return invalid counter
@@ -550,7 +545,7 @@ func (k Keeper) GetSpamPreventionCounter(ctx sdk.Context, valAddr sdk.ValAddress
 
 // SetSpamPreventionCounter stores the block heigh by the validator as an anti voting spam mecanism
 func (k Keeper) SetSpamPreventionCounter(ctx sdk.Context, valAddr sdk.ValAddress) {
-	store := ctx.KVStore(k.memKey)
+	store := ctx.KVStore(k.storeKey)
 
 	height := ctx.BlockHeight() // Get current block height
 	byteData := sdk.Uint64ToBigEndian(uint64(height))
