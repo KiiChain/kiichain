@@ -1,0 +1,17 @@
+syntax = "proto3";
+package kiichain.rewards.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "kiichain/rewards/v1beta1/params.proto";
+import "kiichain/rewards/v1beta1/types.proto";
+
+option go_package = "github.com/kiichain/kiichain/x/rewards/types";
+
+// GenesisState defines the rewards module's genesis state.
+message GenesisState {
+  // params defines the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+
+  RewardPool reward_pool = 2 [ (gogoproto.nullable) = false ];
+}

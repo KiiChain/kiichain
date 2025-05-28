@@ -1,0 +1,95 @@
+syntax = "proto3";
+package kiichain.rewards.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "kiichain/rewards/v1beta1/params.proto";
+import "google/protobuf/timestamp.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "amino/amino.proto";
+
+option go_package = "github.com/kiichain/kiichain/x/rewards/types";
+
+// Msg defines the tokefactory module's gRPC message service.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  // FundPool adds funds to the community pool that can be used on a extension
+  rpc FundPool(MsgFundPool) returns (MsgFundPoolResponse);
+
+  // UpdateParams defines a governance operation for updating the x/mint module
+  // parameters. The authority is hard-coded to the x/gov module account.
+  //
+  // Since: cosmos-sdk 0.47
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // ExtendReward defines a governance operation for extending the reward and 
+  // fetching extra funds
+  rpc ExtendReward(MsgExtendReward) returns (MsgExtendRewardResponse);
+}
+
+// MsgFundPool is the sdk.Msg type for funding the community pool
+// with a given amount of coins
+message MsgFundPool {
+  option (cosmos.msg.v1.signer) = "sender";
+  option (amino.name) = "rewards/fund-pool";
+
+  string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
+  cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.moretags) = "yaml:\"amount\"",
+    (gogoproto.nullable) = false,
+    (amino.encoding) = "legacy_coin"
+  ];
+}
+
+message MsgFundPoolResponse {}
+
+// MsgUpdateParams is the Msg/UpdateParams request type.
+//
+// Since: cosmos-sdk 0.47
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name) = "rewards/update-params";
+
+  // authority is the address of the governance account.
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // params defines the x/mint parameters to update.
+  //
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+//
+// Since: cosmos-sdk 0.47
+message MsgUpdateParamsResponse {}
+
+// MsgExtendReward is the Msg/ExtendReward request type.
+message MsgExtendReward {
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name) = "rewards/extend-reward";
+
+  // authority is the address of the governance account.
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // Amount to be taken from the community pool
+  cosmos.base.v1beta1.Coin extra_amount = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"extra_amount\"",
+    (amino.encoding) = "legacy_coin"
+  ];
+
+  // New timestamp of end of release
+  google.protobuf.Timestamp end_time = 3 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"end_time\""
+  ];
+}
+
+// MsgExtendRewardResponse defines the response structure for executing a
+// MsgExtendReward message.
+message MsgExtendRewardResponse {}

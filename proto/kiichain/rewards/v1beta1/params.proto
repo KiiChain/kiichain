@@ -1,0 +1,16 @@
+syntax = "proto3";
+package kiichain.rewards.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "kiichain/rewards/v1beta1/types.proto";
+
+option go_package = "github.com/kiichain/kiichain/x/rewards/types";
+
+// Params defines the parameters for the rewards module.
+message Params {
+  // Minimal deposit
+  string governance_min_deposit = 1;
+
+  // Denom used
+  string token_denom = 2;
+}

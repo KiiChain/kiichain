@@ -1,0 +1,49 @@
+syntax = "proto3";
+package kiichain.rewards.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "kiichain/rewards/v1beta1/types.proto";
+import "kiichain/rewards/v1beta1/params.proto";
+
+option go_package = "github.com/kiichain/kiichain/x/rewards/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Params defines a gRPC query method that returns the reward module's
+  // parameters.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/kiichain/rewards/v1beta1/params";
+  }
+
+  // RewardPool defines a gRPC query method for fetching
+  // RewardPool data.
+  rpc RewardPool(QueryRewardPoolRequest)
+      returns (QueryRewardPoolResponse) {
+    option (google.api.http).get =
+        "/kiichain/rewards/v1beta1/RewardPool";
+  }
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params defines the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryRewardPoolRequest defines the request structure for the
+// RewardPool gRPC query.
+message QueryRewardPoolRequest {}
+
+// QueryRewardPoolResponse defines the response structure for the
+// RewardPool gRPC query.
+message QueryRewardPoolResponse {
+  RewardPool reward_pool = 1 [
+    (gogoproto.moretags) = "yaml:\"reward_pool\"",
+    (gogoproto.nullable) = false
+  ];
+}
