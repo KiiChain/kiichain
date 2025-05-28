@@ -14,7 +14,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState
 	keeper.CreateModuleAccount(ctx)
 
 	// Start the genesis with the data input
-	keeper.SetParams(ctx, data.Params)
+	keeper.Params.Set(ctx, data.Params)
 
 	// Iterate over the feeder delegation list to set the feeder
 	for _, feederDelegation := range data.FeederDelegations {
@@ -75,53 +75,56 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState
 // ExportGenesis collect and return the params of the blockchain
 func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) types.GenesisState {
 	// Current params of the module
-	params := keeper.GetParams(ctx)
+	params, err := keeper.Params.Get(ctx)
+	if err != nil {
+		panic(err)
+	}
 
 	// Extract the FeederDelegation array
 	feederDelegations := []types.FeederDelegation{}
-	keeper.IterateFeederDelegations(ctx, func(valAddr sdk.ValAddress, delegatedFeeder sdk.AccAddress) bool {
+	keeper.IterateFeederDelegations(ctx, func(valAddr sdk.ValAddress, delegatedFeeder string) (bool, error) {
 		feederDelegations = append(feederDelegations, types.FeederDelegation{
-			FeederAddress:    delegatedFeeder.String(),
+			FeederAddress:    delegatedFeeder,
 			ValidatorAddress: valAddr.String(),
 		})
-		return false
+		return false, nil
 	})
 
 	// Extract the exchangeRatesTuple
 	exchangeRates := []types.ExchangeRateTuple{}
-	keeper.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) bool {
+	keeper.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		exRate := types.ExchangeRateTuple{Denom: denom, ExchangeRate: exchangeRate.ExchangeRate}
 		exchangeRates = append(exchangeRates, exRate)
-		return false
+		return false, nil
 	})
 
 	// Extract penalty counters
 	penaltyCounters := []types.PenaltyCounter{}
-	keeper.IterateVotePenaltyCounters(ctx, func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) bool {
+	keeper.IterateVotePenaltyCounters(ctx, func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) (bool, error) {
 		penalty := types.PenaltyCounter{ValidatorAddress: operator.String(), VotePenaltyCounter: &votePenaltyCounter}
 		penaltyCounters = append(penaltyCounters, penalty)
-		return false
+		return false, nil
 	})
 
 	// Extract Aggregate exchange rate votes
 	aggregateExchangeRateVotes := []types.AggregateExchangeRateVote{}
-	keeper.IterateAggregateExchangeRateVotes(ctx, func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) bool {
+	keeper.IterateAggregateExchangeRateVotes(ctx, func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) (bool, error) {
 		aggregateExchangeRateVotes = append(aggregateExchangeRateVotes, aggregateVote)
-		return false
+		return false, nil
 	})
 
 	// Extract priceSnapshots
 	priceSnapshots := []types.PriceSnapshot{}
-	keeper.IteratePriceSnapshots(ctx, func(snapshot types.PriceSnapshot) bool {
+	keeper.IteratePriceSnapshots(ctx, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
 		priceSnapshots = append(priceSnapshots, snapshot)
-		return false
+		return false, nil
 	})
 
 	// Extract votePenaltyCounters
 	votePenaltyCounters := []types.VotePenaltyCounter{}
-	keeper.IterateVotePenaltyCounters(ctx, func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) bool {
+	keeper.IterateVotePenaltyCounters(ctx, func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) (bool, error) {
 		votePenaltyCounters = append(votePenaltyCounters, votePenaltyCounter)
-		return false
+		return false, nil
 	})
 
 	// Send data

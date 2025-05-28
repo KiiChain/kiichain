@@ -15,7 +15,7 @@ func (k Keeper) OrganizeBallotByDenom(ctx sdk.Context, validatorClaimMap map[str
 	votes := map[string]types.ExchangeRateBallot{} // Here I will collect the array of votes by denom
 
 	// Aggregate votes by denom
-	aggregateHandler := func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) bool {
+	aggregateHandler := func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) (bool, error) {
 		// Aggregate only for validators who have registered on the map
 		claim, ok := validatorClaimMap[aggregateVote.Voter]
 
@@ -33,7 +33,7 @@ func (k Keeper) OrganizeBallotByDenom(ctx sdk.Context, validatorClaimMap map[str
 				votes[tuple.Denom] = append(votes[tuple.Denom], vote)                               // Append vote on that specific denom
 			}
 		}
-		return false
+		return false, nil
 	}
 
 	k.IterateAggregateExchangeRateVotes(ctx, aggregateHandler)
@@ -50,9 +50,9 @@ func (k Keeper) OrganizeBallotByDenom(ctx sdk.Context, validatorClaimMap map[str
 // ClearBallots clears all votes from the KV Store
 func (k Keeper) ClearBallots(ctx sdk.Context) {
 	// Clear all aggregate votes
-	k.IterateAggregateExchangeRateVotes(ctx, func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) bool {
+	k.IterateAggregateExchangeRateVotes(ctx, func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) (bool, error) {
 		k.DeleteAggregateExchangeRateVote(ctx, voterAddr)
-		return false
+		return false, nil
 	})
 }
 

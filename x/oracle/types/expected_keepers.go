@@ -3,6 +3,7 @@ package types
 import (
 	context "context"
 
+	"cosmossdk.io/core/address"
 	corestore "cosmossdk.io/core/store"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -27,6 +28,7 @@ type AccountKeeper interface {
 	GetModuleAddress(name string) sdk.AccAddress                                //Ensures the oracle module has an account
 	GetModuleAccount(ctx context.Context, moduleName string) sdk.ModuleAccountI // Retrieves detailed account information
 	SetModuleAccount(ctx context.Context, macc sdk.ModuleAccountI)              // Creates a module account
+	AddressCodec() address.Codec
 }
 
 // BankKeeper is expected keeper for bank module, because I need to handle

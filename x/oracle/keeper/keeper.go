@@ -4,51 +4,87 @@ import (
 	"fmt"
 	"sort"
 
+	"cosmossdk.io/collections"
 	"cosmossdk.io/errors"
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	storetypes "cosmossdk.io/store/types"
+
+	corestoretypes "cosmossdk.io/core/store"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 )
 
 // Keeper manages the oracle module's state
 type Keeper struct {
-	cdc        codec.BinaryCodec    // Codec for binary serialization
-	storeKey   storetypes.StoreKey  // storage key to access the module's state
-	paramSpace paramstypes.Subspace // Manages the module's parameters allowing dynamical settings
+	cdc codec.BinaryCodec // Codec for binary serialization
 
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	StakingKeeper types.StakingKeeper
+
+	// Schema of the module
+	Schema                    collections.Schema
+	Params                    collections.Item[types.Params]
+	ExchangeRate              collections.Map[string, types.OracleExchangeRate]
+	FeederDelegation          collections.Map[sdk.ValAddress, string]
+	VotePenaltyCounter        collections.Map[sdk.ValAddress, types.VotePenaltyCounter]
+	AggregateExchangeRateVote collections.Map[sdk.ValAddress, types.AggregateExchangeRateVote]
+	VoteTarget                collections.Map[string, types.Denom]
+	PriceSnapshot             collections.Map[int64, types.PriceSnapshot]
+	SpamPreventionCounter     collections.Map[sdk.ValAddress, int64]
+
+	// Authority is the governance module address
+	authority string
 }
 
 // NewKeeper creates an oracle Keeper instance
-func NewKeeper(cdc codec.BinaryCodec, storeKey storetypes.StoreKey, paramSpace paramstypes.Subspace,
+func NewKeeper(cdc codec.BinaryCodec, storeService corestoretypes.KVStoreService,
 	accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper, StakingKeeper types.StakingKeeper,
-	distrName string) Keeper {
+	authority string,
+) Keeper {
 	// Ensure oracle module account is set
 	addr := accountKeeper.GetModuleAddress(types.ModuleName)
 	if addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
-	// Ensure paramstore is properly initialized
-	if !paramSpace.HasKeyTable() {
-		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
+	// Ensure the authority address is valid
+	if _, err := accountKeeper.AddressCodec().StringToBytes(authority); err != nil {
+		panic(fmt.Sprintf("invalid authority address: %s", authority))
 	}
 
-	return Keeper{
-		cdc:           cdc,
-		storeKey:      storeKey,
-		paramSpace:    paramSpace,
-		accountKeeper: accountKeeper,
-		bankKeeper:    bankKeeper,
-		StakingKeeper: StakingKeeper,
+	// Start the schema builder
+	sb := collections.NewSchemaBuilder(storeService)
+
+	// Build the Keeper
+	keeper := Keeper{
+		cdc:                       cdc,
+		accountKeeper:             accountKeeper,
+		bankKeeper:                bankKeeper,
+		StakingKeeper:             StakingKeeper,
+		Params:                    collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
+		ExchangeRate:              collections.NewMap(sb, types.ExchangeRateKey, "exchange_rate", collections.StringKey, codec.CollValue[types.OracleExchangeRate](cdc)),
+		FeederDelegation:          collections.NewMap(sb, types.FeederDelegationKey, "feeder_delegation", sdk.ValAddressKey, collections.StringValue),
+		VotePenaltyCounter:        collections.NewMap(sb, types.VotePenaltyCounterKey, "vote_penalty_counter", sdk.ValAddressKey, codec.CollValue[types.VotePenaltyCounter](cdc)),
+		AggregateExchangeRateVote: collections.NewMap(sb, types.AggregateExchangeRateVoteKey, "aggregate_exchange_rate_vote", sdk.ValAddressKey, codec.CollValue[types.AggregateExchangeRateVote](cdc)),
+		VoteTarget:                collections.NewMap(sb, types.VoteTargetKey, "vote_target", collections.StringKey, codec.CollValue[types.Denom](cdc)),
+		PriceSnapshot:             collections.NewMap(sb, types.PriceSnapshotKey, "price_snapshot", collections.Int64Key, codec.CollValue[types.PriceSnapshot](cdc)),
+		SpamPreventionCounter:     collections.NewMap(sb, types.SpamPreventionCounter, "spam_prevention_counter", sdk.ValAddressKey, collections.Int64Value),
+
+		authority: authority,
 	}
+
+	// Build the schema
+	schema, err := sb.Build()
+	if err != nil {
+		panic(err)
+	}
+
+	// Set and return
+	keeper.Schema = schema
+	return keeper
 }
 
 // Logger is used to define custom Log for the module
@@ -59,34 +95,25 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // **************************** EXCHANGE RATE LOGIC ***************************
 
 // GetBaseExchangeRate is used to get the exchange rate by denom from the KVStore
-func (k Keeper) GetBaseExchangeRate(ctx sdk.Context, denom string) (math.LegacyDec, math.Int, int64, error) {
-	// Get ExchangeRate from KVStore
-	store := ctx.KVStore(k.storeKey) // Get the oracle module's store
-	byteData := store.Get(types.GetExchangeRateKey(denom))
-	if byteData == nil {
-		return math.LegacyZeroDec(), math.ZeroInt(), 0, errors.Wrap(types.ErrUnknownDenom, denom)
-	}
-
-	// Decode ExchangeRate
-	exchangeRate := &types.OracleExchangeRate{}
-	k.cdc.MustUnmarshal(byteData, exchangeRate)
-	return exchangeRate.ExchangeRate, exchangeRate.LastUpdate, exchangeRate.LastUpdateTimestamp, nil
+func (k Keeper) GetBaseExchangeRate(ctx sdk.Context, denom string) (types.OracleExchangeRate, error) {
+	return k.ExchangeRate.Get(ctx, denom)
 }
 
 // SetBaseExchangeRate is used to set the exchange rate by denom on the KVStore
 func (k Keeper) SetBaseExchangeRate(ctx sdk.Context, denom string, exchangeRate math.LegacyDec) {
-	store := ctx.KVStore(k.storeKey) // Get the oracle module's store
+	// Get the extra data
 	currentHeight := math.NewInt(ctx.BlockHeight())
 	blockTimestamp := ctx.BlockTime().UnixMilli()
 
+	// Build the exchange rate object
 	rate := types.OracleExchangeRate{
 		ExchangeRate:        exchangeRate,
 		LastUpdate:          currentHeight,
 		LastUpdateTimestamp: blockTimestamp,
 	}
 
-	byteData := k.cdc.MustMarshal(&rate)
-	store.Set(types.GetExchangeRateKey(denom), byteData)
+	// Store the exchange rate
+	k.ExchangeRate.Set(ctx, denom, rate)
 }
 
 // SetBaseExchangeRateWithEvent calls SetBaseExchangeRate and generate an event about that denom creation
@@ -107,27 +134,12 @@ func (k Keeper) SetBaseExchangeRateWithEvent(ctx sdk.Context, denom string, exch
 
 // DeleteBaseExchangeRate deletes an exchange rate by denom
 func (k Keeper) DeleteBaseExchangeRate(ctx sdk.Context, denom string) {
-	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetExchangeRateKey(denom))
+	k.ExchangeRate.Remove(ctx, denom)
 }
 
 // IterateBaseExchangeRates iterate over the exchange rate list and perform vallback function
-func (k Keeper) IterateBaseExchangeRates(ctx sdk.Context, handler func(denom string, exchangeRate types.OracleExchangeRate) bool) {
-	store := ctx.KVStore(k.storeKey)
-	iter := storetypes.KVStorePrefixIterator(store, types.ExchangeRateKey)
-	defer iter.Close()
-
-	// Iterate the whole exchangeRate list
-	for ; iter.Valid(); iter.Next() {
-		// Get denom and rate
-		denom := string(iter.Key()[len(types.ExchangeRateKey):])
-		rate := types.OracleExchangeRate{}
-		k.cdc.MustUnmarshal(iter.Value(), &rate)
-
-		if handler(denom, rate) {
-			break
-		}
-	}
+func (k Keeper) IterateBaseExchangeRates(ctx sdk.Context, handler func(denom string, exchangeRate types.OracleExchangeRate) (bool, error)) {
+	k.ExchangeRate.Walk(ctx, nil, handler)
 }
 
 // ****************************************************************************
@@ -136,37 +148,32 @@ func (k Keeper) IterateBaseExchangeRates(ctx sdk.Context, handler func(denom str
 
 // GetFeederDelegation returns the delegated address by validator address
 func (k Keeper) GetFeederDelegation(ctx sdk.Context, valAddr sdk.ValAddress) sdk.AccAddress {
-	// Get delegator by validator Address
-	store := ctx.KVStore(k.storeKey)
-	byteData := store.Get(types.GetFeederDelegationKey(valAddr))
-	if byteData == nil {
-		// There is no delegater account, return the validator address
-		return sdk.AccAddress(valAddr)
+	// Get the account address
+	accAddressString, err := k.FeederDelegation.Get(ctx, valAddr)
+	if err != nil {
+		panic(err) // FIX ME: Add proper error handling
 	}
-	return sdk.AccAddress(byteData)
+
+	// Marshal the address bytes to sdk.AccAddress
+	accAddress, err := sdk.AccAddressFromBech32(accAddressString)
+	if err != nil {
+		panic(err) // FIX ME: Add proper error handling
+	}
+
+	// Return the account address
+	return accAddress
 }
 
 // SetFeederDelegation set into the KVStore the address of an account delegated by the validator
 func (k Keeper) SetFeederDelegation(ctx sdk.Context, valAddr sdk.ValAddress, delegatedFeeder sdk.AccAddress) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetFeederDelegationKey(valAddr), delegatedFeeder.Bytes())
+	// Set the feeder delegation
+	k.FeederDelegation.Set(ctx, valAddr, delegatedFeeder.String())
 }
 
 // IterateFeederDelegations iterate over the delegated list and perform vallback function
-func (k Keeper) IterateFeederDelegations(ctx sdk.Context, handler func(valAddr sdk.ValAddress, delegatedFeeder sdk.AccAddress) bool) {
-	store := ctx.KVStore(k.storeKey)
-	iter := storetypes.KVStorePrefixIterator(store, types.FeederDelegationKey)
-	defer iter.Close()
-
-	for ; iter.Valid(); iter.Next() {
-		valAddr := sdk.ValAddress(iter.Key()[2:])
-		delegatedFeeder := sdk.AccAddress(iter.Value())
-
-		// when handler returns true stop
-		if handler(valAddr, delegatedFeeder) {
-			break
-		}
-	}
+func (k Keeper) IterateFeederDelegations(ctx sdk.Context, handler func(valAddr sdk.ValAddress, delegatedFeeder string) (bool, error)) {
+	// Iterate the FeederDelegation
+	k.FeederDelegation.Walk(ctx, nil, handler)
 }
 
 // ValidateFeeder the feeder address whether is a validator or delegated address and if is allowed
@@ -199,32 +206,24 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 
 // GetVotePenaltyCounter returns the vote penalty counter data for an operator (validator or delegated address)
 func (k Keeper) GetVotePenaltyCounter(ctx sdk.Context, operator sdk.ValAddress) types.VotePenaltyCounter {
-	store := ctx.KVStore(k.storeKey) // Get oracle module's store
-	byteData := store.Get(types.GetVotePenaltyCounterKey(operator))
-	if byteData == nil {
-		return types.VotePenaltyCounter{}
+	votePenaltyCounter, err := k.VotePenaltyCounter.Get(ctx, operator)
+	if err != nil {
+		panic(err) // FIX ME: Add proper error handling
 	}
-
-	// Decode information
-	votePenaltyCounter := types.VotePenaltyCounter{}
-	k.cdc.MustUnmarshal(byteData, &votePenaltyCounter)
 	return votePenaltyCounter
 }
 
 // SetVotePenaltyCounter add a penalty counter struct associated to an operator (validator or delegated address)
 func (k Keeper) SetVotePenaltyCounter(ctx sdk.Context, operator sdk.ValAddress, missCount, abstainCount, successCount uint64) {
 	// TODO: Add metrics on defer functions
-
 	votePenaltyCounter := types.VotePenaltyCounter{
 		MissCount:    missCount,
 		AbstainCount: abstainCount,
 		SuccessCount: successCount,
 	}
 
-	// Store info
-	store := ctx.KVStore(k.storeKey)
-	byteData := k.cdc.MustMarshal(&votePenaltyCounter)
-	store.Set(types.GetVotePenaltyCounterKey(operator), byteData)
+	// Set the penalty counter
+	k.VotePenaltyCounter.Set(ctx, operator, votePenaltyCounter)
 }
 
 // IncrementMissCount increments the missing count to an specific operator address in the KVStore
@@ -266,27 +265,13 @@ func (k Keeper) GetSuccessCount(ctx sdk.Context, operator sdk.ValAddress) uint64
 // DeleteVotePanltyCounter deletes the operator's vote penalty counter element
 func (k Keeper) DeleteVotePenaltyCounter(ctx sdk.Context, operator sdk.ValAddress) {
 	// TODO: Add metrics on defer functions
-
-	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetVotePenaltyCounterKey(operator))
+	k.VotePenaltyCounter.Remove(ctx, operator)
 }
 
 // IterateVotePenaltyCounters iterates over penalty counters in the store and perform vallback function
-func (k Keeper) IterateVotePenaltyCounters(ctx sdk.Context, handler func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) bool) {
-	store := ctx.KVStore(k.storeKey)
-	iter := storetypes.KVStorePrefixIterator(store, types.VotePenaltyCounterKey)
-	defer iter.Close()
-
-	for ; iter.Valid(); iter.Next() {
-		operator := sdk.ValAddress(iter.Key()[2:])
-
-		votePenaltyCounter := types.VotePenaltyCounter{}
-		k.cdc.MustUnmarshal(iter.Value(), &votePenaltyCounter)
-
-		if handler(operator, votePenaltyCounter) {
-			break
-		}
-	}
+func (k Keeper) IterateVotePenaltyCounters(ctx sdk.Context, handler func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) (bool, error)) {
+	// Walk through the VotePenaltyCounter map
+	k.VotePenaltyCounter.Walk(ctx, nil, handler)
 }
 
 // ****************************************************************************
@@ -295,63 +280,39 @@ func (k Keeper) IterateVotePenaltyCounters(ctx sdk.Context, handler func(operato
 
 // GetAggregateExchangeRateVote returns the exchange rate voted from the store by an specific voter
 func (k Keeper) GetAggregateExchangeRateVote(ctx sdk.Context, voter sdk.ValAddress) (types.AggregateExchangeRateVote, error) {
-	store := ctx.KVStore(k.storeKey)
-	byteData := store.Get(types.GetAggregateExchangeRateVoteKey(voter))
-	if byteData == nil {
-		err := errors.Wrap(types.ErrNoAggregateVote, voter.String())
-		return types.AggregateExchangeRateVote{}, err // Return custom error
-	}
-
-	// Decode information
-	aggregateVote := types.AggregateExchangeRateVote{}
-	k.cdc.MustUnmarshal(byteData, &aggregateVote)
-	return aggregateVote, nil
+	return k.AggregateExchangeRateVote.Get(ctx, voter)
 }
 
 // SetAggregateExchangeRateVote adds an oracle exchange rate vote to the KVStore
 func (k Keeper) SetAggregateExchangeRateVote(ctx sdk.Context, voter sdk.ValAddress, vote types.AggregateExchangeRateVote) {
-	store := ctx.KVStore(k.storeKey)
-	byteData := k.cdc.MustMarshal(&vote)
-	store.Set(types.GetAggregateExchangeRateVoteKey(voter), byteData)
+	k.AggregateExchangeRateVote.Set(ctx, voter, vote)
 }
 
 // DeleteAggregateExchangeRateVote deletes an oracle exchange rate vote from the store
 func (k Keeper) DeleteAggregateExchangeRateVote(ctx sdk.Context, voter sdk.ValAddress) {
-	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetAggregateExchangeRateVoteKey(voter))
+	k.AggregateExchangeRateVote.Remove(ctx, voter)
 }
 
 // IterateAggregateExchangeRateVotes iterates over exchange rate votes in the store and perform vallback function
-func (k Keeper) IterateAggregateExchangeRateVotes(ctx sdk.Context, handler func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) bool) {
-	store := ctx.KVStore(k.storeKey)
-	iter := storetypes.KVStorePrefixIterator(store, types.AggregateExchangeRateVoteKey)
-	defer iter.Close()
-
-	for ; iter.Valid(); iter.Next() {
-		voterAddr := sdk.ValAddress(iter.Key()[2:])
-
-		aggregateVote := types.AggregateExchangeRateVote{}
-		k.cdc.MustUnmarshal(iter.Value(), &aggregateVote)
-		if handler(voterAddr, aggregateVote) {
-			break
-		}
-	}
+func (k Keeper) IterateAggregateExchangeRateVotes(ctx sdk.Context, handler func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) (bool, error)) {
+	// Iterate the AggregateExchangeRateVote map
+	k.AggregateExchangeRateVote.Walk(ctx, nil, handler)
 }
 
 // RemoveExcessFeeds deletes the exchange rates added to the KVStore but not require on the whitelist
 func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) {
 	// get exchange rates stored on the KVStore
 	excessActives := make(map[string]struct{})
-	k.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) bool {
+	k.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		excessActives[denom] = struct{}{}
-		return false
+		return false, nil
 	})
 
 	// Get voting target
-	k.IterateVoteTargets(ctx, func(denom string, denomInfo types.Denom) bool {
+	k.IterateVoteTargets(ctx, func(denom string, denomInfo types.Denom) (bool, error) {
 		// Remove vote targets from actives
 		delete(excessActives, denom)
-		return false
+		return false, nil
 	})
 
 	// at this point just left the excess exchange rates
@@ -373,69 +334,23 @@ func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) {
 
 // GetVoteTarget returns the Denom info on the KVStore by denom string
 func (k Keeper) GetVoteTarget(ctx sdk.Context, denom string) (types.Denom, error) {
-	store := ctx.KVStore(k.storeKey)
-	byteData := store.Get(types.GetVoteTargetKey(denom))
-	if byteData == nil {
-		err := errors.Wrap(types.ErrNoVoteTarget, denom)
-		return types.Denom{}, err // Return custom error
-	}
-
-	voteTarget := types.Denom{}
-	k.cdc.MustUnmarshal(byteData, &voteTarget)
-
-	return voteTarget, nil
+	return k.VoteTarget.Get(ctx, denom)
 }
 
 // SetVoteTarget adds an denom exchange rate to the KVStore
 func (k Keeper) SetVoteTarget(ctx sdk.Context, denom string) {
-	store := ctx.KVStore(k.storeKey)
-	byteData := k.cdc.MustMarshal(&types.Denom{Name: denom})
-	store.Set(types.GetVoteTargetKey(denom), byteData)
+	k.VoteTarget.Set(ctx, denom, types.Denom{Name: denom})
 }
 
 // IterateVoteTargets iterates over denoms in the store and perform vallback function
-func (k Keeper) IterateVoteTargets(ctx sdk.Context, handler func(denom string, denomInfo types.Denom) bool) {
-	store := ctx.KVStore(k.storeKey)
-	iter := storetypes.KVStorePrefixIterator(store, types.VoteTargetKey)
-	defer iter.Close()
-
-	for ; iter.Valid(); iter.Next() {
-		denom := types.ExtractDenomFromVoteTargetKey(iter.Key()) // Get the specific rate in string
-
-		denomInfo := types.Denom{}
-		k.cdc.MustUnmarshal(iter.Value(), &denomInfo)
-		if handler(denom, denomInfo) {
-			break
-		}
-	}
-}
-
-// DeleteVoteTargets deletes all elements on VoteTargetKey prefix
-func (k Keeper) DeleteVoteTargets(ctx sdk.Context) {
-	store := ctx.KVStore(k.storeKey)
-	for _, key := range k.getAllKeysForPrefix(store, types.VoteTargetKey) {
-		store.Delete(key)
-	}
-}
-
-// getAllKeysForPrefix helper function, returns an array with the elements inside a prefix
-func (k Keeper) getAllKeysForPrefix(store storetypes.KVStore, prefix []byte) [][]byte {
-	keys := [][]byte{}
-	iter := storetypes.KVStorePrefixIterator(store, prefix)
-	defer iter.Close()
-
-	for ; iter.Valid(); iter.Next() {
-		keys = append(keys, iter.Key()) // Add the key of the elements inside the prefix
-	}
-	return keys
+func (k Keeper) IterateVoteTargets(ctx sdk.Context, handler func(denom string, denomInfo types.Denom) (bool, error)) {
+	// Iterate the VoteTarget map
+	k.VoteTarget.Walk(ctx, nil, handler)
 }
 
 // ClearVoteTargets deletes all voting target on the KVStore
 func (k Keeper) ClearVoteTargets(ctx sdk.Context) {
-	store := ctx.KVStore(k.storeKey)
-	for _, key := range k.getAllKeysForPrefix(store, types.VoteTargetKey) {
-		store.Delete(key)
-	}
+	k.VoteTarget.Clear(ctx, nil)
 }
 
 // ****************************************************************************
@@ -444,46 +359,40 @@ func (k Keeper) ClearVoteTargets(ctx sdk.Context) {
 
 // GetPriceSnapshot returns the exchange rate prices stored by a defined timestamp
 func (k Keeper) GetPriceSnapshot(ctx sdk.Context, timestamp int64) types.PriceSnapshot {
-	store := ctx.KVStore(k.storeKey)
-	snapshotBytes := store.Get(types.GetPriceSnapshotKey(uint64(timestamp)))
-	if snapshotBytes == nil {
-		return types.PriceSnapshot{} // Empty response
+	// Get the price snapshot
+	priceSnapshot, err := k.PriceSnapshot.Get(ctx, timestamp)
+	if err != nil {
+		panic(err) // FIX ME: Add proper error handling
 	}
 
-	// Decode information
-	priceSnapshot := types.PriceSnapshot{}
-	k.cdc.MustUnmarshal(snapshotBytes, &priceSnapshot)
 	return priceSnapshot
-}
-
-// SetPriceSnapshot stores the snapshot on the KVStore DO NOT USE IT - USE
-func (k Keeper) SetPriceSnapshot(ctx sdk.Context, snapshot types.PriceSnapshot) {
-	store := ctx.KVStore(k.storeKey)
-	byteData := k.cdc.MustMarshal(&snapshot)
-	store.Set(types.GetPriceSnapshotKey(uint64(snapshot.SnapshotTimestamp)), byteData)
 }
 
 // AddPriceSnapshot stores the snapshot on the KVStore and deletes snapshots older than the lookBackDuration
 // defined on the params
 func (k Keeper) AddPriceSnapshot(ctx sdk.Context, snapshot types.PriceSnapshot) {
-	params := k.GetParams(ctx) // Get the module Params
+	// Get the module params
+	params, err := k.Params.Get(ctx)
+	if err != nil {
+		panic(err) // FIX ME: Add proper error handling
+	}
 	lookBackDuration := params.LookbackDuration
 
 	// Add snapshot on the KVStore
-	k.SetPriceSnapshot(ctx, snapshot)
+	k.PriceSnapshot.Set(ctx, snapshot.SnapshotTimestamp, snapshot)
 
 	// Delete the snapshot that it's timestamps is older that the LookbackDuration
 	var timestampsToDelete []int64
 
-	k.IteratePriceSnapshots(ctx, func(snapshot types.PriceSnapshot) bool {
+	k.IteratePriceSnapshots(ctx, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
 		// If the snapshot is too old, mark it for deletion
 		if snapshot.SnapshotTimestamp+int64(lookBackDuration) < ctx.BlockTime().Unix() {
 			timestampsToDelete = append(timestampsToDelete, snapshot.SnapshotTimestamp)
-			return false // Continue iteration
+			return false, nil // Continue iteration
 		}
 
 		// If a valid snapshot is found, stop iterating
-		return true
+		return true, nil
 	})
 
 	// Delete all marked old snapshots
@@ -493,30 +402,36 @@ func (k Keeper) AddPriceSnapshot(ctx sdk.Context, snapshot types.PriceSnapshot) 
 }
 
 // IteratePriceSnapshots iterates over the snapshot list and execute the handler
-func (k Keeper) IteratePriceSnapshots(ctx sdk.Context, handler func(snapshot types.PriceSnapshot) bool) {
-	store := ctx.KVStore(k.storeKey)
-	iterator := storetypes.KVStorePrefixIterator(store, types.PriceSnapshotKey)
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		var val types.PriceSnapshot
-		k.cdc.MustUnmarshal(iterator.Value(), &val)
-		if handler(val) {
-			break
-		}
-	}
+func (k Keeper) IteratePriceSnapshots(ctx sdk.Context, handler func(timestamp int64, snapshot types.PriceSnapshot) (bool, error)) {
+	// Iterate the PriceSnapshot map
+	k.PriceSnapshot.Walk(ctx, nil, handler)
 }
 
 // IteratePriceSnapshotsReverse REVERSE iterates over the snapshot list and execute the handler
-func (k Keeper) IteratePriceSnapshotsReverse(ctx sdk.Context, handler func(snapshot types.PriceSnapshot) (stop bool)) {
-	store := ctx.KVStore(k.storeKey)
-	iterator := storetypes.KVStoreReversePrefixIterator(store, types.PriceSnapshotKey)
+func (k Keeper) IteratePriceSnapshotsReverse(ctx sdk.Context, handler func(snapshot types.PriceSnapshot) (bool, error)) {
+	// Iterate the PriceSnapshot map in reverse order
+	iterator, err := k.PriceSnapshot.IterateRaw(ctx, nil, nil, collections.OrderDescending)
+	if err != nil {
+		panic(err) // FIX ME: Add proper error handling
+	}
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var val types.PriceSnapshot
-		k.cdc.MustUnmarshal(iterator.Value(), &val)
-		if handler(val) {
+		// Take the value
+		val, err := iterator.Value()
+		if err != nil {
+			panic(err) // FIX ME: Add proper error handling
+		}
+
+		// Handle the value
+		stop, err := handler(val)
+		if err != nil {
+			panic(err) // FIX ME: Add proper error handling
+			break
+		}
+
+		// If stop, stop
+		if stop {
 			break
 		}
 	}
@@ -524,8 +439,7 @@ func (k Keeper) IteratePriceSnapshotsReverse(ctx sdk.Context, handler func(snaps
 
 // DeletePriceSnapshot deletes an snapshot based by the given timestamp
 func (k Keeper) DeletePriceSnapshot(ctx sdk.Context, timestamp int64) {
-	store := ctx.KVStore(k.storeKey)
-	store.Delete(types.GetPriceSnapshotKey(uint64(timestamp)))
+	k.PriceSnapshot.Remove(ctx, timestamp)
 }
 
 // ****************************************************************************
@@ -534,23 +448,22 @@ func (k Keeper) DeletePriceSnapshot(ctx sdk.Context, timestamp int64) {
 
 // GetSpamPreventionCounter returns the stored block heigh by the validator (in that heigh the validator voted)
 func (k Keeper) GetSpamPreventionCounter(ctx sdk.Context, valAddr sdk.ValAddress) int64 {
-	store := ctx.KVStore(k.storeKey) // Get oracle module's KVStore
-	byteData := store.Get(types.GetSpamPreventionCounterKey(valAddr))
-	if byteData == nil {
-		return -1 // Return invalid counter
+	// Get the spam prevention counter
+	counter, err := k.SpamPreventionCounter.Get(ctx, valAddr)
+	if err != nil {
+		panic(err) // FIX ME: Add proper error handling
 	}
 
-	return int64(sdk.BigEndianToUint64(byteData)) // return the counter by validator address
+	return counter
 }
 
-// SetSpamPreventionCounter stores the block heigh by the validator as an anti voting spam mecanism
+// SetSpamPreventionCounter stores the block heigh by the validator as an anti voting spam mechanism
 func (k Keeper) SetSpamPreventionCounter(ctx sdk.Context, valAddr sdk.ValAddress) {
-	store := ctx.KVStore(k.storeKey)
+	// Get the height of the current block
+	height := ctx.BlockHeight()
 
-	height := ctx.BlockHeight() // Get current block height
-	byteData := sdk.Uint64ToBigEndian(uint64(height))
-
-	store.Set(types.GetSpamPreventionCounterKey(valAddr), byteData) // store the current block height
+	// Set the spam prevention counter
+	k.SpamPreventionCounter.Set(ctx, valAddr, height)
 }
 
 // ****************************************************************************
@@ -573,13 +486,13 @@ func (k Keeper) CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (types.O
 
 	// get targets exchange rate
 	targetsMap := make(map[string]struct{}) // here I store the collected targets from the KVStore
-	k.IterateVoteTargets(ctx, func(denom string, denomInfo types.Denom) bool {
+	k.IterateVoteTargets(ctx, func(denom string, denomInfo types.Denom) (bool, error) {
 		targetsMap[denom] = struct{}{} // Store the active targets
-		return false
+		return false, nil
 	})
 
 	// Iterate the complete snapshots list from the most recent to the oldest
-	k.IteratePriceSnapshotsReverse(ctx, func(snapshot types.PriceSnapshot) (stop bool) {
+	k.IteratePriceSnapshotsReverse(ctx, func(snapshot types.PriceSnapshot) (stop bool, err error) {
 		stop = false
 
 		// Check if the current snapshot is older than the lookBack time
@@ -619,7 +532,7 @@ func (k Keeper) CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (types.O
 			twapByDenom[denom] = twapAverageByDenom // update the twap by denom with the result
 			durationByDenom[denom] = timeTraversed  // update the analized time by denom
 		}
-		return stop
+		return stop, err
 	})
 
 	// Order the exchange rates with its twaps (just to have an order)
@@ -661,7 +574,14 @@ func (k Keeper) CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (types.O
 // ValidateLookBackSeconds validates the input lookbackseconds, must be lower or equan than the param lookback (because there are not longer
 // data than the param lookback param)
 func (k Keeper) ValidateLookBackSeconds(ctx sdk.Context, lookBackSeconds uint64) error {
-	lookBackDuration := k.LookbackDuration(ctx)
+	// Get the params
+	params, err := k.Params.Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Check the lookback seconds against the params
+	lookBackDuration := params.LookbackDuration
 	if lookBackSeconds > lookBackDuration || lookBackSeconds == 0 {
 		return types.ErrInvalidTwapLookback
 	}

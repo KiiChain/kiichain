@@ -6,45 +6,42 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	distTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	kiiparams "github.com/kiichain/kiichain/v1/app/params"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewKeeper(t *testing.T) {
-	// Prepare the test environment
-	init := CreateTestInput(t)
-	encodingConfig := kiiparams.MakeEncodingConfig()
-	cdc := encodingConfig.Marshaler
+	t.FailNow()
+	// // Prepare the test environment
+	// init := CreateTestInput(t)
+	// encodingConfig := kiiparams.MakeEncodingConfig()
+	// cdc := encodingConfig.Marshaler
 
-	// Create a new Keeper without causing a panic
-	require.NotPanics(t, func() {
-		NewKeeper(
-			cdc,
-			init.OracleKeeper.storeKey,
-			init.OracleKeeper.paramSpace,
-			init.AccountKeeper,
-			init.BankKeeper,
-			init.StakingKeeper,
-			distTypes.ModuleName,
-		)
-	}, "NewKeeper should not panic if the Oracle module account is properly set")
+	// // Create a new Keeper without causing a panic
+	// require.NotPanics(t, func() {
+	// 	NewKeeper(
+	// 		cdc,
+	// 		init.OracleKeeper.storeKey,
+	// 		init.AccountKeeper,
+	// 		init.BankKeeper,
+	// 		init.StakingKeeper,
+	// 		distTypes.ModuleName,
+	// 	)
+	// }, "NewKeeper should not panic if the Oracle module account is properly set")
 
-	// Validate that paramSpace has a KeyTable after Keeper initialization
-	oracleKeeper := NewKeeper(
-		cdc,
-		init.OracleKeeper.storeKey,
-		init.OracleKeeper.paramSpace,
-		init.AccountKeeper,
-		init.BankKeeper,
-		init.StakingKeeper,
-		distTypes.ModuleName,
-	)
+	// // Validate that paramSpace has a KeyTable after Keeper initialization
+	// oracleKeeper := NewKeeper(
+	// 	cdc,
+	// 	init.OracleKeeper.storeKey,
+	// 	init.AccountKeeper,
+	// 	init.BankKeeper,
+	// 	init.StakingKeeper,
+	// 	distTypes.ModuleName,
+	// )
 
-	require.True(t, oracleKeeper.paramSpace.HasKeyTable(), "paramSpace in the Keeper should have a KeyTable")
+	// require.True(t, oracleKeeper.paramSpace.HasKeyTable(), "paramSpace in the Keeper should have a KeyTable")
 }
 
 func TestExchangeRateLogic(t *testing.T) {
@@ -63,11 +60,11 @@ func TestExchangeRateLogic(t *testing.T) {
 	atomUsdExchangeRate := math.LegacyNewDecWithPrec(300, int64(OracleDecPrecision)).MulInt64(1e6)
 
 	// ***** First exchange rate insertion
-	oracleKeeper.SetBaseExchangeRate(ctx, BTC_USD, btcUsdExchangeRate)               // Set exchange rates on KVStore
-	btcUsdRate, lastUpdate, _, err := oracleKeeper.GetBaseExchangeRate(ctx, BTC_USD) // Get exchange rate from KVStore
+	oracleKeeper.SetBaseExchangeRate(ctx, BTC_USD, btcUsdExchangeRate) // Set exchange rates on KVStore
+	btcUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, BTC_USD)  // Get exchange rate from KVStore
 	require.NoError(t, err, "Expected no error getting BTC/USD exchange rate")
-	require.Equal(t, btcUsdExchangeRate, btcUsdRate, "Expected got the same exchange rate as ")
-	require.Equal(t, math.ZeroInt(), lastUpdate) // There is no previous updates
+	require.Equal(t, btcUsdExchangeRate, btcUsdRate.ExchangeRate, "Expected got the same exchange rate as ")
+	require.Equal(t, math.ZeroInt(), btcUsdRate.LastUpdate) // There is no previous updates
 
 	// simulate time pass
 	ctx = ctx.WithBlockHeight(3) // Update block height
@@ -75,12 +72,12 @@ func TestExchangeRateLogic(t *testing.T) {
 	ctx = ctx.WithBlockTime(ts) // Update block timestamp
 
 	// ***** Second exchange rate insertion
-	oracleKeeper.SetBaseExchangeRate(ctx, ETH_USD, ethUsdExchangeRate)                                 // Set exchange rates on KVStore
-	ethUsdRate, lastUpdate, lastUpdateTimestamp, err := oracleKeeper.GetBaseExchangeRate(ctx, ETH_USD) // Get exchange rate from KVStore
+	oracleKeeper.SetBaseExchangeRate(ctx, ETH_USD, ethUsdExchangeRate) // Set exchange rates on KVStore
+	ethUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, ETH_USD)  // Get exchange rate from KVStore
 	require.NoError(t, err)
-	require.Equal(t, ethUsdExchangeRate, ethUsdRate)
-	require.Equal(t, math.NewInt(3), lastUpdate)
-	require.Equal(t, ts.UnixMilli(), lastUpdateTimestamp)
+	require.Equal(t, ethUsdExchangeRate, ethUsdRate.ExchangeRate)
+	require.Equal(t, math.NewInt(3), ethUsdRate.LastUpdate)
+	require.Equal(t, ts.UnixMilli(), ethUsdRate.LastUpdateTimestamp)
 
 	// simulate time pass
 	ctx = ctx.WithBlockHeight(15) // Update block height
@@ -88,8 +85,8 @@ func TestExchangeRateLogic(t *testing.T) {
 	ctx = ctx.WithBlockTime(newTime) // Update block timestamp
 
 	// ***** Third exchange rate insertion (using events)
-	oracleKeeper.SetBaseExchangeRateWithEvent(ctx, ATOM_USD, atomUsdExchangeRate)                        // Set exchange rates on KVStore
-	atomUsdRate, lastUpdate, lastUpdateTimestamp, err := oracleKeeper.GetBaseExchangeRate(ctx, ATOM_USD) // Get exchange rate from KVStore
+	oracleKeeper.SetBaseExchangeRateWithEvent(ctx, ATOM_USD, atomUsdExchangeRate) // Set exchange rates on KVStore
+	atomUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, ATOM_USD)           // Get exchange rate from KVStore
 
 	// Create the event validation function
 	eventValidation := func() bool {
@@ -127,21 +124,21 @@ func TestExchangeRateLogic(t *testing.T) {
 
 	// Validations
 	require.NoError(t, err)
-	require.Equal(t, atomUsdExchangeRate, atomUsdRate)
-	require.Equal(t, math.NewInt(15), lastUpdate)
-	require.Equal(t, newTime.UnixMilli(), lastUpdateTimestamp)
+	require.Equal(t, atomUsdExchangeRate, atomUsdRate.ExchangeRate)
+	require.Equal(t, math.NewInt(15), atomUsdRate.LastUpdate)
+	require.Equal(t, newTime.UnixMilli(), atomUsdRate.LastUpdateTimestamp)
 	require.True(t, eventValidation())
 
 	// ***** First exchange rate elimination
 	oracleKeeper.DeleteBaseExchangeRate(ctx, BTC_USD)
-	_, _, _, err = oracleKeeper.GetBaseExchangeRate(ctx, BTC_USD)
+	_, err = oracleKeeper.GetBaseExchangeRate(ctx, BTC_USD)
 	require.Error(t, err) // Validate error
 
 	// test iteration function
 	exchangeRateAmount := 0
-	iterationHandler := func(denom string, exchangeRate types.OracleExchangeRate) bool {
+	iterationHandler := func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		exchangeRateAmount++
-		return false
+		return false, nil
 	}
 
 	oracleKeeper.IterateBaseExchangeRates(ctx, iterationHandler)
@@ -155,8 +152,10 @@ func TestParams(t *testing.T) {
 	ctx := init.Ctx
 
 	// test default params
-	defaultParams := oracleKeeper.GetParams(ctx)
-	oracleKeeper.SetParams(ctx, defaultParams)
+	defaultParams, err := oracleKeeper.Params.Get(ctx)
+	require.NoError(t, err)
+
+	oracleKeeper.Params.Set(ctx, defaultParams) // Set default params
 	require.NotNil(t, defaultParams)
 
 	// test custom params
@@ -179,9 +178,10 @@ func TestParams(t *testing.T) {
 		MinValidPerWindow: minValPerWindow,
 		LookbackDuration:  lookbackDuration,
 	}
-	oracleKeeper.SetParams(ctx, params)
+	oracleKeeper.Params.Set(ctx, params)
 
-	storedParams := oracleKeeper.GetParams(ctx)
+	storedParams, err := oracleKeeper.Params.Get(ctx)
+	require.NoError(t, err)
 	require.NotNil(t, slashFraccion)
 	require.Equal(t, params, storedParams)
 }
@@ -203,10 +203,17 @@ func TestDelegationLogic(t *testing.T) {
 	// ***** Iterate feeder delegator list
 	var validators []sdk.ValAddress
 	var delegates []sdk.AccAddress
-	handler := func(valAddr sdk.ValAddress, delegatedFeeder sdk.AccAddress) bool {
+	handler := func(valAddr sdk.ValAddress, delegatedFeeder string) (bool, error) {
 		validators = append(validators, valAddr)
-		delegates = append(delegates, delegatedFeeder)
-		return false
+
+		// Parse the delegated feeder address to sdk.AccAddress
+		delegatedFeederAcc, err := sdk.AccAddressFromBech32(delegatedFeeder)
+		if err != nil {
+			return true, err
+		}
+
+		delegates = append(delegates, delegatedFeederAcc)
+		return false, nil
 	}
 	oracleKeeper.IterateFeederDelegations(ctx, handler)
 
@@ -339,7 +346,7 @@ func TestMissCounterIterate(t *testing.T) {
 	oracleKeeper.SetVotePenaltyCounter(ctx, ValAddrs[0], missCounter, abstainCounter, successCounter) // Set the voting info
 
 	// The handler will iterate over
-	handler := func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) bool {
+	handler := func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) (bool, error) {
 		missCount := votePenaltyCounter.MissCount
 		abstainCount := votePenaltyCounter.AbstainCount
 		successCount := votePenaltyCounter.SuccessCount
@@ -348,7 +355,7 @@ func TestMissCounterIterate(t *testing.T) {
 		require.Equal(t, missCounter, missCount)
 		require.Equal(t, abstainCounter, abstainCount)
 		require.Equal(t, successCounter, successCount)
-		return true
+		return true, nil
 	}
 
 	oracleKeeper.IterateVotePenaltyCounters(ctx, handler)
@@ -417,16 +424,16 @@ func TestIterateAggregateExchangeRateVotes(t *testing.T) {
 	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[1], exchangeRateVote2)
 	require.NoError(t, err)
 
-	handler := func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) bool {
+	handler := func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) (bool, error) {
 		if voterAddr.Equals(ValAddrs[0]) {
 			require.Equal(t, exchangeRateVote1, aggregateVote)
 			require.Equal(t, exchangeRateVote1.Voter, voterAddr.String())
-			return false
+			return false, nil
 		}
 
 		require.Equal(t, exchangeRateVote2, aggregateVote)
 		require.Equal(t, exchangeRateVote2.Voter, voterAddr.String())
-		return false
+		return false, nil
 	}
 	oracleKeeper.IterateAggregateExchangeRateVotes(ctx, handler)
 }
@@ -438,7 +445,7 @@ func TestRemoveExcessFeeds(t *testing.T) {
 	ctx := init.Ctx
 
 	// Agregate voting targets
-	oracleKeeper.DeleteVoteTargets(ctx)
+	oracleKeeper.ClearVoteTargets(ctx)
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)
 
@@ -451,9 +458,9 @@ func TestRemoveExcessFeeds(t *testing.T) {
 	oracleKeeper.RemoveExcessFeeds(ctx)
 
 	// Validate the successfull erased of the extra denoms
-	oracleKeeper.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) bool {
+	oracleKeeper.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		require.True(t, denom != utils.MicroKiiDenom)
-		return false
+		return false, nil
 	})
 }
 
@@ -464,7 +471,7 @@ func TestVoteTargetLogic(t *testing.T) {
 	ctx := init.Ctx
 
 	// Set and Get Voting target
-	oracleKeeper.DeleteVoteTargets(ctx)
+	oracleKeeper.ClearVoteTargets(ctx)
 	voteTarget := map[string]types.Denom{
 		utils.MicroKiiDenom:  {Name: utils.MicroKiiDenom},
 		utils.MicroEthDenom:  {Name: utils.MicroEthDenom},
@@ -481,14 +488,14 @@ func TestVoteTargetLogic(t *testing.T) {
 
 	// Test iterate function
 
-	handler := func(denom string, denomInfo types.Denom) bool {
+	handler := func(denom string, denomInfo types.Denom) (bool, error) {
 		require.Equal(t, voteTarget[denom], denomInfo)
-		return false
+		return false, nil
 	}
 	oracleKeeper.IterateVoteTargets(ctx, handler)
 
 	// Test delete all targets
-	oracleKeeper.DeleteVoteTargets(ctx)
+	oracleKeeper.ClearVoteTargets(ctx)
 	for denom := range voteTarget {
 		_, err := oracleKeeper.GetVoteTarget(ctx, denom)
 		require.Error(t, err)
@@ -519,8 +526,8 @@ func TestPriceSnapshotLogic(t *testing.T) {
 	snapshot2 := types.NewPriceSnapshot(2, types.PriceSnapshotItems{snapshotItem2, snapshotItem2})
 
 	// test set and get snapshot data
-	oracleKeeper.SetPriceSnapshot(ctx, snapshot1)
-	oracleKeeper.SetPriceSnapshot(ctx, snapshot2)
+	oracleKeeper.PriceSnapshot.Set(ctx, snapshot1.SnapshotTimestamp, snapshot1) // Set snapshot 1
+	oracleKeeper.PriceSnapshot.Set(ctx, snapshot2.SnapshotTimestamp, snapshot2) // Set snapshot 2
 
 	gottenSnapshot1 := oracleKeeper.GetPriceSnapshot(ctx, 1)
 	gottenSnapshot2 := oracleKeeper.GetPriceSnapshot(ctx, 2)
@@ -529,20 +536,20 @@ func TestPriceSnapshotLogic(t *testing.T) {
 
 	// test iterate functions
 	iteration := int64(1)
-	handler := func(snapshot types.PriceSnapshot) bool {
+	handler := func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
 		require.Equal(t, iteration, snapshot.SnapshotTimestamp)
 		iteration++
-		return false
+		return false, nil
 	}
 	oracleKeeper.IteratePriceSnapshots(ctx, handler)
 
 	iteration = int64(2)
-	handler = func(snapshot types.PriceSnapshot) bool {
+	handlerReverse := func(snapshot types.PriceSnapshot) (bool, error) {
 		require.Equal(t, iteration, snapshot.SnapshotTimestamp)
 		iteration--
-		return false
+		return false, nil
 	}
-	oracleKeeper.IteratePriceSnapshotsReverse(ctx, handler)
+	oracleKeeper.IteratePriceSnapshotsReverse(ctx, handlerReverse)
 
 	// test delete snapshot
 	expected := types.PriceSnapshot{}
@@ -617,7 +624,7 @@ func TestClearVoteTargets(t *testing.T) {
 	ctx := init.Ctx
 
 	// Eliminate initial voting target
-	oracleKeeper.DeleteVoteTargets(ctx)
+	oracleKeeper.ClearVoteTargets(ctx)
 
 	// Agregate voting targets
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)

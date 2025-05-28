@@ -28,8 +28,10 @@ func NewQueryServer(keepr Keeper) types.QueryServer {
 func (qs queryServer) Params(ctx context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	// Get the module's params from the keeper
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	var params types.Params
-	qs.Keeper.paramSpace.GetParamSet(sdkCtx, &params)
+	params, err := qs.Keeper.Params.Get(sdkCtx)
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.QueryParamsResponse{Params: &params}, nil
 }
@@ -47,18 +49,14 @@ func (qs queryServer) ExchangeRate(ctx context.Context, req *types.QueryExchange
 
 	// Get exchange rate by denom
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	exchangeRate, lastUpdate, lastUpdateTimestamp, err := qs.Keeper.GetBaseExchangeRate(sdkCtx, req.Denom)
+	exchangeRate, err := qs.Keeper.GetBaseExchangeRate(sdkCtx, req.Denom)
 	if err != nil {
 		return nil, err
 	}
 
 	// Prepare response
 	response := &types.QueryExchangeRateResponse{
-		OracleExchangeRate: &types.OracleExchangeRate{
-			ExchangeRate:        exchangeRate,
-			LastUpdate:          lastUpdate,
-			LastUpdateTimestamp: lastUpdateTimestamp,
-		},
+		OracleExchangeRate: &exchangeRate,
 	}
 
 	return response, nil
@@ -69,9 +67,9 @@ func (qs queryServer) ExchangeRates(ctx context.Context, req *types.QueryExchang
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	exchangeRates := []types.DenomOracleExchangeRate{}
-	qs.Keeper.IterateBaseExchangeRates(sdkCtx, func(denom string, exchangeRate types.OracleExchangeRate) bool {
+	qs.Keeper.IterateBaseExchangeRates(sdkCtx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		exchangeRates = append(exchangeRates, types.DenomOracleExchangeRate{Denom: denom, OracleExchangeRate: &exchangeRate})
-		return false
+		return false, nil
 	})
 
 	return &types.QueryExchangeRatesResponse{DenomOracleExchangeRate: exchangeRates}, nil
@@ -82,9 +80,9 @@ func (qs queryServer) Actives(ctx context.Context, req *types.QueryActivesReques
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	denomsActive := []string{}
-	qs.Keeper.IterateBaseExchangeRates(sdkCtx, func(denom string, exchangeRate types.OracleExchangeRate) bool {
+	qs.Keeper.IterateBaseExchangeRates(sdkCtx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		denomsActive = append(denomsActive, denom)
-		return false
+		return false, nil
 	})
 
 	return &types.QueryActivesResponse{Actives: denomsActive}, nil
@@ -102,9 +100,9 @@ func (qs queryServer) PriceSnapshotHistory(ctx context.Context, req *types.Query
 
 	// Get the snapshots available on the KVStore
 	priceSnapshots := []types.PriceSnapshot{}
-	qs.Keeper.IteratePriceSnapshots(sdkCtx, func(snapshot types.PriceSnapshot) bool {
+	qs.Keeper.IteratePriceSnapshots(sdkCtx, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
 		priceSnapshots = append(priceSnapshots, snapshot)
-		return false
+		return false, nil
 	})
 
 	return &types.QueryPriceSnapshotHistoryResponse{PriceSnapshot: priceSnapshots}, nil
@@ -171,10 +169,13 @@ func (qs queryServer) VotePenaltyCounter(ctx context.Context, req *types.QueryVo
 
 }
 
-// SlashWindow queries the
+// SlashWindow queries the slash window progress
 func (qs queryServer) SlashWindow(ctx context.Context, req *types.QuerySlashWindowRequest) (*types.QuerySlashWindowResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	params := qs.Keeper.GetParams(sdkCtx)
+	params, err := qs.Keeper.Params.Get(sdkCtx)
+	if err != nil {
+		return nil, err
+	}
 
 	// The window progress is the number of vote periods that have been completed in the current slashing window.
 	// With a vote period of 1, this will be equivalent to the number of blocks that have progressed in the slash window.

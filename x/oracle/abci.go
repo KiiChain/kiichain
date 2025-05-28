@@ -13,7 +13,11 @@ import (
 // this function get the votes from the validators, calculate the exchange rate using
 // weighted median logic when the vote period is almost finished
 func MidBlocker(ctx sdk.Context, k keeper.Keeper) {
-	params := k.GetParams(ctx)
+	// Get the params
+	params, err := k.Params.Get(ctx)
+	if err != nil {
+		panic(err) // FIXME: handle error properly
+	}
 
 	// Check if the current block is the last one to finish the voting period
 	if utils.IsPeriodLastBlock(ctx, params.VotePeriod) {
@@ -45,9 +49,9 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 		// Get the voting targets from the KVStore
 		voteTargets := make(map[string]types.Denom)
-		k.IterateVoteTargets(ctx, func(denom string, denomInfo types.Denom) bool {
+		k.IterateVoteTargets(ctx, func(denom string, denomInfo types.Denom) (bool, error) {
 			voteTargets[denom] = denomInfo
-			return false
+			return false, nil
 		})
 
 		// Create a reference denom (RD) based on the voting power
@@ -131,14 +135,14 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 		// take an snapshot for each price
 		priceSnapshotItems := []types.PriceSnapshotItem{}
-		k.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) bool {
+		k.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 			priceSnapshotItem := types.PriceSnapshotItem{
 				Denom:              denom,
 				OracleExchangeRate: exchangeRate,
 			}
 
 			priceSnapshotItems = append(priceSnapshotItems, priceSnapshotItem)
-			return false
+			return false, nil
 		})
 
 		// create and save general snapshot
@@ -154,7 +158,11 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 // Endblocker is the function that slash the validators and reset the miss counters
 func Endblocker(ctx sdk.Context, k keeper.Keeper) {
-	params := k.GetParams(ctx)
+	// Get the params
+	params, err := k.Params.Get(ctx)
+	if err != nil {
+		panic(err) // FIXME: handle error properly
+	}
 
 	// Slash who did miss voting over threshold
 	// reset miss counter of all validators at the last block of slash window

@@ -48,9 +48,12 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 	require.Equal(t, amount, bondedTokens2)
 
 	//Define slash fraction
-	votePeriodsPerWindow := math.LegacyNewDec(int64(oracleKeeper.SlashWindow(input.Ctx))).QuoInt64(int64(oracleKeeper.VotePeriod(input.Ctx))).TruncateInt64()
-	slashFraction := oracleKeeper.SlashFraction(input.Ctx)
-	minValidVotes := oracleKeeper.MinValidPerWindow(input.Ctx).MulInt64(votePeriodsPerWindow).TruncateInt64()
+	params, err := oracleKeeper.Params.Get(ctx)
+	require.NoError(t, err)
+
+	votePeriodsPerWindow := math.LegacyNewDec(int64(params.SlashWindow)).QuoInt64(int64(params.VotePeriod)).TruncateInt64()
+	slashFraction := params.SlashFraction
+	minValidVotes := params.MinValidPerWindow.MulInt64(votePeriodsPerWindow).TruncateInt64()
 
 	t.Run("no slash", func(t *testing.T) {
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow-minValidVotes), 0, uint64(minValidVotes))

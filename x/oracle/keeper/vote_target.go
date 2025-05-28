@@ -14,9 +14,9 @@ func (k Keeper) IsVoteTarget(ctx sdk.Context, denom string) bool {
 // GetVoteTargets returns the vote target list
 func (k Keeper) GetVoteTargets(ctx sdk.Context) []string {
 	var voteTargets []string
-	k.IterateVoteTargets(ctx, func(denom string, denomInfo types.Denom) bool {
+	k.IterateVoteTargets(ctx, func(denom string, denomInfo types.Denom) (bool, error) {
 		voteTargets = append(voteTargets, denom)
-		return false
+		return false, nil
 	})
 	return voteTargets
 }

@@ -183,8 +183,9 @@ func TestApplyWhitelist(t *testing.T) {
 	oracleKeeper := init.OracleKeeper
 	bankKeeper := init.BankKeeper
 	ctx := init.Ctx
-	oracleParams := oracleKeeper.GetParams(ctx)
-	oracleKeeper.DeleteVoteTargets(ctx) // Delete voting target to start test from scrath
+	oracleParams, err := oracleKeeper.Params.Get(ctx)
+	require.NoError(t, err)
+	oracleKeeper.ClearVoteTargets(ctx) // Delete voting target to start test from scrath
 
 	// Define new whitelist (adds uusdc)
 	whiteList := types.DenomList{
@@ -194,7 +195,7 @@ func TestApplyWhitelist(t *testing.T) {
 		{Name: utils.MicroUsdcDenom}, // New Denom
 	}
 	oracleParams.Whitelist = whiteList
-	oracleKeeper.SetParams(ctx, oracleParams)
+	oracleKeeper.Params.Set(ctx, oracleParams)
 
 	// Set vote targets manually before applying the new whitelist
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)
@@ -202,7 +203,7 @@ func TestApplyWhitelist(t *testing.T) {
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroKiiDenom)
 
 	// Ensure that uusdc is NOT present before applying the whitelist
-	_, err := oracleKeeper.GetVoteTarget(ctx, utils.MicroUsdcDenom)
+	_, err = oracleKeeper.GetVoteTarget(ctx, utils.MicroUsdcDenom)
 	require.Error(t, err)
 
 	// Apply whitelist

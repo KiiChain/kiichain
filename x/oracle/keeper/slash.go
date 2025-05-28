@@ -14,12 +14,18 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) {
 	height := ctx.BlockHeight()
 	distributionHeight := height - sdk.ValidatorUpdateDelay - 1
 
-	minValidPerWindow := k.MinValidPerWindow(ctx) // get from params
-	slashFraction := k.SlashFraction(ctx)         // get from params
+	// Get the module params
+	params, err := k.Params.Get(ctx)
+	if err != nil {
+		panic(err) // FIXME: handle error properly
+	}
+
+	minValidPerWindow := params.MinValidPerWindow
+	slashFraction := params.SlashFraction
 	powerReduction := k.StakingKeeper.PowerReduction(ctx)
 
 	// Iterate each voting result per validator
-	k.IterateVotePenaltyCounters(ctx, func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) bool {
+	k.IterateVotePenaltyCounters(ctx, func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) (bool, error) {
 		successCount := votePenaltyCounter.SuccessCount
 		abstainCount := votePenaltyCounter.AbstainCount
 		missCount := votePenaltyCounter.MissCount
@@ -28,7 +34,7 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) {
 		totalVotes := successCount + abstainCount + missCount
 		if totalVotes == 0 {
 			ctx.Logger().Error("zero votes in penalty counter, this should never happen")
-			return false
+			return false, nil
 		}
 
 		// rate = successVotes / total votes
@@ -64,6 +70,6 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) {
 
 		// Reset voting counter
 		k.DeleteVotePenaltyCounter(ctx, operator)
-		return false
+		return false, nil
 	})
 }
