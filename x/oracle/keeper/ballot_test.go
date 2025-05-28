@@ -14,7 +14,6 @@ import (
 )
 
 func TestOrganizeBallotByDenom(t *testing.T) {
-
 	// Prepare the test environment
 	init := CreateTestInput(t)
 	oracleKeeper := init.OracleKeeper
@@ -35,7 +34,8 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 	_, err = msgServer.CreateValidator(ctx, val1)
 	require.NoError(t, err)
 
-	// execute staking endblocker to start validators bon
+	// execute staking endblocker to start validators bonded
+	stakingKeeper.EndBlocker(ctx)
 
 	// Simulate aggregation exchange rate process
 	exchangeRate1 := types.ExchangeRateTuples{
@@ -72,6 +72,7 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 		validator, err := stakingKeeper.Validator(ctx, valAddr) // get validator by address
 		require.NoError(t, err)
 
+		// Set the validator as bonded for calculations
 		valPower := validator.GetConsensusPower(powerReduction)
 		operator := validator.GetOperator()
 
@@ -114,7 +115,8 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 	denomBallot := oracleKeeper.OrganizeBallotByDenom(ctx, validatorClaimMap)
 
 	// Validation
-	require.ElementsMatch(t, uatomBallot, denomBallot[utils.MicroAtomDenom])
+	microAtomDenomBallot := denomBallot[utils.MicroAtomDenom]
+	require.ElementsMatch(t, uatomBallot, microAtomDenomBallot)
 	require.ElementsMatch(t, uethBallot, denomBallot[utils.MicroEthDenom])
 	require.ElementsMatch(t, uusdcBallot, denomBallot[utils.MicroUsdcDenom])
 	require.ElementsMatch(t, ukiiBallot, denomBallot[utils.MicroKiiDenom])

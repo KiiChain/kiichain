@@ -12,9 +12,6 @@ func TestCreateModuleAccount(t *testing.T) {
 	oracleKeeper := init.OracleKeeper
 	ctx := init.Ctx
 
-	// Create module account
-	oracleKeeper.CreateModuleAccount(ctx)
-
 	// Check the module account was created
 	account := oracleKeeper.accountKeeper.GetModuleAccount(ctx, types.ModuleName)
 	require.NotNil(t, account)
