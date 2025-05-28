@@ -1,11 +1,12 @@
 package keeper
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 
 	"cosmossdk.io/collections"
-	"cosmossdk.io/errors"
+	cosmoserrors "cosmossdk.io/errors"
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 
@@ -150,6 +151,12 @@ func (k Keeper) IterateBaseExchangeRates(ctx sdk.Context, handler func(denom str
 func (k Keeper) GetFeederDelegation(ctx sdk.Context, valAddr sdk.ValAddress) sdk.AccAddress {
 	// Get the account address
 	accAddressString, err := k.FeederDelegation.Get(ctx, valAddr)
+	// If the not found, return the val Address
+	if errors.Is(err, collections.ErrNotFound) {
+		return sdk.AccAddress(valAddr)
+	}
+
+	// Handle any other error
 	if err != nil {
 		panic(err) // FIX ME: Add proper error handling
 	}
@@ -184,17 +191,17 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 	if !feederAddr.Equals(valAddr) {
 		delegator := k.GetFeederDelegation(ctx, valAddr) // Get the delegated address by validator address
 		if !delegator.Equals(feederAddr) {
-			return errors.Wrap(types.ErrNoVotingPermission, feederAddr.String())
+			return cosmoserrors.Wrap(types.ErrNoVotingPermission, feederAddr.String())
 		}
 	}
 
 	// Validate the feeder addr is a validator, if so, validate if is bonded (allowed to validate blocks)
 	validator, err := k.StakingKeeper.Validator(ctx, valAddr)
 	if err != nil {
-		return errors.Wrapf(stakingtypes.ErrNoValidatorFound, "validator %s not found", valAddr.String())
+		return cosmoserrors.Wrapf(stakingtypes.ErrNoValidatorFound, "validator %s not found", valAddr.String())
 	}
 	if valAddr == nil || !validator.IsBonded() {
-		return errors.Wrapf(stakingtypes.ErrNoValidatorFound, "validator %s is not active set", valAddr.String())
+		return cosmoserrors.Wrapf(stakingtypes.ErrNoValidatorFound, "validator %s is not active set", valAddr.String())
 	}
 
 	return nil
@@ -207,6 +214,12 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 // GetVotePenaltyCounter returns the vote penalty counter data for an operator (validator or delegated address)
 func (k Keeper) GetVotePenaltyCounter(ctx sdk.Context, operator sdk.ValAddress) types.VotePenaltyCounter {
 	votePenaltyCounter, err := k.VotePenaltyCounter.Get(ctx, operator)
+	// If not registered yet, return a default value
+	if errors.Is(err, collections.ErrNotFound) {
+		return types.VotePenaltyCounter{}
+	}
+
+	// Handle any other error
 	if err != nil {
 		panic(err) // FIX ME: Add proper error handling
 	}
@@ -361,6 +374,13 @@ func (k Keeper) ClearVoteTargets(ctx sdk.Context) {
 func (k Keeper) GetPriceSnapshot(ctx sdk.Context, timestamp int64) types.PriceSnapshot {
 	// Get the price snapshot
 	priceSnapshot, err := k.PriceSnapshot.Get(ctx, timestamp)
+
+	// If not found, return an empty snapshot
+	if errors.Is(err, collections.ErrNotFound) {
+		return types.PriceSnapshot{}
+	}
+
+	// Handle any other error
 	if err != nil {
 		panic(err) // FIX ME: Add proper error handling
 	}

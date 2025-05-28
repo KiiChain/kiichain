@@ -12,38 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewKeeper(t *testing.T) {
-	t.FailNow()
-	// // Prepare the test environment
-	// init := CreateTestInput(t)
-	// encodingConfig := kiiparams.MakeEncodingConfig()
-	// cdc := encodingConfig.Marshaler
-
-	// // Create a new Keeper without causing a panic
-	// require.NotPanics(t, func() {
-	// 	NewKeeper(
-	// 		cdc,
-	// 		init.OracleKeeper.storeKey,
-	// 		init.AccountKeeper,
-	// 		init.BankKeeper,
-	// 		init.StakingKeeper,
-	// 		distTypes.ModuleName,
-	// 	)
-	// }, "NewKeeper should not panic if the Oracle module account is properly set")
-
-	// // Validate that paramSpace has a KeyTable after Keeper initialization
-	// oracleKeeper := NewKeeper(
-	// 	cdc,
-	// 	init.OracleKeeper.storeKey,
-	// 	init.AccountKeeper,
-	// 	init.BankKeeper,
-	// 	init.StakingKeeper,
-	// 	distTypes.ModuleName,
-	// )
-
-	// require.True(t, oracleKeeper.paramSpace.HasKeyTable(), "paramSpace in the Keeper should have a KeyTable")
-}
-
 func TestExchangeRateLogic(t *testing.T) {
 	// Prepare the test environment
 	init := CreateTestInput(t)
