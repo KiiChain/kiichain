@@ -1,6 +1,11 @@
 package types
 
-var ParamsKey = []byte{0x00}
+import "cosmossdk.io/collections"
+
+var (
+	RewardPoolKey = collections.NewPrefix(0)
+	ParamsKey     = collections.NewPrefix(1)
+)
 
 const (
 	// ModuleName defines the module name
