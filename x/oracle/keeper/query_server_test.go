@@ -25,7 +25,9 @@ func TestQueryParams(t *testing.T) {
 
 	// validation
 	require.NoError(t, err)
-	require.Equal(t, oracleKeeper.GetParams(ctx), *res.Params)
+	params, err := oracleKeeper.Params.Get(ctx)
+	require.NoError(t, err)
+	require.Equal(t, params, *res.Params)
 }
 
 func TestQueryExchangeRate(t *testing.T) {
@@ -107,7 +109,7 @@ func TestQueryVoteTargets(t *testing.T) {
 	querier := NewQueryServer(oracleKeeper)
 
 	// insert data on the module
-	oracleKeeper.DeleteVoteTargets(ctx)
+	oracleKeeper.ClearVoteTargets(ctx)
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)
 
@@ -156,8 +158,8 @@ func TestQueryPriceSnapshotHistory(t *testing.T) {
 
 	priceSnapshots := types.PriceSnapshots{snapShot1, snapShot2}
 
-	oracleKeeper.SetPriceSnapshot(ctx, priceSnapshots[0])
-	oracleKeeper.SetPriceSnapshot(ctx, priceSnapshots[1])
+	oracleKeeper.PriceSnapshot.Set(ctx, priceSnapshots[0].SnapshotTimestamp, priceSnapshots[0])
+	oracleKeeper.PriceSnapshot.Set(ctx, priceSnapshots[1].SnapshotTimestamp, priceSnapshots[1])
 
 	// query params
 	context := sdk.WrapSDKContext(ctx)
@@ -194,12 +196,12 @@ func TestQueryTwaps(t *testing.T) {
 	snapshot1 := types.NewPriceSnapshot(1, types.PriceSnapshotItems{snapshotItem1, snapshotItem1})
 	snapshot2 := types.NewPriceSnapshot(2, types.PriceSnapshotItems{snapshotItem2, snapshotItem2})
 
-	oracleKeeper.SetPriceSnapshot(ctx, snapshot1)
-	oracleKeeper.SetPriceSnapshot(ctx, snapshot2)
+	oracleKeeper.PriceSnapshot.Set(ctx, snapshot1.SnapshotTimestamp, snapshot1)
+	oracleKeeper.PriceSnapshot.Set(ctx, snapshot2.SnapshotTimestamp, snapshot2)
 
 	// set vote target on params
 	params := types.DefaultParams()
-	oracleKeeper.SetParams(ctx, params)
+	oracleKeeper.Params.Set(ctx, params)
 	for _, denom := range params.Whitelist {
 		oracleKeeper.SetVoteTarget(ctx, denom.Name)
 	}

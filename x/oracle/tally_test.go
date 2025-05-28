@@ -38,9 +38,9 @@ func TestPickReferenceDenom(t *testing.T) {
 	// ********
 
 	// Modify the oracle param vote threshold
-	params := oracleKeeper.GetParams(ctx)
+	params, err := oracleKeeper.Params.Get(ctx)
 	params.VoteThreshold = math.LegacyNewDecWithPrec(66, 2) // 0.66
-	oracleKeeper.SetParams(ctx, params)                     // Update params
+	oracleKeeper.Params.Set(ctx, params)
 
 	// Create voting targets
 	votingTarget := map[string]types.Denom{

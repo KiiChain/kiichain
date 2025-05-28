@@ -61,7 +61,6 @@ func TestParamsValid(t *testing.T) {
 	require.Error(t, err)
 
 	p9 := DefaultParams()
-	require.NotNil(t, p9.ParamSetPairs())
 	require.NotNil(t, p9.String())
 }
 

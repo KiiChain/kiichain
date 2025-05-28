@@ -21,7 +21,12 @@ func pickReferenceDenom(ctx sdk.Context, k keeper.Keeper, voteTargets map[string
 	totalBondedPower := sdk.TokensToConsensusPower(totalBondedTokens, powerReductionFactor) // Get the blockchain vote power
 
 	// Get threshold (minimum power necessary to considerate a successful ballot)
-	voteThreshold := k.VoteThreshold(ctx)                                 // Get vote threshold from params
+	params, err := k.Params.Get(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	voteThreshold := params.VoteThreshold                                 // Get vote threshold from params
 	thresholdVotes := voteThreshold.MulInt64(totalBondedPower).RoundInt() // Threshold to allow a ballot
 
 	// Iterate the voting map

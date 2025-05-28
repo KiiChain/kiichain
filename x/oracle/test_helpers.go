@@ -26,10 +26,10 @@ func SetUp(t *testing.T) (keeper.TestInput, types.MsgServer) {
 	ctx := input.Ctx
 
 	// Update params to test easier and faster
-	params := oracleKeeper.GetParams(ctx)
+	params, err := oracleKeeper.Params.Get(ctx)
 	params.VotePeriod = 1
 	params.SlashWindow = 100
-	oracleKeeper.SetParams(ctx, params)
+	oracleKeeper.Params.Set(ctx, params)
 
 	stakingParams, err := stakingKeeper.GetParams(ctx)
 	require.NoError(t, err)
