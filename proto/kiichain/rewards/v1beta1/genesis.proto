@@ -13,5 +13,9 @@ message GenesisState {
   // params defines the parameters of the module.
   Params params = 1 [ (gogoproto.nullable) = false ];
 
-  RewardPool reward_pool = 2 [ (gogoproto.nullable) = false ];
+  // reward_releaser has information of how the reward is being released
+  RewardReleaser reward_releaser = 2 [ (gogoproto.nullable) = false ];
+
+  // reward_pool has information on the community pool
+  RewardPool reward_pool = 3 [ (gogoproto.nullable) = false ];
 }

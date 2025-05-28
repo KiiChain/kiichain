@@ -17,12 +17,20 @@ service Query {
     option (google.api.http).get = "/kiichain/rewards/v1beta1/params";
   }
 
+  // RewardReleaser defines a gRPC query method for fetching
+  // RewardReleaser data.
+  rpc RewardReleaser(QueryRewardReleaserRequest)
+      returns (QueryRewardReleaserResponse) {
+    option (google.api.http).get =
+        "/kiichain/rewards/v1beta1/reward-releaser";
+  }
+
   // RewardPool defines a gRPC query method for fetching
   // RewardPool data.
   rpc RewardPool(QueryRewardPoolRequest)
       returns (QueryRewardPoolResponse) {
     option (google.api.http).get =
-        "/kiichain/rewards/v1beta1/RewardPool";
+        "/kiichain/rewards/v1beta1/reward-pool";
   }
 }
 
@@ -33,6 +41,19 @@ message QueryParamsRequest {}
 message QueryParamsResponse {
   // params defines the parameters of the module.
   Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryRewardReleaserRequest defines the request structure for the
+// RewardReleaser gRPC query.
+message QueryRewardReleaserRequest {}
+
+// QueryRewardReleaserResponse defines the response structure for the
+// RewardReleaser gRPC query.
+message QueryRewardReleaserResponse {
+  RewardReleaser reward_releaser = 1 [
+    (gogoproto.moretags) = "yaml:\"reward_releaser\"",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // QueryRewardPoolRequest defines the request structure for the

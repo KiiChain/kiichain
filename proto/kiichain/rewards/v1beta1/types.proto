@@ -4,11 +4,12 @@ package kiichain.rewards.v1beta1;
 import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/kiichain/kiichain/x/rewards/types";
 
-// RewardPool defines information related to reward pool
-message RewardPool {
+// RewardReleaser defines information related to reward pool
+message RewardReleaser {
   // Total amount to be rewarded
   cosmos.base.v1beta1.Coin total_amount = 1 [
     (gogoproto.nullable) = false,
@@ -33,5 +34,14 @@ message RewardPool {
   // If reward pool is active
   bool active = 6 [
     (gogoproto.moretags) = "yaml:\"active\""
+  ];
+}
+
+// RewardPool is the global fee pool for distribution.
+message RewardPool {
+  repeated cosmos.base.v1beta1.DecCoin community_pool = 1 [
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"
   ];
 }
