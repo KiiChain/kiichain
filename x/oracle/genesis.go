@@ -10,9 +10,6 @@ import (
 
 // InitGenesis initialize the module with the default parameters
 func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState) {
-	// Create module account
-	keeper.CreateModuleAccount(ctx)
-
 	// Start the genesis with the data input
 	keeper.Params.Set(ctx, data.Params)
 
