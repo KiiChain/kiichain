@@ -15,7 +15,7 @@ func TestGetVoteTargets(t *testing.T) {
 	oracleKeeper.ClearVoteTargets(input.Ctx)
 
 	// set new expected targets
-	expectedTargets := []string{"ukii", "ubtc", "ueth"}
+	expectedTargets := []string{"akii", "ubtc", "ueth"}
 	for _, target := range expectedTargets {
 		oracleKeeper.SetVoteTarget(input.Ctx, target)
 	}
@@ -43,7 +43,7 @@ func TestIsVoteTarget(t *testing.T) {
 	oracleKeeper.ClearVoteTargets(input.Ctx)
 
 	// set new expected targets and validate
-	validTargets := []string{"ukii", "ubtc", "ueth"}
+	validTargets := []string{"akii", "ubtc", "ueth"}
 	for _, target := range validTargets {
 		oracleKeeper.SetVoteTarget(input.Ctx, target)
 		require.True(t, oracleKeeper.IsVoteTarget(input.Ctx, target))

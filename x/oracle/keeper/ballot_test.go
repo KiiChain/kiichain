@@ -104,7 +104,7 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(3), Power: int64(10), Voter: ValAddrs[1]},
 	}
 
-	ukiiBallot := types.ExchangeRateBallot{
+	akiiBallot := types.ExchangeRateBallot{
 		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4), Power: int64(10), Voter: ValAddrs[0]},
 		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4), Power: int64(10), Voter: ValAddrs[1]},
 	}
@@ -112,7 +112,7 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 	sort.Sort(uatomBallot)
 	sort.Sort(uethBallot)
 	sort.Sort(uusdcBallot)
-	sort.Sort(ukiiBallot)
+	sort.Sort(akiiBallot)
 
 	// Call function
 	denomBallot := oracleKeeper.OrganizeBallotByDenom(ctx, validatorClaimMap)
@@ -122,7 +122,7 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 	require.ElementsMatch(t, uatomBallot, microAtomDenomBallot)
 	require.ElementsMatch(t, uethBallot, denomBallot[utils.MicroEthDenom])
 	require.ElementsMatch(t, uusdcBallot, denomBallot[utils.MicroUsdcDenom])
-	require.ElementsMatch(t, ukiiBallot, denomBallot[utils.MicroKiiDenom])
+	require.ElementsMatch(t, akiiBallot, denomBallot[utils.MicroKiiDenom])
 }
 
 func TestClearBallots(t *testing.T) {
@@ -200,7 +200,8 @@ func TestApplyWhitelist(t *testing.T) {
 		{Name: utils.MicroUsdcDenom}, // New Denom
 	}
 	oracleParams.Whitelist = whiteList
-	oracleKeeper.Params.Set(ctx, oracleParams)
+	err = oracleKeeper.Params.Set(ctx, oracleParams)
+	require.NoError(t, err)
 
 	// Set vote targets manually before applying the new whitelist
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)

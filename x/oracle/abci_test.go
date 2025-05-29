@@ -17,7 +17,7 @@ voting target:
 - uatom
 - ueth
 - uusd
-- ukii
+- akii
 
 validators:
 - val 1
@@ -25,7 +25,7 @@ validators:
 - val 3
 
 Default Vote Threshold: 66.7%
-bonded tokens: 30 ukii
+bonded tokens: 30 akii
 ballot threshold: 20 power units
 
 */
@@ -178,12 +178,11 @@ func TestMidBlocker(t *testing.T) {
 	t.Run("Verify upgrading the vote targets", func(t *testing.T) {
 		// Reset blockchain state
 		input, _ := SetUp(t)
-		ctx := input.Ctx
 		oracleKeeper := input.OracleKeeper
 
-		ctx = input.Ctx.WithBlockHeight(1)
+		ctx := input.Ctx.WithBlockHeight(1)
 
-		// Modify the whitelist and apply it (ukii and uusdc will be 'new assets')
+		// Modify the whitelist and apply it (akii and uusdc will be 'new assets')
 		oracleKeeper.ClearVoteTargets(ctx)
 		newWhitelist := types.DenomList{
 			{Name: utils.MicroAtomDenom},
@@ -192,7 +191,8 @@ func TestMidBlocker(t *testing.T) {
 		params, err := oracleKeeper.Params.Get(ctx)
 		require.NoError(t, err)
 		params.Whitelist = newWhitelist
-		oracleKeeper.Params.Set(ctx, params)
+		err = oracleKeeper.Params.Set(ctx, params)
+		require.NoError(t, err)
 
 		voteTargetsBefore := make(map[string]types.Denom)
 		oracleKeeper.IterateVoteTargets(ctx, func(denom string, denomInfo types.Denom) (bool, error) {
@@ -222,9 +222,8 @@ func TestMidBlocker(t *testing.T) {
 func TestOracleDrop(t *testing.T) {
 	// Reset blockchain state
 	input, msgServer := SetUp(t)
-	ctx := input.Ctx
 	oracleKeeper := input.OracleKeeper
-	ctx = input.Ctx.WithBlockHeight(1)
+	ctx := input.Ctx.WithBlockHeight(1)
 
 	oracleKeeper.ClearVoteTargets(ctx)
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)
@@ -264,7 +263,8 @@ func TestEndblocker(t *testing.T) {
 		require.NoError(t, err)
 		params.MinValidPerWindow = math.LegacyNewDecWithPrec(50, 2) // 50%
 		params.SlashFraction = math.LegacyNewDecWithPrec(50, 2)     // 50%
-		oracleKeeper.Params.Set(ctx, params)
+		err = oracleKeeper.Params.Set(ctx, params)
+		require.NoError(t, err)
 
 		// Execute EndBlocker on the last block of slash window
 		slashWindow := params.SlashWindow
@@ -301,7 +301,8 @@ func TestEndblocker(t *testing.T) {
 		require.NoError(t, err)
 		params.MinValidPerWindow = math.LegacyNewDecWithPrec(50, 2) // 50%
 		params.SlashFraction = math.LegacyNewDecWithPrec(50, 2)     // 50%
-		oracleKeeper.Params.Set(ctx, params)
+		err = oracleKeeper.Params.Set(ctx, params)
+		require.NoError(t, err)
 
 		// Execute EndBlocker on the last block of slash window
 		slashWindow := params.SlashWindow

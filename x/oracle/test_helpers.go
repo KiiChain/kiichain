@@ -18,11 +18,11 @@ import (
 var (
 	stakingAmount       = sdk.TokensFromConsensusPower(10, sdk.DefaultPowerReduction)
 	randomAExchangeRate = math.LegacyNewDec(1700)
-	randomBExchangeRate = math.LegacyNewDecWithPrec(4882, 2)
 )
 
 // SetUp returns the message server
 func SetUp(t *testing.T) (keeper.TestInput, types.MsgServer) {
+	t.Helper()
 	input := keeper.CreateTestInput(t)
 	oracleKeeper := input.OracleKeeper
 	stakingKeeper := input.StakingKeeper
@@ -30,9 +30,11 @@ func SetUp(t *testing.T) (keeper.TestInput, types.MsgServer) {
 
 	// Update params to test easier and faster
 	params, err := oracleKeeper.Params.Get(ctx)
+	require.NoError(t, err)
 	params.VotePeriod = 1
 	params.SlashWindow = 100
-	oracleKeeper.Params.Set(ctx, params)
+	err = oracleKeeper.Params.Set(ctx, params)
+	require.NoError(t, err)
 
 	stakingParams, err := stakingKeeper.GetParams(ctx)
 	require.NoError(t, err)

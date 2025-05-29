@@ -43,7 +43,7 @@ type Keeper struct {
 
 // NewKeeper creates an oracle Keeper instance
 func NewKeeper(cdc codec.BinaryCodec, storeService corestoretypes.KVStoreService,
-	accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper, StakingKeeper types.StakingKeeper,
+	accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper, stakingKeeper types.StakingKeeper,
 	authority string,
 ) Keeper {
 	// Ensure oracle module account is set
@@ -65,7 +65,7 @@ func NewKeeper(cdc codec.BinaryCodec, storeService corestoretypes.KVStoreService
 		cdc:                       cdc,
 		accountKeeper:             accountKeeper,
 		bankKeeper:                bankKeeper,
-		StakingKeeper:             StakingKeeper,
+		StakingKeeper:             stakingKeeper,
 		Params:                    collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
 		ExchangeRate:              collections.NewMap(sb, types.ExchangeRateKey, "exchange_rate", collections.StringKey, codec.CollValue[types.OracleExchangeRate](cdc)),
 		FeederDelegation:          collections.NewMap(sb, types.FeederDelegationKey, "feeder_delegation", sdk.ValAddressKey, collections.StringValue),
@@ -429,11 +429,11 @@ func (k Keeper) IteratePriceSnapshots(ctx sdk.Context, handler func(timestamp in
 }
 
 // IteratePriceSnapshotsReverse REVERSE iterates over the snapshot list and execute the handler
-func (k Keeper) IteratePriceSnapshotsReverse(ctx sdk.Context, handler func(snapshot types.PriceSnapshot) (bool, error)) {
+func (k Keeper) IteratePriceSnapshotsReverse(ctx sdk.Context, handler func(snapshot types.PriceSnapshot) (bool, error)) error {
 	// Iterate the PriceSnapshot map in reverse order
 	iterator, err := k.PriceSnapshot.IterateRaw(ctx, nil, nil, collections.OrderDescending)
 	if err != nil {
-		panic(err) // FIX ME: Add proper error handling
+		return err
 	}
 	defer iterator.Close()
 
@@ -441,14 +441,13 @@ func (k Keeper) IteratePriceSnapshotsReverse(ctx sdk.Context, handler func(snaps
 		// Take the value
 		val, err := iterator.Value()
 		if err != nil {
-			panic(err) // FIX ME: Add proper error handling
+			return err
 		}
 
 		// Handle the value
 		stop, err := handler(val)
 		if err != nil {
-			panic(err) // FIX ME: Add proper error handling
-			break
+			return err
 		}
 
 		// If stop, stop
@@ -456,6 +455,8 @@ func (k Keeper) IteratePriceSnapshotsReverse(ctx sdk.Context, handler func(snaps
 			break
 		}
 	}
+
+	return nil
 }
 
 // DeletePriceSnapshot deletes an snapshot based by the given timestamp

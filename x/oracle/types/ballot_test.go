@@ -11,6 +11,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+const (
+	ChainDenom = "akii"
+	UUSDC      = "uusdc"
+)
+
 func TestNewClaim(t *testing.T) {
 	power := int64(10)
 	weight := int64(10)
@@ -32,7 +37,7 @@ func TestNewClaim(t *testing.T) {
 }
 
 func TestNewVoteForTally(t *testing.T) {
-	denom := "ukii"
+	denom := ChainDenom
 	rate := sdkMath.LegacyNewDec(1)
 	voter := sdk.ValAddress([]byte("validator1"))
 	power := int64(10)
@@ -51,7 +56,7 @@ func TestNewVoteForTally(t *testing.T) {
 
 func TestToMapExchangeRateBallot(t *testing.T) {
 	// Create exchangeRate ballot
-	denom := "ukii"
+	denom := ChainDenom
 	voter1 := sdk.ValAddress([]byte("validator1"))
 	voter2 := sdk.ValAddress([]byte("validator2"))
 	voter3 := sdk.ValAddress([]byte("validator3"))
@@ -77,7 +82,7 @@ func TestToMapExchangeRateBallot(t *testing.T) {
 
 func TestSortInterfaceExchangeRateBallot(t *testing.T) {
 	// Create exchangeRate ballot
-	denom := "ukii"
+	denom := ChainDenom
 	voter1 := sdk.ValAddress([]byte("validator1"))
 	voter2 := sdk.ValAddress([]byte("validator2"))
 	voter3 := sdk.ValAddress([]byte("validator3"))
@@ -122,7 +127,7 @@ func TestSortInterfaceExchangeRateBallot(t *testing.T) {
 
 func TestWeightedMedianWithAssertion(t *testing.T) {
 	// Create exchangeRate ballot
-	denom := "ukii"
+	denom := ChainDenom
 	voter1 := sdk.ValAddress([]byte("validator1"))
 	voter2 := sdk.ValAddress([]byte("validator2"))
 	voter3 := sdk.ValAddress([]byte("validator3"))
@@ -154,7 +159,7 @@ func TestWeightedMedianWithAssertion(t *testing.T) {
 
 func TestStandardDeviation(t *testing.T) {
 	// Create exchangeRate ballot
-	denom := "ukii"
+	denom := ChainDenom
 	voter1 := sdk.ValAddress([]byte("validator1"))
 	voter2 := sdk.ValAddress([]byte("validator2"))
 	voter3 := sdk.ValAddress([]byte("validator3"))
@@ -179,8 +184,8 @@ func TestStandardDeviation(t *testing.T) {
 
 func TestToCrossRate(t *testing.T) {
 	// Create exchangeRate ballot (reference and other)
-	denom := "ukii"
-	denomRefernce := "uusdc"
+	denom := ChainDenom
+	denomRefernce := UUSDC
 	voter1 := sdk.ValAddress([]byte("validator1"))
 	voter2 := sdk.ValAddress([]byte("validator2"))
 	voter3 := sdk.ValAddress([]byte("validator3"))
@@ -219,8 +224,8 @@ func TestToCrossRate(t *testing.T) {
 
 func TestToCrossRateNotFound(t *testing.T) {
 	// Create exchangeRate ballot (reference and other)
-	denom := "ukii"
-	denomRefernce := "uusdc"
+	denom := ChainDenom
+	denomRefernce := UUSDC
 	voter1 := sdk.ValAddress([]byte("validator1"))
 	voter2 := sdk.ValAddress([]byte("validator2"))
 	voter3 := sdk.ValAddress([]byte("validator3"))
@@ -257,8 +262,8 @@ func TestToCrossRateNotFound(t *testing.T) {
 
 func TestToCrossRateWithSort(t *testing.T) {
 	// Create exchangeRate ballot (reference and other)
-	denom := "ukii"
-	denomRefernce := "uusdc"
+	denom := ChainDenom
+	denomRefernce := UUSDC
 	voter1 := sdk.ValAddress([]byte("validator1"))
 	voter2 := sdk.ValAddress([]byte("validator2"))
 	voter3 := sdk.ValAddress([]byte("validator3"))

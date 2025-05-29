@@ -22,17 +22,17 @@ func TestExchangeRateLogic(t *testing.T) {
 	ctx := init.Ctx
 
 	// Exchange rates to be stored
-	const BTC_USD = "BTC/USD"
-	const ETH_USD = "ETC/USD"
-	const ATOM_USD = "ATOM/USD"
+	const BtcUsd = "BTC/USD"
+	const EthUsd = "ETC/USD"
+	const AtomUsd = "ATOM/USD"
 
 	btcUsdExchangeRate := math.LegacyNewDecWithPrec(100, int64(OracleDecPrecision)).MulInt64(1e6)
 	ethUsdExchangeRate := math.LegacyNewDecWithPrec(200, int64(OracleDecPrecision)).MulInt64(1e6)
 	atomUsdExchangeRate := math.LegacyNewDecWithPrec(300, int64(OracleDecPrecision)).MulInt64(1e6)
 
 	// ***** First exchange rate insertion
-	oracleKeeper.SetBaseExchangeRate(ctx, BTC_USD, btcUsdExchangeRate) // Set exchange rates on KVStore
-	btcUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, BTC_USD)  // Get exchange rate from KVStore
+	oracleKeeper.SetBaseExchangeRate(ctx, BtcUsd, btcUsdExchangeRate) // Set exchange rates on KVStore
+	btcUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, BtcUsd)  // Get exchange rate from KVStore
 	require.NoError(t, err, "Expected no error getting BTC/USD exchange rate")
 	require.Equal(t, btcUsdExchangeRate, btcUsdRate.ExchangeRate, "Expected got the same exchange rate as ")
 	require.Equal(t, math.ZeroInt(), btcUsdRate.LastUpdate) // There is no previous updates
@@ -43,8 +43,8 @@ func TestExchangeRateLogic(t *testing.T) {
 	ctx = ctx.WithBlockTime(ts) // Update block timestamp
 
 	// ***** Second exchange rate insertion
-	oracleKeeper.SetBaseExchangeRate(ctx, ETH_USD, ethUsdExchangeRate) // Set exchange rates on KVStore
-	ethUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, ETH_USD)  // Get exchange rate from KVStore
+	oracleKeeper.SetBaseExchangeRate(ctx, EthUsd, ethUsdExchangeRate) // Set exchange rates on KVStore
+	ethUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, EthUsd)  // Get exchange rate from KVStore
 	require.NoError(t, err)
 	require.Equal(t, ethUsdExchangeRate, ethUsdRate.ExchangeRate)
 	require.Equal(t, math.NewInt(3), ethUsdRate.LastUpdate)
@@ -56,15 +56,15 @@ func TestExchangeRateLogic(t *testing.T) {
 	ctx = ctx.WithBlockTime(newTime) // Update block timestamp
 
 	// ***** Third exchange rate insertion (using events)
-	oracleKeeper.SetBaseExchangeRateWithEvent(ctx, ATOM_USD, atomUsdExchangeRate) // Set exchange rates on KVStore
-	atomUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, ATOM_USD)           // Get exchange rate from KVStore
+	oracleKeeper.SetBaseExchangeRateWithEvent(ctx, AtomUsd, atomUsdExchangeRate) // Set exchange rates on KVStore
+	atomUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, AtomUsd)           // Get exchange rate from KVStore
 
 	// Create the event validation function
 	eventValidation := func() bool {
 		// Expected event
 		expectedEvent := sdk.NewEvent(
 			types.EventTypeExchangeRateUpdate,
-			sdk.NewAttribute(types.AttributeKeyDenom, ATOM_USD),
+			sdk.NewAttribute(types.AttributeKeyDenom, AtomUsd),
 			sdk.NewAttribute(types.AttributeKeyExchangeRate, atomUsdExchangeRate.String()))
 
 		// Read the current events
@@ -101,8 +101,8 @@ func TestExchangeRateLogic(t *testing.T) {
 	require.True(t, eventValidation())
 
 	// ***** First exchange rate elimination
-	oracleKeeper.DeleteBaseExchangeRate(ctx, BTC_USD)
-	_, err = oracleKeeper.GetBaseExchangeRate(ctx, BTC_USD)
+	oracleKeeper.DeleteBaseExchangeRate(ctx, BtcUsd)
+	_, err = oracleKeeper.GetBaseExchangeRate(ctx, BtcUsd)
 	require.Error(t, err) // Validate error
 
 	// test iteration function
@@ -126,7 +126,8 @@ func TestParams(t *testing.T) {
 	defaultParams, err := oracleKeeper.Params.Get(ctx)
 	require.NoError(t, err)
 
-	oracleKeeper.Params.Set(ctx, defaultParams) // Set default params
+	err = oracleKeeper.Params.Set(ctx, defaultParams) // Set default params
+	require.NoError(t, err)
 	require.NotNil(t, defaultParams)
 
 	// test custom params
@@ -149,7 +150,8 @@ func TestParams(t *testing.T) {
 		MinValidPerWindow: minValPerWindow,
 		LookbackDuration:  lookbackDuration,
 	}
-	oracleKeeper.Params.Set(ctx, params)
+	err = oracleKeeper.Params.Set(ctx, params)
+	require.NoError(t, err)
 
 	storedParams, err := oracleKeeper.Params.Get(ctx)
 	require.NoError(t, err)
@@ -214,6 +216,7 @@ func TestValidateFeeder(t *testing.T) {
 
 	// Validate validator's bonded tokens
 	stakingParams, err := stakingKeeper.GetParams(ctx)
+	require.NoError(t, err)
 	bondDenomDefault := stakingParams.BondDenom
 	reference := sdk.NewCoins(sdk.NewCoin(bondDenomDefault, InitTokens.Sub(amount))) // Create balance reference, Suppose to be 100 Kii
 	balanceVal1 := init.BankKeeper.GetAllBalances(ctx, sdk.AccAddress(val1Addr))
@@ -242,7 +245,7 @@ func TestValidateFeeder(t *testing.T) {
 	// Delegate validator 1 to Val 2
 	oracleKeeper.SetFeederDelegation(ctx, val1Addr, sdk.AccAddress(val2Addr))                // Delegate Val 1 to Val 2
 	require.NoError(t, oracleKeeper.ValidateFeeder(ctx, sdk.AccAddress(val2Addr), val1Addr)) // Validate that Val2 is delegated by val1
-	require.Error(t, oracleKeeper.ValidateFeeder(ctx, sdk.AccAddress(Addrs[2]), val1Addr))
+	require.Error(t, oracleKeeper.ValidateFeeder(ctx, Addrs[2], val1Addr))
 }
 
 func TestMissCounter(t *testing.T) {
