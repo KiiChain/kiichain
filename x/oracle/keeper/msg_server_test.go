@@ -38,8 +38,7 @@ func TestAggregateExchangeRateVote(t *testing.T) {
 
 	// send messages
 	exchangeRate := math.LegacyNewDec(12).String() + utils.MicroUsdcDenom
-	context := sdk.WrapSDKContext(ctx)
-	_, err = msgServer.AggregateExchangeRateVote(context, types.NewMsgAggregateExchangeRateVote(exchangeRate, Addrs[0], ValAddrs[0]))
+	_, err = msgServer.AggregateExchangeRateVote(ctx, types.NewMsgAggregateExchangeRateVote(exchangeRate, Addrs[0], ValAddrs[0]))
 
 	// validation
 	require.NoError(t, err)
@@ -68,13 +67,12 @@ func TestDelegateFeedConsent(t *testing.T) {
 	stakingKeeper.EndBlocker(ctx)
 
 	// send messages
-	context := sdk.WrapSDKContext(ctx)
-	_, err = msgServer.DelegateFeedConsent(context, types.NewMsgDelegateFeedConsent(ValAddrs[0], Addrs[0]))
+	_, err = msgServer.DelegateFeedConsent(ctx, types.NewMsgDelegateFeedConsent(ValAddrs[0], Addrs[0]))
 	require.NoError(t, err)
 
 	// create query server
 	querier := NewQueryServer(oracleKeeper)
-	res, err := querier.FeederDelegation(context, &types.QueryFeederDelegationRequest{ValidatorAddr: ValAddrs[0].String()})
+	res, err := querier.FeederDelegation(ctx, &types.QueryFeederDelegationRequest{ValidatorAddr: ValAddrs[0].String()})
 	require.NoError(t, err)
 
 	// validation

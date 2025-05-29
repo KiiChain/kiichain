@@ -7,8 +7,6 @@ import (
 
 	"cosmossdk.io/math"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
 )
@@ -23,8 +21,7 @@ func TestQueryParams(t *testing.T) {
 	querier := NewQueryServer(oracleKeeper)
 
 	// query params
-	context := sdk.WrapSDKContext(ctx)
-	res, err := querier.Params(context, &types.QueryParamsRequest{})
+	res, err := querier.Params(ctx, &types.QueryParamsRequest{})
 
 	// validation
 	require.NoError(t, err)
@@ -47,8 +44,7 @@ func TestQueryExchangeRate(t *testing.T) {
 	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, rate)
 
 	// query params
-	context := sdk.WrapSDKContext(ctx)
-	res, err := querier.ExchangeRate(context, &types.QueryExchangeRateRequest{Denom: utils.MicroAtomDenom})
+	res, err := querier.ExchangeRate(ctx, &types.QueryExchangeRateRequest{Denom: utils.MicroAtomDenom})
 
 	// validation
 	require.NoError(t, err)
@@ -70,8 +66,7 @@ func TestQueryExchangeRates(t *testing.T) {
 	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, rate)
 
 	// query params
-	context := sdk.WrapSDKContext(ctx)
-	res, err := querier.ExchangeRates(context, &types.QueryExchangeRatesRequest{})
+	res, err := querier.ExchangeRates(ctx, &types.QueryExchangeRatesRequest{})
 
 	// validation
 	require.NoError(t, err)
@@ -93,8 +88,7 @@ func TestQueryActives(t *testing.T) {
 	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, rate)
 
 	// query params
-	context := sdk.WrapSDKContext(ctx)
-	res, err := querier.Actives(context, &types.QueryActivesRequest{})
+	res, err := querier.Actives(ctx, &types.QueryActivesRequest{})
 
 	// validation
 	require.NoError(t, err)
@@ -118,8 +112,7 @@ func TestQueryVoteTargets(t *testing.T) {
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)
 
 	// query params
-	context := sdk.WrapSDKContext(ctx)
-	res, err := querier.VoteTargets(context, &types.QueryVoteTargetsRequest{})
+	res, err := querier.VoteTargets(ctx, &types.QueryVoteTargetsRequest{})
 
 	// validation
 	require.NoError(t, err)
@@ -166,8 +159,7 @@ func TestQueryPriceSnapshotHistory(t *testing.T) {
 	oracleKeeper.PriceSnapshot.Set(ctx, priceSnapshots[1].SnapshotTimestamp, priceSnapshots[1])
 
 	// query params
-	context := sdk.WrapSDKContext(ctx)
-	res, err := querier.PriceSnapshotHistory(context, &types.QueryPriceSnapshotHistoryRequest{})
+	res, err := querier.PriceSnapshotHistory(ctx, &types.QueryPriceSnapshotHistoryRequest{})
 
 	// validation
 	require.NoError(t, err)
@@ -204,14 +196,14 @@ func TestQueryTwaps(t *testing.T) {
 
 	// set vote target on params
 	params := types.DefaultParams()
-	oracleKeeper.Params.Set(ctx, params)
+	err := oracleKeeper.Params.Set(ctx, params)
+	require.NoError(t, err)
 	for _, denom := range params.Whitelist {
 		oracleKeeper.SetVoteTarget(ctx, denom.Name)
 	}
 
 	// query params
-	context := sdk.WrapSDKContext(ctx)
-	res, err := querier.Twaps(context, &types.QueryTwapsRequest{LookbackSeconds: 3600})
+	res, err := querier.Twaps(ctx, &types.QueryTwapsRequest{LookbackSeconds: 3600})
 
 	// validation
 	require.NoError(t, err)
@@ -232,8 +224,7 @@ func TestQueryFeederDelegation(t *testing.T) {
 	oracleKeeper.SetFeederDelegation(ctx, ValAddrs[0], Addrs[0])
 
 	// query params
-	context := sdk.WrapSDKContext(ctx)
-	res, err := querier.FeederDelegation(context, &types.QueryFeederDelegationRequest{ValidatorAddr: ValAddrs[0].String()})
+	res, err := querier.FeederDelegation(ctx, &types.QueryFeederDelegationRequest{ValidatorAddr: ValAddrs[0].String()})
 
 	// validation
 	require.NoError(t, err)
@@ -256,8 +247,7 @@ func TestQueryVotePenaltyCounter(t *testing.T) {
 	oracleKeeper.SetVotePenaltyCounter(ctx, ValAddrs[0], missCounter, abstainCounter, successCounter) // Set the voting info
 
 	// query params
-	context := sdk.WrapSDKContext(ctx)
-	res, err := querier.VotePenaltyCounter(context, &types.QueryVotePenaltyCounterRequest{ValidatorAddr: ValAddrs[0].String()})
+	res, err := querier.VotePenaltyCounter(ctx, &types.QueryVotePenaltyCounterRequest{ValidatorAddr: ValAddrs[0].String()})
 
 	// validation
 	require.NoError(t, err)
@@ -280,8 +270,7 @@ func TestQuerySlashWindow(t *testing.T) {
 	expectedWindowProgress := (uint64(ctx.BlockHeight()) % params.SlashWindow) / params.VotePeriod
 
 	// query params
-	context := sdk.WrapSDKContext(ctx)
-	res, err := querier.SlashWindow(context, &types.QuerySlashWindowRequest{})
+	res, err := querier.SlashWindow(ctx, &types.QuerySlashWindowRequest{})
 
 	// validation
 	require.NoError(t, err)

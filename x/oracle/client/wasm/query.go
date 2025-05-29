@@ -22,41 +22,35 @@ func NewOracleWasmQueryHandler(keeper *oraclekeeper.Keeper) *OracleWasmQueryHand
 // GetExchangeRates executes the ExchangeRates query on the query_server
 func (handler OracleWasmQueryHandler) GetExchangeRates(ctx sdk.Context) (*types.QueryExchangeRatesResponse, error) {
 	querier := oraclekeeper.NewQueryServer(handler.oracleKeeper)
-	context := sdk.WrapSDKContext(ctx)
-	return querier.ExchangeRates(context, &types.QueryExchangeRatesRequest{})
+	return querier.ExchangeRates(ctx, &types.QueryExchangeRatesRequest{})
 }
 
 // GetOracleTwaps executes the Twaps query on the query_server
 func (handler OracleWasmQueryHandler) GetOracleTwaps(ctx sdk.Context, req *types.QueryTwapsRequest) (*types.QueryTwapsResponse, error) {
 	querier := oraclekeeper.NewQueryServer(handler.oracleKeeper)
-	context := sdk.WrapSDKContext(ctx)
-	return querier.Twaps(context, req)
+	return querier.Twaps(ctx, req)
 }
 
 // GetActives executes the Actives query on the query_server
 func (handler OracleWasmQueryHandler) GetActives(ctx sdk.Context, req *types.QueryActivesRequest) (*types.QueryActivesResponse, error) {
 	querier := oraclekeeper.NewQueryServer(handler.oracleKeeper)
-	context := sdk.WrapSDKContext(ctx)
-	return querier.Actives(context, &types.QueryActivesRequest{})
+	return querier.Actives(ctx, &types.QueryActivesRequest{})
 }
 
 // GetPriceSnapshotHistory executes the PriceSnapshotHistory query on the query_server
 func (handler OracleWasmQueryHandler) GetPriceSnapshotHistory(ctx sdk.Context, req *types.QueryPriceSnapshotHistoryRequest) (*types.QueryPriceSnapshotHistoryResponse, error) {
 	querier := oraclekeeper.NewQueryServer(handler.oracleKeeper)
-	context := sdk.WrapSDKContext(ctx)
-	return querier.PriceSnapshotHistory(context, &types.QueryPriceSnapshotHistoryRequest{})
+	return querier.PriceSnapshotHistory(ctx, &types.QueryPriceSnapshotHistoryRequest{})
 }
 
 // GetFeederDelegation executes the FeederDelegation query on the query_server
 func (handler OracleWasmQueryHandler) GetFeederDelegation(ctx sdk.Context, req *types.QueryFeederDelegationRequest) (*types.QueryFeederDelegationResponse, error) {
 	querier := oraclekeeper.NewQueryServer(handler.oracleKeeper)
-	context := sdk.WrapSDKContext(ctx)
-	return querier.FeederDelegation(context, &types.QueryFeederDelegationRequest{ValidatorAddr: req.ValidatorAddr})
+	return querier.FeederDelegation(ctx, &types.QueryFeederDelegationRequest{ValidatorAddr: req.ValidatorAddr})
 }
 
 // GetVotePenaltyCounter executes the VotePenaltyCounter query on the query_server
 func (handler OracleWasmQueryHandler) GetVotePenaltyCounter(ctx sdk.Context, req *types.QueryVotePenaltyCounterRequest) (*types.QueryVotePenaltyCounterResponse, error) {
 	querier := oraclekeeper.NewQueryServer(handler.oracleKeeper)
-	context := sdk.WrapSDKContext(ctx)
-	return querier.VotePenaltyCounter(context, &types.QueryVotePenaltyCounterRequest{ValidatorAddr: req.ValidatorAddr})
+	return querier.VotePenaltyCounter(ctx, &types.QueryVotePenaltyCounterRequest{ValidatorAddr: req.ValidatorAddr})
 }

@@ -85,11 +85,11 @@ func (k Keeper) ApplyWhitelist(ctx sdk.Context, whitelist types.DenomList, voteT
 			_, ok := k.bankKeeper.GetDenomMetaData(ctx, item.Name)
 			if !ok {
 				base := item.Name
-				display := base[1:] // remove the first character. i.e: uKII -> display = KII
+				display := base[1:] // remove the first character. i.e: akii -> display = KII
 				nameSymbol := strings.ToUpper(display)
 
 				// define meta data of the param and its mili and micro
-				// i.e: 1 KII = 1000 mKII = 1000000 uKII
+				// i.e: 1 KII = 1000 mKII = 1000000 akii
 				bankMetadata := bankTypes.Metadata{
 					Description: display,
 					DenomUnits: []*bankTypes.DenomUnit{
