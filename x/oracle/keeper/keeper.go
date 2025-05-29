@@ -323,7 +323,7 @@ func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) {
 	})
 
 	// Get voting target
-	k.IterateVoteTargets(ctx, func(denom string, denomInfo types.Denom) (bool, error) {
+	k.VoteTarget.Walk(ctx, nil, func(denom string, denomInfo types.Denom) (bool, error) {
 		// Remove vote targets from actives
 		delete(excessActives, denom)
 		return false, nil
@@ -340,31 +340,6 @@ func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) {
 	for _, denom := range activesToClear {
 		k.DeleteBaseExchangeRate(ctx, denom)
 	}
-}
-
-// ****************************************************************************
-
-// **************************** Vote Target logic *****************************
-
-// GetVoteTarget returns the Denom info on the KVStore by denom string
-func (k Keeper) GetVoteTarget(ctx sdk.Context, denom string) (types.Denom, error) {
-	return k.VoteTarget.Get(ctx, denom)
-}
-
-// SetVoteTarget adds an denom exchange rate to the KVStore
-func (k Keeper) SetVoteTarget(ctx sdk.Context, denom string) {
-	k.VoteTarget.Set(ctx, denom, types.Denom{Name: denom})
-}
-
-// IterateVoteTargets iterates over denoms in the store and perform vallback function
-func (k Keeper) IterateVoteTargets(ctx sdk.Context, handler func(denom string, denomInfo types.Denom) (bool, error)) {
-	// Iterate the VoteTarget map
-	k.VoteTarget.Walk(ctx, nil, handler)
-}
-
-// ClearVoteTargets deletes all voting target on the KVStore
-func (k Keeper) ClearVoteTargets(ctx sdk.Context) {
-	k.VoteTarget.Clear(ctx, nil)
 }
 
 // ****************************************************************************
@@ -391,16 +366,19 @@ func (k Keeper) GetPriceSnapshot(ctx sdk.Context, timestamp int64) types.PriceSn
 
 // AddPriceSnapshot stores the snapshot on the KVStore and deletes snapshots older than the lookBackDuration
 // defined on the params
-func (k Keeper) AddPriceSnapshot(ctx sdk.Context, snapshot types.PriceSnapshot) {
+func (k Keeper) AddPriceSnapshot(ctx sdk.Context, snapshot types.PriceSnapshot) error {
 	// Get the module params
 	params, err := k.Params.Get(ctx)
 	if err != nil {
-		panic(err) // FIX ME: Add proper error handling
+		return err
 	}
 	lookBackDuration := params.LookbackDuration
 
 	// Add snapshot on the KVStore
-	k.PriceSnapshot.Set(ctx, snapshot.SnapshotTimestamp, snapshot)
+	err = k.PriceSnapshot.Set(ctx, snapshot.SnapshotTimestamp, snapshot)
+	if err != nil {
+		return err
+	}
 
 	// Delete the snapshot that it's timestamps is older that the LookbackDuration
 	var timestampsToDelete []int64
@@ -418,8 +396,12 @@ func (k Keeper) AddPriceSnapshot(ctx sdk.Context, snapshot types.PriceSnapshot) 
 
 	// Delete all marked old snapshots
 	for _, timeToDelete := range timestampsToDelete {
-		k.DeletePriceSnapshot(ctx, timeToDelete)
+		err = k.PriceSnapshot.Remove(ctx, timeToDelete)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // IteratePriceSnapshots iterates over the snapshot list and execute the handler
@@ -459,33 +441,17 @@ func (k Keeper) IteratePriceSnapshotsReverse(ctx sdk.Context, handler func(snaps
 	return nil
 }
 
-// DeletePriceSnapshot deletes an snapshot based by the given timestamp
-func (k Keeper) DeletePriceSnapshot(ctx sdk.Context, timestamp int64) {
-	k.PriceSnapshot.Remove(ctx, timestamp)
-}
-
 // ****************************************************************************
 
 // **************************** Spam Prevention Counter logic *****************
 
-// GetSpamPreventionCounter returns the stored block heigh by the validator (in that heigh the validator voted)
-func (k Keeper) GetSpamPreventionCounter(ctx sdk.Context, valAddr sdk.ValAddress) int64 {
-	// Get the spam prevention counter
-	counter, err := k.SpamPreventionCounter.Get(ctx, valAddr)
-	if err != nil {
-		panic(err) // FIX ME: Add proper error handling
-	}
-
-	return counter
-}
-
 // SetSpamPreventionCounter stores the block heigh by the validator as an anti voting spam mechanism
-func (k Keeper) SetSpamPreventionCounter(ctx sdk.Context, valAddr sdk.ValAddress) {
+func (k Keeper) SetSpamPreventionCounter(ctx sdk.Context, valAddr sdk.ValAddress) error {
 	// Get the height of the current block
 	height := ctx.BlockHeight()
 
 	// Set the spam prevention counter
-	k.SpamPreventionCounter.Set(ctx, valAddr, height)
+	return k.SpamPreventionCounter.Set(ctx, valAddr, height)
 }
 
 // ****************************************************************************
@@ -508,13 +474,16 @@ func (k Keeper) CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (types.O
 
 	// get targets exchange rate
 	targetsMap := make(map[string]struct{}) // here I store the collected targets from the KVStore
-	k.IterateVoteTargets(ctx, func(denom string, denomInfo types.Denom) (bool, error) {
+	err = k.VoteTarget.Walk(ctx, nil, func(denom string, denomInfo types.Denom) (bool, error) {
 		targetsMap[denom] = struct{}{} // Store the active targets
 		return false, nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Iterate the complete snapshots list from the most recent to the oldest
-	k.IteratePriceSnapshotsReverse(ctx, func(snapshot types.PriceSnapshot) (stop bool, err error) {
+	err = k.IteratePriceSnapshotsReverse(ctx, func(snapshot types.PriceSnapshot) (stop bool, err error) {
 		stop = false
 
 		// Check if the current snapshot is older than the lookBack time
@@ -556,6 +525,9 @@ func (k Keeper) CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (types.O
 		}
 		return stop, err
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Order the exchange rates with its twaps (just to have an order)
 	denomKeys := make([]string, 0, len(twapByDenom))

@@ -13,18 +13,21 @@ import (
 // MidBlocker is the function executed when each block has been completed
 // this function get the votes from the validators, calculate the exchange rate using
 // weighted median logic when the vote period is almost finished
-func MidBlocker(ctx sdk.Context, k keeper.Keeper) {
+func MidBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Get the params
 	params, err := k.Params.Get(ctx)
 	if err != nil {
-		panic(err) // FIXME: handle error properly
+		return err
 	}
 
 	// Check if the current block is the last one to finish the voting period
 	if utils.IsPeriodLastBlock(ctx, params.VotePeriod) {
 		validatorClaimMap := make(map[string]types.Claim) // here I will store the claim per validator
 
-		iterator, _ := k.StakingKeeper.ValidatorsPowerStoreIterator(ctx) // FIXME: handle the error properly
+		iterator, err := k.StakingKeeper.ValidatorsPowerStoreIterator(ctx)
+		if err != nil {
+			return err
+		}
 
 		defer iterator.Close()
 
@@ -32,8 +35,11 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 		// Iterate over validators and register only the bonded ones
 		for ; iterator.Valid(); iterator.Next() {
-			valAddr := sdk.ValAddress(iterator.Value())             // Get validator address
-			validator, _ := k.StakingKeeper.Validator(ctx, valAddr) // FIXME: handle the error properly
+			valAddr := sdk.ValAddress(iterator.Value()) // Get validator address
+			validator, err := k.StakingKeeper.Validator(ctx, valAddr)
+			if err != nil {
+				return err
+			}
 
 			// add bonded validators
 			if validator.IsBonded() {
@@ -50,10 +56,13 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 		// Get the voting targets from the KVStore
 		voteTargets := make(map[string]types.Denom)
-		k.IterateVoteTargets(ctx, func(denom string, denomInfo types.Denom) (bool, error) {
+		err = k.VoteTarget.Walk(ctx, nil, func(denom string, denomInfo types.Denom) (bool, error) {
 			voteTargets[denom] = denomInfo
 			return false, nil
 		})
+		if err != nil {
+			return err
+		}
 
 		// Create a reference denom (RD) based on the voting power
 		voteMap := k.OrganizeBallotByDenom(ctx, validatorClaimMap) // Create a map (denom sorted) with the votes by denom
@@ -129,10 +138,16 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) {
 		}
 
 		// Clear the ballot
-		k.ClearBallots(ctx)
+		err = k.AggregateExchangeRateVote.Clear(ctx, nil)
+		if err != nil {
+			return err
+		}
 
 		// Update vote target
-		k.ApplyWhitelist(ctx, params.Whitelist, voteTargets)
+		err = k.ApplyWhitelist(ctx, params.Whitelist, voteTargets)
+		if err != nil {
+			return err
+		}
 
 		// take an snapshot for each price
 		priceSnapshotItems := []types.PriceSnapshotItem{}
@@ -152,17 +167,22 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) {
 				SnapshotTimestamp:  ctx.BlockTime().Unix(),
 				PriceSnapshotItems: priceSnapshotItems,
 			}
-			k.AddPriceSnapshot(ctx, priceSnapshot)
+			err := k.AddPriceSnapshot(ctx, priceSnapshot)
+			if err != nil {
+				return err
+			}
 		}
 	}
+
+	return nil
 }
 
 // Endblocker is the function that slash the validators and reset the miss counters
-func Endblocker(ctx sdk.Context, k keeper.Keeper) {
+func Endblocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Get the params
 	params, err := k.Params.Get(ctx)
 	if err != nil {
-		panic(err) // FIXME: handle error properly
+		return err
 	}
 
 	// Slash who did miss voting over threshold
@@ -171,4 +191,6 @@ func Endblocker(ctx sdk.Context, k keeper.Keeper) {
 		k.SlashAndResetCounters(ctx) // slash validator and reset voting counter
 		k.RemoveExcessFeeds(ctx)     // remove aditional rates added on the votes
 	}
+
+	return nil
 }

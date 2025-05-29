@@ -107,9 +107,12 @@ func TestQueryVoteTargets(t *testing.T) {
 	querier := NewQueryServer(oracleKeeper)
 
 	// insert data on the module
-	oracleKeeper.ClearVoteTargets(ctx)
-	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)
-	oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)
+	err := oracleKeeper.VoteTarget.Clear(ctx, nil)
+	require.NoError(t, err)
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroAtomDenom, types.Denom{Name: utils.MicroAtomDenom})
+	require.NoError(t, err)
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroEthDenom, types.Denom{Name: utils.MicroEthDenom})
+	require.NoError(t, err)
 
 	// query params
 	res, err := querier.VoteTargets(ctx, &types.QueryVoteTargetsRequest{})
@@ -155,8 +158,10 @@ func TestQueryPriceSnapshotHistory(t *testing.T) {
 
 	priceSnapshots := types.PriceSnapshots{snapShot1, snapShot2}
 
-	oracleKeeper.PriceSnapshot.Set(ctx, priceSnapshots[0].SnapshotTimestamp, priceSnapshots[0])
-	oracleKeeper.PriceSnapshot.Set(ctx, priceSnapshots[1].SnapshotTimestamp, priceSnapshots[1])
+	err := oracleKeeper.PriceSnapshot.Set(ctx, priceSnapshots[0].SnapshotTimestamp, priceSnapshots[0])
+	require.NoError(t, err)
+	err = oracleKeeper.PriceSnapshot.Set(ctx, priceSnapshots[1].SnapshotTimestamp, priceSnapshots[1])
+	require.NoError(t, err)
 
 	// query params
 	res, err := querier.PriceSnapshotHistory(ctx, &types.QueryPriceSnapshotHistoryRequest{})
@@ -191,15 +196,18 @@ func TestQueryTwaps(t *testing.T) {
 	snapshot1 := types.NewPriceSnapshot(1, types.PriceSnapshotItems{snapshotItem1, snapshotItem1})
 	snapshot2 := types.NewPriceSnapshot(2, types.PriceSnapshotItems{snapshotItem2, snapshotItem2})
 
-	oracleKeeper.PriceSnapshot.Set(ctx, snapshot1.SnapshotTimestamp, snapshot1)
-	oracleKeeper.PriceSnapshot.Set(ctx, snapshot2.SnapshotTimestamp, snapshot2)
+	err := oracleKeeper.PriceSnapshot.Set(ctx, snapshot1.SnapshotTimestamp, snapshot1)
+	require.NoError(t, err)
+	err = oracleKeeper.PriceSnapshot.Set(ctx, snapshot2.SnapshotTimestamp, snapshot2)
+	require.NoError(t, err)
 
 	// set vote target on params
 	params := types.DefaultParams()
-	err := oracleKeeper.Params.Set(ctx, params)
+	err = oracleKeeper.Params.Set(ctx, params)
 	require.NoError(t, err)
 	for _, denom := range params.Whitelist {
-		oracleKeeper.SetVoteTarget(ctx, denom.Name)
+		err = oracleKeeper.VoteTarget.Set(ctx, denom.Name, types.Denom{Name: denom.Name})
+		require.NoError(t, err)
 	}
 
 	// query params

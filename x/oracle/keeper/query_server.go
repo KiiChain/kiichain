@@ -93,7 +93,11 @@ func (qs queryServer) Actives(ctx context.Context, req *types.QueryActivesReques
 // VoteTargets queries the voting target list on current vote period
 func (qs queryServer) VoteTargets(ctx context.Context, req *types.QueryVoteTargetsRequest) (*types.QueryVoteTargetsResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	return &types.QueryVoteTargetsResponse{VoteTargets: qs.Keeper.GetVoteTargets(sdkCtx)}, nil
+	// Get the vote targets
+	voteTargets, err := qs.Keeper.GetVoteTargets(sdkCtx)
+
+	// Return the response and the error
+	return &types.QueryVoteTargetsResponse{VoteTargets: voteTargets}, err
 }
 
 // PriceSnapshotHistory queries all snapshots

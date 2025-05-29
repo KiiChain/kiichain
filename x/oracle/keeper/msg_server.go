@@ -58,7 +58,13 @@ func (ms msgServer) AggregateExchangeRateVote(ctx context.Context, msg *types.Ms
 
 	// Check all denoms are in the vote target
 	for _, exchangeRate := range exchangeRates {
-		if !ms.IsVoteTarget(sdkCtx, exchangeRate.Denom) {
+		found, err := ms.Keeper.VoteTarget.Has(ctx, exchangeRate.Denom)
+		if err != nil {
+			return nil, err
+		}
+
+		// Check if found
+		if !found {
 			return nil, errors.Wrap(types.ErrUnknownDenom, exchangeRate.Denom)
 		}
 	}

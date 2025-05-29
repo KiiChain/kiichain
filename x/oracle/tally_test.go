@@ -37,7 +37,8 @@ func TestPickReferenceDenom(t *testing.T) {
 	require.NoError(t, err)
 
 	// execute staking endblocker to start validators bonding
-	stakingKeeper.EndBlocker(ctx)
+	_, err = stakingKeeper.EndBlocker(ctx)
+	require.NoError(t, err)
 	// ********
 
 	// Modify the oracle param vote threshold
@@ -140,7 +141,8 @@ func TestTally(t *testing.T) {
 	require.NoError(t, err)
 
 	// execute staking endblocker to start validators bonding
-	stakingKeeper.EndBlocker(ctx)
+	_, err = stakingKeeper.EndBlocker(ctx)
+	require.NoError(t, err)
 
 	// Get claim map
 	validatorClaimMap := make(map[string]types.Claim)

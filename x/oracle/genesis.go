@@ -10,9 +10,12 @@ import (
 )
 
 // InitGenesis initialize the module with the default parameters
-func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState) {
+func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState) error {
 	// Start the genesis with the data input
-	keeper.Params.Set(ctx, data.Params)
+	err := keeper.Params.Set(ctx, data.Params)
+	if err != nil {
+		return err
+	}
 
 	// Iterate over the feeder delegation list to set the feeder
 	for _, feederDelegation := range data.FeederDelegations {
@@ -60,7 +63,10 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState
 
 	// Add the price snapshots to the KVStore defined on the input object
 	for _, priceSnapshot := range data.PriceSnapshots {
-		keeper.AddPriceSnapshot(ctx, priceSnapshot)
+		err = keeper.AddPriceSnapshot(ctx, priceSnapshot)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Check if the module account exists
@@ -68,6 +74,8 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState
 	if moduleAccount == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
+
+	return nil
 }
 
 // ExportGenesis collect and return the params of the blockchain

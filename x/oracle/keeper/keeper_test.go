@@ -212,7 +212,8 @@ func TestValidateFeeder(t *testing.T) {
 	require.NoError(t, err)
 	_, err = msgServer.CreateValidator(ctx, NewTestMsgCreateValidator(val2Addr, val2PubKey, amount)) // Create validator
 	require.NoError(t, err)
-	stakingKeeper.EndBlocker(ctx)
+	_, err = stakingKeeper.EndBlocker(ctx)
+	require.NoError(t, err)
 
 	// Validate validator's bonded tokens
 	stakingParams, err := stakingKeeper.GetParams(ctx)
@@ -419,9 +420,12 @@ func TestRemoveExcessFeeds(t *testing.T) {
 	ctx := init.Ctx
 
 	// Aggregate voting targets
-	oracleKeeper.ClearVoteTargets(ctx)
-	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)
-	oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)
+	err := oracleKeeper.VoteTarget.Clear(ctx, nil)
+	require.NoError(t, err)
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroAtomDenom, types.Denom{Name: utils.MicroAtomDenom})
+	require.NoError(t, err)
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroEthDenom, types.Denom{Name: utils.MicroEthDenom})
+	require.NoError(t, err)
 
 	// Aggregate base exchange rate
 	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, math.LegacyNewDec(1))
@@ -445,7 +449,8 @@ func TestVoteTargetLogic(t *testing.T) {
 	ctx := init.Ctx
 
 	// Set and Get Voting target
-	oracleKeeper.ClearVoteTargets(ctx)
+	err := oracleKeeper.VoteTarget.Clear(ctx, nil)
+	require.NoError(t, err)
 	voteTarget := map[string]types.Denom{
 		utils.MicroKiiDenom:  {Name: utils.MicroKiiDenom},
 		utils.MicroEthDenom:  {Name: utils.MicroEthDenom},
@@ -454,24 +459,26 @@ func TestVoteTargetLogic(t *testing.T) {
 	}
 
 	for denom := range voteTarget {
-		oracleKeeper.SetVoteTarget(ctx, denom)                     // Store the Denom on the KVStore
-		gottenDenom, err := oracleKeeper.GetVoteTarget(ctx, denom) // Get the denom from the KVStore
+		err = oracleKeeper.VoteTarget.Set(ctx, denom, voteTarget[denom])
+		require.NoError(t, err)
+		gottenDenom, err := oracleKeeper.VoteTarget.Get(ctx, denom)
 		require.NoError(t, err)
 		require.Equal(t, voteTarget[denom], gottenDenom)
 	}
 
 	// Test iterate function
-
 	handler := func(denom string, denomInfo types.Denom) (bool, error) {
 		require.Equal(t, voteTarget[denom], denomInfo)
 		return false, nil
 	}
-	oracleKeeper.IterateVoteTargets(ctx, handler)
+	err = oracleKeeper.VoteTarget.Walk(ctx, nil, handler)
+	require.NoError(t, err)
 
 	// Test delete all targets
-	oracleKeeper.ClearVoteTargets(ctx)
+	err = oracleKeeper.VoteTarget.Clear(ctx, nil)
+	require.NoError(t, err)
 	for denom := range voteTarget {
-		_, err := oracleKeeper.GetVoteTarget(ctx, denom)
+		_, err := oracleKeeper.VoteTarget.Get(ctx, denom)
 		require.Error(t, err)
 	}
 }
@@ -499,8 +506,10 @@ func TestPriceSnapshotLogic(t *testing.T) {
 	snapshot2 := types.NewPriceSnapshot(2, types.PriceSnapshotItems{snapshotItem2, snapshotItem2})
 
 	// test set and get snapshot data
-	oracleKeeper.PriceSnapshot.Set(ctx, snapshot1.SnapshotTimestamp, snapshot1) // Set snapshot 1
-	oracleKeeper.PriceSnapshot.Set(ctx, snapshot2.SnapshotTimestamp, snapshot2) // Set snapshot 2
+	err := oracleKeeper.PriceSnapshot.Set(ctx, snapshot1.SnapshotTimestamp, snapshot1) // Set snapshot 1
+	require.NoError(t, err)
+	err = oracleKeeper.PriceSnapshot.Set(ctx, snapshot2.SnapshotTimestamp, snapshot2) // Set snapshot 2
+	require.NoError(t, err)
 
 	gottenSnapshot1 := oracleKeeper.GetPriceSnapshot(ctx, 1)
 	gottenSnapshot2 := oracleKeeper.GetPriceSnapshot(ctx, 2)
@@ -522,11 +531,13 @@ func TestPriceSnapshotLogic(t *testing.T) {
 		iteration--
 		return false, nil
 	}
-	oracleKeeper.IteratePriceSnapshotsReverse(ctx, handlerReverse)
+	err = oracleKeeper.IteratePriceSnapshotsReverse(ctx, handlerReverse)
+	require.NoError(t, err)
 
 	// test delete snapshot
 	expected := types.PriceSnapshot{}
-	oracleKeeper.DeletePriceSnapshot(ctx, 1)
+	err = oracleKeeper.PriceSnapshot.Remove(ctx, 1)
+	require.NoError(t, err)
 	result := oracleKeeper.GetPriceSnapshot(ctx, 1) // Expected empty struct
 	require.Equal(t, expected, result)
 }
@@ -555,8 +566,10 @@ func TestAddPriceSnapshot(t *testing.T) {
 	snapshot2 := types.NewPriceSnapshot(2, types.PriceSnapshotItems{snapshotItem1, snapshotItem2})
 
 	// Add snapshots (the function will not delete nothing)
-	oracleKeeper.AddPriceSnapshot(ctx, snapshot1) // Add snapshots 1
-	oracleKeeper.AddPriceSnapshot(ctx, snapshot2) // Add snapshots 2
+	err := oracleKeeper.AddPriceSnapshot(ctx, snapshot1) // Add snapshots 1
+	require.NoError(t, err)
+	err = oracleKeeper.AddPriceSnapshot(ctx, snapshot2) // Add snapshots 2
+	require.NoError(t, err)
 
 	// Validate the 2 snapshots are on the KVStore
 	data1 := oracleKeeper.GetPriceSnapshot(ctx, 1)
@@ -577,7 +590,8 @@ func TestAddPriceSnapshot(t *testing.T) {
 	snapshot3 := types.NewPriceSnapshot(1000, types.PriceSnapshotItems{snapshotItem1, snapshotItem2, snapshotItem3})
 
 	// Add snapshots (the function will delete the snapshot 1 and 2)
-	oracleKeeper.AddPriceSnapshot(ctx, snapshot3) // Add snapshots 3
+	err = oracleKeeper.AddPriceSnapshot(ctx, snapshot3) // Add snapshots 3
+	require.NoError(t, err)
 
 	// Validate the snapshot 1 and 2 were deleted
 	data1 = oracleKeeper.GetPriceSnapshot(ctx, 1)
@@ -597,21 +611,27 @@ func TestClearVoteTargets(t *testing.T) {
 	ctx := init.Ctx
 
 	// Eliminate initial voting target
-	oracleKeeper.ClearVoteTargets(ctx)
+	err := oracleKeeper.VoteTarget.Clear(ctx, nil)
+	require.NoError(t, err)
 
 	// Aggregate voting targets
-	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)
-	oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroAtomDenom, types.Denom{Name: utils.MicroAtomDenom})
+	require.NoError(t, err)
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroEthDenom, types.Denom{Name: utils.MicroEthDenom})
+	require.NoError(t, err)
 
 	// Validate the voting target were successfully added
-	targets := oracleKeeper.GetVoteTargets(ctx)
+	targets, err := oracleKeeper.GetVoteTargets(ctx)
+	require.NoError(t, err)
 	require.True(t, len(targets) == 2)
 
 	// Clear voting targets
-	oracleKeeper.ClearVoteTargets(ctx)
+	err = oracleKeeper.VoteTarget.Clear(ctx, nil)
+	require.NoError(t, err)
 
 	// Validate empty voting targets
-	targets = oracleKeeper.GetVoteTargets(ctx)
+	targets, err = oracleKeeper.GetVoteTargets(ctx)
+	require.NoError(t, err)
 	require.True(t, len(targets) == 0)
 }
 
@@ -622,14 +642,18 @@ func TestSpamPreventionLogic(t *testing.T) {
 	ctx := init.Ctx
 
 	// test set and get spam prevention
-	ctx = ctx.WithBlockHeight(100)                          // Set an specific block height
-	oracleKeeper.SetSpamPreventionCounter(ctx, ValAddrs[0]) // set spam on block 100 to val 0
+	ctx = ctx.WithBlockHeight(100)                                 // Set an specific block height
+	err := oracleKeeper.SetSpamPreventionCounter(ctx, ValAddrs[0]) // set spam on block 100 to val 0
+	require.NoError(t, err)
 
 	ctx = ctx.WithBlockHeight(200)
-	oracleKeeper.SetSpamPreventionCounter(ctx, ValAddrs[1]) // set spam on block 200 to val 1
+	err = oracleKeeper.SetSpamPreventionCounter(ctx, ValAddrs[1]) // set spam on block 200 to val 1
+	require.NoError(t, err)
 
-	spamVal1 := oracleKeeper.GetSpamPreventionCounter(ctx, ValAddrs[0]) // get smap list for val 0
-	spamVal2 := oracleKeeper.GetSpamPreventionCounter(ctx, ValAddrs[1]) // get smap list for val 1
+	spamVal1, err := oracleKeeper.SpamPreventionCounter.Get(ctx, ValAddrs[0]) // get smap list for val 0
+	require.NoError(t, err)
+	spamVal2, err := oracleKeeper.SpamPreventionCounter.Get(ctx, ValAddrs[1]) // get smap list for val 1
+	require.NoError(t, err)
 
 	// Validation
 	require.Equal(t, int64(100), spamVal1)

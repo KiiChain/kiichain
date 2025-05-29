@@ -149,7 +149,11 @@ func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	genesis := &types.GenesisState{}
 	cdc.MustUnmarshalJSON(data, genesis)
-	InitGenesis(ctx, am.Kepper, genesis)
+	// Initialize the genesis state
+	err := InitGenesis(ctx, am.Kepper, genesis)
+	if err != nil {
+		panic(fmt.Errorf("failed to initialize %s genesis state: %w", types.ModuleName, err))
+	}
 	return nil
 }
 
@@ -164,7 +168,14 @@ func (AppModule) ConsensusVersion() uint64 { return 6 }
 
 // EndBlock returns the module's end blocker
 func (am AppModule) EndBlock(ctx sdk.Context) (res []abci.ValidatorUpdate) {
-	MidBlocker(ctx, am.Kepper)
-	Endblocker(ctx, am.Kepper)
+	// TODO: CHECK ME
+	err := MidBlocker(ctx, am.Kepper)
+	if err != nil {
+		ctx.Logger().Error(fmt.Sprintf("failed to execute mid-blocker: %s", err.Error()))
+	}
+	err = Endblocker(ctx, am.Kepper)
+	if err != nil {
+		ctx.Logger().Error(fmt.Sprintf("failed to execute end-blocker: %s", err.Error()))
+	}
 	return []abci.ValidatorUpdate{}
 }
