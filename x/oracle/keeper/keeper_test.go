@@ -4,12 +4,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
-	"github.com/stretchr/testify/require"
 )
 
 func TestExchangeRateLogic(t *testing.T) {
@@ -238,7 +241,7 @@ func TestValidateFeeder(t *testing.T) {
 
 	// Delegate validator 1 to Val 2
 	oracleKeeper.SetFeederDelegation(ctx, val1Addr, sdk.AccAddress(val2Addr))                // Delegate Val 1 to Val 2
-	require.NoError(t, oracleKeeper.ValidateFeeder(ctx, sdk.AccAddress(val2Addr), val1Addr)) //Validate that Val2 is delegated by val1
+	require.NoError(t, oracleKeeper.ValidateFeeder(ctx, sdk.AccAddress(val2Addr), val1Addr)) // Validate that Val2 is delegated by val1
 	require.Error(t, oracleKeeper.ValidateFeeder(ctx, sdk.AccAddress(Addrs[2]), val1Addr))
 }
 
@@ -412,7 +415,7 @@ func TestRemoveExcessFeeds(t *testing.T) {
 	oracleKeeper := init.OracleKeeper
 	ctx := init.Ctx
 
-	// Agregate voting targets
+	// Aggregate voting targets
 	oracleKeeper.ClearVoteTargets(ctx)
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)
@@ -425,7 +428,7 @@ func TestRemoveExcessFeeds(t *testing.T) {
 	// remove excess
 	oracleKeeper.RemoveExcessFeeds(ctx)
 
-	// Validate the successfull erased of the extra denoms
+	// Validate the successful erased of the extra denoms
 	oracleKeeper.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		require.True(t, denom != utils.MicroKiiDenom)
 		return false, nil
@@ -468,7 +471,6 @@ func TestVoteTargetLogic(t *testing.T) {
 		_, err := oracleKeeper.GetVoteTarget(ctx, denom)
 		require.Error(t, err)
 	}
-
 }
 
 func TestPriceSnapshotLogic(t *testing.T) {
@@ -594,7 +596,7 @@ func TestClearVoteTargets(t *testing.T) {
 	// Eliminate initial voting target
 	oracleKeeper.ClearVoteTargets(ctx)
 
-	// Agregate voting targets
+	// Aggregate voting targets
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)
 	oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)
 

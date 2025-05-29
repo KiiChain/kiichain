@@ -3,10 +3,12 @@ package keeper
 import (
 	"context"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/kiichain/kiichain/v1/x/oracle/types"
 )
 
 // queryServer struct that handlers the rpc request
@@ -137,7 +139,6 @@ func (qs queryServer) FeederDelegation(ctx context.Context, req *types.QueryFeed
 	feederAddr := qs.Keeper.GetFeederDelegation(sdkCtx, valAddr).String()
 
 	return &types.QueryFeederDelegationResponse{FeedAddr: feederAddr}, nil
-
 }
 
 // VotePenaltyCounter queries the validator penalty's counter information
@@ -166,7 +167,6 @@ func (qs queryServer) VotePenaltyCounter(ctx context.Context, req *types.QueryVo
 	}
 
 	return &types.QueryVotePenaltyCounterResponse{VotePenaltyCounter: votePenaltyCounter}, nil
-
 }
 
 // SlashWindow queries the slash window progress

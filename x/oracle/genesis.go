@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/kiichain/kiichain/v1/x/oracle/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 )
@@ -126,5 +127,4 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) types.GenesisState {
 
 	// Send data
 	return *types.NewGenesisState(params, exchangeRates, feederDelegations, penaltyCounters, aggregateExchangeRateVotes, priceSnapshots, votePenaltyCounters)
-
 }

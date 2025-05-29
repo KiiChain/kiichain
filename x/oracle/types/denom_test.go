@@ -11,7 +11,6 @@ type testStruct struct {
 
 func TestDenomList(t *testing.T) {
 	testData := []testStruct{
-
 		{
 			name: "denomination present",
 			denomList: DenomList{
@@ -49,5 +48,4 @@ func TestDenomList(t *testing.T) {
 			}
 		})
 	}
-
 }

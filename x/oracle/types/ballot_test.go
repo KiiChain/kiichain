@@ -4,9 +4,11 @@ import (
 	"sort"
 	"testing"
 
-	sdkMath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	sdkMath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestNewClaim(t *testing.T) {
@@ -284,7 +286,7 @@ func TestToCrossRateWithSort(t *testing.T) {
 		NewVoteForTally(sdkMath.LegacyNewDec(4), denomRefernce, voter4, 40),
 	}
 
-	// must calcualte the cross rate and sort the response
+	// must calculate the cross rate and sort the response
 	crossRate := ballot.ToCrossRateWithSort(referenceBallot.ToMap())
 	require.Equal(t, expectedCrossRate, crossRate)
 }

@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"gopkg.in/yaml.v2"
+
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // NewAggregateExchangeRateVote creates a new AggregateExchangeRateVote instance
@@ -71,7 +73,7 @@ func ParseExchangeRateTuples(exchangeRateStr string) (ExchangeRateTuples, error)
 	exchangeTuples := make(ExchangeRateTuples, len(tupleStrs)) // the parsed elements will be stored here
 	duplicateCheckMap := make(map[string]bool)                 // map to track duplicate
 
-	//Iterate each element ["BTC:45000", "ETH:3000", "COP:4500"]...
+	// Iterate each element ["BTC:45000", "ETH:3000", "COP:4500"]...
 	for i, tupleStr := range tupleStrs {
 		decCoin, err := sdk.ParseDecCoin(tupleStr) // convert decimal coin to string
 		if err != nil {

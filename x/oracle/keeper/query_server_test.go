@@ -3,11 +3,14 @@ package keeper
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
-	"github.com/stretchr/testify/require"
 )
 
 func TestQueryParams(t *testing.T) {
@@ -51,6 +54,7 @@ func TestQueryExchangeRate(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, rate, res.OracleExchangeRate.ExchangeRate)
 }
+
 func TestQueryExchangeRates(t *testing.T) {
 	// prepare env
 	input := CreateTestInput(t)
@@ -168,7 +172,6 @@ func TestQueryPriceSnapshotHistory(t *testing.T) {
 	// validation
 	require.NoError(t, err)
 	require.Equal(t, priceSnapshots, res.PriceSnapshot)
-
 }
 
 func TestQueryTwaps(t *testing.T) {

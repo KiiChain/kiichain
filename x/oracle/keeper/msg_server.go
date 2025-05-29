@@ -4,9 +4,11 @@ import (
 	"context"
 
 	"cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 )
 
@@ -76,7 +78,7 @@ func (ms msgServer) AggregateExchangeRateVote(ctx context.Context, msg *types.Ms
 			sdk.NewAttribute(types.AttributeKeyVoter, msg.Validator),
 			sdk.NewAttribute(types.AttributeKeyExchangeRates, msg.ExchangeRates),
 		),
-		sdk.NewEvent( //the Event with the information who send the information (the feeder address and the module name)
+		sdk.NewEvent( // the Event with the information who send the information (the feeder address and the module name)
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Feeder),
@@ -114,11 +116,11 @@ func (ms msgServer) DelegateFeedConsent(ctx context.Context, msg *types.MsgDeleg
 
 	// Trigger events (exchange rate saved and the feeder address)
 	sdkCtx.EventManager().EmitEvents(sdk.Events{
-		sdk.NewEvent( //the Event with the address to be registered as a delegated address (as a feeder)
+		sdk.NewEvent( // the Event with the address to be registered as a delegated address (as a feeder)
 			types.EventTypeFeedDelegate,
 			sdk.NewAttribute(types.AttributeKeyFeeder, msg.Delegate),
 		),
-		sdk.NewEvent( //the Event with the information who send the information (the validator address and the module name)
+		sdk.NewEvent( // the Event with the information who send the information (the validator address and the module name)
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Operator),
