@@ -25,7 +25,7 @@ type StakingKeeper interface {
 
 // AccountKeeper is expected keeper for auth module, because I need to handle
 type AccountKeeper interface {
-	GetModuleAddress(name string) sdk.AccAddress                                //Ensures the oracle module has an account
+	GetModuleAddress(name string) sdk.AccAddress                                // Ensures the oracle module has an account
 	GetModuleAccount(ctx context.Context, moduleName string) sdk.ModuleAccountI // Retrieves detailed account information
 	SetModuleAccount(ctx context.Context, macc sdk.ModuleAccountI)              // Creates a module account
 	AddressCodec() address.Codec
