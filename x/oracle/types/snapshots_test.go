@@ -4,9 +4,11 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/math"
-	"github.com/kiichain/kiichain/v1/x/oracle/utils"
 	"github.com/stretchr/testify/require"
+
+	"cosmossdk.io/math"
+
+	"github.com/kiichain/kiichain/v1/x/oracle/utils"
 )
 
 func TestNewPriceSnapshotItem(t *testing.T) {

@@ -3,8 +3,9 @@ package keeper
 import (
 	"testing"
 
-	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/kiichain/kiichain/v1/x/oracle/types"
 )
 
 func TestGetOracleAccount(t *testing.T) {

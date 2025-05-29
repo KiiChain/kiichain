@@ -3,12 +3,15 @@ package keeper
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
-	"github.com/stretchr/testify/require"
 )
 
 func TestAggregateExchangeRateVote(t *testing.T) {

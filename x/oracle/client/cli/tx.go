@@ -4,13 +4,14 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
-	"github.com/spf13/cobra"
 )
 
 // GetTxCmd returns the tx commands for oracle module

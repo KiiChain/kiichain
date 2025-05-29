@@ -3,15 +3,19 @@ package oracle_test
 import (
 	"testing"
 
-	"cosmossdk.io/math"
+	"github.com/stretchr/testify/require"
+
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
 	"github.com/kiichain/kiichain/v1/x/oracle"
 	"github.com/kiichain/kiichain/v1/x/oracle/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
-	"github.com/stretchr/testify/require"
 )
 
 func TestVoteAloneHandle(t *testing.T) {
@@ -32,19 +36,22 @@ func TestVoteAloneHandle(t *testing.T) {
 
 	testCases := []testCase{
 		// ante handle wil continue this
-		{name: "only oracle votes",
+		{
+			name:          "only oracle votes",
 			expectedError: false,
 			tx:            oracle.NewTestTx([]sdk.Msg{&testOracleMsg}),
 		},
 
 		// ante handle will ignore this message
-		{name: "only non-oracle votes",
+		{
+			name:          "only non-oracle votes",
 			expectedError: false,
 			tx:            oracle.NewTestTx([]sdk.Msg{&testNoOracleMsg, &testNoOracleMsg2}),
 		},
 
 		// ante handle will return an error because the oracle message can not be with other messages
-		{name: "mixed messages",
+		{
+			name:          "mixed messages",
 			expectedError: true,
 			tx:            oracle.NewTestTx([]sdk.Msg{&testOracleMsg, &testNoOracleMsg, &testNoOracleMsg2}),
 		},

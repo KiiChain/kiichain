@@ -3,11 +3,13 @@ package oracle
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"cosmossdk.io/math"
+
 	"github.com/kiichain/kiichain/v1/x/oracle/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
-	"github.com/stretchr/testify/require"
 )
 
 /* SetUp conditions:
@@ -214,9 +216,7 @@ func TestMidBlocker(t *testing.T) {
 		require.Error(t, err)
 		_, err = oracleKeeper.GetVoteTarget(ctx, utils.MicroUsdcDenom)
 		require.Error(t, err)
-
 	})
-
 }
 
 func TestOracleDrop(t *testing.T) {
@@ -332,7 +332,7 @@ func TestEndblocker(t *testing.T) {
 		operator := keeper.ValAddrs[0]
 		oracleKeeper.SetVotePenaltyCounter(ctx, operator, 4, 5, 10)
 
-		// Agregate voting targets
+		// Aggregate voting targets
 		oracleKeeper.ClearVoteTargets(ctx) // clean voting target list
 		oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)
 		oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)
@@ -349,7 +349,7 @@ func TestEndblocker(t *testing.T) {
 		ctx = ctx.WithBlockHeight(int64(slashWindow) - 1)
 		Endblocker(ctx, oracleKeeper)
 
-		// Validate the successfull erased of the extra denoms
+		// Validate the successful erased of the extra denoms
 		oracleKeeper.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 			require.True(t, denom != utils.MicroKiiDenom)
 			return false, nil

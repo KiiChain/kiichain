@@ -6,14 +6,15 @@ import (
 	"sort"
 
 	"cosmossdk.io/collections"
+	corestoretypes "cosmossdk.io/core/store"
 	cosmoserrors "cosmossdk.io/errors"
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 
-	corestoretypes "cosmossdk.io/core/store"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 )
 

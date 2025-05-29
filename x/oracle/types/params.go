@@ -3,9 +3,11 @@ package types
 import (
 	"fmt"
 
-	"cosmossdk.io/math"
-	"github.com/kiichain/kiichain/v1/x/oracle/utils"
 	"gopkg.in/yaml.v2"
+
+	"cosmossdk.io/math"
+
+	"github.com/kiichain/kiichain/v1/x/oracle/utils"
 )
 
 // Default parameter value

@@ -3,12 +3,12 @@ package types
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestMsgAggregateExchangeRateVote(t *testing.T) {
-
 	type test struct {
 		voter         sdk.AccAddress
 		exchangeRates string
@@ -83,5 +83,4 @@ func TestMsgDelegateFeedConsent(t *testing.T) {
 			require.Panics(t, func() { msg.GetSigners() })
 		}
 	}
-
 }

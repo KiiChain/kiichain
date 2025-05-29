@@ -2,6 +2,7 @@ package wasm
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	oraclekeeper "github.com/kiichain/kiichain/v1/x/oracle/keeper"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 )

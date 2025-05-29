@@ -3,11 +3,13 @@ package keeper
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/stretchr/testify/require"
 )
 
 func TestSlashAndResetMissCounters(t *testing.T) {
@@ -47,7 +49,7 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 	require.Equal(t, balance2, expectedBalance)
 	require.Equal(t, amount, bondedTokens2)
 
-	//Define slash fraction
+	// Define slash fraction
 	params, err := oracleKeeper.Params.Get(ctx)
 	require.NoError(t, err)
 
