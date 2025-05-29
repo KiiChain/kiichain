@@ -48,18 +48,9 @@ func (k Keeper) OrganizeBallotByDenom(ctx sdk.Context, validatorClaimMap map[str
 	return votes
 }
 
-// ClearBallots clears all votes from the KV Store
-func (k Keeper) ClearBallots(ctx sdk.Context) {
-	// Clear all aggregate votes
-	k.IterateAggregateExchangeRateVotes(ctx, func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) (bool, error) {
-		k.DeleteAggregateExchangeRateVote(ctx, voterAddr)
-		return false, nil
-	})
-}
-
 // ApplyWhitelist update the vote target on the KVStore if there are new desired denoms on the parameters
 // for the new denoms on the whitelist creaste its mili and micro version
-func (k Keeper) ApplyWhitelist(ctx sdk.Context, whitelist types.DenomList, voteTargets map[string]types.Denom) {
+func (k Keeper) ApplyWhitelist(ctx sdk.Context, whitelist types.DenomList, voteTargets map[string]types.Denom) error {
 	// Check if there is an update in whitelist
 	updateRequire := false
 	if len(voteTargets) != len(whitelist) {
@@ -75,11 +66,14 @@ func (k Keeper) ApplyWhitelist(ctx sdk.Context, whitelist types.DenomList, voteT
 	}
 
 	if updateRequire {
-		k.ClearVoteTargets(ctx) // Delete the current targets on the KVStore
+		err := k.VoteTarget.Clear(ctx, nil) // Delete the current targets on the KVStore
+		if err != nil {
+			return err
+		}
 
 		// Iterate the new whitelist
 		for _, item := range whitelist {
-			k.SetVoteTarget(ctx, item.Name)
+			k.VoteTarget.Set(ctx, item.Name, item) // Set the new vote target
 
 			// Register meta data to bank module
 			_, ok := k.bankKeeper.GetDenomMetaData(ctx, item.Name)
@@ -108,4 +102,6 @@ func (k Keeper) ApplyWhitelist(ctx sdk.Context, whitelist types.DenomList, voteT
 		}
 
 	}
+
+	return nil
 }

@@ -34,7 +34,8 @@ func TestAggregateExchangeRateVote(t *testing.T) {
 	require.NoError(t, err)
 
 	// execute staking endblocker to start validators bonding
-	stakingKeeper.EndBlocker(ctx)
+	_, err = stakingKeeper.EndBlocker(ctx)
+	require.NoError(t, err)
 
 	// send messages
 	exchangeRate := math.LegacyNewDec(12).String() + utils.MicroUsdcDenom
@@ -64,7 +65,8 @@ func TestDelegateFeedConsent(t *testing.T) {
 	require.NoError(t, err)
 
 	// execute staking endblocker to start validators bonding
-	stakingKeeper.EndBlocker(ctx)
+	_, err = stakingKeeper.EndBlocker(ctx)
+	require.NoError(t, err)
 
 	// send messages
 	_, err = msgServer.DelegateFeedConsent(ctx, types.NewMsgDelegateFeedConsent(ValAddrs[0], Addrs[0]))

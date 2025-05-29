@@ -39,7 +39,8 @@ func SetUp(t *testing.T) (keeper.TestInput, types.MsgServer) {
 	stakingParams, err := stakingKeeper.GetParams(ctx)
 	require.NoError(t, err)
 	stakingParams.MinCommissionRate = math.LegacyNewDecWithPrec(0, 2) // 0.00
-	stakingKeeper.SetParams(ctx, stakingParams)
+	err = stakingKeeper.SetParams(ctx, stakingParams)
+	require.NoError(t, err)
 
 	// Create handlers
 	oracleMsgServer := keeper.NewMsgServer(oracleKeeper)
@@ -59,7 +60,8 @@ func SetUp(t *testing.T) (keeper.TestInput, types.MsgServer) {
 	require.NoError(t, err)
 
 	// execute staking endblocker to start validators bonding
-	stakingKeeper.EndBlocker(ctx)
+	_, err = stakingKeeper.EndBlocker(ctx)
+	require.NoError(t, err)
 
 	return input, oracleMsgServer
 }

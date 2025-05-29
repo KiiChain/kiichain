@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/kiichain/kiichain/v1/x/oracle/types"
 )
 
 func TestGetVoteTargets(t *testing.T) {
@@ -12,16 +14,19 @@ func TestGetVoteTargets(t *testing.T) {
 	oracleKeeper := input.OracleKeeper
 
 	// clear vote target
-	oracleKeeper.ClearVoteTargets(input.Ctx)
+	err := oracleKeeper.VoteTarget.Clear(input.Ctx, nil)
+	require.NoError(t, err)
 
 	// set new expected targets
 	expectedTargets := []string{"akii", "ubtc", "ueth"}
 	for _, target := range expectedTargets {
-		oracleKeeper.SetVoteTarget(input.Ctx, target)
+		err = oracleKeeper.VoteTarget.Set(input.Ctx, target, types.Denom{Name: target})
+		require.NoError(t, err)
 	}
 
 	// get voting target
-	targets := oracleKeeper.GetVoteTargets(input.Ctx)
+	targets, err := oracleKeeper.GetVoteTargets(input.Ctx)
+	require.NoError(t, err)
 
 	// validation
 	elements := make(map[string]bool)
@@ -40,12 +45,18 @@ func TestIsVoteTarget(t *testing.T) {
 	oracleKeeper := input.OracleKeeper
 
 	// clear vote target
-	oracleKeeper.ClearVoteTargets(input.Ctx)
+	err := oracleKeeper.VoteTarget.Clear(input.Ctx, nil)
+	require.NoError(t, err)
 
 	// set new expected targets and validate
 	validTargets := []string{"akii", "ubtc", "ueth"}
 	for _, target := range validTargets {
-		oracleKeeper.SetVoteTarget(input.Ctx, target)
-		require.True(t, oracleKeeper.IsVoteTarget(input.Ctx, target))
+		err = oracleKeeper.VoteTarget.Set(input.Ctx, target, types.Denom{Name: target})
+		require.NoError(t, err)
+
+		// check if the target exist
+		found, err := oracleKeeper.VoteTarget.Has(input.Ctx, target)
+		require.NoError(t, err)
+		require.True(t, found)
 	}
 }

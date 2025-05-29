@@ -66,13 +66,19 @@ func (spd SpammingPreventionDecorator) CheckOracleSpamming(ctx sdk.Context, msgs
 			}
 
 			// check if the validator has voted on that block height
-			spamPreventionHeight := spd.oracleKepper.GetSpamPreventionCounter(ctx, valAddr)
+			spamPreventionHeight, err := spd.oracleKepper.SpamPreventionCounter.Get(ctx, valAddr)
+			if err != nil {
+				return err
+			}
 			if spamPreventionHeight == currentHeight {
 				return errors.Wrap(sdkerrors.ErrConflict, fmt.Sprintf("the validator has already submitted a vote at the current height=%d", currentHeight))
 			}
 
 			// set the anti spam block height
-			spd.oracleKepper.SetSpamPreventionCounter(ctx, valAddr)
+			err = spd.oracleKepper.SetSpamPreventionCounter(ctx, valAddr)
+			if err != nil {
+				return err
+			}
 			continue
 		default:
 			return nil

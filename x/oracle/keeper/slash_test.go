@@ -30,7 +30,8 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 	require.NoError(t, err)
 	_, err = msgServer.CreateValidator(ctx, NewTestMsgCreateValidator(addr2, val2, amount))
 	require.NoError(t, err)
-	stakingKeeper.EndBlocker(ctx)
+	_, err = stakingKeeper.EndBlocker(ctx)
+	require.NoError(t, err)
 
 	balance1 := bankKeeper.GetAllBalances(ctx, sdk.AccAddress(addr1))
 	stakingParams, err := stakingKeeper.GetParams(ctx)
@@ -60,7 +61,8 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 	t.Run("no slash", func(t *testing.T) {
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow-minValidVotes), 0, uint64(minValidVotes))
 		oracleKeeper.SlashAndResetCounters(input.Ctx)
-		stakingKeeper.EndBlocker(ctx)
+		_, err := stakingKeeper.EndBlocker(ctx)
+		require.NoError(t, err)
 
 		validator, _ := stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
 		require.Equal(t, amount, validator.GetBondedTokens())
@@ -69,7 +71,8 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 	t.Run("no slash - total votes is greater than votes per window", func(t *testing.T) {
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow), 0, uint64(votePeriodsPerWindow))
 		oracleKeeper.SlashAndResetCounters(input.Ctx)
-		stakingKeeper.EndBlocker(ctx)
+		_, err := stakingKeeper.EndBlocker(ctx)
+		require.NoError(t, err)
 
 		validator, _ := stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
 		require.Equal(t, amount, validator.GetBondedTokens())
@@ -87,7 +90,8 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 		validator, _ := stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
 		validator.Jailed = false
 		validator.Tokens = amount
-		stakingKeeper.SetValidator(input.Ctx, validator)
+		err := stakingKeeper.SetValidator(input.Ctx, validator)
+		require.NoError(t, err)
 		require.Equal(t, amount, validator.GetBondedTokens())
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], 0, uint64(votePeriodsPerWindow-minValidVotes+1), 0)
 		oracleKeeper.SlashAndResetCounters(input.Ctx)
@@ -103,7 +107,8 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 		validator.Status = stakingtypes.Unbonded
 		validator.Jailed = false
 		validator.Tokens = amount
-		stakingKeeper.SetValidator(input.Ctx, validator)
+		err := stakingKeeper.SetValidator(input.Ctx, validator)
+		require.NoError(t, err)
 
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow-minValidVotes+1), 0, 0)
 		oracleKeeper.SlashAndResetCounters(input.Ctx)
@@ -117,7 +122,8 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 		validator.Status = stakingtypes.Bonded
 		validator.Jailed = true
 		validator.Tokens = amount
-		stakingKeeper.SetValidator(input.Ctx, validator)
+		err := stakingKeeper.SetValidator(input.Ctx, validator)
+		require.NoError(t, err)
 
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow-minValidVotes+1), 0, 0)
 		oracleKeeper.SlashAndResetCounters(input.Ctx)

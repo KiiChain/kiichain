@@ -172,8 +172,9 @@ func TestClearBallots(t *testing.T) {
 	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[1], exchangeRateVote2)
 	require.NoError(t, err)
 
-	// Delete the added exchange rate
-	oracleKeeper.ClearBallots(ctx)
+	// Clear all votes
+	err = oracleKeeper.AggregateExchangeRateVote.Clear(ctx, nil)
+	require.NoError(t, err)
 
 	// Validate process
 	_, err = oracleKeeper.GetAggregateExchangeRateVote(ctx, ValAddrs[0])
@@ -190,7 +191,8 @@ func TestApplyWhitelist(t *testing.T) {
 	ctx := init.Ctx
 	oracleParams, err := oracleKeeper.Params.Get(ctx)
 	require.NoError(t, err)
-	oracleKeeper.ClearVoteTargets(ctx) // Delete voting target to start test from scrath
+	err = oracleKeeper.VoteTarget.Clear(ctx, nil) // Delete voting target to start test from scrath
+	require.NoError(t, err)
 
 	// Define new whitelist (adds uusdc)
 	whiteList := types.DenomList{
@@ -204,12 +206,15 @@ func TestApplyWhitelist(t *testing.T) {
 	require.NoError(t, err)
 
 	// Set vote targets manually before applying the new whitelist
-	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)
-	oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)
-	oracleKeeper.SetVoteTarget(ctx, utils.MicroKiiDenom)
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroAtomDenom, types.Denom{Name: utils.MicroAtomDenom})
+	require.NoError(t, err)
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroEthDenom, types.Denom{Name: utils.MicroEthDenom})
+	require.NoError(t, err)
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroKiiDenom, types.Denom{Name: utils.MicroKiiDenom})
+	require.NoError(t, err)
 
 	// Ensure that uusdc is NOT present before applying the whitelist
-	_, err = oracleKeeper.GetVoteTarget(ctx, utils.MicroUsdcDenom)
+	_, err = oracleKeeper.VoteTarget.Get(ctx, utils.MicroUsdcDenom)
 	require.Error(t, err)
 
 	// Apply whitelist
@@ -217,7 +222,7 @@ func TestApplyWhitelist(t *testing.T) {
 
 	// Check that all elements in whitelist are now in voteTargets
 	for _, item := range whiteList {
-		_, err := oracleKeeper.GetVoteTarget(ctx, item.Name)
+		_, err := oracleKeeper.VoteTarget.Get(ctx, item.Name)
 		require.NoError(t, err)
 	}
 

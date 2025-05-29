@@ -55,8 +55,14 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) {
 				}
 
 				consensusPower := validator.GetConsensusPower(powerReduction)
-				k.StakingKeeper.Slash(ctx, consAddr, distributionHeight, consensusPower, slashFraction) // slash validator
-				k.StakingKeeper.Jail(ctx, consAddr)                                                     // Jail validator
+				_, err = k.StakingKeeper.Slash(ctx, consAddr, distributionHeight, consensusPower, slashFraction) // slash validator
+				if err != nil {
+					return true, err
+				}
+				err = k.StakingKeeper.Jail(ctx, consAddr) // Jail validator
+				if err != nil {
+					return true, err
+				}
 			}
 		}
 

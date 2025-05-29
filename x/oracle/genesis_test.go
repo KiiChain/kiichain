@@ -64,12 +64,18 @@ func TestExportInitGenesis(t *testing.T) {
 	oracleKeeper.SetFeederDelegation(ctx, keeper.ValAddrs[0], keeper.Addrs[1])
 	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, math.LegacyNewDec(123))
 	oracleKeeper.SetAggregateExchangeRateVote(ctx, keeper.ValAddrs[0], exchangeRateVote)
-	oracleKeeper.SetVoteTarget(ctx, utils.MicroAtomDenom)
-	oracleKeeper.SetVoteTarget(ctx, utils.MicroEthDenom)
+
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroAtomDenom, types.Denom{Name: utils.MicroAtomDenom})
+	require.NoError(t, err)
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroEthDenom, types.Denom{Name: utils.MicroEthDenom})
+	require.NoError(t, err)
+
 	oracleKeeper.SetVotePenaltyCounter(ctx, keeper.ValAddrs[0], 2, 3, 0)
 	oracleKeeper.SetVotePenaltyCounter(ctx, keeper.ValAddrs[1], 4, 5, 0)
-	oracleKeeper.AddPriceSnapshot(ctx, snapshot1)
-	oracleKeeper.AddPriceSnapshot(ctx, snapshot2)
+	err = oracleKeeper.AddPriceSnapshot(ctx, snapshot1)
+	require.NoError(t, err)
+	err = oracleKeeper.AddPriceSnapshot(ctx, snapshot2)
+	require.NoError(t, err)
 
 	// Export genesis
 	genesis := oracle.ExportGenesis(ctx, oracleKeeper)
@@ -80,7 +86,8 @@ func TestExportInitGenesis(t *testing.T) {
 	newctx := newInput.Ctx
 
 	// use the exported genesis on the new env
-	oracle.InitGenesis(newctx, neworacleKeeper, &genesis)
+	err = oracle.InitGenesis(newctx, neworacleKeeper, &genesis)
+	require.NoError(t, err)
 	newGenesis := oracle.ExportGenesis(newctx, neworacleKeeper)
 
 	// validation

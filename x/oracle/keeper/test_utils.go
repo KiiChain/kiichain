@@ -221,7 +221,8 @@ func CreateTestInput(t *testing.T) TestInput {
 	)
 	stakingParams := stakingtypes.DefaultParams()
 	stakingParams.BondDenom = utils.MicroKiiDenom
-	stakingKeeper.SetParams(ctx, stakingParams)
+	err := stakingKeeper.SetParams(ctx, stakingParams)
+	require.NoError(t, err)
 
 	// Set distribution module on my testing environment
 	distKeeper := distkeeper.NewKeeper(
@@ -234,15 +235,17 @@ func CreateTestInput(t *testing.T) TestInput {
 		authority.String(),
 	)
 
-	distKeeper.FeePool.Set(ctx, distribtypes.InitialFeePool())
+	err = distKeeper.FeePool.Set(ctx, distribtypes.InitialFeePool())
+	require.NoError(t, err)
 	distParams := distribtypes.DefaultParams()
 	distParams.CommunityTax = math.LegacyNewDecWithPrec(2, 2) // 0.02
-	distKeeper.Params.Set(ctx, distParams)
+	err = distKeeper.Params.Set(ctx, distParams)
+	require.NoError(t, err)
 	stakingKeeper.SetHooks(stakingtypes.NewMultiStakingHooks(distKeeper.Hooks()))
 
 	// Create total supply of my testing env and mint on the faucetAcc
 	totalSupply := kiiCoins
-	err := bankKeeper.MintCoins(ctx, faucetAccountName, totalSupply)
+	err = bankKeeper.MintCoins(ctx, faucetAccountName, totalSupply)
 	require.NoError(t, err) // Validate the operation
 
 	// Verify the faucet balance
@@ -275,7 +278,8 @@ func CreateTestInput(t *testing.T) TestInput {
 
 	// Set the desired denoms
 	for _, denom := range oracleParams.Whitelist {
-		oracleKeeper.SetVoteTarget(ctx, denom.Name)
+		err = oracleKeeper.VoteTarget.Set(ctx, denom.Name, types.Denom{Name: denom.Name})
+		require.NoError(t, err)
 	}
 
 	return TestInput{
