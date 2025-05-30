@@ -285,7 +285,8 @@ func TestMissCounter(t *testing.T) {
 	require.Equal(t, successCounter, oracleKeeper.GetSuccessCount(ctx, ValAddrs[0]))
 
 	// ***** Test delete voting info
-	oracleKeeper.DeleteVotePenaltyCounter(ctx, ValAddrs[0])
+	err := oracleKeeper.VotePenaltyCounter.Remove(ctx, ValAddrs[0])
+	require.NoError(t, err)
 
 	// validation
 	counter = oracleKeeper.GetVotePenaltyCounter(ctx, ValAddrs[0]) // Get the counter details of the val 0
@@ -336,7 +337,8 @@ func TestMissCounterIterate(t *testing.T) {
 		return true, nil
 	}
 
-	oracleKeeper.IterateVotePenaltyCounters(ctx, handler)
+	err := oracleKeeper.VotePenaltyCounter.Walk(ctx, nil, handler)
+	require.NoError(t, err)
 }
 
 func TestAggregateExchangeRateLogic(t *testing.T) {

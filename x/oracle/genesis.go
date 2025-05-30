@@ -112,11 +112,14 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) (*types.GenesisState, 
 
 	// Extract penalty counters
 	penaltyCounters := []types.PenaltyCounter{}
-	keeper.IterateVotePenaltyCounters(ctx, func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) (bool, error) {
+	err = keeper.VotePenaltyCounter.Walk(ctx, nil, func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) (bool, error) {
 		penalty := types.PenaltyCounter{ValidatorAddress: operator.String(), VotePenaltyCounter: &votePenaltyCounter}
 		penaltyCounters = append(penaltyCounters, penalty)
 		return false, nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Extract Aggregate exchange rate votes
 	aggregateExchangeRateVotes := []types.AggregateExchangeRateVote{}
@@ -140,10 +143,13 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) (*types.GenesisState, 
 
 	// Extract votePenaltyCounters
 	votePenaltyCounters := []types.VotePenaltyCounter{}
-	keeper.IterateVotePenaltyCounters(ctx, func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) (bool, error) {
+	err = keeper.VotePenaltyCounter.Walk(ctx, nil, func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) (bool, error) {
 		votePenaltyCounters = append(votePenaltyCounters, votePenaltyCounter)
 		return false, nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Build the genesis state
 	genesisState := types.NewGenesisState(

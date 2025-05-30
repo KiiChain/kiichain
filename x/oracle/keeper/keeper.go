@@ -281,18 +281,6 @@ func (k Keeper) GetSuccessCount(ctx sdk.Context, operator sdk.ValAddress) uint64
 	return currentPenaltyCounter.SuccessCount
 }
 
-// DeleteVotePanltyCounter deletes the operator's vote penalty counter element
-func (k Keeper) DeleteVotePenaltyCounter(ctx sdk.Context, operator sdk.ValAddress) {
-	// TODO: Add metrics on defer functions
-	k.VotePenaltyCounter.Remove(ctx, operator)
-}
-
-// IterateVotePenaltyCounters iterates over penalty counters in the store and perform vallback function
-func (k Keeper) IterateVotePenaltyCounters(ctx sdk.Context, handler func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) (bool, error)) {
-	// Walk through the VotePenaltyCounter map
-	k.VotePenaltyCounter.Walk(ctx, nil, handler)
-}
-
 // ****************************************************************************
 
 // **************************** Aggregate Exchange Rate Vote logic ************
