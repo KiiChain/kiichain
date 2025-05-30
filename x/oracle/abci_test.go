@@ -59,7 +59,7 @@ func TestMidBlocker(t *testing.T) {
 		err = Endblocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
-		exchangeRateResponse, err := oracleKeeper.GetBaseExchangeRate(ctx, utils.MicroAtomDenom)
+		exchangeRateResponse, err := oracleKeeper.ExchangeRate.Get(ctx, utils.MicroAtomDenom)
 		require.NoError(t, err)
 		require.Equal(t, randomAExchangeRate, exchangeRateResponse.ExchangeRate)
 		require.Equal(t, int64(1), exchangeRateResponse.LastUpdate.Int64()) // Last update block should be 1
@@ -125,7 +125,7 @@ func TestMidBlocker(t *testing.T) {
 		err = Endblocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
-		_, err = oracleKeeper.GetBaseExchangeRate(ctx, utils.MicroAtomDenom)
+		_, err = oracleKeeper.ExchangeRate.Get(ctx, utils.MicroAtomDenom)
 		require.Error(t, err)
 	})
 
@@ -278,7 +278,7 @@ func TestOracleDrop(t *testing.T) {
 	err = Endblocker(ctx, oracleKeeper)
 	require.NoError(t, err)
 
-	exchangeRateRes, err := oracleKeeper.GetBaseExchangeRate(ctx, utils.MicroAtomDenom)
+	exchangeRateRes, err := oracleKeeper.ExchangeRate.Get(ctx, utils.MicroAtomDenom)
 	require.NoError(t, err)
 	require.True(t, randomAExchangeRate.Equal(exchangeRateRes.ExchangeRate))
 }

@@ -51,7 +51,7 @@ func (qs queryServer) ExchangeRate(ctx context.Context, req *types.QueryExchange
 
 	// Get exchange rate by denom
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	exchangeRate, err := qs.Keeper.GetBaseExchangeRate(sdkCtx, req.Denom)
+	exchangeRate, err := qs.Keeper.ExchangeRate.Get(sdkCtx, req.Denom)
 	if err != nil {
 		return nil, err
 	}

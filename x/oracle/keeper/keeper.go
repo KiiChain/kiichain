@@ -96,11 +96,6 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 // **************************** EXCHANGE RATE LOGIC ***************************
 
-// GetBaseExchangeRate is used to get the exchange rate by denom from the KVStore
-func (k Keeper) GetBaseExchangeRate(ctx sdk.Context, denom string) (types.OracleExchangeRate, error) {
-	return k.ExchangeRate.Get(ctx, denom)
-}
-
 // SetBaseExchangeRate is used to set the exchange rate by denom on the KVStore
 func (k Keeper) SetBaseExchangeRate(ctx sdk.Context, denom string, exchangeRate math.LegacyDec) error {
 	// Get the extra data

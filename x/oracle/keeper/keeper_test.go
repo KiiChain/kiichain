@@ -33,7 +33,7 @@ func TestExchangeRateLogic(t *testing.T) {
 	// ***** First exchange rate insertion
 	err := oracleKeeper.SetBaseExchangeRate(ctx, BtcUsd, btcUsdExchangeRate) // Set exchange rates on KVStore
 	require.NoError(t, err)
-	btcUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, BtcUsd) // Get exchange rate from KVStore
+	btcUsdRate, err := oracleKeeper.ExchangeRate.Get(ctx, BtcUsd) // Get exchange rate from KVStore
 	require.NoError(t, err, "Expected no error getting BTC/USD exchange rate")
 	require.Equal(t, btcUsdExchangeRate, btcUsdRate.ExchangeRate, "Expected got the same exchange rate as ")
 	require.Equal(t, math.ZeroInt(), btcUsdRate.LastUpdate) // There is no previous updates
@@ -46,7 +46,7 @@ func TestExchangeRateLogic(t *testing.T) {
 	// ***** Second exchange rate insertion
 	err = oracleKeeper.SetBaseExchangeRate(ctx, EthUsd, ethUsdExchangeRate) // Set exchange rates on KVStore
 	require.NoError(t, err)
-	ethUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, EthUsd) // Get exchange rate from KVStore
+	ethUsdRate, err := oracleKeeper.ExchangeRate.Get(ctx, EthUsd) // Get exchange rate from KVStore
 	require.NoError(t, err)
 	require.Equal(t, ethUsdExchangeRate, ethUsdRate.ExchangeRate)
 	require.Equal(t, math.NewInt(3), ethUsdRate.LastUpdate)
@@ -60,7 +60,7 @@ func TestExchangeRateLogic(t *testing.T) {
 	// ***** Third exchange rate insertion (using events)
 	err = oracleKeeper.SetBaseExchangeRateWithEvent(ctx, AtomUsd, atomUsdExchangeRate) // Set exchange rates on KVStore
 	require.NoError(t, err)
-	atomUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, AtomUsd) // Get exchange rate from KVStore
+	atomUsdRate, err := oracleKeeper.ExchangeRate.Get(ctx, AtomUsd) // Get exchange rate from KVStore
 
 	// Create the event validation function
 	eventValidation := func() bool {
@@ -106,7 +106,7 @@ func TestExchangeRateLogic(t *testing.T) {
 	// ***** First exchange rate elimination
 	err = oracleKeeper.ExchangeRate.Remove(ctx, BtcUsd)
 	require.NoError(t, err)
-	_, err = oracleKeeper.GetBaseExchangeRate(ctx, BtcUsd)
+	_, err = oracleKeeper.ExchangeRate.Get(ctx, BtcUsd)
 	require.Error(t, err) // Validate error
 
 	// test iteration function
