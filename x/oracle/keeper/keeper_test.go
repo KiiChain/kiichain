@@ -523,7 +523,8 @@ func TestPriceSnapshotLogic(t *testing.T) {
 		iteration++
 		return false, nil
 	}
-	oracleKeeper.IteratePriceSnapshots(ctx, handler)
+	err = oracleKeeper.PriceSnapshot.Walk(ctx, nil, handler)
+	require.NoError(t, err)
 
 	iteration = int64(2)
 	handlerReverse := func(snapshot types.PriceSnapshot) (bool, error) {

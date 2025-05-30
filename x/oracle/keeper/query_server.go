@@ -106,10 +106,13 @@ func (qs queryServer) PriceSnapshotHistory(ctx context.Context, req *types.Query
 
 	// Get the snapshots available on the KVStore
 	priceSnapshots := []types.PriceSnapshot{}
-	qs.Keeper.IteratePriceSnapshots(sdkCtx, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
+	err := qs.Keeper.PriceSnapshot.Walk(sdkCtx, nil, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
 		priceSnapshots = append(priceSnapshots, snapshot)
 		return false, nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.QueryPriceSnapshotHistoryResponse{PriceSnapshot: priceSnapshots}, nil
 }

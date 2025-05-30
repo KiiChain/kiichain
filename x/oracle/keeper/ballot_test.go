@@ -38,7 +38,8 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 	require.NoError(t, err)
 
 	// execute staking endblocker to start validators bonded
-	stakingKeeper.EndBlocker(ctx)
+	_, err = stakingKeeper.EndBlocker(ctx)
+	require.NoError(t, err)
 
 	// Simulate aggregation exchange rate process
 	exchangeRate1 := types.ExchangeRateTuples{
@@ -147,7 +148,8 @@ func TestClearBallots(t *testing.T) {
 	require.NoError(t, err)
 
 	// execute staking endblocker to start validators bonding
-	stakingKeeper.EndBlocker(ctx)
+	_, err = stakingKeeper.EndBlocker(ctx)
+	require.NoError(t, err)
 
 	// Simulate aggregation exchange rate process
 	exchangeRate1 := types.ExchangeRateTuples{
@@ -218,7 +220,8 @@ func TestApplyWhitelist(t *testing.T) {
 	require.Error(t, err)
 
 	// Apply whitelist
-	oracleKeeper.ApplyWhitelist(ctx, whiteList, map[string]types.Denom{})
+	err = oracleKeeper.ApplyWhitelist(ctx, whiteList, map[string]types.Denom{})
+	require.NoError(t, err)
 
 	// Check that all elements in whitelist are now in voteTargets
 	for _, item := range whiteList {
