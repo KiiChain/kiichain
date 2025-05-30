@@ -61,7 +61,8 @@ func TestExportInitGenesis(t *testing.T) {
 		},
 	)
 
-	oracleKeeper.SetFeederDelegation(ctx, keeper.ValAddrs[0], keeper.Addrs[1])
+	err = oracleKeeper.FeederDelegation.Set(ctx, keeper.ValAddrs[0], keeper.Addrs[1].String())
+	require.NoError(t, err)
 	err = oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, math.LegacyNewDec(123))
 	require.NoError(t, err)
 	err = oracleKeeper.AggregateExchangeRateVote.Set(ctx, keeper.ValAddrs[0], exchangeRateVote)

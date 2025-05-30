@@ -121,7 +121,10 @@ func (ms msgServer) DelegateFeedConsent(ctx context.Context, msg *types.MsgDeleg
 	}
 
 	// Assign the delegator from the validator address
-	ms.SetFeederDelegation(sdkCtx, validatorAddress, delegatorAddress)
+	err = ms.FeederDelegation.Set(sdkCtx, validatorAddress, delegatorAddress.String())
+	if err != nil {
+		return nil, err
+	}
 
 	// Trigger events (exchange rate saved and the feeder address)
 	sdkCtx.EventManager().EmitEvents(sdk.Events{

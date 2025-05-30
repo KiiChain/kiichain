@@ -167,12 +167,6 @@ func (k Keeper) GetFeederDelegation(ctx sdk.Context, valAddr sdk.ValAddress) sdk
 	return accAddress
 }
 
-// SetFeederDelegation set into the KVStore the address of an account delegated by the validator
-func (k Keeper) SetFeederDelegation(ctx sdk.Context, valAddr sdk.ValAddress, delegatedFeeder sdk.AccAddress) {
-	// Set the feeder delegation
-	k.FeederDelegation.Set(ctx, valAddr, delegatedFeeder.String())
-}
-
 // ValidateFeeder the feeder address whether is a validator or delegated address and if is allowed
 // to feed the Oracle module price
 func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
