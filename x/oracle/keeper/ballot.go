@@ -73,7 +73,10 @@ func (k Keeper) ApplyWhitelist(ctx sdk.Context, whitelist types.DenomList, voteT
 
 		// Iterate the new whitelist
 		for _, item := range whitelist {
-			k.VoteTarget.Set(ctx, item.Name, item) // Set the new vote target
+			err = k.VoteTarget.Set(ctx, item.Name, item) // Set the new vote target
+			if err != nil {
+				return err
+			}
 
 			// Register meta data to bank module
 			_, ok := k.bankKeeper.GetDenomMetaData(ctx, item.Name)

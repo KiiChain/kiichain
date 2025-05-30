@@ -41,8 +41,8 @@ func TestQueryExchangeRate(t *testing.T) {
 
 	// insert data on the module
 	rate := math.LegacyNewDec(12)
-	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, rate)
-
+	err := oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, rate)
+	require.NoError(t, err)
 	// query params
 	res, err := querier.ExchangeRate(ctx, &types.QueryExchangeRateRequest{Denom: utils.MicroAtomDenom})
 
@@ -62,8 +62,10 @@ func TestQueryExchangeRates(t *testing.T) {
 
 	// insert data on the module
 	rate := math.LegacyNewDec(12)
-	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, rate)
-	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, rate)
+	err := oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, rate)
+	require.NoError(t, err)
+	err = oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, rate)
+	require.NoError(t, err)
 
 	// query params
 	res, err := querier.ExchangeRates(ctx, &types.QueryExchangeRatesRequest{})
@@ -84,8 +86,10 @@ func TestQueryActives(t *testing.T) {
 
 	// insert data on the module
 	rate := math.LegacyNewDec(12)
-	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, rate)
-	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, rate)
+	err := oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, rate)
+	require.NoError(t, err)
+	err = oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, rate)
+	require.NoError(t, err)
 
 	// query params
 	res, err := querier.Actives(ctx, &types.QueryActivesRequest{})

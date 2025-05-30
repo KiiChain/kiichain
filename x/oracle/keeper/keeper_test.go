@@ -31,8 +31,9 @@ func TestExchangeRateLogic(t *testing.T) {
 	atomUsdExchangeRate := math.LegacyNewDecWithPrec(300, int64(OracleDecPrecision)).MulInt64(1e6)
 
 	// ***** First exchange rate insertion
-	oracleKeeper.SetBaseExchangeRate(ctx, BtcUsd, btcUsdExchangeRate) // Set exchange rates on KVStore
-	btcUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, BtcUsd)  // Get exchange rate from KVStore
+	err := oracleKeeper.SetBaseExchangeRate(ctx, BtcUsd, btcUsdExchangeRate) // Set exchange rates on KVStore
+	require.NoError(t, err)
+	btcUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, BtcUsd) // Get exchange rate from KVStore
 	require.NoError(t, err, "Expected no error getting BTC/USD exchange rate")
 	require.Equal(t, btcUsdExchangeRate, btcUsdRate.ExchangeRate, "Expected got the same exchange rate as ")
 	require.Equal(t, math.ZeroInt(), btcUsdRate.LastUpdate) // There is no previous updates
@@ -43,8 +44,9 @@ func TestExchangeRateLogic(t *testing.T) {
 	ctx = ctx.WithBlockTime(ts) // Update block timestamp
 
 	// ***** Second exchange rate insertion
-	oracleKeeper.SetBaseExchangeRate(ctx, EthUsd, ethUsdExchangeRate) // Set exchange rates on KVStore
-	ethUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, EthUsd)  // Get exchange rate from KVStore
+	err = oracleKeeper.SetBaseExchangeRate(ctx, EthUsd, ethUsdExchangeRate) // Set exchange rates on KVStore
+	require.NoError(t, err)
+	ethUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, EthUsd) // Get exchange rate from KVStore
 	require.NoError(t, err)
 	require.Equal(t, ethUsdExchangeRate, ethUsdRate.ExchangeRate)
 	require.Equal(t, math.NewInt(3), ethUsdRate.LastUpdate)
@@ -56,8 +58,9 @@ func TestExchangeRateLogic(t *testing.T) {
 	ctx = ctx.WithBlockTime(newTime) // Update block timestamp
 
 	// ***** Third exchange rate insertion (using events)
-	oracleKeeper.SetBaseExchangeRateWithEvent(ctx, AtomUsd, atomUsdExchangeRate) // Set exchange rates on KVStore
-	atomUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, AtomUsd)           // Get exchange rate from KVStore
+	err = oracleKeeper.SetBaseExchangeRateWithEvent(ctx, AtomUsd, atomUsdExchangeRate) // Set exchange rates on KVStore
+	require.NoError(t, err)
+	atomUsdRate, err := oracleKeeper.GetBaseExchangeRate(ctx, AtomUsd) // Get exchange rate from KVStore
 
 	// Create the event validation function
 	eventValidation := func() bool {
@@ -428,12 +431,16 @@ func TestRemoveExcessFeeds(t *testing.T) {
 	require.NoError(t, err)
 
 	// Aggregate base exchange rate
-	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, math.LegacyNewDec(1))
-	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, math.LegacyNewDec(2))
-	oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroKiiDenom, math.LegacyNewDec(3)) // extra denom
+	err = oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, math.LegacyNewDec(1))
+	require.NoError(t, err)
+	err = oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, math.LegacyNewDec(2))
+	require.NoError(t, err)
+	err = oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroKiiDenom, math.LegacyNewDec(3)) // extra denom
+	require.NoError(t, err)
 
 	// remove excess
-	oracleKeeper.RemoveExcessFeeds(ctx)
+	err = oracleKeeper.RemoveExcessFeeds(ctx)
+	require.NoError(t, err)
 
 	// Validate the successful erased of the extra denoms
 	oracleKeeper.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
