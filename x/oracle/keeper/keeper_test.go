@@ -174,7 +174,8 @@ func TestDelegationLogic(t *testing.T) {
 	delegate := oracleKeeper.GetFeederDelegation(ctx, ValAddrs[0]) // supposed to received the same val addr
 	require.Equal(t, Addrs[0], delegate)
 
-	oracleKeeper.SetFeederDelegation(ctx, ValAddrs[0], Addrs[1]) // Delegate Val 0 -> Addr 1
+	err := oracleKeeper.FeederDelegation.Set(ctx, ValAddrs[0], Addrs[1].String()) // Delegate Val 0 -> Addr 1
+	require.NoError(t, err)
 	delegate = oracleKeeper.GetFeederDelegation(ctx, ValAddrs[0])
 	require.Equal(t, Addrs[1], delegate)
 
@@ -193,7 +194,7 @@ func TestDelegationLogic(t *testing.T) {
 		delegates = append(delegates, delegatedFeederAcc)
 		return false, nil
 	}
-	err := oracleKeeper.FeederDelegation.Walk(ctx, nil, handler)
+	err = oracleKeeper.FeederDelegation.Walk(ctx, nil, handler)
 	require.NoError(t, err)
 
 	// Validation
@@ -250,7 +251,8 @@ func TestValidateFeeder(t *testing.T) {
 	require.NoError(t, oracleKeeper.ValidateFeeder(ctx, sdk.AccAddress(val2Addr), val2Addr))
 
 	// Delegate validator 1 to Val 2
-	oracleKeeper.SetFeederDelegation(ctx, val1Addr, sdk.AccAddress(val2Addr))                // Delegate Val 1 to Val 2
+	err = oracleKeeper.FeederDelegation.Set(ctx, val1Addr, sdk.AccAddress(val2Addr).String()) // Delegate Val 1 to Val 2
+	require.NoError(t, err)
 	require.NoError(t, oracleKeeper.ValidateFeeder(ctx, sdk.AccAddress(val2Addr), val1Addr)) // Validate that Val2 is delegated by val1
 	require.Error(t, oracleKeeper.ValidateFeeder(ctx, Addrs[2], val1Addr))
 }

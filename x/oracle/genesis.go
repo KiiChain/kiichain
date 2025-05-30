@@ -32,7 +32,10 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState
 		}
 
 		// Assign the feeder delegator on the module
-		keeper.SetFeederDelegation(ctx, valAddress, feederAddress)
+		err = keeper.FeederDelegation.Set(ctx, valAddress, feederAddress.String())
+		if err != nil {
+			return err
+		}
 	}
 
 	// Assign on the KVStore the exchange rate

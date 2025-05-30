@@ -233,7 +233,8 @@ func TestQueryFeederDelegation(t *testing.T) {
 	querier := NewQueryServer(oracleKeeper)
 
 	// delegate voting power
-	oracleKeeper.SetFeederDelegation(ctx, ValAddrs[0], Addrs[0])
+	err := oracleKeeper.FeederDelegation.Set(ctx, ValAddrs[0], Addrs[0].String())
+	require.NoError(t, err)
 
 	// query params
 	res, err := querier.FeederDelegation(ctx, &types.QueryFeederDelegationRequest{ValidatorAddr: ValAddrs[0].String()})
