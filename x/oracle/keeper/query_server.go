@@ -162,18 +162,11 @@ func (qs queryServer) VotePenaltyCounter(ctx context.Context, req *types.QueryVo
 
 	// Get the penalty counters by the validator address
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	missCount := qs.Keeper.GetMissCount(sdkCtx, valAddr)
-	abstainCount := qs.Keeper.GetAbstainCount(sdkCtx, valAddr)
-	successCount := qs.Keeper.GetSuccessCount(sdkCtx, valAddr)
-
-	// Prepare response
-	votePenaltyCounter := &types.VotePenaltyCounter{
-		MissCount:    missCount,
-		AbstainCount: abstainCount,
-		SuccessCount: successCount,
+	voteCounter, err := qs.Keeper.VotePenaltyCounter.Get(sdkCtx, valAddr)
+	if err != nil {
+		return nil, err
 	}
-
-	return &types.QueryVotePenaltyCounterResponse{VotePenaltyCounter: votePenaltyCounter}, nil
+	return &types.QueryVotePenaltyCounterResponse{VotePenaltyCounter: &voteCounter}, nil
 }
 
 // SlashWindow queries the slash window progress

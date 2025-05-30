@@ -10,6 +10,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/kiichain/kiichain/v1/x/oracle/types"
 )
 
 func TestSlashAndResetMissCounters(t *testing.T) {
@@ -59,10 +61,17 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 	minValidVotes := params.MinValidPerWindow.MulInt64(votePeriodsPerWindow).TruncateInt64()
 
 	t.Run("no slash", func(t *testing.T) {
-		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow-minValidVotes), 0, uint64(minValidVotes))
+		// Set the vote penalty counter for the validator
+		err := oracleKeeper.VotePenaltyCounter.Set(input.Ctx, ValAddrs[0], types.NewVotePenaltyCounter(
+			uint64(votePeriodsPerWindow-minValidVotes),
+			0,
+			uint64(minValidVotes),
+		))
+		require.NoError(t, err)
+
 		err = oracleKeeper.SlashAndResetCounters(input.Ctx)
 		require.NoError(t, err)
-		_, err := stakingKeeper.EndBlocker(ctx)
+		_, err = stakingKeeper.EndBlocker(ctx)
 		require.NoError(t, err)
 
 		validator, _ := stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
@@ -70,10 +79,17 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 	})
 
 	t.Run("no slash - total votes is greater than votes per window", func(t *testing.T) {
-		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow), 0, uint64(votePeriodsPerWindow))
+		// Set the vote penalty counter for the validator
+		err := oracleKeeper.VotePenaltyCounter.Set(input.Ctx, ValAddrs[0], types.VotePenaltyCounter{
+			MissCount:    uint64(votePeriodsPerWindow),
+			AbstainCount: 0,
+			SuccessCount: uint64(votePeriodsPerWindow),
+		})
+		require.NoError(t, err)
+
 		err = oracleKeeper.SlashAndResetCounters(input.Ctx)
 		require.NoError(t, err)
-		_, err := stakingKeeper.EndBlocker(ctx)
+		_, err = stakingKeeper.EndBlocker(ctx)
 		require.NoError(t, err)
 
 		validator, _ := stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
@@ -81,7 +97,14 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 	})
 
 	t.Run("successfully slash", func(t *testing.T) {
-		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow-minValidVotes+1), 0, uint64(minValidVotes-1))
+		// Set the vote penalty counter for the validator
+		err := oracleKeeper.VotePenaltyCounter.Set(input.Ctx, ValAddrs[0], types.NewVotePenaltyCounter(
+			uint64(votePeriodsPerWindow-minValidVotes+1),
+			0,
+			uint64(minValidVotes-1),
+		))
+		require.NoError(t, err)
+
 		err = oracleKeeper.SlashAndResetCounters(input.Ctx)
 		require.NoError(t, err)
 		validator, _ := stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
@@ -96,7 +119,15 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 		err := stakingKeeper.SetValidator(input.Ctx, validator)
 		require.NoError(t, err)
 		require.Equal(t, amount, validator.GetBondedTokens())
-		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], 0, uint64(votePeriodsPerWindow-minValidVotes+1), 0)
+
+		// Set the vote penalty counter for the validator
+		err = oracleKeeper.VotePenaltyCounter.Set(input.Ctx, ValAddrs[0], types.NewVotePenaltyCounter(
+			0,
+			uint64(votePeriodsPerWindow-minValidVotes+1),
+			0,
+		))
+		require.NoError(t, err)
+
 		err = oracleKeeper.SlashAndResetCounters(input.Ctx)
 		require.NoError(t, err)
 		validator, _ = stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
@@ -114,7 +145,14 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 		err := stakingKeeper.SetValidator(input.Ctx, validator)
 		require.NoError(t, err)
 
-		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow-minValidVotes+1), 0, 0)
+		// Set the vote penalty counter for the validator
+		err = oracleKeeper.VotePenaltyCounter.Set(input.Ctx, ValAddrs[0], types.NewVotePenaltyCounter(
+			uint64(votePeriodsPerWindow-minValidVotes+1),
+			0,
+			0,
+		))
+		require.NoError(t, err)
+
 		err = oracleKeeper.SlashAndResetCounters(input.Ctx)
 		require.NoError(t, err)
 		validator, _ = stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
@@ -130,7 +168,14 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 		err := stakingKeeper.SetValidator(input.Ctx, validator)
 		require.NoError(t, err)
 
-		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow-minValidVotes+1), 0, 0)
+		// Set the vote penalty counter for the validator
+		err = oracleKeeper.VotePenaltyCounter.Set(input.Ctx, ValAddrs[0], types.NewVotePenaltyCounter(
+			uint64(votePeriodsPerWindow-minValidVotes+1),
+			0,
+			0,
+		))
+		require.NoError(t, err)
+
 		err = oracleKeeper.SlashAndResetCounters(input.Ctx)
 		require.NoError(t, err)
 		validator, _ = stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])

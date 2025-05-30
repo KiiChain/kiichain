@@ -131,16 +131,25 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) error {
 		// Validate miss voting process
 		for _, claim := range validatorClaimMap {
 			if int(claim.WinCount) == len(voteTargets) {
-				k.IncrementSuccessCount(ctx, claim.Recipient)
+				err = k.IncrementSuccessCount(ctx, claim.Recipient)
+				if err != nil {
+					return err
+				}
 				continue
 			}
 
 			if !claim.DidVote {
-				k.IncrementAbstainCount(ctx, claim.Recipient)
+				err = k.IncrementAbstainCount(ctx, claim.Recipient)
+				if err != nil {
+					return err
+				}
 				continue
 			}
 
-			k.IncrementMissCount(ctx, claim.Recipient)
+			err = k.IncrementMissCount(ctx, claim.Recipient)
+			if err != nil {
+				return err
+			}
 		}
 
 		// Clear the ballot

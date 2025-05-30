@@ -72,8 +72,10 @@ func TestExportInitGenesis(t *testing.T) {
 	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroEthDenom, types.Denom{Name: utils.MicroEthDenom})
 	require.NoError(t, err)
 
-	oracleKeeper.SetVotePenaltyCounter(ctx, keeper.ValAddrs[0], 2, 3, 0)
-	oracleKeeper.SetVotePenaltyCounter(ctx, keeper.ValAddrs[1], 4, 5, 0)
+	err = oracleKeeper.VotePenaltyCounter.Set(ctx, keeper.ValAddrs[0], types.NewVotePenaltyCounter(2, 3, 0))
+	require.NoError(t, err)
+	err = oracleKeeper.VotePenaltyCounter.Set(ctx, keeper.ValAddrs[1], types.NewVotePenaltyCounter(4, 5, 0))
+	require.NoError(t, err)
 	err = oracleKeeper.AddPriceSnapshot(ctx, snapshot1)
 	require.NoError(t, err)
 	err = oracleKeeper.AddPriceSnapshot(ctx, snapshot2)

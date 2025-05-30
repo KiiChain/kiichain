@@ -253,19 +253,18 @@ func TestQueryVotePenaltyCounter(t *testing.T) {
 	querier := NewQueryServer(oracleKeeper)
 
 	// calculate the expected slashwindow
-	missCounter := uint64(10)
-	abstainCounter := uint64(20)
-	successCounter := uint64(30)
-	oracleKeeper.SetVotePenaltyCounter(ctx, ValAddrs[0], missCounter, abstainCounter, successCounter) // Set the voting info
+	voteCounter := types.NewVotePenaltyCounter(30, 20, 10)
+	err := oracleKeeper.VotePenaltyCounter.Set(ctx, ValAddrs[0], voteCounter) // Set the voting info
+	require.NoError(t, err)
 
 	// query params
 	res, err := querier.VotePenaltyCounter(ctx, &types.QueryVotePenaltyCounterRequest{ValidatorAddr: ValAddrs[0].String()})
 
 	// validation
 	require.NoError(t, err)
-	require.Equal(t, missCounter, res.VotePenaltyCounter.MissCount)
-	require.Equal(t, abstainCounter, res.VotePenaltyCounter.AbstainCount)
-	require.Equal(t, successCounter, res.VotePenaltyCounter.SuccessCount)
+	require.Equal(t, res.VotePenaltyCounter.AbstainCount, voteCounter.AbstainCount)
+	require.Equal(t, res.VotePenaltyCounter.MissCount, voteCounter.MissCount)
+	require.Equal(t, res.VotePenaltyCounter.SuccessCount, voteCounter.SuccessCount)
 }
 
 func TestQuerySlashWindow(t *testing.T) {

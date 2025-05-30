@@ -86,3 +86,12 @@ func (p Params) Validate() error {
 	}
 	return nil
 }
+
+// NewVotePenaltyCounter returns a new instance of VotePenaltyCounter
+func NewVotePenaltyCounter(missCount, abstainCount, successCount uint64) VotePenaltyCounter {
+	return VotePenaltyCounter{
+		MissCount:    missCount,
+		AbstainCount: abstainCount,
+		SuccessCount: successCount,
+	}
+}
