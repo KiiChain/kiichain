@@ -166,7 +166,7 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) error {
 
 		// take an snapshot for each price
 		priceSnapshotItems := []types.PriceSnapshotItem{}
-		k.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
+		err = k.ExchangeRate.Walk(ctx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 			priceSnapshotItem := types.PriceSnapshotItem{
 				Denom:              denom,
 				OracleExchangeRate: exchangeRate,
@@ -175,6 +175,9 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) error {
 			priceSnapshotItems = append(priceSnapshotItems, priceSnapshotItem)
 			return false, nil
 		})
+		if err != nil {
+			return err
+		}
 
 		// create and save general snapshot
 		if len(priceSnapshotItems) > 0 {

@@ -69,10 +69,13 @@ func (qs queryServer) ExchangeRates(ctx context.Context, req *types.QueryExchang
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	exchangeRates := []types.DenomOracleExchangeRate{}
-	qs.Keeper.IterateBaseExchangeRates(sdkCtx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
+	err := qs.Keeper.ExchangeRate.Walk(sdkCtx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		exchangeRates = append(exchangeRates, types.DenomOracleExchangeRate{Denom: denom, OracleExchangeRate: &exchangeRate})
 		return false, nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.QueryExchangeRatesResponse{DenomOracleExchangeRate: exchangeRates}, nil
 }
@@ -82,10 +85,13 @@ func (qs queryServer) Actives(ctx context.Context, req *types.QueryActivesReques
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	denomsActive := []string{}
-	qs.Keeper.IterateBaseExchangeRates(sdkCtx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
+	err := qs.Keeper.ExchangeRate.Walk(sdkCtx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		denomsActive = append(denomsActive, denom)
 		return false, nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.QueryActivesResponse{Actives: denomsActive}, nil
 }
