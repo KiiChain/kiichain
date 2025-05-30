@@ -94,10 +94,8 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// **************************** EXCHANGE RATE LOGIC ***************************
-
-// SetBaseExchangeRate is used to set the exchange rate by denom on the KVStore
-func (k Keeper) SetBaseExchangeRate(ctx sdk.Context, denom string, exchangeRate math.LegacyDec) error {
+// SetBaseExchangeRateWithDefault is used to set the exchange rate by denom on the KVStore
+func (k Keeper) SetBaseExchangeRateWithDefault(ctx sdk.Context, denom string, exchangeRate math.LegacyDec) error {
 	// Get the extra data
 	currentHeight := math.NewInt(ctx.BlockHeight())
 	blockTimestamp := ctx.BlockTime().UnixMilli()
@@ -116,7 +114,7 @@ func (k Keeper) SetBaseExchangeRate(ctx sdk.Context, denom string, exchangeRate 
 // SetBaseExchangeRateWithEvent calls SetBaseExchangeRate and generate an event about that denom creation
 func (k Keeper) SetBaseExchangeRateWithEvent(ctx sdk.Context, denom string, exchangeRate math.LegacyDec) error {
 	// Set exchange rate by denom
-	err := k.SetBaseExchangeRate(ctx, denom, exchangeRate)
+	err := k.SetBaseExchangeRateWithDefault(ctx, denom, exchangeRate)
 	if err != nil {
 		return err
 	}
@@ -134,12 +132,8 @@ func (k Keeper) SetBaseExchangeRateWithEvent(ctx sdk.Context, denom string, exch
 	return nil
 }
 
-// ****************************************************************************
-
-// **************************** Oracle Delegation Logic ***********************
-
-// GetFeederDelegation returns the delegated address by validator address
-func (k Keeper) GetFeederDelegation(ctx sdk.Context, valAddr sdk.ValAddress) sdk.AccAddress {
+// GetFeederDelegationOrDefault returns the delegated address by validator address
+func (k Keeper) GetFeederDelegationOrDefault(ctx sdk.Context, valAddr sdk.ValAddress) sdk.AccAddress {
 	// Get the account address
 	accAddressString, err := k.FeederDelegation.Get(ctx, valAddr)
 	// If the not found, return the val Address
@@ -168,7 +162,7 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 	// validate if the feeder addr is a delegated address, if so, validate if the registered bounded address
 	// by that validator is the feeder address
 	if !feederAddr.Equals(valAddr) {
-		delegator := k.GetFeederDelegation(ctx, valAddr) // Get the delegated address by validator address
+		delegator := k.GetFeederDelegationOrDefault(ctx, valAddr) // Get the delegated address by validator address
 		if !delegator.Equals(feederAddr) {
 			return cosmoserrors.Wrap(types.ErrNoVotingPermission, feederAddr.String())
 		}
@@ -186,12 +180,8 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 	return nil
 }
 
-// ****************************************************************************
-
-// **************************** Miss counter logic ****************************
-
-// GetVotePenaltyCounter returns the vote penalty counter data for an operator (validator or delegated address)
-func (k Keeper) GetVotePenaltyCounter(ctx sdk.Context, operator sdk.ValAddress) (types.VotePenaltyCounter, error) {
+// GetVotePenaltyCounterOrDefault returns the vote penalty counter data for an operator (validator or delegated address)
+func (k Keeper) GetVotePenaltyCounterOrDefault(ctx sdk.Context, operator sdk.ValAddress) (types.VotePenaltyCounter, error) {
 	votePenaltyCounter, err := k.VotePenaltyCounter.Get(ctx, operator)
 	// If not registered yet, return a default value
 	if errors.Is(err, collections.ErrNotFound) {
@@ -207,7 +197,7 @@ func (k Keeper) GetVotePenaltyCounter(ctx sdk.Context, operator sdk.ValAddress) 
 
 // IncrementMissCount increments the missing count to an specific operator address in the KVStore
 func (k Keeper) IncrementMissCount(ctx sdk.Context, operator sdk.ValAddress) error {
-	currentPenaltyCounter, err := k.GetVotePenaltyCounter(ctx, operator)
+	currentPenaltyCounter, err := k.GetVotePenaltyCounterOrDefault(ctx, operator)
 	if err != nil {
 		return err
 	}
@@ -218,7 +208,7 @@ func (k Keeper) IncrementMissCount(ctx sdk.Context, operator sdk.ValAddress) err
 
 // IncrementAbstainCount increments the abstain count to an specific operator address in the KVStore
 func (k Keeper) IncrementAbstainCount(ctx sdk.Context, operator sdk.ValAddress) error {
-	currentPenaltyCounter, err := k.GetVotePenaltyCounter(ctx, operator)
+	currentPenaltyCounter, err := k.GetVotePenaltyCounterOrDefault(ctx, operator)
 	if err != nil {
 		return err
 	}
@@ -229,7 +219,7 @@ func (k Keeper) IncrementAbstainCount(ctx sdk.Context, operator sdk.ValAddress) 
 
 // IncrementSuccessCount increments the success count to an specific operator address in the KVStore
 func (k Keeper) IncrementSuccessCount(ctx sdk.Context, operator sdk.ValAddress) error {
-	currentPenaltyCounter, err := k.GetVotePenaltyCounter(ctx, operator)
+	currentPenaltyCounter, err := k.GetVotePenaltyCounterOrDefault(ctx, operator)
 	if err != nil {
 		return err
 	}
@@ -237,10 +227,6 @@ func (k Keeper) IncrementSuccessCount(ctx sdk.Context, operator sdk.ValAddress) 
 	currentPenaltyCounter.SuccessCount++
 	return k.VotePenaltyCounter.Set(ctx, operator, currentPenaltyCounter)
 }
-
-// ****************************************************************************
-
-// **************************** Aggregate Exchange Rate Vote logic ************
 
 // RemoveExcessFeeds deletes the exchange rates added to the KVStore but not require on the whitelist
 func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) error {
@@ -282,12 +268,8 @@ func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) error {
 	return nil
 }
 
-// ****************************************************************************
-
-// **************************** Price Snapshot logic **************************
-
-// GetPriceSnapshot returns the exchange rate prices stored by a defined timestamp
-func (k Keeper) GetPriceSnapshot(ctx sdk.Context, timestamp int64) types.PriceSnapshot {
+// GetPriceSnapshotOrDefault returns the exchange rate prices stored by a defined timestamp
+func (k Keeper) GetPriceSnapshotOrDefault(ctx sdk.Context, timestamp int64) types.PriceSnapshot {
 	// Get the price snapshot
 	priceSnapshot, err := k.PriceSnapshot.Get(ctx, timestamp)
 
@@ -378,22 +360,14 @@ func (k Keeper) IteratePriceSnapshotsReverse(ctx sdk.Context, handler func(snaps
 	return nil
 }
 
-// ****************************************************************************
-
-// **************************** Spam Prevention Counter logic *****************
-
-// SetSpamPreventionCounter stores the block heigh by the validator as an anti voting spam mechanism
-func (k Keeper) SetSpamPreventionCounter(ctx sdk.Context, valAddr sdk.ValAddress) error {
+// SetSpamPreventionCounterWithDefault stores the block heigh by the validator as an anti voting spam mechanism
+func (k Keeper) SetSpamPreventionCounterWithDefault(ctx sdk.Context, valAddr sdk.ValAddress) error {
 	// Get the height of the current block
 	height := ctx.BlockHeight()
 
 	// Set the spam prevention counter
 	return k.SpamPreventionCounter.Set(ctx, valAddr, height)
 }
-
-// ****************************************************************************
-
-// **************************** Helper Functions logic ************************
 
 // CalculateTwaps calculate the twap to each exchange rate stored on the KVStore, the twap is a fundamental operation
 // to avoid price manipulation using the historycal price and feeders input to calculate the current price

@@ -261,7 +261,7 @@ func TestOracleDrop(t *testing.T) {
 	require.NoError(t, err)
 	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroAtomDenom, types.Denom{Name: utils.MicroAtomDenom})
 	require.NoError(t, err)
-	err = input.OracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, randomAExchangeRate)
+	err = input.OracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroAtomDenom, randomAExchangeRate)
 	require.NoError(t, err)
 
 	// Sample exchange rate for the test
@@ -393,11 +393,11 @@ func TestEndblocker(t *testing.T) {
 		require.NoError(t, err)
 
 		// Aggregate base exchange rate
-		err = oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, math.LegacyNewDec(1))
+		err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroAtomDenom, math.LegacyNewDec(1))
 		require.NoError(t, err)
-		err = oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, math.LegacyNewDec(2))
+		err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroEthDenom, math.LegacyNewDec(2))
 		require.NoError(t, err)
-		err = oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroKiiDenom, math.LegacyNewDec(3)) // extra denom
+		err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroKiiDenom, math.LegacyNewDec(3)) // extra denom
 		require.NoError(t, err)
 
 		// Execute EndBlocker on the last block of slash window
