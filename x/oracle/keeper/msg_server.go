@@ -75,7 +75,10 @@ func (ms msgServer) AggregateExchangeRateVote(ctx context.Context, msg *types.Ms
 		return nil, errors.Wrap(types.ErrAggregateVoteInvalidRate, exchangeRates.String())
 	}
 
-	ms.SetAggregateExchangeRateVote(sdkCtx, valAddress, aggregateExchangeRateVote)
+	err = ms.Keeper.AggregateExchangeRateVote.Set(sdkCtx, valAddress, aggregateExchangeRateVote)
+	if err != nil {
+		return nil, err
+	}
 
 	// Trigger events (exchange rate saved and the feeder address)
 	sdkCtx.EventManager().EmitEvents(sdk.Events{

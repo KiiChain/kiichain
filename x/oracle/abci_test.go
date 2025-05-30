@@ -254,7 +254,8 @@ func TestOracleDrop(t *testing.T) {
 	require.NoError(t, err)
 	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroAtomDenom, types.Denom{Name: utils.MicroAtomDenom})
 	require.NoError(t, err)
-	input.OracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, randomAExchangeRate)
+	err = input.OracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, randomAExchangeRate)
+	require.NoError(t, err)
 
 	// Sample exchange rate for the test
 	exchangeRate := randomAExchangeRate.String() + utils.MicroAtomDenom

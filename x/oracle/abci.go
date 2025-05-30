@@ -65,7 +65,10 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) error {
 		}
 
 		// Create a reference denom (RD) based on the voting power
-		voteMap := k.OrganizeBallotByDenom(ctx, validatorClaimMap) // Create a map (denom sorted) with the votes by denom
+		voteMap, err := k.OrganizeBallotByDenom(ctx, validatorClaimMap) // Create a map (denom sorted) with the votes by denom
+		if err != nil {
+			return err
+		}
 		referenceDenom, belowThresholdVoteMap := pickReferenceDenom(ctx, k, voteTargets, voteMap)
 
 		if referenceDenom != "" {

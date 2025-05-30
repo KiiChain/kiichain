@@ -61,7 +61,10 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState
 			panic(err)
 		}
 
-		keeper.SetAggregateExchangeRateVote(ctx, valAddress, aggregateExchange)
+		err = keeper.AggregateExchangeRateVote.Set(ctx, valAddress, aggregateExchange)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Add the price snapshots to the KVStore defined on the input object
@@ -117,10 +120,13 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) (*types.GenesisState, 
 
 	// Extract Aggregate exchange rate votes
 	aggregateExchangeRateVotes := []types.AggregateExchangeRateVote{}
-	keeper.IterateAggregateExchangeRateVotes(ctx, func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) (bool, error) {
+	err = keeper.AggregateExchangeRateVote.Walk(ctx, nil, func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) (bool, error) {
 		aggregateExchangeRateVotes = append(aggregateExchangeRateVotes, aggregateVote)
 		return false, nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Extract priceSnapshots
 	priceSnapshots := []types.PriceSnapshot{}
