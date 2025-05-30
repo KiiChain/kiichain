@@ -149,7 +149,7 @@ func (qs queryServer) FeederDelegation(ctx context.Context, req *types.QueryFeed
 
 	// Get the delegator by the Validator address
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	feederAddr := qs.Keeper.GetFeederDelegation(sdkCtx, valAddr).String()
+	feederAddr := qs.Keeper.GetFeederDelegationOrDefault(sdkCtx, valAddr).String()
 
 	return &types.QueryFeederDelegationResponse{FeedAddr: feederAddr}, nil
 }

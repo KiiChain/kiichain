@@ -31,7 +31,7 @@ func TestExchangeRateLogic(t *testing.T) {
 	atomUsdExchangeRate := math.LegacyNewDecWithPrec(300, int64(OracleDecPrecision)).MulInt64(1e6)
 
 	// ***** First exchange rate insertion
-	err := oracleKeeper.SetBaseExchangeRate(ctx, BtcUsd, btcUsdExchangeRate) // Set exchange rates on KVStore
+	err := oracleKeeper.SetBaseExchangeRateWithDefault(ctx, BtcUsd, btcUsdExchangeRate) // Set exchange rates on KVStore
 	require.NoError(t, err)
 	btcUsdRate, err := oracleKeeper.ExchangeRate.Get(ctx, BtcUsd) // Get exchange rate from KVStore
 	require.NoError(t, err, "Expected no error getting BTC/USD exchange rate")
@@ -44,7 +44,7 @@ func TestExchangeRateLogic(t *testing.T) {
 	ctx = ctx.WithBlockTime(ts) // Update block timestamp
 
 	// ***** Second exchange rate insertion
-	err = oracleKeeper.SetBaseExchangeRate(ctx, EthUsd, ethUsdExchangeRate) // Set exchange rates on KVStore
+	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, EthUsd, ethUsdExchangeRate) // Set exchange rates on KVStore
 	require.NoError(t, err)
 	ethUsdRate, err := oracleKeeper.ExchangeRate.Get(ctx, EthUsd) // Get exchange rate from KVStore
 	require.NoError(t, err)
@@ -171,12 +171,12 @@ func TestDelegationLogic(t *testing.T) {
 	ctx := init.Ctx
 
 	// ***** Get and set feeder delegator
-	delegate := oracleKeeper.GetFeederDelegation(ctx, ValAddrs[0]) // supposed to received the same val addr
+	delegate := oracleKeeper.GetFeederDelegationOrDefault(ctx, ValAddrs[0]) // supposed to received the same val addr
 	require.Equal(t, Addrs[0], delegate)
 
 	err := oracleKeeper.FeederDelegation.Set(ctx, ValAddrs[0], Addrs[1].String()) // Delegate Val 0 -> Addr 1
 	require.NoError(t, err)
-	delegate = oracleKeeper.GetFeederDelegation(ctx, ValAddrs[0])
+	delegate = oracleKeeper.GetFeederDelegationOrDefault(ctx, ValAddrs[0])
 	require.Equal(t, Addrs[1], delegate)
 
 	// ***** Iterate feeder delegator list
@@ -355,11 +355,11 @@ func TestRemoveExcessFeeds(t *testing.T) {
 	require.NoError(t, err)
 
 	// Aggregate base exchange rate
-	err = oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroAtomDenom, math.LegacyNewDec(1))
+	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroAtomDenom, math.LegacyNewDec(1))
 	require.NoError(t, err)
-	err = oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroEthDenom, math.LegacyNewDec(2))
+	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroEthDenom, math.LegacyNewDec(2))
 	require.NoError(t, err)
-	err = oracleKeeper.SetBaseExchangeRate(ctx, utils.MicroKiiDenom, math.LegacyNewDec(3)) // extra denom
+	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroKiiDenom, math.LegacyNewDec(3)) // extra denom
 	require.NoError(t, err)
 
 	// remove excess
@@ -443,8 +443,8 @@ func TestPriceSnapshotLogic(t *testing.T) {
 	err = oracleKeeper.PriceSnapshot.Set(ctx, snapshot2.SnapshotTimestamp, snapshot2) // Set snapshot 2
 	require.NoError(t, err)
 
-	gottenSnapshot1 := oracleKeeper.GetPriceSnapshot(ctx, 1)
-	gottenSnapshot2 := oracleKeeper.GetPriceSnapshot(ctx, 2)
+	gottenSnapshot1 := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1)
+	gottenSnapshot2 := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 2)
 	require.Equal(t, snapshot1, gottenSnapshot1) // validate
 	require.Equal(t, snapshot2, gottenSnapshot2) // validate
 
@@ -471,7 +471,7 @@ func TestPriceSnapshotLogic(t *testing.T) {
 	expected := types.PriceSnapshot{}
 	err = oracleKeeper.PriceSnapshot.Remove(ctx, 1)
 	require.NoError(t, err)
-	result := oracleKeeper.GetPriceSnapshot(ctx, 1) // Expected empty struct
+	result := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1) // Expected empty struct
 	require.Equal(t, expected, result)
 }
 
@@ -505,8 +505,8 @@ func TestAddPriceSnapshot(t *testing.T) {
 	require.NoError(t, err)
 
 	// Validate the 2 snapshots are on the KVStore
-	data1 := oracleKeeper.GetPriceSnapshot(ctx, 1)
-	data2 := oracleKeeper.GetPriceSnapshot(ctx, 2)
+	data1 := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1)
+	data2 := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 2)
 	require.Equal(t, snapshot1, data1)
 	require.Equal(t, snapshot2, data2)
 
@@ -527,9 +527,9 @@ func TestAddPriceSnapshot(t *testing.T) {
 	require.NoError(t, err)
 
 	// Validate the snapshot 1 and 2 were deleted
-	data1 = oracleKeeper.GetPriceSnapshot(ctx, 1)
-	data2 = oracleKeeper.GetPriceSnapshot(ctx, 2)
-	data3 := oracleKeeper.GetPriceSnapshot(ctx, 1000)
+	data1 = oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1)
+	data2 = oracleKeeper.GetPriceSnapshotOrDefault(ctx, 2)
+	data3 := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1000)
 
 	deletedSnapshot := types.NewPriceSnapshot(0, nil)
 	require.Equal(t, deletedSnapshot, data1) // data1 is empty
@@ -575,12 +575,12 @@ func TestSpamPreventionLogic(t *testing.T) {
 	ctx := init.Ctx
 
 	// test set and get spam prevention
-	ctx = ctx.WithBlockHeight(100)                                 // Set an specific block height
-	err := oracleKeeper.SetSpamPreventionCounter(ctx, ValAddrs[0]) // set spam on block 100 to val 0
+	ctx = ctx.WithBlockHeight(100)                                            // Set an specific block height
+	err := oracleKeeper.SetSpamPreventionCounterWithDefault(ctx, ValAddrs[0]) // set spam on block 100 to val 0
 	require.NoError(t, err)
 
 	ctx = ctx.WithBlockHeight(200)
-	err = oracleKeeper.SetSpamPreventionCounter(ctx, ValAddrs[1]) // set spam on block 200 to val 1
+	err = oracleKeeper.SetSpamPreventionCounterWithDefault(ctx, ValAddrs[1]) // set spam on block 200 to val 1
 	require.NoError(t, err)
 
 	spamVal1, err := oracleKeeper.SpamPreventionCounter.Get(ctx, ValAddrs[0]) // get smap list for val 0

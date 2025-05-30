@@ -75,7 +75,7 @@ func (spd SpammingPreventionDecorator) CheckOracleSpamming(ctx sdk.Context, msgs
 			}
 
 			// set the anti spam block height
-			err = spd.oracleKepper.SetSpamPreventionCounter(ctx, valAddr)
+			err = spd.oracleKepper.SetSpamPreventionCounterWithDefault(ctx, valAddr)
 			if err != nil {
 				return err
 			}

@@ -40,7 +40,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState
 
 	// Assign on the KVStore the exchange rate
 	for _, exchangeRate := range data.ExchangeRates {
-		err := keeper.SetBaseExchangeRate(ctx, exchangeRate.Denom, exchangeRate.ExchangeRate)
+		err := keeper.SetBaseExchangeRateWithDefault(ctx, exchangeRate.Denom, exchangeRate.ExchangeRate)
 		if err != nil {
 			return err
 		}
