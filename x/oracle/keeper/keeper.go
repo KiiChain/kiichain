@@ -383,7 +383,7 @@ func (k Keeper) AddPriceSnapshot(ctx sdk.Context, snapshot types.PriceSnapshot) 
 	// Delete the snapshot that it's timestamps is older that the LookbackDuration
 	var timestampsToDelete []int64
 
-	k.IteratePriceSnapshots(ctx, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
+	err = k.PriceSnapshot.Walk(ctx, nil, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
 		// If the snapshot is too old, mark it for deletion
 		if snapshot.SnapshotTimestamp+int64(lookBackDuration) < ctx.BlockTime().Unix() {
 			timestampsToDelete = append(timestampsToDelete, snapshot.SnapshotTimestamp)
@@ -393,6 +393,9 @@ func (k Keeper) AddPriceSnapshot(ctx sdk.Context, snapshot types.PriceSnapshot) 
 		// If a valid snapshot is found, stop iterating
 		return true, nil
 	})
+	if err != nil {
+		return err
+	}
 
 	// Delete all marked old snapshots
 	for _, timeToDelete := range timestampsToDelete {
@@ -402,12 +405,6 @@ func (k Keeper) AddPriceSnapshot(ctx sdk.Context, snapshot types.PriceSnapshot) 
 		}
 	}
 	return nil
-}
-
-// IteratePriceSnapshots iterates over the snapshot list and execute the handler
-func (k Keeper) IteratePriceSnapshots(ctx sdk.Context, handler func(timestamp int64, snapshot types.PriceSnapshot) (bool, error)) {
-	// Iterate the PriceSnapshot map
-	k.PriceSnapshot.Walk(ctx, nil, handler)
 }
 
 // IteratePriceSnapshotsReverse REVERSE iterates over the snapshot list and execute the handler

@@ -78,7 +78,8 @@ func TestExportInitGenesis(t *testing.T) {
 	require.NoError(t, err)
 
 	// Export genesis
-	genesis := oracle.ExportGenesis(ctx, oracleKeeper)
+	genesis, err := oracle.ExportGenesis(ctx, oracleKeeper)
+	require.NoError(t, err)
 
 	// Create new test env
 	newInput := keeper.CreateTestInput(t)
@@ -86,9 +87,10 @@ func TestExportInitGenesis(t *testing.T) {
 	newctx := newInput.Ctx
 
 	// use the exported genesis on the new env
-	err = oracle.InitGenesis(newctx, neworacleKeeper, &genesis)
+	err = oracle.InitGenesis(newctx, neworacleKeeper, genesis)
 	require.NoError(t, err)
-	newGenesis := oracle.ExportGenesis(newctx, neworacleKeeper)
+	newGenesis, err := oracle.ExportGenesis(newctx, neworacleKeeper)
+	require.NoError(t, err)
 
 	// validation
 	require.Equal(t, genesis, newGenesis)

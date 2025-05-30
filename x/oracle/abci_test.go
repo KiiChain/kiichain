@@ -92,10 +92,11 @@ func TestMidBlocker(t *testing.T) {
 		require.NoError(t, err)
 
 		// validate snapshot
-		oracleKeeper.IteratePriceSnapshots(ctx, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
+		err = oracleKeeper.PriceSnapshot.Walk(ctx, nil, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
 			require.Equal(t, snapshot.PriceSnapshotItems[0].Denom, utils.MicroAtomDenom)
 			return false, nil
 		})
+		require.NoError(t, err)
 	})
 
 	t.Run("Error case - Ballot power less than threshold", func(t *testing.T) {

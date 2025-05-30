@@ -79,7 +79,7 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState
 }
 
 // ExportGenesis collect and return the params of the blockchain
-func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) types.GenesisState {
+func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) (*types.GenesisState, error) {
 	// Current params of the module
 	params, err := keeper.Params.Get(ctx)
 	if err != nil {
@@ -121,10 +121,13 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) types.GenesisState {
 
 	// Extract priceSnapshots
 	priceSnapshots := []types.PriceSnapshot{}
-	keeper.IteratePriceSnapshots(ctx, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
+	err = keeper.PriceSnapshot.Walk(ctx, nil, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
 		priceSnapshots = append(priceSnapshots, snapshot)
 		return false, nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Extract votePenaltyCounters
 	votePenaltyCounters := []types.VotePenaltyCounter{}
@@ -133,6 +136,16 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) types.GenesisState {
 		return false, nil
 	})
 
-	// Send data
-	return *types.NewGenesisState(params, exchangeRates, feederDelegations, penaltyCounters, aggregateExchangeRateVotes, priceSnapshots, votePenaltyCounters)
+	// Build the genesis state
+	genesisState := types.NewGenesisState(
+		params,
+		exchangeRates,
+		feederDelegations,
+		penaltyCounters,
+		aggregateExchangeRateVotes,
+		priceSnapshots,
+		votePenaltyCounters,
+	)
+
+	return genesisState, nil
 }

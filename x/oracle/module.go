@@ -159,8 +159,12 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 
 // ExportGenesis returns the current genesis state as json
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	genesis := ExportGenesis(ctx, am.Kepper)
-	return cdc.MustMarshalJSON(&genesis)
+	genesis, err := ExportGenesis(ctx, am.Kepper)
+	if err != nil {
+		panic(fmt.Errorf("failed to export %s genesis state: %w", types.ModuleName, err))
+	}
+
+	return cdc.MustMarshalJSON(genesis)
 }
 
 // ConsensusVersion returns the version the module's version
