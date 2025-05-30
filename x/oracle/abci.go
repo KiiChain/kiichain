@@ -194,7 +194,10 @@ func Endblocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Slash who did miss voting over threshold
 	// reset miss counter of all validators at the last block of slash window
 	if utils.IsPeriodLastBlock(ctx, params.SlashWindow) {
-		k.SlashAndResetCounters(ctx)   // slash validator and reset voting counter
+		err = k.SlashAndResetCounters(ctx) // slash validator and reset voting counter
+		if err != nil {
+			return err
+		}
 		err = k.RemoveExcessFeeds(ctx) // remove aditional rates added on the votes
 		if err != nil {
 			return err

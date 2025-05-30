@@ -60,7 +60,8 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 
 	t.Run("no slash", func(t *testing.T) {
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow-minValidVotes), 0, uint64(minValidVotes))
-		oracleKeeper.SlashAndResetCounters(input.Ctx)
+		err = oracleKeeper.SlashAndResetCounters(input.Ctx)
+		require.NoError(t, err)
 		_, err := stakingKeeper.EndBlocker(ctx)
 		require.NoError(t, err)
 
@@ -70,7 +71,8 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 
 	t.Run("no slash - total votes is greater than votes per window", func(t *testing.T) {
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow), 0, uint64(votePeriodsPerWindow))
-		oracleKeeper.SlashAndResetCounters(input.Ctx)
+		err = oracleKeeper.SlashAndResetCounters(input.Ctx)
+		require.NoError(t, err)
 		_, err := stakingKeeper.EndBlocker(ctx)
 		require.NoError(t, err)
 
@@ -80,7 +82,8 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 
 	t.Run("successfully slash", func(t *testing.T) {
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow-minValidVotes+1), 0, uint64(minValidVotes-1))
-		oracleKeeper.SlashAndResetCounters(input.Ctx)
+		err = oracleKeeper.SlashAndResetCounters(input.Ctx)
+		require.NoError(t, err)
 		validator, _ := stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
 		require.Equal(t, amount.Sub(slashFraction.MulInt(amount).TruncateInt()), validator.GetBondedTokens())
 		require.True(t, validator.IsJailed())
@@ -94,7 +97,8 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, amount, validator.GetBondedTokens())
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], 0, uint64(votePeriodsPerWindow-minValidVotes+1), 0)
-		oracleKeeper.SlashAndResetCounters(input.Ctx)
+		err = oracleKeeper.SlashAndResetCounters(input.Ctx)
+		require.NoError(t, err)
 		validator, _ = stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
 
 		// slashing for not voting validly sufficiently
@@ -111,7 +115,8 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 		require.NoError(t, err)
 
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow-minValidVotes+1), 0, 0)
-		oracleKeeper.SlashAndResetCounters(input.Ctx)
+		err = oracleKeeper.SlashAndResetCounters(input.Ctx)
+		require.NoError(t, err)
 		validator, _ = stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
 		require.Equal(t, amount, validator.Tokens)
 		require.False(t, validator.IsJailed())
@@ -126,7 +131,8 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 		require.NoError(t, err)
 
 		oracleKeeper.SetVotePenaltyCounter(input.Ctx, ValAddrs[0], uint64(votePeriodsPerWindow-minValidVotes+1), 0, 0)
-		oracleKeeper.SlashAndResetCounters(input.Ctx)
+		err = oracleKeeper.SlashAndResetCounters(input.Ctx)
+		require.NoError(t, err)
 		validator, _ = stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
 		require.Equal(t, amount, validator.Tokens)
 	})

@@ -12,14 +12,14 @@ import (
 
 // SlashAndResetCounters calculate if the validator must be slashed if success votes / total votes
 // is lower than MinValidPerWindow param. Then reset the vote penalty info
-func (k Keeper) SlashAndResetCounters(ctx sdk.Context) {
+func (k Keeper) SlashAndResetCounters(ctx sdk.Context) error {
 	height := ctx.BlockHeight()
 	distributionHeight := height - sdk.ValidatorUpdateDelay - 1
 
 	// Get the module params
 	params, err := k.Params.Get(ctx)
 	if err != nil {
-		panic(err) // FIXME: handle error properly
+		return err
 	}
 
 	minValidPerWindow := params.MinValidPerWindow
@@ -27,7 +27,7 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) {
 	powerReduction := k.StakingKeeper.PowerReduction(ctx)
 
 	// Iterate each voting result per validator
-	k.IterateVotePenaltyCounters(ctx, func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) (bool, error) {
+	err = k.VotePenaltyCounter.Walk(ctx, nil, func(operator sdk.ValAddress, votePenaltyCounter types.VotePenaltyCounter) (bool, error) {
 		successCount := votePenaltyCounter.SuccessCount
 		abstainCount := votePenaltyCounter.AbstainCount
 		missCount := votePenaltyCounter.MissCount
@@ -77,7 +77,8 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) {
 		)
 
 		// Reset voting counter
-		k.DeleteVotePenaltyCounter(ctx, operator)
-		return false, nil
+		err := k.VotePenaltyCounter.Remove(ctx, operator)
+		return false, err
 	})
+	return err
 }
