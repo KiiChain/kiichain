@@ -218,67 +218,51 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 // **************************** Miss counter logic ****************************
 
 // GetVotePenaltyCounter returns the vote penalty counter data for an operator (validator or delegated address)
-func (k Keeper) GetVotePenaltyCounter(ctx sdk.Context, operator sdk.ValAddress) types.VotePenaltyCounter {
+func (k Keeper) GetVotePenaltyCounter(ctx sdk.Context, operator sdk.ValAddress) (types.VotePenaltyCounter, error) {
 	votePenaltyCounter, err := k.VotePenaltyCounter.Get(ctx, operator)
 	// If not registered yet, return a default value
 	if errors.Is(err, collections.ErrNotFound) {
-		return types.VotePenaltyCounter{}
+		return types.VotePenaltyCounter{}, nil
 	}
 
 	// Handle any other error
 	if err != nil {
-		panic(err) // FIX ME: Add proper error handling
+		return types.VotePenaltyCounter{}, err
 	}
-	return votePenaltyCounter
-}
-
-// SetVotePenaltyCounter add a penalty counter struct associated to an operator (validator or delegated address)
-func (k Keeper) SetVotePenaltyCounter(ctx sdk.Context, operator sdk.ValAddress, missCount, abstainCount, successCount uint64) {
-	// TODO: Add metrics on defer functions
-	votePenaltyCounter := types.VotePenaltyCounter{
-		MissCount:    missCount,
-		AbstainCount: abstainCount,
-		SuccessCount: successCount,
-	}
-
-	// Set the penalty counter
-	k.VotePenaltyCounter.Set(ctx, operator, votePenaltyCounter)
+	return votePenaltyCounter, nil
 }
 
 // IncrementMissCount increments the missing count to an specific operator address in the KVStore
-func (k Keeper) IncrementMissCount(ctx sdk.Context, operator sdk.ValAddress) {
-	currentPenaltyCounter := k.GetVotePenaltyCounter(ctx, operator)
-	k.SetVotePenaltyCounter(ctx, operator, currentPenaltyCounter.MissCount+1, currentPenaltyCounter.AbstainCount, currentPenaltyCounter.SuccessCount)
+func (k Keeper) IncrementMissCount(ctx sdk.Context, operator sdk.ValAddress) error {
+	currentPenaltyCounter, err := k.GetVotePenaltyCounter(ctx, operator)
+	if err != nil {
+		return err
+	}
+	// Increment the miss count
+	currentPenaltyCounter.MissCount++
+	return k.VotePenaltyCounter.Set(ctx, operator, currentPenaltyCounter)
 }
 
 // IncrementAbstainCount increments the abstain count to an specific operator address in the KVStore
-func (k Keeper) IncrementAbstainCount(ctx sdk.Context, operator sdk.ValAddress) {
-	currentPenaltyCounter := k.GetVotePenaltyCounter(ctx, operator)
-	k.SetVotePenaltyCounter(ctx, operator, currentPenaltyCounter.MissCount, currentPenaltyCounter.AbstainCount+1, currentPenaltyCounter.SuccessCount)
+func (k Keeper) IncrementAbstainCount(ctx sdk.Context, operator sdk.ValAddress) error {
+	currentPenaltyCounter, err := k.GetVotePenaltyCounter(ctx, operator)
+	if err != nil {
+		return err
+	}
+	// Increment the abstain count
+	currentPenaltyCounter.AbstainCount++
+	return k.VotePenaltyCounter.Set(ctx, operator, currentPenaltyCounter)
 }
 
 // IncrementSuccessCount increments the success count to an specific operator address in the KVStore
-func (k Keeper) IncrementSuccessCount(ctx sdk.Context, operator sdk.ValAddress) {
-	currentPenaltyCounter := k.GetVotePenaltyCounter(ctx, operator)
-	k.SetVotePenaltyCounter(ctx, operator, currentPenaltyCounter.MissCount, currentPenaltyCounter.AbstainCount, currentPenaltyCounter.SuccessCount+1)
-}
-
-// GetMissCount increments the missing count to an specific operator address in the KVStore
-func (k Keeper) GetMissCount(ctx sdk.Context, operator sdk.ValAddress) uint64 {
-	currentPenaltyCounter := k.GetVotePenaltyCounter(ctx, operator)
-	return currentPenaltyCounter.MissCount
-}
-
-// GetAbstainCount increments the missing count to an specific operator address in the KVStore
-func (k Keeper) GetAbstainCount(ctx sdk.Context, operator sdk.ValAddress) uint64 {
-	currentPenaltyCounter := k.GetVotePenaltyCounter(ctx, operator)
-	return currentPenaltyCounter.AbstainCount
-}
-
-// GetSuccessCount increments the missing count to an specific operator address in the KVStore
-func (k Keeper) GetSuccessCount(ctx sdk.Context, operator sdk.ValAddress) uint64 {
-	currentPenaltyCounter := k.GetVotePenaltyCounter(ctx, operator)
-	return currentPenaltyCounter.SuccessCount
+func (k Keeper) IncrementSuccessCount(ctx sdk.Context, operator sdk.ValAddress) error {
+	currentPenaltyCounter, err := k.GetVotePenaltyCounter(ctx, operator)
+	if err != nil {
+		return err
+	}
+	// Increment the success count
+	currentPenaltyCounter.SuccessCount++
+	return k.VotePenaltyCounter.Set(ctx, operator, currentPenaltyCounter)
 }
 
 // ****************************************************************************

@@ -22,13 +22,13 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState
 		// Get the validator address
 		valAddress, err := sdk.ValAddressFromBech32(feederDelegation.ValidatorAddress)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Get the delegator address
 		feederAddress, err := sdk.AccAddressFromBech32(feederDelegation.FeederAddress)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Assign the feeder delegator on the module
@@ -47,18 +47,20 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState
 	for _, penaltyCounter := range data.PenaltyCounters {
 		operator, err := sdk.ValAddressFromBech32(penaltyCounter.ValidatorAddress)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
-		keeper.SetVotePenaltyCounter(ctx, operator, penaltyCounter.VotePenaltyCounter.MissCount,
-			penaltyCounter.VotePenaltyCounter.AbstainCount, penaltyCounter.VotePenaltyCounter.SuccessCount)
+		err = keeper.VotePenaltyCounter.Set(ctx, operator, *penaltyCounter.VotePenaltyCounter)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Add the AggregateExchangeRateVotes to the KVStore defined on the input object
 	for _, aggregateExchange := range data.AggregateExchangeRateVotes {
 		valAddress, err := sdk.ValAddressFromBech32(aggregateExchange.Voter)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		err = keeper.AggregateExchangeRateVote.Set(ctx, valAddress, aggregateExchange)
@@ -89,7 +91,7 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) (*types.GenesisState, 
 	// Current params of the module
 	params, err := keeper.Params.Get(ctx)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	// Extract the FeederDelegation array

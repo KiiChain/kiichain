@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
 
 	"github.com/kiichain/kiichain/v1/x/oracle/keeper"
@@ -155,8 +156,11 @@ func TestMidBlocker(t *testing.T) {
 		err = Endblocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
-		abstainCount := oracleKeeper.GetAbstainCount(ctx, keeper.ValAddrs[2])
-		require.Equal(t, uint64(1), abstainCount) // Validator 2 has 1 abstained
+		// Get the Vote Penalty Counter for the abstaining validator
+		votePenaltyCounter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[2])
+		require.NoError(t, err)
+
+		require.EqualValues(t, uint64(1), votePenaltyCounter.AbstainCount) // Validator 2 has 1 abstained
 	})
 
 	t.Run("Validator votes out of acceptable range - Should count as Miss", func(t *testing.T) {
@@ -192,8 +196,11 @@ func TestMidBlocker(t *testing.T) {
 		err = Endblocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
-		missCount := oracleKeeper.GetMissCount(ctx, keeper.ValAddrs[0])
-		require.Equal(t, uint64(1), missCount) // Validator 0 has 1 Miss
+		// Get the Vote Penalty Counter for the abstaining validator
+		votePenaltyCounter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[0])
+		require.NoError(t, err)
+
+		require.Equal(t, uint64(1), votePenaltyCounter.MissCount) // Validator 0 has 1 Miss
 	})
 
 	t.Run("Verify upgrading the vote targets", func(t *testing.T) {
@@ -286,7 +293,10 @@ func TestEndblocker(t *testing.T) {
 
 		// Simulate a validator with too many misses
 		operator := keeper.ValAddrs[0]
-		oracleKeeper.SetVotePenaltyCounter(ctx, operator, 15, 1, 5)
+
+		// Set the vote penalty counter for the validator
+		err := oracleKeeper.VotePenaltyCounter.Set(input.Ctx, operator, types.NewVotePenaltyCounter(15, 1, 5))
+		require.NoError(t, err)
 
 		// update MinValidPerWindow
 		params, err := oracleKeeper.Params.Get(ctx)
@@ -312,8 +322,9 @@ func TestEndblocker(t *testing.T) {
 		require.True(t, slashedPower < 10)
 
 		// Check voting info deleted
-		result := oracleKeeper.GetVotePenaltyCounter(ctx, operator)
+		result, err := oracleKeeper.VotePenaltyCounter.Get(ctx, operator)
 		require.Empty(t, result)
+		require.ErrorIs(t, err, collections.ErrNotFound)
 	})
 
 	t.Run("Validator not jailed", func(t *testing.T) {
@@ -325,7 +336,10 @@ func TestEndblocker(t *testing.T) {
 
 		// Simulate a validator with too many misses
 		operator := keeper.ValAddrs[0]
-		oracleKeeper.SetVotePenaltyCounter(ctx, operator, 4, 5, 10)
+
+		// Set the vote penalty counter for the validator
+		err := oracleKeeper.VotePenaltyCounter.Set(input.Ctx, operator, types.NewVotePenaltyCounter(4, 5, 10))
+		require.NoError(t, err)
 
 		// update MinValidPerWindow
 		params, err := oracleKeeper.Params.Get(ctx)
@@ -351,8 +365,9 @@ func TestEndblocker(t *testing.T) {
 		require.True(t, slashedPower == 10) // voting power does not change
 
 		// Check voting info deleted
-		result := oracleKeeper.GetVotePenaltyCounter(ctx, operator)
+		result, err := oracleKeeper.VotePenaltyCounter.Get(ctx, operator)
 		require.Empty(t, result)
+		require.ErrorIs(t, err, collections.ErrNotFound)
 	})
 
 	t.Run("Success remove excess feeds", func(t *testing.T) {
@@ -363,10 +378,13 @@ func TestEndblocker(t *testing.T) {
 
 		// Simulate a validator with too many misses
 		operator := keeper.ValAddrs[0]
-		oracleKeeper.SetVotePenaltyCounter(ctx, operator, 4, 5, 10)
+
+		// Set the vote penalty counter for the validator
+		err := oracleKeeper.VotePenaltyCounter.Set(input.Ctx, operator, types.NewVotePenaltyCounter(4, 5, 10))
+		require.NoError(t, err)
 
 		// Aggregate voting targets
-		err := oracleKeeper.VoteTarget.Clear(ctx, nil) // clean voting target list
+		err = oracleKeeper.VoteTarget.Clear(ctx, nil) // clean voting target list
 		require.NoError(t, err)
 		err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroAtomDenom, types.Denom{Name: utils.MicroAtomDenom})
 		require.NoError(t, err)
