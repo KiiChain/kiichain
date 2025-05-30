@@ -104,7 +104,8 @@ func TestExchangeRateLogic(t *testing.T) {
 	require.True(t, eventValidation())
 
 	// ***** First exchange rate elimination
-	oracleKeeper.DeleteBaseExchangeRate(ctx, BtcUsd)
+	err = oracleKeeper.ExchangeRate.Remove(ctx, BtcUsd)
+	require.NoError(t, err)
 	_, err = oracleKeeper.GetBaseExchangeRate(ctx, BtcUsd)
 	require.Error(t, err) // Validate error
 
@@ -115,7 +116,8 @@ func TestExchangeRateLogic(t *testing.T) {
 		return false, nil
 	}
 
-	oracleKeeper.IterateBaseExchangeRates(ctx, iterationHandler)
+	err = oracleKeeper.ExchangeRate.Walk(ctx, nil, iterationHandler)
+	require.NoError(t, err)
 	require.Equal(t, 2, exchangeRateAmount) // verify that iterate over all exchange rates elements
 }
 
@@ -191,7 +193,8 @@ func TestDelegationLogic(t *testing.T) {
 		delegates = append(delegates, delegatedFeederAcc)
 		return false, nil
 	}
-	oracleKeeper.IterateFeederDelegations(ctx, handler)
+	err := oracleKeeper.FeederDelegation.Walk(ctx, nil, handler)
+	require.NoError(t, err)
 
 	// Validation
 	require.Equal(t, 1, len(delegates))
@@ -362,10 +365,11 @@ func TestRemoveExcessFeeds(t *testing.T) {
 	require.NoError(t, err)
 
 	// Validate the successful erased of the extra denoms
-	oracleKeeper.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
+	err = oracleKeeper.ExchangeRate.Walk(ctx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		require.True(t, denom != utils.MicroKiiDenom)
 		return false, nil
 	})
+	require.NoError(t, err)
 }
 
 func TestVoteTargetLogic(t *testing.T) {

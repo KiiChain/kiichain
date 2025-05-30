@@ -139,16 +139,6 @@ func (k Keeper) SetBaseExchangeRateWithEvent(ctx sdk.Context, denom string, exch
 	return nil
 }
 
-// DeleteBaseExchangeRate deletes an exchange rate by denom
-func (k Keeper) DeleteBaseExchangeRate(ctx sdk.Context, denom string) {
-	k.ExchangeRate.Remove(ctx, denom)
-}
-
-// IterateBaseExchangeRates iterate over the exchange rate list and perform vallback function
-func (k Keeper) IterateBaseExchangeRates(ctx sdk.Context, handler func(denom string, exchangeRate types.OracleExchangeRate) (bool, error)) {
-	k.ExchangeRate.Walk(ctx, nil, handler)
-}
-
 // ****************************************************************************
 
 // **************************** Oracle Delegation Logic ***********************
@@ -181,12 +171,6 @@ func (k Keeper) GetFeederDelegation(ctx sdk.Context, valAddr sdk.ValAddress) sdk
 func (k Keeper) SetFeederDelegation(ctx sdk.Context, valAddr sdk.ValAddress, delegatedFeeder sdk.AccAddress) {
 	// Set the feeder delegation
 	k.FeederDelegation.Set(ctx, valAddr, delegatedFeeder.String())
-}
-
-// IterateFeederDelegations iterate over the delegated list and perform vallback function
-func (k Keeper) IterateFeederDelegations(ctx sdk.Context, handler func(valAddr sdk.ValAddress, delegatedFeeder string) (bool, error)) {
-	// Iterate the FeederDelegation
-	k.FeederDelegation.Walk(ctx, nil, handler)
 }
 
 // ValidateFeeder the feeder address whether is a validator or delegated address and if is allowed
@@ -273,13 +257,16 @@ func (k Keeper) IncrementSuccessCount(ctx sdk.Context, operator sdk.ValAddress) 
 func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) error {
 	// get exchange rates stored on the KVStore
 	excessActives := make(map[string]struct{})
-	k.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
+	err := k.ExchangeRate.Walk(ctx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		excessActives[denom] = struct{}{}
 		return false, nil
 	})
+	if err != nil {
+		return err
+	}
 
 	// Get voting target
-	err := k.VoteTarget.Walk(ctx, nil, func(denom string, denomInfo types.Denom) (bool, error) {
+	err = k.VoteTarget.Walk(ctx, nil, func(denom string, denomInfo types.Denom) (bool, error) {
 		// Remove vote targets from actives
 		delete(excessActives, denom)
 		return false, nil
@@ -297,7 +284,10 @@ func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) error {
 
 	// delete the excess exchange rates
 	for _, denom := range activesToClear {
-		k.DeleteBaseExchangeRate(ctx, denom)
+		err = k.ExchangeRate.Remove(ctx, denom)
+		if err != nil {
+			return nil
+		}
 	}
 
 	return nil

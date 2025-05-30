@@ -96,21 +96,27 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) (*types.GenesisState, 
 
 	// Extract the FeederDelegation array
 	feederDelegations := []types.FeederDelegation{}
-	keeper.IterateFeederDelegations(ctx, func(valAddr sdk.ValAddress, delegatedFeeder string) (bool, error) {
+	err = keeper.FeederDelegation.Walk(ctx, nil, func(valAddr sdk.ValAddress, delegatedFeeder string) (bool, error) {
 		feederDelegations = append(feederDelegations, types.FeederDelegation{
 			FeederAddress:    delegatedFeeder,
 			ValidatorAddress: valAddr.String(),
 		})
 		return false, nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Extract the exchangeRatesTuple
 	exchangeRates := []types.ExchangeRateTuple{}
-	keeper.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
+	err = keeper.ExchangeRate.Walk(ctx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		exRate := types.ExchangeRateTuple{Denom: denom, ExchangeRate: exchangeRate.ExchangeRate}
 		exchangeRates = append(exchangeRates, exRate)
 		return false, nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Extract penalty counters
 	penaltyCounters := []types.PenaltyCounter{}

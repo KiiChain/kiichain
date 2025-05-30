@@ -409,9 +409,10 @@ func TestEndblocker(t *testing.T) {
 		require.NoError(t, err)
 
 		// Validate the successful erased of the extra denoms
-		oracleKeeper.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
+		err = oracleKeeper.ExchangeRate.Walk(ctx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 			require.True(t, denom != utils.MicroKiiDenom)
 			return false, nil
 		})
+		require.NoError(t, err)
 	})
 }
