@@ -105,7 +105,10 @@ func MidBlocker(ctx sdk.Context, k keeper.Keeper) error {
 				}
 
 				// set the exchange rate with event
-				k.SetBaseExchangeRateWithEvent(ctx, denom, exchangeRate)
+				err = k.SetBaseExchangeRateWithEvent(ctx, denom, exchangeRate)
+				if err != nil {
+					return err
+				}
 			}
 		}
 
@@ -188,8 +191,11 @@ func Endblocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Slash who did miss voting over threshold
 	// reset miss counter of all validators at the last block of slash window
 	if utils.IsPeriodLastBlock(ctx, params.SlashWindow) {
-		k.SlashAndResetCounters(ctx) // slash validator and reset voting counter
-		k.RemoveExcessFeeds(ctx)     // remove aditional rates added on the votes
+		k.SlashAndResetCounters(ctx)   // slash validator and reset voting counter
+		err = k.RemoveExcessFeeds(ctx) // remove aditional rates added on the votes
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

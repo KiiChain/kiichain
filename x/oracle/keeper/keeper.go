@@ -102,7 +102,7 @@ func (k Keeper) GetBaseExchangeRate(ctx sdk.Context, denom string) (types.Oracle
 }
 
 // SetBaseExchangeRate is used to set the exchange rate by denom on the KVStore
-func (k Keeper) SetBaseExchangeRate(ctx sdk.Context, denom string, exchangeRate math.LegacyDec) {
+func (k Keeper) SetBaseExchangeRate(ctx sdk.Context, denom string, exchangeRate math.LegacyDec) error {
 	// Get the extra data
 	currentHeight := math.NewInt(ctx.BlockHeight())
 	blockTimestamp := ctx.BlockTime().UnixMilli()
@@ -115,13 +115,16 @@ func (k Keeper) SetBaseExchangeRate(ctx sdk.Context, denom string, exchangeRate 
 	}
 
 	// Store the exchange rate
-	k.ExchangeRate.Set(ctx, denom, rate)
+	return k.ExchangeRate.Set(ctx, denom, rate)
 }
 
 // SetBaseExchangeRateWithEvent calls SetBaseExchangeRate and generate an event about that denom creation
-func (k Keeper) SetBaseExchangeRateWithEvent(ctx sdk.Context, denom string, exchangeRate math.LegacyDec) {
+func (k Keeper) SetBaseExchangeRateWithEvent(ctx sdk.Context, denom string, exchangeRate math.LegacyDec) error {
 	// Set exchange rate by denom
-	k.SetBaseExchangeRate(ctx, denom, exchangeRate)
+	err := k.SetBaseExchangeRate(ctx, denom, exchangeRate)
+	if err != nil {
+		return err
+	}
 
 	// Create event
 	event := sdk.NewEvent(
@@ -132,6 +135,8 @@ func (k Keeper) SetBaseExchangeRateWithEvent(ctx sdk.Context, denom string, exch
 
 	// Emit event
 	ctx.EventManager().EmitEvent(event)
+
+	return nil
 }
 
 // DeleteBaseExchangeRate deletes an exchange rate by denom
@@ -314,7 +319,7 @@ func (k Keeper) IterateAggregateExchangeRateVotes(ctx sdk.Context, handler func(
 }
 
 // RemoveExcessFeeds deletes the exchange rates added to the KVStore but not require on the whitelist
-func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) {
+func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) error {
 	// get exchange rates stored on the KVStore
 	excessActives := make(map[string]struct{})
 	k.IterateBaseExchangeRates(ctx, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
@@ -323,11 +328,14 @@ func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) {
 	})
 
 	// Get voting target
-	k.VoteTarget.Walk(ctx, nil, func(denom string, denomInfo types.Denom) (bool, error) {
+	err := k.VoteTarget.Walk(ctx, nil, func(denom string, denomInfo types.Denom) (bool, error) {
 		// Remove vote targets from actives
 		delete(excessActives, denom)
 		return false, nil
 	})
+	if err != nil {
+		return err
+	}
 
 	// at this point just left the excess exchange rates
 	activesToClear := make([]string, 0, len(excessActives))
@@ -340,6 +348,8 @@ func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) {
 	for _, denom := range activesToClear {
 		k.DeleteBaseExchangeRate(ctx, denom)
 	}
+
+	return nil
 }
 
 // ****************************************************************************
