@@ -116,7 +116,8 @@ func TestSpammingPreventionHandle(t *testing.T) {
 
 	// should fail, no exchange rate on message
 	exRate, _ := types.NewAggregateExchangeRateVote(types.ExchangeRateTuples{}, keeper.ValAddrs[0])
-	oracleKeeper.SetAggregateExchangeRateVote(ctx, keeper.ValAddrs[0], exRate)
+	err = oracleKeeper.AggregateExchangeRateVote.Set(ctx, keeper.ValAddrs[0], exRate)
+	require.NoError(t, err)
 	_, err = anteHandler(checkCtx, oracle.NewTestTx([]sdk.Msg{voteMsg}), false)
 	require.Error(t, err)
 }

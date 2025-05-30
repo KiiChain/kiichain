@@ -297,27 +297,6 @@ func (k Keeper) IterateVotePenaltyCounters(ctx sdk.Context, handler func(operato
 
 // **************************** Aggregate Exchange Rate Vote logic ************
 
-// GetAggregateExchangeRateVote returns the exchange rate voted from the store by an specific voter
-func (k Keeper) GetAggregateExchangeRateVote(ctx sdk.Context, voter sdk.ValAddress) (types.AggregateExchangeRateVote, error) {
-	return k.AggregateExchangeRateVote.Get(ctx, voter)
-}
-
-// SetAggregateExchangeRateVote adds an oracle exchange rate vote to the KVStore
-func (k Keeper) SetAggregateExchangeRateVote(ctx sdk.Context, voter sdk.ValAddress, vote types.AggregateExchangeRateVote) {
-	k.AggregateExchangeRateVote.Set(ctx, voter, vote)
-}
-
-// DeleteAggregateExchangeRateVote deletes an oracle exchange rate vote from the store
-func (k Keeper) DeleteAggregateExchangeRateVote(ctx sdk.Context, voter sdk.ValAddress) {
-	k.AggregateExchangeRateVote.Remove(ctx, voter)
-}
-
-// IterateAggregateExchangeRateVotes iterates over exchange rate votes in the store and perform vallback function
-func (k Keeper) IterateAggregateExchangeRateVotes(ctx sdk.Context, handler func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) (bool, error)) {
-	// Iterate the AggregateExchangeRateVote map
-	k.AggregateExchangeRateVote.Walk(ctx, nil, handler)
-}
-
 // RemoveExcessFeeds deletes the exchange rates added to the KVStore but not require on the whitelist
 func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) error {
 	// get exchange rates stored on the KVStore

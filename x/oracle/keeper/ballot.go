@@ -12,7 +12,7 @@ import (
 
 // OrganizeBallotByDenom iterates over the map with validators and create its voting tally.
 // returns a map with the denom and its ballot (denom alphabetical ordered)
-func (k Keeper) OrganizeBallotByDenom(ctx sdk.Context, validatorClaimMap map[string]types.Claim) map[string]types.ExchangeRateBallot {
+func (k Keeper) OrganizeBallotByDenom(ctx sdk.Context, validatorClaimMap map[string]types.Claim) (map[string]types.ExchangeRateBallot, error) {
 	votes := map[string]types.ExchangeRateBallot{} // Here I will collect the array of votes by denom
 
 	// Aggregate votes by denom
@@ -37,7 +37,10 @@ func (k Keeper) OrganizeBallotByDenom(ctx sdk.Context, validatorClaimMap map[str
 		return false, nil
 	}
 
-	k.IterateAggregateExchangeRateVotes(ctx, aggregateHandler)
+	err := k.AggregateExchangeRateVote.Walk(ctx, nil, aggregateHandler)
+	if err != nil {
+		return nil, err
+	}
 
 	// sort created ballot
 	for denom, ballot := range votes {
@@ -45,7 +48,7 @@ func (k Keeper) OrganizeBallotByDenom(ctx sdk.Context, validatorClaimMap map[str
 		votes[denom] = ballot
 	}
 
-	return votes
+	return votes, nil
 }
 
 // ApplyWhitelist update the vote target on the KVStore if there are new desired denoms on the parameters

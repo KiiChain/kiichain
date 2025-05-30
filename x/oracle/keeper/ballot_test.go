@@ -57,11 +57,13 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 	}
 
 	exchangeRateVote1, err := types.NewAggregateExchangeRateVote(exchangeRate1, ValAddrs[0]) // Aggregate rate tuples from Val0
-	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[0], exchangeRateVote1)
+	require.NoError(t, err)
+	err = oracleKeeper.AggregateExchangeRateVote.Set(ctx, ValAddrs[0], exchangeRateVote1)
 	require.NoError(t, err)
 
 	exchangeRateVote2, err := types.NewAggregateExchangeRateVote(exchangeRate2, ValAddrs[1]) // Aggregate rate tuples from Val1
-	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[1], exchangeRateVote2)
+	require.NoError(t, err)
+	err = oracleKeeper.AggregateExchangeRateVote.Set(ctx, ValAddrs[1], exchangeRateVote2)
 	require.NoError(t, err)
 
 	// Get claim map
@@ -116,7 +118,8 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 	sort.Sort(akiiBallot)
 
 	// Call function
-	denomBallot := oracleKeeper.OrganizeBallotByDenom(ctx, validatorClaimMap)
+	denomBallot, err := oracleKeeper.OrganizeBallotByDenom(ctx, validatorClaimMap)
+	require.NoError(t, err)
 
 	// Validation
 	microAtomDenomBallot := denomBallot[utils.MicroAtomDenom]
@@ -167,11 +170,13 @@ func TestClearBallots(t *testing.T) {
 	}
 
 	exchangeRateVote1, err := types.NewAggregateExchangeRateVote(exchangeRate1, ValAddrs[0]) // Aggregate rate tuples from Val0
-	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[0], exchangeRateVote1)
+	require.NoError(t, err)
+	err = oracleKeeper.AggregateExchangeRateVote.Set(ctx, ValAddrs[0], exchangeRateVote1)
 	require.NoError(t, err)
 
 	exchangeRateVote2, err := types.NewAggregateExchangeRateVote(exchangeRate2, ValAddrs[1]) // Aggregate rate tuples from Val1
-	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[1], exchangeRateVote2)
+	require.NoError(t, err)
+	err = oracleKeeper.AggregateExchangeRateVote.Set(ctx, ValAddrs[1], exchangeRateVote2)
 	require.NoError(t, err)
 
 	// Clear all votes
@@ -179,9 +184,9 @@ func TestClearBallots(t *testing.T) {
 	require.NoError(t, err)
 
 	// Validate process
-	_, err = oracleKeeper.GetAggregateExchangeRateVote(ctx, ValAddrs[0])
+	_, err = oracleKeeper.AggregateExchangeRateVote.Get(ctx, ValAddrs[0])
 	require.Error(t, err)
-	_, err = oracleKeeper.GetAggregateExchangeRateVote(ctx, ValAddrs[1])
+	_, err = oracleKeeper.AggregateExchangeRateVote.Get(ctx, ValAddrs[1])
 	require.Error(t, err)
 }
 

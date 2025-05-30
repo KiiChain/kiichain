@@ -352,18 +352,20 @@ func TestAggregateExchangeRateLogic(t *testing.T) {
 		{Denom: "ATOM/USD", ExchangeRate: math.LegacyNewDec(3)},
 	}
 	exchangeRateVote, err := types.NewAggregateExchangeRateVote(exchangeRate, ValAddrs[0])
-	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[0], exchangeRateVote)
+	require.NoError(t, err)
+	err = oracleKeeper.AggregateExchangeRateVote.Set(ctx, ValAddrs[0], exchangeRateVote)
 	require.NoError(t, err)
 
 	// Get the aggregated exchange rate and validate
-	gotExchangeRate, err := oracleKeeper.GetAggregateExchangeRateVote(ctx, ValAddrs[0])
+	gotExchangeRate, err := oracleKeeper.AggregateExchangeRateVote.Get(ctx, ValAddrs[0])
 	require.NoError(t, err)
 	require.Equal(t, exchangeRate, gotExchangeRate.ExchangeRateTuples)
 	require.Equal(t, ValAddrs[0].String(), gotExchangeRate.Voter)
 
 	// Delete exchange rate
-	oracleKeeper.DeleteAggregateExchangeRateVote(ctx, ValAddrs[0]) // delete exchange rate voting
-	_, err = oracleKeeper.GetAggregateExchangeRateVote(ctx, ValAddrs[0])
+	err = oracleKeeper.AggregateExchangeRateVote.Remove(ctx, ValAddrs[0]) // delete exchange rate voting
+	require.NoError(t, err)
+	_, err = oracleKeeper.AggregateExchangeRateVote.Get(ctx, ValAddrs[0])
 	require.Error(t, err)
 
 	// Create and aggregate invalid exchange rate
@@ -373,8 +375,9 @@ func TestAggregateExchangeRateLogic(t *testing.T) {
 		{Denom: "ATOM/USD", ExchangeRate: math.LegacyNewDec(2)},
 	}
 	_, err = types.NewAggregateExchangeRateVote(exchangeRate, ValAddrs[0])
-	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[0], exchangeRateVote)
 	require.Error(t, err)
+	err = oracleKeeper.AggregateExchangeRateVote.Set(ctx, ValAddrs[0], exchangeRateVote)
+	require.NoError(t, err)
 }
 
 func TestIterateAggregateExchangeRateVotes(t *testing.T) {
@@ -390,7 +393,8 @@ func TestIterateAggregateExchangeRateVotes(t *testing.T) {
 		{Denom: "ATOM/USD", ExchangeRate: math.LegacyNewDec(3)},
 	}
 	exchangeRateVote1, err := types.NewAggregateExchangeRateVote(exchangeRate1, ValAddrs[0]) // Upload rates by val 0
-	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[0], exchangeRateVote1)
+	require.NoError(t, err)
+	err = oracleKeeper.AggregateExchangeRateVote.Set(ctx, ValAddrs[0], exchangeRateVote1)
 	require.NoError(t, err)
 
 	exchangeRate2 := types.ExchangeRateTuples{
@@ -399,7 +403,8 @@ func TestIterateAggregateExchangeRateVotes(t *testing.T) {
 		{Denom: "ATOM/USD", ExchangeRate: math.LegacyNewDec(6)},
 	}
 	exchangeRateVote2, err := types.NewAggregateExchangeRateVote(exchangeRate2, ValAddrs[1]) // Upload rates by val 1
-	oracleKeeper.SetAggregateExchangeRateVote(ctx, ValAddrs[1], exchangeRateVote2)
+	require.NoError(t, err)
+	err = oracleKeeper.AggregateExchangeRateVote.Set(ctx, ValAddrs[1], exchangeRateVote2)
 	require.NoError(t, err)
 
 	handler := func(voterAddr sdk.ValAddress, aggregateVote types.AggregateExchangeRateVote) (bool, error) {
@@ -413,7 +418,8 @@ func TestIterateAggregateExchangeRateVotes(t *testing.T) {
 		require.Equal(t, exchangeRateVote2.Voter, voterAddr.String())
 		return false, nil
 	}
-	oracleKeeper.IterateAggregateExchangeRateVotes(ctx, handler)
+	err = oracleKeeper.AggregateExchangeRateVote.Walk(ctx, nil, handler)
+	require.NoError(t, err)
 }
 
 func TestRemoveExcessFeeds(t *testing.T) {
