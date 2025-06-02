@@ -25,9 +25,7 @@ import (
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibcclientkeeper "github.com/cosmos/ibc-go/v8/modules/core/02-client/keeper"
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	ibcconnectionkeeper "github.com/cosmos/ibc-go/v8/modules/core/03-connection/keeper"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
@@ -117,8 +115,6 @@ type AppKeepers struct {
 	ICAControllerKeeper   icacontrollerkeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
 	TransferKeeper        ibctransferkeeper.Keeper
-	clientKeeper          ibcclientkeeper.Keeper
-	connectionKeeper      ibcconnectionkeeper.Keeper
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	AuthzKeeper           authzkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
@@ -569,8 +565,8 @@ func NewAppKeeper(
 		appKeepers.Erc20Keeper,
 		appKeepers.AuthzKeeper,
 		appKeepers.TransferKeeper,
-		appKeepers.clientKeeper,
-		appKeepers.connectionKeeper,
+		appKeepers.IBCKeeper.ClientKeeper,
+		appKeepers.IBCKeeper.ConnectionKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.EVMKeeper,
 		*appKeepers.GovKeeper,
