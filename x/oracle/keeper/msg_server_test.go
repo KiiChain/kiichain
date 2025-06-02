@@ -80,3 +80,63 @@ func TestDelegateFeedConsent(t *testing.T) {
 	// validation
 	require.Equal(t, Addrs[0].String(), res.FeedAddr)
 }
+
+// TestUpdateParams tests the UpdateParams message server method
+func TestUpdateParams(t *testing.T) {
+	// prepare env
+	input := CreateTestInput(t)
+	oracleKeeper := input.OracleKeeper
+	ctx := input.Ctx
+
+	// Create all the test cases
+	testCases := []struct {
+		name        string
+		msg         *types.MsgUpdateParams
+		errContains string
+	}{
+		{
+			name: "valid param",
+			msg: &types.MsgUpdateParams{
+				Authority: oracleKeeper.GetAuthority(),
+				Params:    types.DefaultParams(),
+			},
+		},
+		{
+			name: "err - invalid authority",
+			msg: &types.MsgUpdateParams{
+				Authority: "invalid_authority",
+			},
+			errContains: "invalid authority",
+		},
+		{
+			name: "err - invalid param",
+			msg: &types.MsgUpdateParams{
+				Authority: oracleKeeper.GetAuthority(),
+				Params: types.Params{
+					VotePeriod:    0,
+					VoteThreshold: math.LegacyNewDec(0),
+					RewardBand:    math.LegacyNewDec(0),
+					Whitelist:     types.DenomList{{Name: "invalid_denom"}},
+				},
+			},
+			errContains: "oracle parameter VotePeriod must be > 0",
+		},
+	}
+
+	// Run the test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// create msg server
+			msgServer := NewMsgServer(oracleKeeper)
+
+			// send messages
+			_, err := msgServer.UpdateParams(ctx, tc.msg)
+			if tc.errContains != "" {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.errContains)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
