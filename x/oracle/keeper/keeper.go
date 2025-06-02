@@ -89,6 +89,11 @@ func NewKeeper(cdc codec.BinaryCodec, storeService corestoretypes.KVStoreService
 	return keeper
 }
 
+// GetAuthority returns the x/oracle module authority
+func (k Keeper) GetAuthority() string {
+	return k.authority
+}
+
 // Logger is used to define custom Log for the module
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))

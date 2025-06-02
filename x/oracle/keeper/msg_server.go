@@ -141,3 +141,27 @@ func (ms msgServer) DelegateFeedConsent(ctx context.Context, msg *types.MsgDeleg
 
 	return &types.MsgDelegateFeedConsentResponse{}, nil
 }
+
+// UpdateParams updates the oracle module parameters
+func (ms msgServer) UpdateParams(ctx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
+	// Check the authority
+	if ms.GetAuthority() != req.Authority {
+		return nil, errors.Wrapf(sdkerrors.ErrUnauthorized, "invalid authority %s, expected %s", req.Authority, ms.GetAuthority())
+	}
+
+	// Validate the parameters
+	if err := req.Params.Validate(); err != nil {
+		return nil, errors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	// Unwrap the context
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
+	// Write the params
+	if err := ms.Params.Set(sdkCtx, req.Params); err != nil {
+		return nil, err
+	}
+
+	// Return an empty response
+	return &types.MsgUpdateParamsResponse{}, nil
+}
