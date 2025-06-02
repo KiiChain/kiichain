@@ -9,6 +9,6 @@
 - Add EVM wasmbinding queries
 - Add bech32 wasmbinding queries
 - Add IBC precompile to transfer via EVM
-- Add bech32 wasmbinding queries
 - Add correct ibc keepers to ibc precompiles
 - Add Rewards module
+- Add the param change proposal to the oracle module
