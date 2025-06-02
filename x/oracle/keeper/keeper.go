@@ -133,27 +133,27 @@ func (k Keeper) SetBaseExchangeRateWithEvent(ctx sdk.Context, denom string, exch
 }
 
 // GetFeederDelegationOrDefault returns the delegated address by validator address
-func (k Keeper) GetFeederDelegationOrDefault(ctx sdk.Context, valAddr sdk.ValAddress) sdk.AccAddress {
+func (k Keeper) GetFeederDelegationOrDefault(ctx sdk.Context, valAddr sdk.ValAddress) (sdk.AccAddress, error) {
 	// Get the account address
 	accAddressString, err := k.FeederDelegation.Get(ctx, valAddr)
 	// If the not found, return the val Address
 	if errors.Is(err, collections.ErrNotFound) {
-		return sdk.AccAddress(valAddr)
+		return sdk.AccAddress(valAddr), nil
 	}
 
 	// Handle any other error
 	if err != nil {
-		panic(err) // FIX ME: Add proper error handling
+		return nil, err
 	}
 
 	// Marshal the address bytes to sdk.AccAddress
 	accAddress, err := sdk.AccAddressFromBech32(accAddressString)
 	if err != nil {
-		panic(err) // FIX ME: Add proper error handling
+		return nil, err
 	}
 
 	// Return the account address
-	return accAddress
+	return accAddress, nil
 }
 
 // ValidateFeeder the feeder address whether is a validator or delegated address and if is allowed
@@ -162,7 +162,10 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 	// validate if the feeder addr is a delegated address, if so, validate if the registered bounded address
 	// by that validator is the feeder address
 	if !feederAddr.Equals(valAddr) {
-		delegator := k.GetFeederDelegationOrDefault(ctx, valAddr) // Get the delegated address by validator address
+		delegator, err := k.GetFeederDelegationOrDefault(ctx, valAddr) // Get the delegated address by validator address
+		if err != nil {
+			return err
+		}
 		if !delegator.Equals(feederAddr) {
 			return cosmoserrors.Wrap(types.ErrNoVotingPermission, feederAddr.String())
 		}
@@ -269,21 +272,21 @@ func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) error {
 }
 
 // GetPriceSnapshotOrDefault returns the exchange rate prices stored by a defined timestamp
-func (k Keeper) GetPriceSnapshotOrDefault(ctx sdk.Context, timestamp int64) types.PriceSnapshot {
+func (k Keeper) GetPriceSnapshotOrDefault(ctx sdk.Context, timestamp int64) (types.PriceSnapshot, error) {
 	// Get the price snapshot
 	priceSnapshot, err := k.PriceSnapshot.Get(ctx, timestamp)
 
 	// If not found, return an empty snapshot
 	if errors.Is(err, collections.ErrNotFound) {
-		return types.PriceSnapshot{}
+		return types.PriceSnapshot{}, nil
 	}
 
 	// Handle any other error
 	if err != nil {
-		panic(err) // FIX ME: Add proper error handling
+		return types.PriceSnapshot{}, err
 	}
 
-	return priceSnapshot
+	return priceSnapshot, nil
 }
 
 // AddPriceSnapshot stores the snapshot on the KVStore and deletes snapshots older than the lookBackDuration
