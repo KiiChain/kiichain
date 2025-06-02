@@ -149,9 +149,12 @@ func (qs queryServer) FeederDelegation(ctx context.Context, req *types.QueryFeed
 
 	// Get the delegator by the Validator address
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	feederAddr := qs.Keeper.GetFeederDelegationOrDefault(sdkCtx, valAddr).String()
+	feederDelegation, err := qs.Keeper.GetFeederDelegationOrDefault(sdkCtx, valAddr)
+	if err != nil {
+		return nil, err
+	}
 
-	return &types.QueryFeederDelegationResponse{FeedAddr: feederAddr}, nil
+	return &types.QueryFeederDelegationResponse{FeedAddr: feederDelegation.String()}, nil
 }
 
 // VotePenaltyCounter queries the validator penalty's counter information

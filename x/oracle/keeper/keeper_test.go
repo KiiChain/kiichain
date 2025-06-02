@@ -171,12 +171,14 @@ func TestDelegationLogic(t *testing.T) {
 	ctx := init.Ctx
 
 	// ***** Get and set feeder delegator
-	delegate := oracleKeeper.GetFeederDelegationOrDefault(ctx, ValAddrs[0]) // supposed to received the same val addr
+	delegate, err := oracleKeeper.GetFeederDelegationOrDefault(ctx, ValAddrs[0]) // supposed to received the same val addr
+	require.NoError(t, err)
 	require.Equal(t, Addrs[0], delegate)
 
-	err := oracleKeeper.FeederDelegation.Set(ctx, ValAddrs[0], Addrs[1].String()) // Delegate Val 0 -> Addr 1
+	err = oracleKeeper.FeederDelegation.Set(ctx, ValAddrs[0], Addrs[1].String()) // Delegate Val 0 -> Addr 1
 	require.NoError(t, err)
-	delegate = oracleKeeper.GetFeederDelegationOrDefault(ctx, ValAddrs[0])
+	delegate, err = oracleKeeper.GetFeederDelegationOrDefault(ctx, ValAddrs[0])
+	require.NoError(t, err)
 	require.Equal(t, Addrs[1], delegate)
 
 	// ***** Iterate feeder delegator list
@@ -443,8 +445,10 @@ func TestPriceSnapshotLogic(t *testing.T) {
 	err = oracleKeeper.PriceSnapshot.Set(ctx, snapshot2.SnapshotTimestamp, snapshot2) // Set snapshot 2
 	require.NoError(t, err)
 
-	gottenSnapshot1 := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1)
-	gottenSnapshot2 := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 2)
+	gottenSnapshot1, err := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1)
+	require.NoError(t, err)
+	gottenSnapshot2, err := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 2)
+	require.NoError(t, err)
 	require.Equal(t, snapshot1, gottenSnapshot1) // validate
 	require.Equal(t, snapshot2, gottenSnapshot2) // validate
 
@@ -471,7 +475,8 @@ func TestPriceSnapshotLogic(t *testing.T) {
 	expected := types.PriceSnapshot{}
 	err = oracleKeeper.PriceSnapshot.Remove(ctx, 1)
 	require.NoError(t, err)
-	result := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1) // Expected empty struct
+	result, err := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1) // Expected empty struct
+	require.NoError(t, err)
 	require.Equal(t, expected, result)
 }
 
@@ -505,8 +510,10 @@ func TestAddPriceSnapshot(t *testing.T) {
 	require.NoError(t, err)
 
 	// Validate the 2 snapshots are on the KVStore
-	data1 := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1)
-	data2 := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 2)
+	data1, err := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1)
+	require.NoError(t, err)
+	data2, err := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 2)
+	require.NoError(t, err)
 	require.Equal(t, snapshot1, data1)
 	require.Equal(t, snapshot2, data2)
 
@@ -527,9 +534,12 @@ func TestAddPriceSnapshot(t *testing.T) {
 	require.NoError(t, err)
 
 	// Validate the snapshot 1 and 2 were deleted
-	data1 = oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1)
-	data2 = oracleKeeper.GetPriceSnapshotOrDefault(ctx, 2)
-	data3 := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1000)
+	data1, err = oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1)
+	require.NoError(t, err)
+	data2, err = oracleKeeper.GetPriceSnapshotOrDefault(ctx, 2)
+	require.NoError(t, err)
+	data3, err := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1000)
+	require.NoError(t, err)
 
 	deletedSnapshot := types.NewPriceSnapshot(0, nil)
 	require.Equal(t, deletedSnapshot, data1) // data1 is empty
