@@ -145,7 +145,7 @@ func (ms msgServer) DelegateFeedConsent(ctx context.Context, msg *types.MsgDeleg
 // UpdateParams updates the oracle module parameters
 func (ms msgServer) UpdateParams(ctx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	// Check the authority
-	if ms.GetAuthority() != req.Authority {
+	if ms.Keeper.GetAuthority() != req.Authority {
 		return nil, errors.Wrapf(sdkerrors.ErrUnauthorized, "invalid authority %s, expected %s", req.Authority, ms.GetAuthority())
 	}
 
