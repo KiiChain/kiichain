@@ -26,9 +26,10 @@ type (
 		// should be the x/gov module account.
 		authority string
 
-		Schema     collections.Schema
-		Params     collections.Item[types.Params]
-		RewardPool collections.Item[types.RewardPool]
+		Schema         collections.Schema
+		Params         collections.Item[types.Params]
+		RewardPool     collections.Item[types.RewardPool]
+		RewardReleaser collections.Item[types.RewardReleaser]
 	}
 )
 
@@ -50,9 +51,10 @@ func NewKeeper(
 		bankKeeper:          bankKeeper,
 		communityPoolKeeper: communityPoolKeeper,
 
-		authority:  authority,
-		Params:     collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
-		RewardPool: collections.NewItem(sb, types.RewardPoolKey, "fee_pool", codec.CollValue[types.RewardPool](cdc)),
+		authority:      authority,
+		Params:         collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
+		RewardPool:     collections.NewItem(sb, types.RewardPoolKey, "reward_pool", codec.CollValue[types.RewardPool](cdc)),
+		RewardReleaser: collections.NewItem(sb, types.RewardPoolKey, "reward_releaser", codec.CollValue[types.RewardReleaser](cdc)),
 	}
 
 	schema, err := sb.Build()
@@ -78,16 +80,17 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // The amount is first added to the rewards module account and then directly
 // added to the pool. An error is returned if the amount cannot be sent to the
 // module account.
-func (k Keeper) FundCommunityPool(ctx context.Context, amount sdk.Coins, sender sdk.AccAddress) error {
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, amount); err != nil {
+func (k Keeper) FundCommunityPool(ctx context.Context, amount sdk.Coin, sender sdk.AccAddress) error {
+	coins := sdk.Coins{amount}
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, coins); err != nil {
 		return err
 	}
 
-	feePool, err := k.RewardPool.Get(ctx)
+	rewardPool, err := k.RewardPool.Get(ctx)
 	if err != nil {
 		return err
 	}
 
-	feePool.CommunityPool = feePool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(amount...)...)
-	return k.RewardPool.Set(ctx, feePool)
+	rewardPool.CommunityPool = rewardPool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(coins...)...)
+	return k.RewardPool.Set(ctx, rewardPool)
 }
