@@ -3,6 +3,7 @@ package types
 import (
 	context "context"
 
+	"cosmossdk.io/core/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
@@ -30,6 +31,7 @@ type BankKeeper interface {
 }
 
 type AccountKeeper interface {
+	AddressCodec() address.Codec
 	SetModuleAccount(ctx context.Context, macc sdk.ModuleAccountI)
 	GetAccount(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
 	GetModuleAccount(ctx context.Context, moduleName string) sdk.ModuleAccountI
