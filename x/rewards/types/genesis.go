@@ -19,8 +19,8 @@ func DefaultGenesisState() *GenesisState {
 	}
 }
 
-// ValidateGenesis validates the genesis state of rewards genesis input
-func ValidateGenesis(gs *GenesisState) error {
+// Validate validates the genesis state of rewards genesis input
+func (gs *GenesisState) Validate() error {
 	if err := gs.Params.ValidateBasic(); err != nil {
 		return err
 	}
