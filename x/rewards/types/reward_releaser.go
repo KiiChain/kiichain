@@ -10,11 +10,11 @@ import (
 // InitialRewardPool returns a zero reward pool
 func InitialRewardReleaser() RewardReleaser {
 	return RewardReleaser{
-		TotalAmount:       sdk.Coin{},
-		ReleasedAmount:    &sdk.Coin{},
-		EndTime:           time.Time{},
-		LastReleaseHeight: 0,
-		Active:            false,
+		TotalAmount:     sdk.Coin{},
+		ReleasedAmount:  sdk.Coin{},
+		EndTime:         time.Time{},
+		LastReleaseTime: time.Time{},
+		Active:          false,
 	}
 }
 
@@ -25,8 +25,8 @@ func (rr RewardReleaser) ValidateGenesis() error {
 		return fmt.Errorf("invalid total amount: %w", err)
 	}
 
-	// Validate ReleasedAmount
-	if rr.ReleasedAmount != nil {
+	// Validate ReleasedAmount if not zero
+	if !rr.ReleasedAmount.IsZero() {
 		if err := rr.ReleasedAmount.Validate(); err != nil {
 			return fmt.Errorf("invalid released amount: %w", err)
 		}
@@ -48,9 +48,9 @@ func (rr RewardReleaser) ValidateGenesis() error {
 		return fmt.Errorf("end time %s cannot be in the past", rr.EndTime.String())
 	}
 
-	// Validate LastReleaseHeight
-	if rr.LastReleaseHeight < 0 {
-		return fmt.Errorf("last release height cannot be negative")
+	// Validate LastReleaseTime (if not nil)
+	if rr.LastReleaseTime.After(time.Now()) {
+		return fmt.Errorf("last release time %s cannot be in the future", rr.EndTime.String())
 	}
 
 	// Validate Active flag consistency

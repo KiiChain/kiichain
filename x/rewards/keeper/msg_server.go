@@ -144,7 +144,7 @@ func (k Keeper) fundsAvailable(ctx context.Context, amount sdk.Coin) error {
 	// Check if releaser is active (means some amt of the pool is promised)
 	if releaser.Active {
 		// Sum the promised amt to the asked funds
-		amount = amount.Add(releaser.TotalAmount.Sub(*releaser.ReleasedAmount))
+		amount = amount.Add(releaser.TotalAmount.Sub(releaser.ReleasedAmount))
 	}
 
 	// Get reward pool

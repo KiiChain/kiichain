@@ -17,7 +17,7 @@ message RewardReleaser {
   ];
   // Amount released
   cosmos.base.v1beta1.Coin released_amount = 2 [
-    (gogoproto.nullable) = true, // can start empty
+    (gogoproto.nullable) = false, // can start empty
     (gogoproto.moretags) = "yaml:\"released_amount\""
   ];
   // Timestamp of end of release
@@ -27,9 +27,10 @@ message RewardReleaser {
     (gogoproto.moretags) = "yaml:\"end_time\""
   ];
   // Last height released
-  int64 last_release_height = 5 [
-    (gogoproto.nullable) = true, // can start empty
-    (gogoproto.moretags) = "yaml:\"last_release_height\""
+  google.protobuf.Timestamp last_release_time = 5 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"last_release_time\""
   ];
   // If reward pool is active
   bool active = 6 [
