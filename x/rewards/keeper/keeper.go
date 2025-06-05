@@ -119,17 +119,3 @@ func (k Keeper) ExtendReward(ctx context.Context, extendAmount sdk.Coin, newEndT
 
 	return k.RewardReleaser.Set(ctx, releaser)
 }
-
-// DeactivateRelease makes the release inactive
-func (k Keeper) DeactivateRelease(ctx context.Context) error {
-	// Fetch releaser
-	releaser, err := k.RewardReleaser.Get(ctx)
-	if err != nil {
-		return err
-	}
-
-	// Set to inactive
-	releaser.Active = false
-
-	return k.RewardReleaser.Set(ctx, releaser)
-}

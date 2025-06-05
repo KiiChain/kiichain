@@ -30,9 +30,10 @@ func (k Keeper) EndBlocker(ctx sdk.Context) error {
 		return err
 	}
 
-	// Early exit if nothing to distribute
+	// If nothing to distribute, sets up as inactive for early exit next time
 	if amountToDistribute.IsZero() {
-		return nil
+		releaser.Active = false
+		return k.RewardReleaser.Set(ctx, releaser)
 	}
 
 	// Get the current RewardPool from state
