@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"cosmossdk.io/collections"
 	"cosmossdk.io/core/store"
@@ -93,4 +94,21 @@ func (k Keeper) FundCommunityPool(ctx context.Context, amount sdk.Coin, sender s
 
 	rewardPool.CommunityPool = rewardPool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(coins...)...)
 	return k.RewardPool.Set(ctx, rewardPool)
+}
+
+// ExtendReward changes the RewardReleaser with an added amount and a new end time
+func (k Keeper) ExtendReward(ctx context.Context, extendAmount sdk.Coin, newEndTime time.Time) error {
+	// Fetch releaser
+	releaser, err := k.RewardReleaser.Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Add to total amt and to be released
+	releaser.TotalAmount = releaser.TotalAmount.Add(extendAmount)
+
+	// Update end time
+	releaser.EndTime = newEndTime
+
+	return k.RewardReleaser.Set(ctx, releaser)
 }

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -84,7 +85,18 @@ func (k msgServer) ExtendReward(ctx context.Context, msg *types.MsgExtendReward)
 	}
 
 	// Validate time
+	// Should only time extentions be allowed? I.e do not allow reducing the time
 	if err := validateTime(msg.EndTime); err != nil {
+		return nil, err
+	}
+
+	// Check if funds exist (community pool funds - to be released > extra amount)
+	if err := k.fundsAvailable(ctx, msg.ExtraAmount); err != nil {
+		return nil, err
+	}
+
+	// Do actual work
+	if err := k.Keeper.ExtendReward(ctx, msg.ExtraAmount, msg.EndTime); err != nil {
 		return nil, err
 	}
 
@@ -117,6 +129,34 @@ func validateAmount(amount sdk.Coin) error {
 func validateTime(endTime time.Time) error {
 	if endTime.After(time.Now()) {
 		return fmt.Errorf("End time %s is not in the future", endTime)
+	}
+
+	return nil
+}
+
+// fundsAvailable checks if the asked funds are available in the pool
+func (k Keeper) fundsAvailable(ctx context.Context, amount sdk.Coin) error {
+	// Fetch releaser
+	releaser, err := k.RewardReleaser.Get(ctx)
+	if err != nil {
+		return err
+	}
+	// Check if releaser is active (means some amt of the pool is promised)
+	if releaser.Active {
+		// Sum the promised amt to the asked funds
+		amount = amount.Add(releaser.TotalAmount.Sub(*releaser.ReleasedAmount))
+	}
+
+	// Get reward pool
+	rewardPool, err := k.RewardPool.Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Check if it has more funds than requested
+	poolAmount := rewardPool.CommunityPool.AmountOf(amount.Denom)
+	if math.LegacyDec(amount.Amount).GTE(poolAmount) {
+		return fmt.Errorf("Reward pool (%s) has less funds than requested (%s)", poolAmount, amount)
 	}
 
 	return nil
