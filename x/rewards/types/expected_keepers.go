@@ -16,6 +16,7 @@ type BankKeeper interface {
 	HasSupply(ctx context.Context, denom string) bool
 	IterateTotalSupply(ctx context.Context, cb func(sdk.Coin) bool)
 
+	SendCoinsFromModuleToModule(ctx context.Context, senderModule, recipientModule string, amt sdk.Coins) error
 	SendCoinsFromModuleToAccount(ctx context.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 	SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
 	MintCoins(ctx context.Context, moduleName string, amt sdk.Coins) error
@@ -33,11 +34,12 @@ type BankKeeper interface {
 type AccountKeeper interface {
 	AddressCodec() address.Codec
 	SetModuleAccount(ctx context.Context, macc sdk.ModuleAccountI)
+	GetModuleAddress(moduleName string) sdk.AccAddress
 	GetAccount(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
 	GetModuleAccount(ctx context.Context, moduleName string) sdk.ModuleAccountI
 }
 
-// CommunityPoolKeeper defines the contract needed to be fulfilled for community pool interactions.
-type CommunityPoolKeeper interface {
+// DistributionKeeper defines the expected distribution keeper
+type DistributionKeeper interface {
 	FundCommunityPool(ctx context.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }

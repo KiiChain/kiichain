@@ -19,9 +19,9 @@ type (
 	Keeper struct {
 		cdc codec.BinaryCodec
 
-		accountKeeper       types.AccountKeeper
-		bankKeeper          types.BankKeeper
-		communityPoolKeeper types.CommunityPoolKeeper
+		accountKeeper      types.AccountKeeper
+		bankKeeper         types.BankKeeper
+		distributionKeeper types.DistributionKeeper
 
 		// the address capable of executing a MsgUpdateParams message. Typically, this
 		// should be the x/gov module account.
@@ -40,7 +40,7 @@ func NewKeeper(
 	storeService store.KVStoreService,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
-	communityPoolKeeper types.CommunityPoolKeeper,
+	distributionKeeper types.DistributionKeeper,
 	authority string,
 ) Keeper {
 
@@ -48,9 +48,9 @@ func NewKeeper(
 	k := Keeper{
 		cdc: cdc,
 
-		accountKeeper:       accountKeeper,
-		bankKeeper:          bankKeeper,
-		communityPoolKeeper: communityPoolKeeper,
+		accountKeeper:      accountKeeper,
+		bankKeeper:         bankKeeper,
+		distributionKeeper: distributionKeeper,
 
 		authority:      authority,
 		Params:         collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
@@ -104,11 +104,32 @@ func (k Keeper) ExtendReward(ctx context.Context, extendAmount sdk.Coin, newEndT
 		return err
 	}
 
+	// If inactive
+	if !releaser.Active {
+		releaser.Active = true
+		// Reset last release time if it was inactive, so it doesn't generate a huge rewards in one go
+		releaser.LastReleaseTime = time.Time{}
+	}
+
 	// Add to total amt and to be released
 	releaser.TotalAmount = releaser.TotalAmount.Add(extendAmount)
 
 	// Update end time
 	releaser.EndTime = newEndTime
+
+	return k.RewardReleaser.Set(ctx, releaser)
+}
+
+// DeactivateRelease makes the release inactive
+func (k Keeper) DeactivateRelease(ctx context.Context) error {
+	// Fetch releaser
+	releaser, err := k.RewardReleaser.Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Set to inactive
+	releaser.Active = false
 
 	return k.RewardReleaser.Set(ctx, releaser)
 }
