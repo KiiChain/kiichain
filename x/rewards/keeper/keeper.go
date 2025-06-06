@@ -54,7 +54,7 @@ func NewKeeper(
 		authority:      authority,
 		Params:         collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
 		RewardPool:     collections.NewItem(sb, types.RewardPoolKey, "reward_pool", codec.CollValue[types.RewardPool](cdc)),
-		RewardReleaser: collections.NewItem(sb, types.RewardPoolKey, "reward_releaser", codec.CollValue[types.RewardReleaser](cdc)),
+		RewardReleaser: collections.NewItem(sb, types.RewardReleaserKey, "reward_releaser", codec.CollValue[types.RewardReleaser](cdc)),
 	}
 
 	schema, err := sb.Build()
