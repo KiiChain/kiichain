@@ -25,8 +25,8 @@ func (suite *CodecTestSuite) TestRegisterInterfaces() {
 	impls := registry.ListImplementations(sdk.MsgInterfaceProtoName)
 	suite.Require().Equal(3, len(impls))
 	suite.Require().ElementsMatch([]string{
-		"/kiichain.tokenfactory.v1beta1.MsgExtendReward",
-		"/kiichain.tokenfactory.v1beta1.MsgFundPool",
-		"/kiichain.tokenfactory.v1beta1.MsgUpdateParams",
+		"/kiichain.rewards.v1beta1.MsgExtendReward",
+		"/kiichain.rewards.v1beta1.MsgFundPool",
+		"/kiichain.rewards.v1beta1.MsgUpdateParams",
 	}, impls)
 }
