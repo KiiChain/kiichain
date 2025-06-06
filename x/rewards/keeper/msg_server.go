@@ -7,9 +7,11 @@ import (
 
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	"github.com/kiichain/kiichain/v1/x/rewards/types"
 )
 
@@ -56,7 +58,7 @@ func (k msgServer) FundPool(ctx context.Context, msg *types.MsgFundPool) (*types
 		return nil, err
 	}
 	if params.TokenDenom != msg.Amount.Denom {
-		return nil, fmt.Errorf("Denom %s does not match expected denom: %s", msg.Amount.Denom, params.TokenDenom)
+		return nil, fmt.Errorf("denom %s does not match expected denom: %s", msg.Amount.Denom, params.TokenDenom)
 	}
 
 	if err := k.Keeper.FundCommunityPool(ctx, msg.Amount, depositor); err != nil {
@@ -81,11 +83,11 @@ func (k msgServer) ExtendReward(ctx context.Context, msg *types.MsgExtendReward)
 		return nil, err
 	}
 	if params.TokenDenom != msg.ExtraAmount.Denom {
-		return nil, fmt.Errorf("Denom %s does not match expected denom: %s", msg.ExtraAmount.Denom, params.TokenDenom)
+		return nil, fmt.Errorf("denom %s does not match expected denom: %s", msg.ExtraAmount.Denom, params.TokenDenom)
 	}
 
 	// Validate time
-	// Should only time extentions be allowed? I.e do not allow reducing the time
+	// Should only time extensions be allowed? I.e do not allow reducing the time
 	if err := validateTime(msg.EndTime); err != nil {
 		return nil, err
 	}
@@ -128,7 +130,7 @@ func validateAmount(amount sdk.Coin) error {
 // validateTime checks if time is in the future
 func validateTime(endTime time.Time) error {
 	if endTime.After(time.Now()) {
-		return fmt.Errorf("End time %s is not in the future", endTime)
+		return fmt.Errorf("end time %s is not in the future", endTime)
 	}
 
 	return nil
@@ -156,7 +158,7 @@ func (k Keeper) fundsAvailable(ctx context.Context, amount sdk.Coin) error {
 	// Check if it has more funds than requested
 	poolAmount := rewardPool.CommunityPool.AmountOf(amount.Denom)
 	if math.LegacyDec(amount.Amount).GTE(poolAmount) {
-		return fmt.Errorf("Reward pool (%s) has less funds than requested (%s)", poolAmount, amount)
+		return fmt.Errorf("reward pool (%s) has less funds than requested (%s)", poolAmount, amount)
 	}
 
 	return nil

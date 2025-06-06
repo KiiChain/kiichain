@@ -12,15 +12,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"cosmossdk.io/core/appmodule"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/kiichain/kiichain/v1/x/rewards/keeper"
-	"github.com/kiichain/kiichain/v1/x/rewards/types"
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/client/cli"
 	"github.com/spf13/cobra"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+
+	"cosmossdk.io/core/appmodule"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -28,6 +26,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+
+	"github.com/kiichain/kiichain/v1/x/rewards/keeper"
+	"github.com/kiichain/kiichain/v1/x/rewards/types"
+	"github.com/kiichain/kiichain/v1/x/tokenfactory/client/cli"
 )
 
 var (
@@ -125,7 +127,6 @@ func NewAppModule(
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 	distributionKeeper types.DistributionKeeper,
-
 ) AppModule {
 	return AppModule{
 		AppModuleBasic:     NewAppModuleBasic(), // Does this need something else?

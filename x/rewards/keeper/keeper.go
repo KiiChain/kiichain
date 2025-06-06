@@ -43,7 +43,6 @@ func NewKeeper(
 	distributionKeeper types.DistributionKeeper,
 	authority string,
 ) Keeper {
-
 	sb := collections.NewSchemaBuilder(storeService)
 	k := Keeper{
 		cdc: cdc,

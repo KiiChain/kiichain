@@ -15,16 +15,16 @@ var (
 
 // NewMsgUpdateParams returns a new MsgUpdateParams with the authority
 // and the new params.
-func NewMsgUpdateParams(authority sdk.AccAddress, params Params) *MsgUpdateParams {
+func NewMsgUpdateParams(authority string, params Params) *MsgUpdateParams {
 	return &MsgUpdateParams{
-		Authority: authority.String(),
+		Authority: authority,
 		Params:    params,
 	}
 }
 
 // NewMsgFundPool returns a new MsgFundPool with a sender and
 // an amount.
-func NewMsgFundPool(sender sdk.AccAddress, amount sdk.Coin, endTime time.Time) *MsgFundPool {
+func NewMsgFundPool(sender sdk.AccAddress, amount sdk.Coin) *MsgFundPool {
 	return &MsgFundPool{
 		Sender: sender.String(),
 		Amount: amount,
@@ -33,9 +33,9 @@ func NewMsgFundPool(sender sdk.AccAddress, amount sdk.Coin, endTime time.Time) *
 
 // NewMsgExtendReward returns a new MsgExtendReward with the authority,
 // an amount to extend and a new endTime.
-func NewMsgExtendReward(authority sdk.AccAddress, extendAmount sdk.Coin, endTime time.Time) *MsgExtendReward {
+func NewMsgExtendReward(authority string, extendAmount sdk.Coin, endTime time.Time) *MsgExtendReward {
 	return &MsgExtendReward{
-		Authority:   authority.String(),
+		Authority:   authority,
 		ExtraAmount: extendAmount,
 		EndTime:     endTime,
 	}
