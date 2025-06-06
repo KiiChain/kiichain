@@ -24,7 +24,7 @@ func (p Params) ValidateBasic() error {
 		return fmt.Errorf("invalid string conversion to int on governance min deposit: %s;", p.GovernanceMinDeposit)
 	}
 	v := sdk.Coin{Denom: denom, Amount: minDeposit}
-	if v.IsValid() {
+	if !v.IsValid() {
 		return fmt.Errorf("invalid min deposit: %s", v)
 	}
 	return nil
