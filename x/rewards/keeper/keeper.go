@@ -8,6 +8,7 @@ import (
 	"cosmossdk.io/collections"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
+	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -108,6 +109,7 @@ func (k Keeper) ExtendReward(ctx context.Context, extendAmount sdk.Coin, newEndT
 		releaser.Active = true
 		// Reset last release time if it was inactive, so it doesn't generate a huge rewards in one go
 		releaser.LastReleaseTime = time.Time{}
+		releaser.ReleasedAmount = sdk.NewCoin(extendAmount.Denom, math.NewInt(0))
 	}
 
 	// Add to total amt and to be released
