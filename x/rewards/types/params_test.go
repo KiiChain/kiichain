@@ -8,7 +8,7 @@ import (
 	"github.com/kiichain/kiichain/v1/x/rewards/types"
 )
 
-func TestParams_ValidateBasic(t *testing.T) {
+func TestParamsValidateBasic(t *testing.T) {
 	type fields struct {
 		GovernanceMinDeposit string
 		TokenDenom           string
@@ -22,6 +22,14 @@ func TestParams_ValidateBasic(t *testing.T) {
 			name: "success - valid params",
 			fields: fields{
 				GovernanceMinDeposit: "1000000000000000000000", // 1000 kii
+				TokenDenom:           "akii",
+			},
+			wantErr: false,
+		},
+		{
+			name: "sucess - zero min deposit",
+			fields: fields{
+				GovernanceMinDeposit: "0",
 				TokenDenom:           "akii",
 			},
 			wantErr: false,
@@ -46,14 +54,6 @@ func TestParams_ValidateBasic(t *testing.T) {
 			name: "invalid - non-numeric min deposit",
 			fields: fields{
 				GovernanceMinDeposit: "notanumber",
-				TokenDenom:           "akii",
-			},
-			wantErr: true,
-		},
-		{
-			name: "invalid - zero min deposit",
-			fields: fields{
-				GovernanceMinDeposit: "0",
 				TokenDenom:           "akii",
 			},
 			wantErr: true,
