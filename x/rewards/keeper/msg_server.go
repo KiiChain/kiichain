@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"cosmossdk.io/errors"
-	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -155,9 +154,9 @@ func (k Keeper) fundsAvailable(ctx context.Context, amount sdk.Coin) error {
 		return err
 	}
 
-	// Check if it has more funds than requested
+	// Check if it is trying to use more funds than available
 	poolAmount := rewardPool.CommunityPool.AmountOf(amount.Denom)
-	if math.LegacyDec(amount.Amount).GTE(poolAmount) {
+	if sdk.NewDecCoinFromCoin(amount).Amount.GT(poolAmount) {
 		return fmt.Errorf("reward pool (%s) has less funds than requested (%s)", poolAmount, amount)
 	}
 
