@@ -431,8 +431,8 @@ func NewAppKeeper(
 		runtime.NewKVStoreService(appKeepers.keys[rewardstypes.StoreKey]),
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
-		appKeepers.DistrKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authtypes.FeeCollectorName,
 	)
 
 	// Cosmos EVM keepers

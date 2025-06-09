@@ -20,13 +20,13 @@ type (
 	Keeper struct {
 		cdc codec.BinaryCodec
 
-		accountKeeper      types.AccountKeeper
-		bankKeeper         types.BankKeeper
-		distributionKeeper types.DistributionKeeper
+		accountKeeper types.AccountKeeper
+		bankKeeper    types.BankKeeper
 
 		// the address capable of executing a MsgUpdateParams message. Typically, this
 		// should be the x/gov module account.
-		authority string
+		authority        string
+		feeCollectorName string // name of the FeeCollector ModuleAccount
 
 		Schema         collections.Schema
 		Params         collections.Item[types.Params]
@@ -41,18 +41,18 @@ func NewKeeper(
 	storeService store.KVStoreService,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
-	distributionKeeper types.DistributionKeeper,
-	authority string,
+	authority, feeCollectorName string,
 ) Keeper {
 	sb := collections.NewSchemaBuilder(storeService)
 	k := Keeper{
 		cdc: cdc,
 
-		accountKeeper:      accountKeeper,
-		bankKeeper:         bankKeeper,
-		distributionKeeper: distributionKeeper,
+		accountKeeper: accountKeeper,
+		bankKeeper:    bankKeeper,
 
-		authority:      authority,
+		authority:        authority,
+		feeCollectorName: feeCollectorName,
+
 		Params:         collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
 		RewardPool:     collections.NewItem(sb, types.RewardPoolKey, "reward_pool", codec.CollValue[types.RewardPool](cdc)),
 		RewardReleaser: collections.NewItem(sb, types.RewardReleaserKey, "reward_releaser", codec.CollValue[types.RewardReleaser](cdc)),

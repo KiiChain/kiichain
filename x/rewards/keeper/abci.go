@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v1/x/rewards/types"
 )
 
 // EndBlocker calculates reward amt and sends it to the distribution pool
@@ -14,7 +14,7 @@ func (k Keeper) EndBlocker(ctx sdk.Context) error {
 		return err
 	}
 
-	// Early exit if inactive, no previous release or nothing to release
+	// Early exit if inactive or nothing to release
 	if !releaser.Active || releaser.TotalAmount.IsZero() {
 		return nil
 	}
@@ -43,12 +43,11 @@ func (k Keeper) EndBlocker(ctx sdk.Context) error {
 		return err
 	}
 
-	// Get module address and set up coins
-	senderAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
+	// Set up coins
 	coinsToDistribute := sdk.NewCoins(amountToDistribute)
 
 	// Send to distribution pool
-	if err := k.distributionKeeper.FundCommunityPool(ctx, coinsToDistribute, senderAddr); err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, k.feeCollectorName, coinsToDistribute); err != nil {
 		return err
 	}
 
