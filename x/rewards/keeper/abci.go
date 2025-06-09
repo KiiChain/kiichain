@@ -26,7 +26,7 @@ func (k Keeper) EndBlocker(ctx sdk.Context) error {
 	}
 
 	// Calculate the amount to distribute this block
-	amountToDistribute, err := k.CalculateReward(ctx, releaser)
+	amountToDistribute, err := CalculateReward(ctx.BlockTime(), releaser)
 	if err != nil {
 		return err
 	}

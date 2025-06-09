@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"time"
+
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -9,16 +11,16 @@ import (
 )
 
 // CalculateReward figures what amt to be released in the current block
-func (k Keeper) CalculateReward(ctx sdk.Context, releaser types.RewardReleaser) (sdk.Coin, error) {
+// Assumes invalid values are cleared before calling, does not handle invalid blockTime/no last release
+func CalculateReward(blockTime time.Time, releaser types.RewardReleaser) (sdk.Coin, error) {
 	// Calculate remaining amount
 	remaining := releaser.TotalAmount.Sub(releaser.ReleasedAmount)
 	if remaining.IsZero() {
-		return sdk.Coin{}, nil
+		return remaining, nil
 	}
 
 	// Get time parameters
-	currentTime := ctx.BlockTime()
-	timeElapsedStamp := currentTime.Sub(releaser.LastReleaseTime)        // Time since last release
+	timeElapsedStamp := blockTime.Sub(releaser.LastReleaseTime)          // Time since last release
 	totalDurationStamp := releaser.EndTime.Sub(releaser.LastReleaseTime) // Remaining release period
 
 	// Convert to big int, using truncated seconds
@@ -31,12 +33,12 @@ func (k Keeper) CalculateReward(ctx sdk.Context, releaser types.RewardReleaser) 
 		return sdk.Coin{}, err
 	}
 
-	// Calculate linear release proportion
+	// Calculate linear release proportion between 0 and 1
 	releaseProportion := math.LegacyNewDecFromBigInt(timeElapsed).Quo(math.LegacyNewDecFromBigInt(totalDuration))
 	// Truncate to int, it will be a coin amt after all
 	amountToRelease := math.LegacyNewDecFromInt(remaining.Amount).Mul(releaseProportion).TruncateInt()
 
-	// Cap at remaining amount to ensure positive
+	// Cap at remaining amount
 	amountToRelease = math.MinInt(amountToRelease, remaining.Amount)
 
 	return sdk.NewCoin(releaser.TotalAmount.Denom, amountToRelease), nil
