@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"cosmossdk.io/math"
 	"github.com/stretchr/testify/suite"
+
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"

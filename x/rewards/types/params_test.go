@@ -27,7 +27,7 @@ func TestParamsValidateBasic(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "sucess - zero min deposit",
+			name: "success - zero min deposit",
 			fields: fields{
 				GovernanceMinDeposit: "0",
 				TokenDenom:           "akii",
