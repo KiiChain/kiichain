@@ -127,9 +127,9 @@ func validateAmount(amount sdk.Coin) error {
 	return nil
 }
 
-// validateTime checks if time is in the future
+// validateTime checks if time is in the past
 func validateTime(endTime time.Time) error {
-	if endTime.After(time.Now()) {
+	if endTime.Before(time.Now()) {
 		return fmt.Errorf("end time %s is not in the future", endTime)
 	}
 
