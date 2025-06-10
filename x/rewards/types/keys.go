@@ -3,9 +3,9 @@ package types
 import "cosmossdk.io/collections"
 
 var (
-	ParamsKey         = collections.NewPrefix(0)
-	RewardPoolKey     = collections.NewPrefix(1)
-	RewardReleaserKey = collections.NewPrefix(2)
+	ParamsKey          = collections.NewPrefix(0)
+	RewardPoolKey      = collections.NewPrefix(1)
+	ReleaseScheduleKey = collections.NewPrefix(2)
 )
 
 const (

@@ -7,9 +7,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// InitialRewardPool returns a zero reward pool
-func InitialRewardReleaser() RewardReleaser {
-	return RewardReleaser{
+// InitialReleaseSchedule returns an empty release schedule
+func InitialReleaseSchedule() ReleaseSchedule {
+	return ReleaseSchedule{
 		TotalAmount:     sdk.Coin{},
 		ReleasedAmount:  sdk.Coin{},
 		EndTime:         time.Time{},
@@ -18,8 +18,8 @@ func InitialRewardReleaser() RewardReleaser {
 	}
 }
 
-// ValidateGenesis validates the reward pool for a genesis state
-func (rr RewardReleaser) ValidateGenesis() error {
+// ValidateGenesis validates the release schedule for a genesis state
+func (rr ReleaseSchedule) ValidateGenesis() error {
 	// Validate EndTime (zero time is allowed for genesis)
 	if !rr.EndTime.IsZero() && rr.EndTime.Before(time.Now()) {
 		return fmt.Errorf("end time %s cannot be in the past", rr.EndTime.String())

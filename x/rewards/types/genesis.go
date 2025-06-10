@@ -2,21 +2,21 @@ package types
 
 // NewGenesisState constructs a genesis state
 func NewGenesisState(
-	params Params, rp RewardPool, releaser RewardReleaser,
+	params Params, rp RewardPool, release ReleaseSchedule,
 ) *GenesisState {
 	return &GenesisState{
-		Params:         params,
-		RewardPool:     rp,
-		RewardReleaser: releaser,
+		Params:          params,
+		RewardPool:      rp,
+		ReleaseSchedule: release,
 	}
 }
 
 // DefaultGenesisState returns the default genesis state of rewards.
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
-		RewardPool:     InitialRewardPool(),
-		Params:         DefaultParams(),
-		RewardReleaser: InitialRewardReleaser(),
+		RewardPool:      InitialRewardPool(),
+		Params:          DefaultParams(),
+		ReleaseSchedule: InitialReleaseSchedule(),
 	}
 }
 
@@ -29,5 +29,5 @@ func (gs *GenesisState) Validate() error {
 	if err := gs.RewardPool.ValidateGenesis(); err != nil {
 		return err
 	}
-	return gs.RewardReleaser.ValidateGenesis()
+	return gs.ReleaseSchedule.ValidateGenesis()
 }

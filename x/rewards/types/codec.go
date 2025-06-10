@@ -14,7 +14,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		(*sdk.Msg)(nil),
 		&MsgUpdateParams{},
 		&MsgFundPool{},
-		&MsgExtendReward{},
+		&MsgChangeSchedule{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
@@ -27,5 +27,5 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	// Register all your concrete types
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "rewards/update-params", nil)
 	cdc.RegisterConcrete(&MsgFundPool{}, "rewards/fund-pool", nil)
-	cdc.RegisterConcrete(&MsgExtendReward{}, "rewards/extend-reward", nil)
+	cdc.RegisterConcrete(&MsgChangeSchedule{}, "rewards/change-schedule", nil)
 }

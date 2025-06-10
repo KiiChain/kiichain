@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -44,15 +45,15 @@ func validateTime(endTime time.Time) error {
 
 // fundsAvailable checks if the asked funds are available in the pool
 func (k Keeper) fundsAvailable(ctx context.Context, amount sdk.Coin) error {
-	// Fetch releaser
-	releaser, err := k.RewardReleaser.Get(ctx)
+	// Fetch schedule
+	schedule, err := k.ReleaseSchedule.Get(ctx)
 	if err != nil {
 		return err
 	}
 	// Check if releaser is active (means some amt of the pool is promised)
-	if releaser.Active {
+	if schedule.Active {
 		// Sum the promised amt to the asked funds
-		amount = amount.Add(releaser.TotalAmount.Sub(releaser.ReleasedAmount))
+		amount = amount.Add(schedule.TotalAmount.Sub(schedule.ReleasedAmount))
 	}
 
 	// Get reward pool

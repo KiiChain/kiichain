@@ -10,16 +10,16 @@ import (
 
 // CalculateReward figures what amt to be released in the current block
 // Assumes invalid values are cleared before calling, does not handle invalid blockTime/no last release
-func CalculateReward(blockTime time.Time, releaser RewardReleaser) (sdk.Coin, error) {
+func CalculateReward(blockTime time.Time, schedule ReleaseSchedule) (sdk.Coin, error) {
 	// Calculate remaining amount
-	remaining := releaser.TotalAmount.Sub(releaser.ReleasedAmount)
+	remaining := schedule.TotalAmount.Sub(schedule.ReleasedAmount)
 	if remaining.IsZero() {
 		return remaining, nil
 	}
 
 	// Get time parameters
-	timeElapsedStamp := blockTime.Sub(releaser.LastReleaseTime)          // Time since last release
-	totalDurationStamp := releaser.EndTime.Sub(releaser.LastReleaseTime) // Remaining release period
+	timeElapsedStamp := blockTime.Sub(schedule.LastReleaseTime)          // Time since last release
+	totalDurationStamp := schedule.EndTime.Sub(schedule.LastReleaseTime) // Remaining release period
 
 	// Convert to big int, using truncated seconds
 	timeElapsed, err := math.NewDecFromInt64(int64(timeElapsedStamp.Seconds())).BigInt()
@@ -39,5 +39,5 @@ func CalculateReward(blockTime time.Time, releaser RewardReleaser) (sdk.Coin, er
 	// Cap at remaining amount
 	amountToRelease = math.MinInt(amountToRelease, remaining.Amount)
 
-	return sdk.NewCoin(releaser.TotalAmount.Denom, amountToRelease), nil
+	return sdk.NewCoin(schedule.TotalAmount.Denom, amountToRelease), nil
 }

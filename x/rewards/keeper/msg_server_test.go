@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"time"
-
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -123,75 +121,6 @@ func (suite *KeeperTestSuite) TestExtendReward() {
 	_, err = suite.msgServer.FundPool(suite.Ctx, fundMsg)
 	suite.Require().NoError(err)
 
-	validEndTime := time.Now().Add(time.Hour * 24) // 1 day in future
-
-	testCases := []struct {
-		name         string
-		msg          *types.MsgExtendReward
-		expectedPass bool
-	}{
-		{
-			name: "valid extension",
-			msg: types.NewMsgExtendReward(
-				suite.App.RewardsKeeper.GetAuthority(),
-				sdk.NewCoin(defaultParams.TokenDenom, math.NewInt(1000)),
-				validEndTime,
-			),
-			expectedPass: true,
-		},
-		{
-			name: "invalid authority",
-			msg: types.NewMsgExtendReward(
-				suite.TestAccs[0].String(),
-				sdk.NewCoin(defaultParams.TokenDenom, math.NewInt(1000)),
-				validEndTime,
-			),
-			expectedPass: false,
-		},
-		{
-			name: "invalid denom",
-			msg: types.NewMsgExtendReward(
-				suite.App.RewardsKeeper.GetAuthority(),
-				sdk.NewCoin("invalid_denom", math.NewInt(1000)),
-				validEndTime,
-			),
-			expectedPass: false,
-		},
-		{
-			name: "invalid time - past",
-			msg: types.NewMsgExtendReward(
-				suite.App.RewardsKeeper.GetAuthority(),
-				sdk.NewCoin(defaultParams.TokenDenom, math.NewInt(1000)),
-				time.Now().Add(-time.Hour), // Past time
-			),
-			expectedPass: false,
-		},
-		{
-			name: "insufficient funds",
-			msg: types.NewMsgExtendReward(
-				suite.App.RewardsKeeper.GetAuthority(),
-				sdk.NewCoin(defaultParams.TokenDenom, math.NewInt(100000000)), // More than in pool
-				validEndTime,
-			),
-			expectedPass: false,
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			_, err := suite.msgServer.ExtendReward(suite.Ctx, tc.msg)
-			if tc.expectedPass {
-				suite.Require().NoError(err)
-
-				// Verify releaser was updated
-				releaser, err := suite.App.RewardsKeeper.RewardReleaser.Get(suite.Ctx)
-				suite.Require().NoError(err)
-				suite.Require().True(releaser.Active)
-				suite.Require().Equal(tc.msg.ExtraAmount, releaser.TotalAmount.Sub(releaser.ReleasedAmount))
-				suite.Require().True(tc.msg.EndTime.Equal(releaser.EndTime))
-			} else {
-				suite.Require().Error(err)
-			}
-		})
-	}
+	// validEndTime := time.Now().Add(time.Hour * 24) // 1 day in future
+	// TODO
 }

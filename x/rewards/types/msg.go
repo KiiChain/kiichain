@@ -1,8 +1,6 @@
 package types
 
 import (
-	time "time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -10,7 +8,7 @@ import (
 var (
 	_ sdk.Msg = (*MsgUpdateParams)(nil)
 	_ sdk.Msg = (*MsgFundPool)(nil)
-	_ sdk.Msg = (*MsgExtendReward)(nil)
+	_ sdk.Msg = (*MsgChangeSchedule)(nil)
 )
 
 // NewMsgUpdateParams returns a new MsgUpdateParams with the authority
@@ -31,12 +29,11 @@ func NewMsgFundPool(sender sdk.AccAddress, amount sdk.Coin) *MsgFundPool {
 	}
 }
 
-// NewMsgExtendReward returns a new MsgExtendReward with the authority,
-// an amount to extend and a new endTime.
-func NewMsgExtendReward(authority string, extendAmount sdk.Coin, endTime time.Time) *MsgExtendReward {
-	return &MsgExtendReward{
-		Authority:   authority,
-		ExtraAmount: extendAmount,
-		EndTime:     endTime,
+// NewMsgChangeSchedule returns a new MsgChangeSchedule with the authority,
+// and a new schedule.
+func NewMsgChangeSchedule(authority string, schedule ReleaseSchedule) *MsgChangeSchedule {
+	return &MsgChangeSchedule{
+		Authority: authority,
+		Schedule:  schedule,
 	}
 }

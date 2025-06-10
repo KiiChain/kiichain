@@ -20,18 +20,18 @@ func TestRewardReleaserValidateGenesis(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		releaser types.RewardReleaser
+		schedule types.ReleaseSchedule
 		wantErr  bool
 		errMsg   string
 	}{
 		{
 			name:     "valid initial state",
-			releaser: types.InitialRewardReleaser(),
+			schedule: types.InitialReleaseSchedule(),
 			wantErr:  false,
 		},
 		{
-			name: "valid active releaser",
-			releaser: types.RewardReleaser{
+			name: "valid active release",
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     validCoin,
 				ReleasedAmount:  sdk.NewCoin("akii", math.NewInt(500)),
 				EndTime:         now.Add(time.Hour * 24),
@@ -42,7 +42,7 @@ func TestRewardReleaserValidateGenesis(t *testing.T) {
 		},
 		{
 			name: "invalid total amount",
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     invalidCoin,
 				ReleasedAmount:  sdk.Coin{},
 				EndTime:         time.Time{},
@@ -54,7 +54,7 @@ func TestRewardReleaserValidateGenesis(t *testing.T) {
 		},
 		{
 			name: "invalid released amount",
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     validCoin,
 				ReleasedAmount:  invalidCoin,
 				EndTime:         now.Add(time.Hour * 24),
@@ -66,7 +66,7 @@ func TestRewardReleaserValidateGenesis(t *testing.T) {
 		},
 		{
 			name: "denom mismatch",
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     validCoin,
 				ReleasedAmount:  sdk.NewCoin("otherdenom", math.NewInt(500)),
 				EndTime:         now.Add(time.Hour * 24),
@@ -78,7 +78,7 @@ func TestRewardReleaserValidateGenesis(t *testing.T) {
 		},
 		{
 			name: "released exceeds total",
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     validCoin,
 				ReleasedAmount:  sdk.NewCoin("akii", math.NewInt(2000)),
 				EndTime:         now.Add(time.Hour * 24),
@@ -90,7 +90,7 @@ func TestRewardReleaserValidateGenesis(t *testing.T) {
 		},
 		{
 			name: "end time in past",
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     validCoin,
 				ReleasedAmount:  sdk.Coin{},
 				EndTime:         now.Add(-time.Hour * 24),
@@ -102,7 +102,7 @@ func TestRewardReleaserValidateGenesis(t *testing.T) {
 		},
 		{
 			name: "last release in future",
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     validCoin,
 				ReleasedAmount:  sdk.Coin{},
 				EndTime:         time.Time{},
@@ -114,7 +114,7 @@ func TestRewardReleaserValidateGenesis(t *testing.T) {
 		},
 		{
 			name: "active with zero total",
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     sdk.Coin{Denom: "akii", Amount: math.NewInt(0)},
 				ReleasedAmount:  sdk.Coin{},
 				EndTime:         now.Add(time.Hour * 24),
@@ -126,7 +126,7 @@ func TestRewardReleaserValidateGenesis(t *testing.T) {
 		},
 		{
 			name: "active with zero end time",
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     validCoin,
 				ReleasedAmount:  sdk.Coin{},
 				EndTime:         time.Time{},
@@ -140,7 +140,7 @@ func TestRewardReleaserValidateGenesis(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := tt.releaser.ValidateGenesis()
+			err := tt.schedule.ValidateGenesis()
 			if tt.wantErr {
 				require.Error(t, err)
 				if tt.errMsg != "" {

@@ -3,12 +3,10 @@ package keeper
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"cosmossdk.io/collections"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
-	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -27,10 +25,10 @@ type (
 		authority        string
 		feeCollectorName string // name of the FeeCollector ModuleAccount
 
-		Schema         collections.Schema
-		Params         collections.Item[types.Params]
-		RewardPool     collections.Item[types.RewardPool]
-		RewardReleaser collections.Item[types.RewardReleaser]
+		Schema          collections.Schema
+		Params          collections.Item[types.Params]
+		RewardPool      collections.Item[types.RewardPool]
+		ReleaseSchedule collections.Item[types.ReleaseSchedule]
 	}
 )
 
@@ -50,9 +48,9 @@ func NewKeeper(
 		authority:        authority,
 		feeCollectorName: feeCollectorName,
 
-		Params:         collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
-		RewardPool:     collections.NewItem(sb, types.RewardPoolKey, "reward_pool", codec.CollValue[types.RewardPool](cdc)),
-		RewardReleaser: collections.NewItem(sb, types.RewardReleaserKey, "reward_releaser", codec.CollValue[types.RewardReleaser](cdc)),
+		Params:          collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
+		RewardPool:      collections.NewItem(sb, types.RewardPoolKey, "reward_pool", codec.CollValue[types.RewardPool](cdc)),
+		ReleaseSchedule: collections.NewItem(sb, types.ReleaseScheduleKey, "release_schedule", codec.CollValue[types.ReleaseSchedule](cdc)),
 	}
 
 	schema, err := sb.Build()
@@ -91,32 +89,4 @@ func (k Keeper) FundCommunityPool(ctx context.Context, amount sdk.Coin, sender s
 
 	rewardPool.CommunityPool = rewardPool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(coins...)...)
 	return k.RewardPool.Set(ctx, rewardPool)
-}
-
-// ExtendReward changes the RewardReleaser with an added amount and a new end time
-func (k Keeper) ExtendReward(ctx context.Context, extendAmount sdk.Coin, newEndTime time.Time) error {
-	// Fetch releaser
-	releaser, err := k.RewardReleaser.Get(ctx)
-	if err != nil {
-		return err
-	}
-
-	// If inactive
-	if !releaser.Active {
-		releaser.Active = true
-		// Reset last release time if it was inactive, so it doesn't generate a huge rewards in one go
-		releaser.LastReleaseTime = time.Time{}
-		// Resets total amt and released
-		// Total amt might not have been initialized either
-		releaser.ReleasedAmount = sdk.NewCoin(extendAmount.Denom, math.NewInt(0))
-		releaser.TotalAmount = sdk.NewCoin(extendAmount.Denom, math.NewInt(0))
-	}
-
-	// Add to total amt and to be released
-	releaser.TotalAmount = releaser.TotalAmount.Add(extendAmount)
-
-	// Update end time
-	releaser.EndTime = newEndTime
-
-	return k.RewardReleaser.Set(ctx, releaser)
 }

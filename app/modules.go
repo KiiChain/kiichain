@@ -185,6 +185,7 @@ BeginBlockers, which are run at the beginning of every block.
 func orderBeginBlockers() []string {
 	return []string{
 		capabilitytypes.ModuleName,
+		// Rewards should be added to distribution before it runs
 		rewardstypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,

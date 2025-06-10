@@ -20,14 +20,14 @@ func TestCalculateReward(t *testing.T) {
 	tests := []struct {
 		name          string
 		blockTime     time.Time
-		releaser      types.RewardReleaser
+		schedule      types.ReleaseSchedule
 		expectedCoin  sdk.Coin
 		expectedError bool
 	}{
 		{
 			name:      "nothing left to release",
 			blockTime: now.Add(time.Hour),
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
 				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(1000)),
 				LastReleaseTime: now,
@@ -40,7 +40,7 @@ func TestCalculateReward(t *testing.T) {
 		{
 			name:      "linear release - halfway",
 			blockTime: now.Add(time.Hour),
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
 				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
 				LastReleaseTime: now,
@@ -53,7 +53,7 @@ func TestCalculateReward(t *testing.T) {
 		{
 			name:      "linear release - one third",
 			blockTime: now.Add(20 * time.Minute),
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(900)),
 				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
 				LastReleaseTime: now,
@@ -66,7 +66,7 @@ func TestCalculateReward(t *testing.T) {
 		{
 			name:      "partial release with existing released amount",
 			blockTime: now.Add(30 * time.Minute),
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
 				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(200)),
 				LastReleaseTime: now,
@@ -79,7 +79,7 @@ func TestCalculateReward(t *testing.T) {
 		{
 			name:      "normal case but with small fraction",
 			blockTime: now.Add(3 * time.Second),
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(3000000000000000000)), // 3 kii
 				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(2000000000000000000)),
 				LastReleaseTime: now,
@@ -93,7 +93,7 @@ func TestCalculateReward(t *testing.T) {
 		{
 			name:      "last release (past end time)",
 			blockTime: now.Add(time.Hour * 2),
-			releaser: types.RewardReleaser{
+			schedule: types.ReleaseSchedule{
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
 				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(800)),
 				LastReleaseTime: now,
@@ -107,7 +107,7 @@ func TestCalculateReward(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := types.CalculateReward(tt.blockTime, tt.releaser)
+			result, err := types.CalculateReward(tt.blockTime, tt.schedule)
 
 			if tt.expectedError {
 				require.Error(t, err)

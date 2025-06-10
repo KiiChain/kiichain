@@ -16,7 +16,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		panic(err)
 	}
 
-	if err := k.RewardReleaser.Set(ctx, data.RewardReleaser); err != nil {
+	if err := k.ReleaseSchedule.Set(ctx, data.ReleaseSchedule); err != nil {
 		panic(err)
 	}
 }
@@ -33,10 +33,10 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		panic(err)
 	}
 
-	rewardReleaser, err := k.RewardReleaser.Get(ctx)
+	releaseSchedule, err := k.ReleaseSchedule.Get(ctx)
 	if err != nil {
 		panic(err)
 	}
 
-	return types.NewGenesisState(params, rewardPool, rewardReleaser)
+	return types.NewGenesisState(params, rewardPool, releaseSchedule)
 }

@@ -8,33 +8,33 @@ import (
 
 // BeginBlocker calculates reward amt and sends it to the distribution pool
 func (k Keeper) BeginBlocker(ctx sdk.Context) error {
-	// Get releaser
-	releaser, err := k.RewardReleaser.Get(ctx)
+	// Get release schedule
+	schedule, err := k.ReleaseSchedule.Get(ctx)
 	if err != nil {
 		return err
 	}
 
 	// Early exit if inactive or nothing to release
-	if !releaser.Active || releaser.TotalAmount.IsZero() {
+	if !schedule.Active || schedule.TotalAmount.IsZero() {
 		return nil
 	}
 
 	// If active and there is no previous time stamp, set it as current block's and skip this time
-	if releaser.LastReleaseTime.IsZero() {
-		releaser.LastReleaseTime = ctx.BlockTime()
-		return k.RewardReleaser.Set(ctx, releaser)
+	if schedule.LastReleaseTime.IsZero() {
+		schedule.LastReleaseTime = ctx.BlockTime()
+		return k.ReleaseSchedule.Set(ctx, schedule)
 	}
 
 	// Calculate the amount to distribute this block
-	amountToDistribute, err := CalculateReward(ctx.BlockTime(), releaser)
+	amountToDistribute, err := types.CalculateReward(ctx.BlockTime(), schedule)
 	if err != nil {
 		return err
 	}
 
 	// If nothing to distribute, sets up as inactive for early exit next time
 	if amountToDistribute.IsZero() {
-		releaser.Active = false
-		return k.RewardReleaser.Set(ctx, releaser)
+		schedule.Active = false
+		return k.ReleaseSchedule.Set(ctx, schedule)
 	}
 
 	// Get the current RewardPool from state
@@ -59,8 +59,8 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 		return err
 	}
 
-	// Update releaser
-	releaser.LastReleaseTime = ctx.BlockTime()
-	releaser.ReleasedAmount = releaser.ReleasedAmount.Add(amountToDistribute)
-	return k.RewardReleaser.Set(ctx, releaser)
+	// Update release schedule
+	schedule.LastReleaseTime = ctx.BlockTime()
+	schedule.ReleasedAmount = schedule.ReleasedAmount.Add(amountToDistribute)
+	return k.ReleaseSchedule.Set(ctx, schedule)
 }

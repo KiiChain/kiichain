@@ -28,16 +28,16 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 
 	testCases := []struct {
 		name                 string
-		initialReleaser      types.RewardReleaser
+		initialSchedule      types.ReleaseSchedule
 		initialPool          sdk.DecCoins
 		blockTime            time.Time
 		expectedChange       bool
-		expectedReleaser     types.RewardReleaser
+		expectedSchedule     types.ReleaseSchedule
 		expectedChangeAmount sdk.Coin
 	}{
 		{
-			name: "inactive releaser - no action",
-			initialReleaser: types.RewardReleaser{
+			name: "inactive schedule - no action",
+			initialSchedule: types.ReleaseSchedule{
 				Active: false,
 			},
 			blockTime:      now.Add(time.Hour),
@@ -45,7 +45,7 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 		},
 		{
 			name: "zero total amount - no action",
-			initialReleaser: types.RewardReleaser{
+			initialSchedule: types.ReleaseSchedule{
 				Active:      true,
 				TotalAmount: sdk.NewCoin(denom, math.ZeroInt()),
 			},
@@ -54,7 +54,7 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 		},
 		{
 			name: "first run - sets timestamp but no distribution",
-			initialReleaser: types.RewardReleaser{
+			initialSchedule: types.ReleaseSchedule{
 				Active:          true,
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
 				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
@@ -62,7 +62,7 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 				EndTime:         now.Add(time.Hour * 2),
 			},
 			blockTime: now,
-			expectedReleaser: types.RewardReleaser{
+			expectedSchedule: types.ReleaseSchedule{
 				Active:          true,
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
 				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
@@ -74,7 +74,7 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 		},
 		{
 			name: "normal distribution - partial release",
-			initialReleaser: types.RewardReleaser{
+			initialSchedule: types.ReleaseSchedule{
 				Active:          true,
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
 				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
@@ -83,7 +83,7 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 			},
 			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(1000))),
 			blockTime:   now.Add(time.Hour),
-			expectedReleaser: types.RewardReleaser{
+			expectedSchedule: types.ReleaseSchedule{
 				Active:          true,
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
 				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(500)),
@@ -95,7 +95,7 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 		},
 		{
 			name: "final distribution",
-			initialReleaser: types.RewardReleaser{
+			initialSchedule: types.ReleaseSchedule{
 				Active:          true,
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
 				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(900)),
@@ -104,7 +104,7 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 			},
 			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(100))),
 			blockTime:   now.Add(time.Hour),
-			expectedReleaser: types.RewardReleaser{
+			expectedSchedule: types.ReleaseSchedule{
 				Active:          true,
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
 				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(1000)),
@@ -116,7 +116,7 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 		},
 		{
 			name: "no more distribution - set as inactive",
-			initialReleaser: types.RewardReleaser{
+			initialSchedule: types.ReleaseSchedule{
 				Active:          true,
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
 				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(1000)),
@@ -125,7 +125,7 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 			},
 			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(100))),
 			blockTime:   now.Add(time.Hour * 2),
-			expectedReleaser: types.RewardReleaser{
+			expectedSchedule: types.ReleaseSchedule{
 				Active:          false,
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
 				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(1000)),
@@ -142,8 +142,8 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 			// Setup initial state
 			ctx := suite.Ctx.WithBlockTime(tc.blockTime)
 
-			// Set initial releaser state
-			err := suite.App.RewardsKeeper.RewardReleaser.Set(ctx, tc.initialReleaser)
+			// Set initial schedule state
+			err := suite.App.RewardsKeeper.ReleaseSchedule.Set(ctx, tc.initialSchedule)
 			suite.Require().NoError(err)
 
 			// Set initial pool state if needed
@@ -163,14 +163,14 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 			suite.Require().NoError(err)
 
 			if tc.expectedChange {
-				// Verify releaser state
-				releaser, err := suite.App.RewardsKeeper.RewardReleaser.Get(ctx)
+				// Verify schedule state
+				schedule, err := suite.App.RewardsKeeper.ReleaseSchedule.Get(ctx)
 				suite.Require().NoError(err)
-				suite.Require().Equal(tc.expectedReleaser.Active, releaser.Active)
-				suite.Require().Equal(tc.expectedReleaser.ReleasedAmount, releaser.ReleasedAmount)
-				suite.Require().Equal(tc.expectedReleaser.TotalAmount, releaser.TotalAmount)
-				suite.Require().True(tc.expectedReleaser.LastReleaseTime.Equal(releaser.LastReleaseTime))
-				suite.Require().True(tc.expectedReleaser.EndTime.Equal(releaser.EndTime))
+				suite.Require().Equal(tc.expectedSchedule.Active, schedule.Active)
+				suite.Require().Equal(tc.expectedSchedule.ReleasedAmount, schedule.ReleasedAmount)
+				suite.Require().Equal(tc.expectedSchedule.TotalAmount, schedule.TotalAmount)
+				suite.Require().True(tc.expectedSchedule.LastReleaseTime.Equal(schedule.LastReleaseTime))
+				suite.Require().True(tc.expectedSchedule.EndTime.Equal(schedule.EndTime))
 
 				// If expecting transfer
 				if !tc.expectedChangeAmount.IsZero() {

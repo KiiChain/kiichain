@@ -65,14 +65,15 @@ func (k msgServer) FundPool(ctx context.Context, msg *types.MsgFundPool) (*types
 	return &types.MsgFundPoolResponse{}, nil
 }
 
-// ExtendReward validates changes to the release scheduler
-func (k msgServer) ExtendReward(ctx context.Context, msg *types.MsgExtendReward) (*types.MsgExtendRewardResponse, error) {
+// ChangeSchedule validates changes to the release scheduler
+func (k msgServer) ChangeSchedule(ctx context.Context, msg *types.MsgChangeSchedule) (*types.MsgChangeScheduleResponse, error) {
 	if err := k.validateAuthority(msg.Authority); err != nil {
 		return nil, err
 	}
 
+	// TODO check other balances
 	// Validate amt
-	if err := validateAmount(msg.ExtraAmount); err != nil {
+	if err := validateAmount(msg.Schedule.TotalAmount); err != nil {
 		return nil, err
 	}
 
@@ -80,25 +81,25 @@ func (k msgServer) ExtendReward(ctx context.Context, msg *types.MsgExtendReward)
 	if err != nil {
 		return nil, err
 	}
-	if params.TokenDenom != msg.ExtraAmount.Denom {
-		return nil, fmt.Errorf("denom %s does not match expected denom: %s", msg.ExtraAmount.Denom, params.TokenDenom)
+	if params.TokenDenom != msg.Schedule.TotalAmount.Denom {
+		return nil, fmt.Errorf("denom %s does not match expected denom: %s", msg.Schedule.TotalAmount.Denom, params.TokenDenom)
 	}
 
 	// Validate time
 	// Should only time extensions be allowed? I.e do not allow reducing the time
-	if err := validateTime(msg.EndTime); err != nil {
+	if err := validateTime(msg.Schedule.EndTime); err != nil {
 		return nil, err
 	}
 
 	// Check if funds exist (community pool funds - to be released > extra amount)
-	if err := k.fundsAvailable(ctx, msg.ExtraAmount); err != nil {
+	if err := k.fundsAvailable(ctx, msg.Schedule.TotalAmount); err != nil {
 		return nil, err
 	}
 
 	// Do actual work
-	if err := k.Keeper.ExtendReward(ctx, msg.ExtraAmount, msg.EndTime); err != nil {
+	if err := k.Keeper.ReleaseSchedule.Set(ctx, msg.Schedule); err != nil {
 		return nil, err
 	}
 
-	return &types.MsgExtendRewardResponse{}, nil
+	return &types.MsgChangeScheduleResponse{}, nil
 }

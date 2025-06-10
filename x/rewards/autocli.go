@@ -22,10 +22,10 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Short:     "Query the current rewards parameters.",
 				},
 				{
-					RpcMethod: "RewardReleaser",
-					Use:       "releaser",
-					Short:     "Query reward releaser current information",
-					Example:   fmt.Sprintf("$ %s query rewards releaser ", version.AppName),
+					RpcMethod: "ReleaseSchedule",
+					Use:       "schedule",
+					Short:     "Query reward release schedule current information",
+					Example:   fmt.Sprintf("$ %s query rewards schedule ", version.AppName),
 				},
 				{
 					RpcMethod: "RewardPool",
@@ -52,7 +52,7 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Skip:      true, // skipped because authority gated
 				},
 				{
-					RpcMethod: "ExtendReward",
+					RpcMethod: "ChangeSchedule",
 					Skip:      true, // skipped because authority gated
 				},
 			},
