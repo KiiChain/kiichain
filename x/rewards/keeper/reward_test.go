@@ -92,7 +92,7 @@ func TestCalculateReward(t *testing.T) {
 			expectedError: false,
 		},
 		{
-			name:      "last release",
+			name:      "last release (past end time)",
 			blockTime: now.Add(time.Hour * 2),
 			releaser: types.RewardReleaser{
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
