@@ -6,13 +6,13 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/kiichain/kiichain/v1/app/params"
 )
 
 // DefaultParams returns default distribution parameters
 func DefaultParams() Params {
 	return Params{
-		GovernanceMinDeposit: "1000000000000000000000", // 1000 kii
-		TokenDenom:           "akii",                   // akii base denom
+		TokenDenom: params.BaseDenom, // akii base denom
 	}
 }
 
