@@ -20,10 +20,4 @@ const (
 
 	// QuerierRoute defines the module's query routing key
 	QuerierRoute = ModuleName
-
-	// MemStoreKey defines the in-memory store key
-	MemStoreKey = "mem_rewards"
 )
-
-// KeySeparator is used to combine parts of the keys in the store
-const KeySeparator = "|"
