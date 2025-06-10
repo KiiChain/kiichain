@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
+// RegisterInterfaces register interfaces into the app
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	// Register messages
 	registry.RegisterImplementations(
