@@ -8,9 +8,6 @@ option go_package = "github.com/kiichain/kiichain/x/rewards/types";
 
 // Params defines the parameters for the rewards module.
 message Params {
-  // Minimal deposit
-  string governance_min_deposit = 1;
-
   // Denom used
-  string token_denom = 2;
+  string token_denom = 1;
 }

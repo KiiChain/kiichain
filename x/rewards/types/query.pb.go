@@ -113,23 +113,23 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
-// QueryRewardReleaserRequest defines the request structure for the
-// RewardReleaser gRPC query.
-type QueryRewardReleaserRequest struct {
+// QueryReleaseScheduleRequest defines the request structure for the
+// ReleaseSchedule gRPC query.
+type QueryReleaseScheduleRequest struct {
 }
 
-func (m *QueryRewardReleaserRequest) Reset()         { *m = QueryRewardReleaserRequest{} }
-func (m *QueryRewardReleaserRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryRewardReleaserRequest) ProtoMessage()    {}
-func (*QueryRewardReleaserRequest) Descriptor() ([]byte, []int) {
+func (m *QueryReleaseScheduleRequest) Reset()         { *m = QueryReleaseScheduleRequest{} }
+func (m *QueryReleaseScheduleRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryReleaseScheduleRequest) ProtoMessage()    {}
+func (*QueryReleaseScheduleRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_12435df56ac62847, []int{2}
 }
-func (m *QueryRewardReleaserRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryReleaseScheduleRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryRewardReleaserRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryReleaseScheduleRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryRewardReleaserRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryReleaseScheduleRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -139,36 +139,36 @@ func (m *QueryRewardReleaserRequest) XXX_Marshal(b []byte, deterministic bool) (
 		return b[:n], nil
 	}
 }
-func (m *QueryRewardReleaserRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryRewardReleaserRequest.Merge(m, src)
+func (m *QueryReleaseScheduleRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryReleaseScheduleRequest.Merge(m, src)
 }
-func (m *QueryRewardReleaserRequest) XXX_Size() int {
+func (m *QueryReleaseScheduleRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryRewardReleaserRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryRewardReleaserRequest.DiscardUnknown(m)
+func (m *QueryReleaseScheduleRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryReleaseScheduleRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryRewardReleaserRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryReleaseScheduleRequest proto.InternalMessageInfo
 
-// QueryRewardReleaserResponse defines the response structure for the
-// RewardReleaser gRPC query.
-type QueryRewardReleaserResponse struct {
-	RewardReleaser RewardReleaser `protobuf:"bytes,1,opt,name=reward_releaser,json=rewardReleaser,proto3" json:"reward_releaser" yaml:"reward_releaser"`
+// QueryReleaseScheduleResponse defines the response structure for the
+// ReleaseSchedule gRPC query.
+type QueryReleaseScheduleResponse struct {
+	ReleaseSchedule ReleaseSchedule `protobuf:"bytes,1,opt,name=release_schedule,json=releaseSchedule,proto3" json:"release_schedule" yaml:"release_schedule"`
 }
 
-func (m *QueryRewardReleaserResponse) Reset()         { *m = QueryRewardReleaserResponse{} }
-func (m *QueryRewardReleaserResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryRewardReleaserResponse) ProtoMessage()    {}
-func (*QueryRewardReleaserResponse) Descriptor() ([]byte, []int) {
+func (m *QueryReleaseScheduleResponse) Reset()         { *m = QueryReleaseScheduleResponse{} }
+func (m *QueryReleaseScheduleResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryReleaseScheduleResponse) ProtoMessage()    {}
+func (*QueryReleaseScheduleResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_12435df56ac62847, []int{3}
 }
-func (m *QueryRewardReleaserResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryReleaseScheduleResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryRewardReleaserResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryReleaseScheduleResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryRewardReleaserResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryReleaseScheduleResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -178,23 +178,23 @@ func (m *QueryRewardReleaserResponse) XXX_Marshal(b []byte, deterministic bool) 
 		return b[:n], nil
 	}
 }
-func (m *QueryRewardReleaserResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryRewardReleaserResponse.Merge(m, src)
+func (m *QueryReleaseScheduleResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryReleaseScheduleResponse.Merge(m, src)
 }
-func (m *QueryRewardReleaserResponse) XXX_Size() int {
+func (m *QueryReleaseScheduleResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryRewardReleaserResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryRewardReleaserResponse.DiscardUnknown(m)
+func (m *QueryReleaseScheduleResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryReleaseScheduleResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryRewardReleaserResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryReleaseScheduleResponse proto.InternalMessageInfo
 
-func (m *QueryRewardReleaserResponse) GetRewardReleaser() RewardReleaser {
+func (m *QueryReleaseScheduleResponse) GetReleaseSchedule() ReleaseSchedule {
 	if m != nil {
-		return m.RewardReleaser
+		return m.ReleaseSchedule
 	}
-	return RewardReleaser{}
+	return ReleaseSchedule{}
 }
 
 // QueryRewardPoolRequest defines the request structure for the
@@ -284,8 +284,8 @@ func (m *QueryRewardPoolResponse) GetRewardPool() RewardPool {
 func init() {
 	proto.RegisterType((*QueryParamsRequest)(nil), "kiichain.rewards.v1beta1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "kiichain.rewards.v1beta1.QueryParamsResponse")
-	proto.RegisterType((*QueryRewardReleaserRequest)(nil), "kiichain.rewards.v1beta1.QueryRewardReleaserRequest")
-	proto.RegisterType((*QueryRewardReleaserResponse)(nil), "kiichain.rewards.v1beta1.QueryRewardReleaserResponse")
+	proto.RegisterType((*QueryReleaseScheduleRequest)(nil), "kiichain.rewards.v1beta1.QueryReleaseScheduleRequest")
+	proto.RegisterType((*QueryReleaseScheduleResponse)(nil), "kiichain.rewards.v1beta1.QueryReleaseScheduleResponse")
 	proto.RegisterType((*QueryRewardPoolRequest)(nil), "kiichain.rewards.v1beta1.QueryRewardPoolRequest")
 	proto.RegisterType((*QueryRewardPoolResponse)(nil), "kiichain.rewards.v1beta1.QueryRewardPoolResponse")
 }
@@ -295,38 +295,39 @@ func init() {
 }
 
 var fileDescriptor_12435df56ac62847 = []byte{
-	// 490 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x94, 0x4f, 0x6f, 0xd3, 0x30,
-	0x18, 0xc6, 0x6b, 0xfe, 0xf4, 0xf0, 0x4e, 0x1a, 0x92, 0x99, 0x46, 0x15, 0xa6, 0xac, 0xb2, 0x36,
-	0x51, 0x60, 0x8d, 0xe9, 0x80, 0x0b, 0x07, 0x0e, 0x3d, 0x70, 0x1e, 0x91, 0xb8, 0x70, 0x41, 0x6e,
-	0xb1, 0xb2, 0x88, 0x34, 0x6f, 0x6a, 0xa7, 0x40, 0x25, 0x4e, 0x7c, 0x01, 0x26, 0xf1, 0x05, 0xf8,
-	0x08, 0x7c, 0x8c, 0x1d, 0x27, 0x71, 0xe1, 0x34, 0xa1, 0x96, 0x3b, 0x12, 0x9f, 0x00, 0xc5, 0x76,
-	0xba, 0x85, 0x2d, 0xea, 0x7a, 0x73, 0xfc, 0x3e, 0xef, 0xf3, 0xfc, 0xe2, 0xd7, 0x09, 0xec, 0xbc,
-	0x8b, 0xe3, 0xe1, 0xa1, 0x88, 0x53, 0xae, 0xe4, 0x07, 0xa1, 0xde, 0x6a, 0xfe, 0xbe, 0x37, 0x90,
-	0xb9, 0xe8, 0xf1, 0xf1, 0x44, 0xaa, 0x69, 0x90, 0x29, 0xcc, 0x91, 0xb6, 0x4a, 0x55, 0xe0, 0x54,
-	0x81, 0x53, 0x79, 0x1b, 0x11, 0x46, 0x68, 0x44, 0xbc, 0x58, 0x59, 0xbd, 0xb7, 0x15, 0x21, 0x46,
-	0x89, 0xe4, 0x22, 0x8b, 0xb9, 0x48, 0x53, 0xcc, 0x45, 0x1e, 0x63, 0xaa, 0x5d, 0xf5, 0xc1, 0x10,
-	0xf5, 0x08, 0x35, 0x1f, 0x08, 0x2d, 0x6d, 0xcc, 0x22, 0x34, 0x13, 0x51, 0x9c, 0x1a, 0xb1, 0xd3,
-	0xd6, 0xf3, 0xe5, 0xd3, 0x4c, 0x96, 0x8e, 0xbb, 0xb5, 0xaa, 0x4c, 0x28, 0x31, 0x72, 0x32, 0xb6,
-	0x01, 0xf4, 0x65, 0x11, 0x77, 0x60, 0x36, 0x43, 0x39, 0x9e, 0x48, 0x9d, 0xb3, 0x57, 0x70, 0xbb,
-	0xb2, 0xab, 0x33, 0x4c, 0xb5, 0xa4, 0xcf, 0xa1, 0x69, 0x9b, 0x5b, 0xa4, 0x4d, 0x3a, 0x6b, 0xfb,
-	0xed, 0xa0, 0xee, 0x10, 0x02, 0xdb, 0xd9, 0xbf, 0x71, 0x7c, 0xba, 0xdd, 0x08, 0x5d, 0x17, 0xdb,
-	0x02, 0xcf, 0xd8, 0x86, 0x46, 0x1c, 0xca, 0x44, 0x0a, 0x2d, 0x55, 0x19, 0x7a, 0x44, 0xe0, 0xee,
-	0xa5, 0x65, 0x97, 0x3e, 0x86, 0x5b, 0x36, 0xe5, 0x8d, 0x72, 0x25, 0x87, 0xd1, 0xa9, 0xc7, 0xa8,
-	0x5a, 0xf5, 0xfd, 0x02, 0xe7, 0xef, 0xe9, 0xf6, 0xe6, 0x54, 0x8c, 0x92, 0x67, 0xec, 0x3f, 0x3b,
-	0x16, 0xae, 0xab, 0x8a, 0x9e, 0xb5, 0x60, 0xf3, 0x1c, 0xd1, 0x01, 0x62, 0x52, 0xc2, 0x7e, 0x82,
-	0x3b, 0x17, 0x2a, 0x8e, 0x53, 0xc0, 0x9a, 0x33, 0xce, 0x10, 0x13, 0xc7, 0xb8, 0xb3, 0x8c, 0xb1,
-	0xb0, 0xe8, 0x7b, 0x8e, 0x8f, 0x56, 0xf8, 0x0a, 0x1b, 0x16, 0x82, 0x5a, 0xe8, 0xf6, 0xff, 0x5c,
-	0x87, 0x9b, 0x26, 0x9e, 0x7e, 0x21, 0xd0, 0xb4, 0x67, 0x4d, 0xf7, 0xea, 0x23, 0x2e, 0x8e, 0xd8,
-	0xeb, 0x5e, 0x51, 0x6d, 0x5f, 0x8a, 0x75, 0x3e, 0xff, 0xf8, 0xfd, 0xf5, 0x1a, 0xa3, 0x6d, 0xbe,
-	0xe4, 0x5e, 0xd1, 0xef, 0x04, 0xd6, 0xab, 0xc7, 0x4e, 0x9f, 0x2c, 0xc9, 0xba, 0xf4, 0x3e, 0x78,
-	0x4f, 0x57, 0xec, 0x72, 0xa4, 0x3d, 0x43, 0xfa, 0x90, 0xde, 0xaf, 0x27, 0xb5, 0xcf, 0xdd, 0x72,
-	0xee, 0xf4, 0x1b, 0x01, 0x38, 0x9b, 0x02, 0x7d, 0x74, 0xa5, 0xe0, 0x73, 0xb7, 0xc1, 0xeb, 0xad,
-	0xd0, 0xe1, 0x30, 0xbb, 0x06, 0xf3, 0x1e, 0xdd, 0x5d, 0x8a, 0x59, 0x8c, 0xbf, 0xff, 0xe2, 0x78,
-	0xe6, 0x93, 0x93, 0x99, 0x4f, 0x7e, 0xcd, 0x7c, 0x72, 0x34, 0xf7, 0x1b, 0x27, 0x73, 0xbf, 0xf1,
-	0x73, 0xee, 0x37, 0x5e, 0xef, 0x45, 0x71, 0x7e, 0x38, 0x19, 0x04, 0x43, 0x1c, 0x9d, 0x59, 0x2d,
-	0x16, 0x1f, 0x17, 0xae, 0xe6, 0xe7, 0x30, 0x68, 0x9a, 0xcf, 0xfe, 0xf1, 0xbf, 0x00, 0x00, 0x00,
-	0xff, 0xff, 0xf3, 0x68, 0xb9, 0x76, 0xe5, 0x04, 0x00, 0x00,
+	// 500 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x94, 0xcf, 0x6e, 0xd3, 0x40,
+	0x10, 0xc6, 0xb3, 0xfc, 0xc9, 0x61, 0x7b, 0x28, 0x5a, 0x2a, 0x1a, 0x99, 0xe2, 0x44, 0xab, 0x56,
+	0x94, 0x2a, 0xb1, 0x49, 0x10, 0x1c, 0x38, 0x70, 0xc8, 0x81, 0x73, 0x31, 0xe2, 0xc2, 0xa5, 0xda,
+	0xa4, 0x2b, 0xc7, 0xc2, 0xf1, 0xb8, 0x5e, 0x1b, 0x88, 0xc4, 0x89, 0x17, 0x00, 0x09, 0x71, 0xe7,
+	0x21, 0x78, 0x88, 0x1e, 0x2b, 0x71, 0xe1, 0x54, 0xa1, 0x84, 0x27, 0x80, 0x17, 0x40, 0xde, 0x1d,
+	0xbb, 0xaa, 0x5b, 0x37, 0xe4, 0xe6, 0xec, 0x7c, 0xf3, 0x7d, 0xbf, 0xec, 0x8c, 0x96, 0x6e, 0xbf,
+	0x09, 0x82, 0xf1, 0x44, 0x04, 0x91, 0x9b, 0xc8, 0x77, 0x22, 0x39, 0x54, 0xee, 0xdb, 0xfe, 0x48,
+	0xa6, 0xa2, 0xef, 0x1e, 0x65, 0x32, 0x99, 0x39, 0x71, 0x02, 0x29, 0xb0, 0x56, 0xa1, 0x72, 0x50,
+	0xe5, 0xa0, 0xca, 0xda, 0xf0, 0xc1, 0x07, 0x2d, 0x72, 0xf3, 0x2f, 0xa3, 0xb7, 0xb6, 0x7c, 0x00,
+	0x3f, 0x94, 0xae, 0x88, 0x03, 0x57, 0x44, 0x11, 0xa4, 0x22, 0x0d, 0x20, 0x52, 0x58, 0xdd, 0x1b,
+	0x83, 0x9a, 0x82, 0x72, 0x47, 0x42, 0x49, 0x13, 0x53, 0x86, 0xc6, 0xc2, 0x0f, 0x22, 0x2d, 0x46,
+	0x6d, 0x3d, 0x5f, 0x3a, 0x8b, 0x65, 0xe1, 0xb8, 0x53, 0xab, 0x8a, 0x45, 0x22, 0xa6, 0x28, 0xe3,
+	0x1b, 0x94, 0xbd, 0xc8, 0xe3, 0xf6, 0xf5, 0xa1, 0x27, 0x8f, 0x32, 0xa9, 0x52, 0xfe, 0x8a, 0xde,
+	0x3e, 0x77, 0xaa, 0x62, 0x88, 0x94, 0x64, 0xcf, 0x68, 0xd3, 0x34, 0xb7, 0x48, 0x87, 0xec, 0xae,
+	0x0d, 0x3a, 0x4e, 0xdd, 0x25, 0x38, 0xa6, 0x73, 0x78, 0xe3, 0xf8, 0xb4, 0xdd, 0xf0, 0xb0, 0x8b,
+	0xdf, 0xa3, 0x77, 0xb5, 0xad, 0x27, 0x43, 0x29, 0x94, 0x7c, 0x39, 0x9e, 0xc8, 0xc3, 0x2c, 0x94,
+	0x45, 0xea, 0x57, 0x42, 0xb7, 0x2e, 0xaf, 0x63, 0x7e, 0x46, 0x6f, 0x25, 0xa6, 0x74, 0xa0, 0xb0,
+	0x86, 0x24, 0x0f, 0xea, 0x49, 0x2a, 0x66, 0xc3, 0x76, 0x8e, 0xf4, 0xe7, 0xb4, 0xbd, 0x39, 0x13,
+	0xd3, 0xf0, 0x29, 0xaf, 0x1a, 0x72, 0x6f, 0x3d, 0x39, 0xdf, 0xc1, 0x5b, 0xf4, 0x0e, 0x62, 0xe5,
+	0xce, 0xfb, 0x00, 0x61, 0x41, 0xfc, 0x81, 0x6e, 0x5e, 0xa8, 0x20, 0xab, 0xa0, 0x6b, 0x86, 0xe4,
+	0x20, 0x06, 0x08, 0x11, 0x73, 0xfb, 0x2a, 0xcc, 0xc2, 0x62, 0x68, 0x21, 0x21, 0x2b, 0x08, 0x4b,
+	0x1b, 0xee, 0xd1, 0xa4, 0xd4, 0x0d, 0xfe, 0x5e, 0xa7, 0x37, 0x75, 0x3c, 0xfb, 0x44, 0x68, 0xd3,
+	0xdc, 0x38, 0xeb, 0xd6, 0x47, 0x5c, 0x1c, 0xb4, 0xd5, 0xfb, 0x4f, 0xb5, 0xf9, 0x53, 0x7c, 0xf7,
+	0xe3, 0x8f, 0xdf, 0x5f, 0xae, 0x71, 0xd6, 0x71, 0x97, 0x6c, 0x17, 0xfb, 0x4e, 0xe8, 0x7a, 0xe5,
+	0xe6, 0xd9, 0xe3, 0x25, 0x61, 0x97, 0xaf, 0x85, 0xf5, 0x64, 0xd5, 0x36, 0x84, 0x1d, 0x68, 0xd8,
+	0x2e, 0xdb, 0xab, 0x87, 0xc5, 0x49, 0xf7, 0x8a, 0xe1, 0xb3, 0x6f, 0x84, 0xd2, 0xb3, 0x49, 0xb0,
+	0x87, 0x4b, 0xa3, 0x2b, 0x1b, 0x61, 0xf5, 0x57, 0xe8, 0x40, 0xce, 0x9e, 0xe6, 0xbc, 0xcf, 0x76,
+	0xae, 0xe2, 0xcc, 0x7f, 0xf7, 0xf2, 0x15, 0x18, 0x3e, 0x3f, 0x9e, 0xdb, 0xe4, 0x64, 0x6e, 0x93,
+	0x5f, 0x73, 0x9b, 0x7c, 0x5e, 0xd8, 0x8d, 0x93, 0x85, 0xdd, 0xf8, 0xb9, 0xb0, 0x1b, 0xaf, 0xbb,
+	0x7e, 0x90, 0x4e, 0xb2, 0x91, 0x33, 0x86, 0xe9, 0x99, 0x55, 0xf9, 0xf1, 0xbe, 0x74, 0xd5, 0xcf,
+	0xc4, 0xa8, 0xa9, 0x1f, 0x80, 0x47, 0xff, 0x02, 0x00, 0x00, 0xff, 0xff, 0xbe, 0x94, 0x24, 0x7b,
+	0xef, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -344,9 +345,9 @@ type QueryClient interface {
 	// Params defines a gRPC query method that returns the reward module's
 	// parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
-	// RewardReleaser defines a gRPC query method for fetching
-	// RewardReleaser data.
-	RewardReleaser(ctx context.Context, in *QueryRewardReleaserRequest, opts ...grpc.CallOption) (*QueryRewardReleaserResponse, error)
+	// ReleaseSchedule defines a gRPC query method for fetching
+	// ReleaseSchedule data.
+	ReleaseSchedule(ctx context.Context, in *QueryReleaseScheduleRequest, opts ...grpc.CallOption) (*QueryReleaseScheduleResponse, error)
 	// RewardPool defines a gRPC query method for fetching
 	// RewardPool data.
 	RewardPool(ctx context.Context, in *QueryRewardPoolRequest, opts ...grpc.CallOption) (*QueryRewardPoolResponse, error)
@@ -369,9 +370,9 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 	return out, nil
 }
 
-func (c *queryClient) RewardReleaser(ctx context.Context, in *QueryRewardReleaserRequest, opts ...grpc.CallOption) (*QueryRewardReleaserResponse, error) {
-	out := new(QueryRewardReleaserResponse)
-	err := c.cc.Invoke(ctx, "/kiichain.rewards.v1beta1.Query/RewardReleaser", in, out, opts...)
+func (c *queryClient) ReleaseSchedule(ctx context.Context, in *QueryReleaseScheduleRequest, opts ...grpc.CallOption) (*QueryReleaseScheduleResponse, error) {
+	out := new(QueryReleaseScheduleResponse)
+	err := c.cc.Invoke(ctx, "/kiichain.rewards.v1beta1.Query/ReleaseSchedule", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -392,9 +393,9 @@ type QueryServer interface {
 	// Params defines a gRPC query method that returns the reward module's
 	// parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
-	// RewardReleaser defines a gRPC query method for fetching
-	// RewardReleaser data.
-	RewardReleaser(context.Context, *QueryRewardReleaserRequest) (*QueryRewardReleaserResponse, error)
+	// ReleaseSchedule defines a gRPC query method for fetching
+	// ReleaseSchedule data.
+	ReleaseSchedule(context.Context, *QueryReleaseScheduleRequest) (*QueryReleaseScheduleResponse, error)
 	// RewardPool defines a gRPC query method for fetching
 	// RewardPool data.
 	RewardPool(context.Context, *QueryRewardPoolRequest) (*QueryRewardPoolResponse, error)
@@ -407,8 +408,8 @@ type UnimplementedQueryServer struct {
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
 }
-func (*UnimplementedQueryServer) RewardReleaser(ctx context.Context, req *QueryRewardReleaserRequest) (*QueryRewardReleaserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RewardReleaser not implemented")
+func (*UnimplementedQueryServer) ReleaseSchedule(ctx context.Context, req *QueryReleaseScheduleRequest) (*QueryReleaseScheduleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReleaseSchedule not implemented")
 }
 func (*UnimplementedQueryServer) RewardPool(ctx context.Context, req *QueryRewardPoolRequest) (*QueryRewardPoolResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RewardPool not implemented")
@@ -436,20 +437,20 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_RewardReleaser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryRewardReleaserRequest)
+func _Query_ReleaseSchedule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryReleaseScheduleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).RewardReleaser(ctx, in)
+		return srv.(QueryServer).ReleaseSchedule(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/kiichain.rewards.v1beta1.Query/RewardReleaser",
+		FullMethod: "/kiichain.rewards.v1beta1.Query/ReleaseSchedule",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).RewardReleaser(ctx, req.(*QueryRewardReleaserRequest))
+		return srv.(QueryServer).ReleaseSchedule(ctx, req.(*QueryReleaseScheduleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -482,8 +483,8 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_Params_Handler,
 		},
 		{
-			MethodName: "RewardReleaser",
-			Handler:    _Query_RewardReleaser_Handler,
+			MethodName: "ReleaseSchedule",
+			Handler:    _Query_ReleaseSchedule_Handler,
 		},
 		{
 			MethodName: "RewardPool",
@@ -550,7 +551,7 @@ func (m *QueryParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryRewardReleaserRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryReleaseScheduleRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -560,12 +561,12 @@ func (m *QueryRewardReleaserRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryRewardReleaserRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryReleaseScheduleRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryRewardReleaserRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryReleaseScheduleRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -573,7 +574,7 @@ func (m *QueryRewardReleaserRequest) MarshalToSizedBuffer(dAtA []byte) (int, err
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryRewardReleaserResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryReleaseScheduleResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -583,18 +584,18 @@ func (m *QueryRewardReleaserResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryRewardReleaserResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryReleaseScheduleResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryRewardReleaserResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryReleaseScheduleResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	{
-		size, err := m.RewardReleaser.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.ReleaseSchedule.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -693,7 +694,7 @@ func (m *QueryParamsResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryRewardReleaserRequest) Size() (n int) {
+func (m *QueryReleaseScheduleRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -702,13 +703,13 @@ func (m *QueryRewardReleaserRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryRewardReleaserResponse) Size() (n int) {
+func (m *QueryReleaseScheduleResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = m.RewardReleaser.Size()
+	l = m.ReleaseSchedule.Size()
 	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
@@ -872,7 +873,7 @@ func (m *QueryParamsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryRewardReleaserRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryReleaseScheduleRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -895,10 +896,10 @@ func (m *QueryRewardReleaserRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryRewardReleaserRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryReleaseScheduleRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryRewardReleaserRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryReleaseScheduleRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -922,7 +923,7 @@ func (m *QueryRewardReleaserRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryRewardReleaserResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryReleaseScheduleResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -945,15 +946,15 @@ func (m *QueryRewardReleaserResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryRewardReleaserResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryReleaseScheduleResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryRewardReleaserResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryReleaseScheduleResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RewardReleaser", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ReleaseSchedule", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -980,7 +981,7 @@ func (m *QueryRewardReleaserResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.RewardReleaser.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.ReleaseSchedule.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

@@ -8,8 +8,8 @@ import "amino/amino.proto";
 
 option go_package = "github.com/kiichain/kiichain/x/rewards/types";
 
-// RewardReleaser defines information related to reward pool
-message RewardReleaser {
+// ReleaseSchedule defines information related to reward distribution
+message ReleaseSchedule {
   // Total amount to be rewarded
   cosmos.base.v1beta1.Coin total_amount = 1 [
     (gogoproto.nullable) = false,

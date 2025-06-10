@@ -13,7 +13,6 @@ import (
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
-	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -21,14 +20,12 @@ import (
 	io "io"
 	math "math"
 	math_bits "math/bits"
-	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
-var _ = time.Kitchen
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -132,7 +129,7 @@ var xxx_messageInfo_MsgFundPoolResponse proto.InternalMessageInfo
 type MsgUpdateParams struct {
 	// authority is the address of the governance account.
 	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
-	// params defines the x/mint parameters to update.
+	// params defines the x/rewards parameters to update.
 	//
 	// NOTE: All parameters must be supplied.
 	Params Params `protobuf:"bytes,2,opt,name=params,proto3" json:"params"`
@@ -225,28 +222,26 @@ func (m *MsgUpdateParamsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgUpdateParamsResponse proto.InternalMessageInfo
 
-// MsgExtendReward is the Msg/ExtendReward request type.
-type MsgExtendReward struct {
+// MsgChangeSchedule is the Msg/ChangeSchedule request type.
+type MsgChangeSchedule struct {
 	// authority is the address of the governance account.
 	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
-	// Amount to be taken from the community pool
-	ExtraAmount types.Coin `protobuf:"bytes,2,opt,name=extra_amount,json=extraAmount,proto3" json:"extra_amount" yaml:"extra_amount"`
-	// New timestamp of end of release
-	EndTime time.Time `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3,stdtime" json:"end_time" yaml:"end_time"`
+	// New information for the schedule
+	Schedule ReleaseSchedule `protobuf:"bytes,2,opt,name=schedule,proto3" json:"schedule"`
 }
 
-func (m *MsgExtendReward) Reset()         { *m = MsgExtendReward{} }
-func (m *MsgExtendReward) String() string { return proto.CompactTextString(m) }
-func (*MsgExtendReward) ProtoMessage()    {}
-func (*MsgExtendReward) Descriptor() ([]byte, []int) {
+func (m *MsgChangeSchedule) Reset()         { *m = MsgChangeSchedule{} }
+func (m *MsgChangeSchedule) String() string { return proto.CompactTextString(m) }
+func (*MsgChangeSchedule) ProtoMessage()    {}
+func (*MsgChangeSchedule) Descriptor() ([]byte, []int) {
 	return fileDescriptor_8e1e54764dba96cb, []int{4}
 }
-func (m *MsgExtendReward) XXX_Unmarshal(b []byte) error {
+func (m *MsgChangeSchedule) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgExtendReward) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgChangeSchedule) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgExtendReward.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgChangeSchedule.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -256,56 +251,49 @@ func (m *MsgExtendReward) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-func (m *MsgExtendReward) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgExtendReward.Merge(m, src)
+func (m *MsgChangeSchedule) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgChangeSchedule.Merge(m, src)
 }
-func (m *MsgExtendReward) XXX_Size() int {
+func (m *MsgChangeSchedule) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgExtendReward) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgExtendReward.DiscardUnknown(m)
+func (m *MsgChangeSchedule) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgChangeSchedule.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgExtendReward proto.InternalMessageInfo
+var xxx_messageInfo_MsgChangeSchedule proto.InternalMessageInfo
 
-func (m *MsgExtendReward) GetAuthority() string {
+func (m *MsgChangeSchedule) GetAuthority() string {
 	if m != nil {
 		return m.Authority
 	}
 	return ""
 }
 
-func (m *MsgExtendReward) GetExtraAmount() types.Coin {
+func (m *MsgChangeSchedule) GetSchedule() ReleaseSchedule {
 	if m != nil {
-		return m.ExtraAmount
+		return m.Schedule
 	}
-	return types.Coin{}
+	return ReleaseSchedule{}
 }
 
-func (m *MsgExtendReward) GetEndTime() time.Time {
-	if m != nil {
-		return m.EndTime
-	}
-	return time.Time{}
+// MsgChangeScheduleResponse defines the response structure for executing a
+// MsgChangeSchedule message.
+type MsgChangeScheduleResponse struct {
 }
 
-// MsgExtendRewardResponse defines the response structure for executing a
-// MsgExtendReward message.
-type MsgExtendRewardResponse struct {
-}
-
-func (m *MsgExtendRewardResponse) Reset()         { *m = MsgExtendRewardResponse{} }
-func (m *MsgExtendRewardResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgExtendRewardResponse) ProtoMessage()    {}
-func (*MsgExtendRewardResponse) Descriptor() ([]byte, []int) {
+func (m *MsgChangeScheduleResponse) Reset()         { *m = MsgChangeScheduleResponse{} }
+func (m *MsgChangeScheduleResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgChangeScheduleResponse) ProtoMessage()    {}
+func (*MsgChangeScheduleResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_8e1e54764dba96cb, []int{5}
 }
-func (m *MsgExtendRewardResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgChangeScheduleResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgExtendRewardResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgChangeScheduleResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgExtendRewardResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgChangeScheduleResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -315,71 +303,70 @@ func (m *MsgExtendRewardResponse) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *MsgExtendRewardResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgExtendRewardResponse.Merge(m, src)
+func (m *MsgChangeScheduleResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgChangeScheduleResponse.Merge(m, src)
 }
-func (m *MsgExtendRewardResponse) XXX_Size() int {
+func (m *MsgChangeScheduleResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgExtendRewardResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgExtendRewardResponse.DiscardUnknown(m)
+func (m *MsgChangeScheduleResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgChangeScheduleResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgExtendRewardResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgChangeScheduleResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*MsgFundPool)(nil), "kiichain.rewards.v1beta1.MsgFundPool")
 	proto.RegisterType((*MsgFundPoolResponse)(nil), "kiichain.rewards.v1beta1.MsgFundPoolResponse")
 	proto.RegisterType((*MsgUpdateParams)(nil), "kiichain.rewards.v1beta1.MsgUpdateParams")
 	proto.RegisterType((*MsgUpdateParamsResponse)(nil), "kiichain.rewards.v1beta1.MsgUpdateParamsResponse")
-	proto.RegisterType((*MsgExtendReward)(nil), "kiichain.rewards.v1beta1.MsgExtendReward")
-	proto.RegisterType((*MsgExtendRewardResponse)(nil), "kiichain.rewards.v1beta1.MsgExtendRewardResponse")
+	proto.RegisterType((*MsgChangeSchedule)(nil), "kiichain.rewards.v1beta1.MsgChangeSchedule")
+	proto.RegisterType((*MsgChangeScheduleResponse)(nil), "kiichain.rewards.v1beta1.MsgChangeScheduleResponse")
 }
 
 func init() { proto.RegisterFile("kiichain/rewards/v1beta1/tx.proto", fileDescriptor_8e1e54764dba96cb) }
 
 var fileDescriptor_8e1e54764dba96cb = []byte{
-	// 634 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0xbf, 0x6f, 0xd3, 0x40,
-	0x18, 0x8d, 0x5b, 0x08, 0xed, 0xa5, 0xa8, 0xaa, 0xdb, 0xaa, 0xa9, 0x91, 0x9c, 0xd6, 0x52, 0xa5,
-	0x36, 0x10, 0x5b, 0x29, 0x12, 0x43, 0x07, 0xa4, 0x06, 0xd1, 0xad, 0x52, 0x65, 0x40, 0x42, 0x2c,
-	0xe1, 0x12, 0x5f, 0x1d, 0x0b, 0xfb, 0xce, 0xf2, 0x9d, 0x4b, 0xb2, 0x21, 0x46, 0xa6, 0xce, 0xfc,
-	0x15, 0x11, 0x3f, 0xfe, 0x87, 0x8a, 0xa9, 0x62, 0x62, 0x2a, 0x28, 0x19, 0xb2, 0xf3, 0x17, 0x20,
-	0xdf, 0x9d, 0x1d, 0x17, 0x48, 0x88, 0x58, 0x12, 0x9f, 0xbf, 0xf7, 0xdd, 0xfb, 0xde, 0xfb, 0x9e,
-	0x0c, 0xb6, 0x5f, 0x79, 0x5e, 0xbb, 0x03, 0x3d, 0x6c, 0x45, 0xe8, 0x35, 0x8c, 0x1c, 0x6a, 0x9d,
-	0xd5, 0x5b, 0x88, 0xc1, 0xba, 0xc5, 0xba, 0x66, 0x18, 0x11, 0x46, 0xd4, 0x72, 0x0a, 0x31, 0x25,
-	0xc4, 0x94, 0x10, 0x6d, 0xcd, 0x25, 0x2e, 0xe1, 0x20, 0x2b, 0x79, 0x12, 0x78, 0x4d, 0x6f, 0x13,
-	0x1a, 0x10, 0x6a, 0xb5, 0x20, 0x45, 0xd9, 0x6d, 0x6d, 0xe2, 0x61, 0x59, 0xdf, 0x99, 0x48, 0x19,
-	0xc2, 0x08, 0x06, 0x54, 0xc2, 0x2a, 0x2e, 0x21, 0xae, 0x8f, 0x2c, 0x7e, 0x6a, 0xc5, 0xa7, 0x16,
-	0xf3, 0x02, 0x44, 0x19, 0x0c, 0x42, 0x09, 0xd8, 0x90, 0x3c, 0x01, 0x75, 0xad, 0xb3, 0x7a, 0xf2,
-	0x27, 0x0b, 0x9b, 0xa2, 0xd0, 0x14, 0x93, 0x89, 0x83, 0x2c, 0xad, 0xc0, 0xc0, 0xc3, 0xc4, 0xe2,
-	0xbf, 0xe2, 0x95, 0xf1, 0x59, 0x01, 0xa5, 0x63, 0xea, 0x1e, 0xc5, 0xd8, 0x39, 0x21, 0xc4, 0x57,
-	0xf7, 0x40, 0x91, 0x22, 0xec, 0xa0, 0xa8, 0xac, 0x6c, 0x29, 0xbb, 0x8b, 0x8d, 0x95, 0x9f, 0x57,
-	0x95, 0xdb, 0x3d, 0x18, 0xf8, 0x07, 0x86, 0x78, 0x6f, 0xd8, 0x12, 0xa0, 0x3e, 0x07, 0x45, 0x18,
-	0x90, 0x18, 0xb3, 0xf2, 0xdc, 0x96, 0xb2, 0x5b, 0xda, 0xdf, 0x34, 0x25, 0x59, 0x22, 0x3d, 0x75,
-	0xc9, 0x7c, 0x44, 0x3c, 0xdc, 0xd8, 0xb9, 0xb8, 0xaa, 0x14, 0xc6, 0x37, 0x89, 0x36, 0xe3, 0xfd,
-	0xa8, 0x5f, 0x2d, 0xf9, 0xc8, 0x85, 0xed, 0x5e, 0x33, 0x71, 0xc8, 0x96, 0xf7, 0x1d, 0x6c, 0xbf,
-	0x1d, 0xf5, 0xab, 0x92, 0xe6, 0xdd, 0xa8, 0x5f, 0x5d, 0x49, 0xad, 0x3a, 0x8d, 0xb1, 0x53, 0x0b,
-	0x09, 0xf1, 0x8d, 0x75, 0xb0, 0x9a, 0x1b, 0xdb, 0x46, 0x34, 0x24, 0x98, 0x22, 0xe3, 0xa3, 0x02,
-	0x96, 0x8f, 0xa9, 0xfb, 0x2c, 0x74, 0x20, 0x43, 0x27, 0xdc, 0x50, 0xf5, 0x01, 0x58, 0x84, 0x31,
-	0xeb, 0x90, 0xc8, 0x63, 0x3d, 0xa9, 0xaa, 0xfc, 0xf5, 0x53, 0x6d, 0x4d, 0x4e, 0x7b, 0xe8, 0x38,
-	0x11, 0xa2, 0xf4, 0x09, 0x8b, 0x3c, 0xec, 0xda, 0x63, 0xa8, 0xfa, 0x10, 0x14, 0xc5, 0x4a, 0xa4,
-	0xbe, 0x2d, 0x73, 0x52, 0x14, 0x4c, 0xc1, 0xd4, 0xb8, 0x91, 0xc8, 0xb4, 0x65, 0xd7, 0xc1, 0x6e,
-	0xa2, 0x62, 0x7c, 0x5f, 0x22, 0x64, 0x3d, 0x15, 0x12, 0xf3, 0x01, 0x6b, 0x02, 0x69, 0x6c, 0x82,
-	0x8d, 0xdf, 0x86, 0xce, 0x04, 0x7d, 0x98, 0xe3, 0x82, 0x1e, 0x77, 0x19, 0xc2, 0x8e, 0xcd, 0xbb,
-	0xff, 0x5b, 0x90, 0x07, 0x96, 0x50, 0x97, 0x45, 0xb0, 0x39, 0xeb, 0xda, 0xee, 0xca, 0xb5, 0xad,
-	0x8a, 0xb5, 0xe5, 0x9b, 0xff, 0x5c, 0x5e, 0x89, 0x97, 0x0f, 0x79, 0x55, 0xb5, 0xc1, 0x02, 0xc2,
-	0x4e, 0x33, 0x09, 0x6d, 0x79, 0x9e, 0xd3, 0x68, 0xa6, 0x48, 0xb4, 0x99, 0x26, 0xda, 0x7c, 0x9a,
-	0x26, 0xba, 0x71, 0x47, 0xf2, 0x2c, 0x4b, 0x1e, 0xd9, 0x69, 0x9c, 0x7f, 0xaf, 0x28, 0xf6, 0x2d,
-	0x84, 0x9d, 0x04, 0x3a, 0xd5, 0x4f, 0xc4, 0xfd, 0xa9, 0x89, 0xa3, 0xf4, 0x33, 0xef, 0x59, 0xea,
-	0xe7, 0xfe, 0x97, 0x39, 0x30, 0x7f, 0x4c, 0x5d, 0xf5, 0x25, 0x58, 0xc8, 0x32, 0xbf, 0x33, 0x79,
-	0xb1, 0xb9, 0x8c, 0x69, 0xb5, 0x99, 0x60, 0x29, 0x93, 0xea, 0x83, 0xa5, 0x6b, 0x31, 0xdc, 0x9b,
-	0xda, 0x9e, 0x87, 0x6a, 0xf5, 0x99, 0xa1, 0x79, 0xb6, 0x6b, 0x19, 0x99, 0xce, 0x96, 0x87, 0xfe,
-	0x83, 0xed, 0x6f, 0x2e, 0x6a, 0x37, 0xdf, 0x8c, 0xfa, 0x55, 0xa5, 0x71, 0x74, 0x31, 0xd0, 0x95,
-	0xcb, 0x81, 0xae, 0xfc, 0x18, 0xe8, 0xca, 0xf9, 0x50, 0x2f, 0x5c, 0x0e, 0xf5, 0xc2, 0xb7, 0xa1,
-	0x5e, 0x78, 0x71, 0xcf, 0xf5, 0x58, 0x27, 0x6e, 0x99, 0x6d, 0x12, 0x58, 0xd9, 0x07, 0x2f, 0x7b,
-	0xe8, 0x66, 0xdf, 0x3e, 0xd6, 0x0b, 0x11, 0x6d, 0x15, 0x79, 0x26, 0xee, 0xff, 0x0a, 0x00, 0x00,
-	0xff, 0xff, 0xfb, 0x05, 0xb4, 0xf6, 0x8f, 0x05, 0x00, 0x00,
+	// 610 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x94, 0x3f, 0x6f, 0xd3, 0x40,
+	0x18, 0xc6, 0xe3, 0x02, 0x51, 0x7b, 0xe1, 0x8f, 0x62, 0x5a, 0x25, 0x31, 0x92, 0x93, 0x5a, 0x44,
+	0x4a, 0x02, 0xb1, 0x95, 0x56, 0x62, 0xc8, 0x80, 0x44, 0x2a, 0x75, 0x41, 0x91, 0x2a, 0x57, 0x48,
+	0x88, 0xa5, 0x5c, 0xec, 0xeb, 0xc5, 0xc2, 0xbe, 0xb3, 0x7c, 0xe7, 0xd2, 0x6c, 0x88, 0x91, 0x89,
+	0x99, 0x4f, 0x11, 0x09, 0xf8, 0x06, 0x0c, 0x1d, 0x23, 0x26, 0xa6, 0x0a, 0x25, 0x43, 0x76, 0x3e,
+	0x01, 0xb2, 0x7d, 0x76, 0xd2, 0x56, 0xa9, 0x0a, 0x4b, 0x62, 0xfb, 0x7e, 0xf7, 0x3e, 0xcf, 0xf3,
+	0xde, 0xe9, 0x05, 0xdb, 0xef, 0x1c, 0xc7, 0x1a, 0x42, 0x87, 0x18, 0x01, 0x7a, 0x0f, 0x03, 0x9b,
+	0x19, 0x27, 0x9d, 0x01, 0xe2, 0xb0, 0x63, 0xf0, 0x53, 0xdd, 0x0f, 0x28, 0xa7, 0x72, 0x39, 0x45,
+	0x74, 0x81, 0xe8, 0x02, 0x51, 0x36, 0x31, 0xc5, 0x34, 0x86, 0x8c, 0xe8, 0x29, 0xe1, 0x15, 0xd5,
+	0xa2, 0xcc, 0xa3, 0xcc, 0x18, 0x40, 0x86, 0xb2, 0x6a, 0x16, 0x75, 0x88, 0x58, 0xaf, 0xaf, 0x94,
+	0xf4, 0x61, 0x00, 0x3d, 0x26, 0xb0, 0xc7, 0xab, 0x9d, 0x8d, 0x7c, 0x94, 0x52, 0x55, 0x4c, 0x29,
+	0x76, 0x91, 0x11, 0xbf, 0x0d, 0xc2, 0x63, 0x83, 0x3b, 0x1e, 0x62, 0x1c, 0x7a, 0xbe, 0x00, 0x4a,
+	0xc2, 0x8d, 0xc7, 0xb0, 0x71, 0xd2, 0x89, 0xfe, 0xc4, 0x42, 0x25, 0x59, 0x38, 0x4a, 0xfc, 0x27,
+	0x2f, 0x62, 0xa9, 0x08, 0x3d, 0x87, 0x50, 0x23, 0xfe, 0x4d, 0x3e, 0x69, 0xdf, 0x25, 0x50, 0xe8,
+	0x33, 0xbc, 0x1f, 0x12, 0xfb, 0x80, 0x52, 0x57, 0x6e, 0x82, 0x3c, 0x43, 0xc4, 0x46, 0x41, 0x59,
+	0xaa, 0x49, 0x8d, 0x8d, 0x5e, 0xf1, 0xcf, 0x79, 0xf5, 0xde, 0x08, 0x7a, 0x6e, 0x57, 0x4b, 0xbe,
+	0x6b, 0xa6, 0x00, 0xe4, 0xd7, 0x20, 0x0f, 0x3d, 0x1a, 0x12, 0x5e, 0x5e, 0xab, 0x49, 0x8d, 0xc2,
+	0x4e, 0x45, 0x17, 0x62, 0x51, 0x83, 0xd2, 0x5e, 0xea, 0x7b, 0xd4, 0x21, 0xbd, 0xfa, 0xd9, 0x79,
+	0x35, 0xb7, 0xa8, 0x94, 0x6c, 0xd3, 0xbe, 0xcc, 0xc7, 0xad, 0x82, 0x8b, 0x30, 0xb4, 0x46, 0x47,
+	0x51, 0x1f, 0x4d, 0x51, 0xaf, 0xbb, 0xfd, 0x71, 0x3e, 0x6e, 0x09, 0x99, 0x4f, 0xf3, 0x71, 0xab,
+	0x98, 0x76, 0xea, 0x38, 0x24, 0x76, 0xdb, 0xa7, 0xd4, 0xd5, 0xb6, 0xc0, 0xc3, 0x25, 0xdb, 0x26,
+	0x62, 0x3e, 0x25, 0x0c, 0x69, 0x5f, 0x25, 0xf0, 0xa0, 0xcf, 0xf0, 0x2b, 0xdf, 0x86, 0x1c, 0x1d,
+	0xc4, 0x6d, 0x97, 0x9f, 0x81, 0x0d, 0x18, 0xf2, 0x21, 0x0d, 0x1c, 0x3e, 0x12, 0xa9, 0xca, 0x3f,
+	0xbf, 0xb5, 0x37, 0x85, 0xdb, 0x17, 0xb6, 0x1d, 0x20, 0xc6, 0x0e, 0x79, 0xe0, 0x10, 0x6c, 0x2e,
+	0x50, 0xf9, 0x39, 0xc8, 0x27, 0x07, 0x27, 0xf2, 0xd5, 0xf4, 0x55, 0x17, 0x46, 0x4f, 0x94, 0x7a,
+	0xb7, 0xa3, 0x98, 0xa6, 0xd8, 0xd5, 0x6d, 0x44, 0x29, 0x16, 0xf5, 0xa2, 0x20, 0x5b, 0x69, 0x90,
+	0x30, 0x36, 0xd8, 0x4e, 0x48, 0xad, 0x02, 0x4a, 0x97, 0x4c, 0x67, 0x81, 0x7e, 0x48, 0xa0, 0xd8,
+	0x67, 0x78, 0x6f, 0x08, 0x09, 0x46, 0x87, 0xd6, 0x10, 0xd9, 0xa1, 0x8b, 0xfe, 0x3b, 0xd2, 0x4b,
+	0xb0, 0xce, 0x44, 0x0d, 0x11, 0xaa, 0xb9, 0x3a, 0x94, 0x89, 0x5c, 0x04, 0x59, 0x26, 0x2a, 0xd2,
+	0x65, 0x05, 0xba, 0xad, 0xab, 0xf9, 0x4a, 0x69, 0x3e, 0x2b, 0xf6, 0xdb, 0x4e, 0x59, 0xed, 0x11,
+	0xa8, 0x5c, 0x49, 0x91, 0x66, 0xdc, 0x99, 0xac, 0x81, 0x5b, 0x7d, 0x86, 0xe5, 0xb7, 0x60, 0x3d,
+	0xbb, 0x87, 0xf5, 0xd5, 0xbe, 0x96, 0xce, 0x5d, 0x69, 0xdf, 0x08, 0x4b, 0x95, 0x64, 0x17, 0xdc,
+	0xbd, 0x70, 0x35, 0x9a, 0xd7, 0x6e, 0x5f, 0x46, 0x95, 0xce, 0x8d, 0xd1, 0x4c, 0x2d, 0x00, 0xf7,
+	0x2f, 0x9d, 0xdb, 0x93, 0x6b, 0x8b, 0x5c, 0x84, 0x95, 0xdd, 0x7f, 0x80, 0x53, 0x4d, 0xe5, 0xce,
+	0x87, 0xf9, 0xb8, 0x25, 0xf5, 0xf6, 0xcf, 0xa6, 0xaa, 0x34, 0x99, 0xaa, 0xd2, 0xef, 0xa9, 0x2a,
+	0x7d, 0x9e, 0xa9, 0xb9, 0xc9, 0x4c, 0xcd, 0xfd, 0x9a, 0xa9, 0xb9, 0x37, 0x4f, 0xb1, 0xc3, 0x87,
+	0xe1, 0x40, 0xb7, 0xa8, 0x67, 0x64, 0x93, 0x28, 0x7b, 0x38, 0xcd, 0x86, 0x52, 0x3c, 0x8c, 0x06,
+	0xf9, 0x78, 0x4a, 0xec, 0xfe, 0x0d, 0x00, 0x00, 0xff, 0xff, 0x64, 0xcc, 0x15, 0x84, 0x4f, 0x05,
+	0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -401,9 +388,9 @@ type MsgClient interface {
 	//
 	// Since: cosmos-sdk 0.47
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
-	// ExtendReward defines a governance operation for extending the reward and
-	// fetching extra funds
-	ExtendReward(ctx context.Context, in *MsgExtendReward, opts ...grpc.CallOption) (*MsgExtendRewardResponse, error)
+	// ChangeSchedule defines a governance operation for changing the reward and
+	// its schedule
+	ChangeSchedule(ctx context.Context, in *MsgChangeSchedule, opts ...grpc.CallOption) (*MsgChangeScheduleResponse, error)
 }
 
 type msgClient struct {
@@ -432,9 +419,9 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 	return out, nil
 }
 
-func (c *msgClient) ExtendReward(ctx context.Context, in *MsgExtendReward, opts ...grpc.CallOption) (*MsgExtendRewardResponse, error) {
-	out := new(MsgExtendRewardResponse)
-	err := c.cc.Invoke(ctx, "/kiichain.rewards.v1beta1.Msg/ExtendReward", in, out, opts...)
+func (c *msgClient) ChangeSchedule(ctx context.Context, in *MsgChangeSchedule, opts ...grpc.CallOption) (*MsgChangeScheduleResponse, error) {
+	out := new(MsgChangeScheduleResponse)
+	err := c.cc.Invoke(ctx, "/kiichain.rewards.v1beta1.Msg/ChangeSchedule", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -450,9 +437,9 @@ type MsgServer interface {
 	//
 	// Since: cosmos-sdk 0.47
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
-	// ExtendReward defines a governance operation for extending the reward and
-	// fetching extra funds
-	ExtendReward(context.Context, *MsgExtendReward) (*MsgExtendRewardResponse, error)
+	// ChangeSchedule defines a governance operation for changing the reward and
+	// its schedule
+	ChangeSchedule(context.Context, *MsgChangeSchedule) (*MsgChangeScheduleResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -465,8 +452,8 @@ func (*UnimplementedMsgServer) FundPool(ctx context.Context, req *MsgFundPool) (
 func (*UnimplementedMsgServer) UpdateParams(ctx context.Context, req *MsgUpdateParams) (*MsgUpdateParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
 }
-func (*UnimplementedMsgServer) ExtendReward(ctx context.Context, req *MsgExtendReward) (*MsgExtendRewardResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ExtendReward not implemented")
+func (*UnimplementedMsgServer) ChangeSchedule(ctx context.Context, req *MsgChangeSchedule) (*MsgChangeScheduleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeSchedule not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -509,20 +496,20 @@ func _Msg_UpdateParams_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_ExtendReward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgExtendReward)
+func _Msg_ChangeSchedule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgChangeSchedule)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).ExtendReward(ctx, in)
+		return srv.(MsgServer).ChangeSchedule(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/kiichain.rewards.v1beta1.Msg/ExtendReward",
+		FullMethod: "/kiichain.rewards.v1beta1.Msg/ChangeSchedule",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).ExtendReward(ctx, req.(*MsgExtendReward))
+		return srv.(MsgServer).ChangeSchedule(ctx, req.(*MsgChangeSchedule))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -541,8 +528,8 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_UpdateParams_Handler,
 		},
 		{
-			MethodName: "ExtendReward",
-			Handler:    _Msg_ExtendReward_Handler,
+			MethodName: "ChangeSchedule",
+			Handler:    _Msg_ChangeSchedule_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -675,7 +662,7 @@ func (m *MsgUpdateParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgExtendReward) Marshal() (dAtA []byte, err error) {
+func (m *MsgChangeSchedule) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -685,26 +672,18 @@ func (m *MsgExtendReward) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgExtendReward) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgChangeSchedule) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgExtendReward) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgChangeSchedule) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	n3, err3 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.EndTime, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.EndTime):])
-	if err3 != nil {
-		return 0, err3
-	}
-	i -= n3
-	i = encodeVarintTx(dAtA, i, uint64(n3))
-	i--
-	dAtA[i] = 0x1a
 	{
-		size, err := m.ExtraAmount.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.Schedule.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -723,7 +702,7 @@ func (m *MsgExtendReward) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgExtendRewardResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgChangeScheduleResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -733,12 +712,12 @@ func (m *MsgExtendRewardResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgExtendRewardResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgChangeScheduleResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgExtendRewardResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgChangeScheduleResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -805,7 +784,7 @@ func (m *MsgUpdateParamsResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgExtendReward) Size() (n int) {
+func (m *MsgChangeSchedule) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -815,14 +794,12 @@ func (m *MsgExtendReward) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = m.ExtraAmount.Size()
-	n += 1 + l + sovTx(uint64(l))
-	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.EndTime)
+	l = m.Schedule.Size()
 	n += 1 + l + sovTx(uint64(l))
 	return n
 }
 
-func (m *MsgExtendRewardResponse) Size() (n int) {
+func (m *MsgChangeScheduleResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1167,7 +1144,7 @@ func (m *MsgUpdateParamsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgExtendReward) Unmarshal(dAtA []byte) error {
+func (m *MsgChangeSchedule) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1190,10 +1167,10 @@ func (m *MsgExtendReward) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgExtendReward: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgChangeSchedule: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgExtendReward: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgChangeSchedule: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1230,7 +1207,7 @@ func (m *MsgExtendReward) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ExtraAmount", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Schedule", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1257,40 +1234,7 @@ func (m *MsgExtendReward) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.ExtraAmount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field EndTime", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.EndTime, dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.Schedule.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1315,7 +1259,7 @@ func (m *MsgExtendReward) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgExtendRewardResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgChangeScheduleResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1338,10 +1282,10 @@ func (m *MsgExtendRewardResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgExtendRewardResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgChangeScheduleResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgExtendRewardResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgChangeScheduleResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

@@ -17,12 +17,12 @@ service Query {
     option (google.api.http).get = "/kiichain/rewards/v1beta1/params";
   }
 
-  // RewardReleaser defines a gRPC query method for fetching
-  // RewardReleaser data.
-  rpc RewardReleaser(QueryRewardReleaserRequest)
-      returns (QueryRewardReleaserResponse) {
+  // ReleaseSchedule defines a gRPC query method for fetching
+  // ReleaseSchedule data.
+  rpc ReleaseSchedule(QueryReleaseScheduleRequest)
+      returns (QueryReleaseScheduleResponse) {
     option (google.api.http).get =
-        "/kiichain/rewards/v1beta1/reward-releaser";
+        "/kiichain/rewards/v1beta1/release-schedule";
   }
 
   // RewardPool defines a gRPC query method for fetching
@@ -43,15 +43,15 @@ message QueryParamsResponse {
   Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-// QueryRewardReleaserRequest defines the request structure for the
-// RewardReleaser gRPC query.
-message QueryRewardReleaserRequest {}
+// QueryReleaseScheduleRequest defines the request structure for the
+// ReleaseSchedule gRPC query.
+message QueryReleaseScheduleRequest {}
 
-// QueryRewardReleaserResponse defines the response structure for the
-// RewardReleaser gRPC query.
-message QueryRewardReleaserResponse {
-  RewardReleaser reward_releaser = 1 [
-    (gogoproto.moretags) = "yaml:\"reward_releaser\"",
+// QueryReleaseScheduleResponse defines the response structure for the
+// ReleaseSchedule gRPC query.
+message QueryReleaseScheduleResponse {
+  ReleaseSchedule release_schedule = 1 [
+    (gogoproto.moretags) = "yaml:\"release_schedule\"",
     (gogoproto.nullable) = false
   ];
 }
