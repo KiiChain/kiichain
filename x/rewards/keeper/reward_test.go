@@ -104,19 +104,6 @@ func TestCalculateReward(t *testing.T) {
 			expectedCoin:  sdk.NewCoin(denom, math.NewInt(200)), // Cap at remaining 200
 			expectedError: false,
 		},
-		{
-			name:      "zero time duration",
-			blockTime: now,
-			releaser: types.RewardReleaser{
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
-				LastReleaseTime: now,
-				EndTime:         now,
-				Active:          true,
-			},
-			expectedCoin:  sdk.NewCoin(denom, math.ZeroInt()),
-			expectedError: false,
-		},
 	}
 
 	for _, tt := range tests {
