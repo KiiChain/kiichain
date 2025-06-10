@@ -34,8 +34,8 @@ var (
 	_ module.AppModule      = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
 
-	_ appmodule.AppModule     = AppModule{}
-	_ appmodule.HasEndBlocker = AppModule{}
+	_ appmodule.AppModule       = AppModule{}
+	_ appmodule.HasBeginBlocker = AppModule{}
 )
 
 // ConsensusVersion defines the current x/rewards module consensus version.
@@ -155,10 +155,10 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 	return cdc.MustMarshalJSON(genState)
 }
 
-// EndBlock returns the end blocker for the rewards module.
-func (am AppModule) EndBlock(ctx context.Context) error {
+// BeginBlock returns the begin blocker for the rewards module.
+func (am AppModule) BeginBlock(ctx context.Context) error {
 	c := sdk.UnwrapSDKContext(ctx)
-	return am.keeper.EndBlocker(c)
+	return am.keeper.BeginBlocker(c)
 }
 
 // ConsensusVersion implements ConsensusVersion.

@@ -158,8 +158,8 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 			feeCollectorAddr := suite.App.AccountKeeper.GetModuleAddress("fee_collector")
 			initialFeeCollectorBalance := suite.App.BankKeeper.GetBalance(ctx, feeCollectorAddr, denom)
 
-			// Execute EndBlocker
-			err = suite.App.RewardsKeeper.EndBlocker(ctx)
+			// Execute BeginBlocker
+			err = suite.App.RewardsKeeper.BeginBlocker(ctx)
 			suite.Require().NoError(err)
 
 			if tc.expectedChange {

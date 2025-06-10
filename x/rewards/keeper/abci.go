@@ -6,8 +6,8 @@ import (
 	"github.com/kiichain/kiichain/v1/x/rewards/types"
 )
 
-// EndBlocker calculates reward amt and sends it to the distribution pool
-func (k Keeper) EndBlocker(ctx sdk.Context) error {
+// BeginBlocker calculates reward amt and sends it to the distribution pool
+func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 	// Get releaser
 	releaser, err := k.RewardReleaser.Get(ctx)
 	if err != nil {
