@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// BankKeeper is used to send and receive coins into module account
 type BankKeeper interface {
 	// Methods imported from bank should be defined here
 	SendCoinsFromModuleToModule(ctx context.Context, senderModule, recipientModule string, amt sdk.Coins) error
