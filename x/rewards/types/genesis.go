@@ -1,5 +1,6 @@
 package types
 
+// NewGenesisState constructs a genesis state
 func NewGenesisState(
 	params Params, rp RewardPool, releaser RewardReleaser,
 ) *GenesisState {
