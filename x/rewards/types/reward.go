@@ -1,4 +1,4 @@
-package keeper
+package types
 
 import (
 	"time"
@@ -6,13 +6,11 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/kiichain/kiichain/v1/x/rewards/types"
 )
 
 // CalculateReward figures what amt to be released in the current block
 // Assumes invalid values are cleared before calling, does not handle invalid blockTime/no last release
-func CalculateReward(blockTime time.Time, releaser types.RewardReleaser) (sdk.Coin, error) {
+func CalculateReward(blockTime time.Time, releaser RewardReleaser) (sdk.Coin, error) {
 	// Calculate remaining amount
 	remaining := releaser.TotalAmount.Sub(releaser.ReleasedAmount)
 	if remaining.IsZero() {

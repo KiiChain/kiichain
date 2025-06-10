@@ -185,6 +185,7 @@ BeginBlockers, which are run at the beginning of every block.
 func orderBeginBlockers() []string {
 	return []string{
 		capabilitytypes.ModuleName,
+		rewardstypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -213,7 +214,6 @@ func orderBeginBlockers() []string {
 		consensusparamtypes.ModuleName,
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
-		rewardstypes.ModuleName,
 	}
 }
 
@@ -237,6 +237,7 @@ func orderEndBlockers() []string {
 		feemarkettypes.ModuleName,
 		evmtypes.ModuleName,
 
+		rewardstypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		genutiltypes.ModuleName,
@@ -249,7 +250,6 @@ func orderEndBlockers() []string {
 		consensusparamtypes.ModuleName,
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
-		rewardstypes.ModuleName,
 	}
 }
 

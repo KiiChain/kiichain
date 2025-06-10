@@ -1,4 +1,4 @@
-package keeper_test
+package types_test
 
 import (
 	"testing"
@@ -10,7 +10,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v1/x/rewards/keeper"
 	"github.com/kiichain/kiichain/v1/x/rewards/types"
 )
 
@@ -108,7 +107,7 @@ func TestCalculateReward(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := keeper.CalculateReward(tt.blockTime, tt.releaser)
+			result, err := types.CalculateReward(tt.blockTime, tt.releaser)
 
 			if tt.expectedError {
 				require.Error(t, err)
