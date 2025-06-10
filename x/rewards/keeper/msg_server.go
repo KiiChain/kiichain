@@ -3,13 +3,9 @@ package keeper
 import (
 	"context"
 	"fmt"
-	"time"
-
-	"cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/kiichain/kiichain/v1/x/rewards/types"
 )
@@ -26,6 +22,7 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 	return &msgServer{Keeper: keeper}
 }
 
+// UpdateParams validates a MsgUpdate params and sets params to be accordingly
 func (k msgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	if err := k.validateAuthority(msg.Authority); err != nil {
 		return nil, err
@@ -42,8 +39,9 @@ func (k msgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams)
 	return &types.MsgUpdateParamsResponse{}, nil
 }
 
+// FundPool validates a MsgFundPool and sends the funds to the module and the pool
 func (k msgServer) FundPool(ctx context.Context, msg *types.MsgFundPool) (*types.MsgFundPoolResponse, error) {
-	depositor, err := k.accountKeeper.AddressCodec().StringToBytes(msg.Sender)
+	depositor, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid depositor address: %s", err)
 	}
@@ -67,6 +65,7 @@ func (k msgServer) FundPool(ctx context.Context, msg *types.MsgFundPool) (*types
 	return &types.MsgFundPoolResponse{}, nil
 }
 
+// ExtendReward validates changes to the release scheduler
 func (k msgServer) ExtendReward(ctx context.Context, msg *types.MsgExtendReward) (*types.MsgExtendRewardResponse, error) {
 	if err := k.validateAuthority(msg.Authority); err != nil {
 		return nil, err
@@ -102,63 +101,4 @@ func (k msgServer) ExtendReward(ctx context.Context, msg *types.MsgExtendReward)
 	}
 
 	return &types.MsgExtendRewardResponse{}, nil
-}
-
-// validateAuthority checks if address authority is valid and same as expected
-func (k *Keeper) validateAuthority(authority string) error {
-	if _, err := k.accountKeeper.AddressCodec().StringToBytes(authority); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
-	}
-
-	if k.authority != authority {
-		return errors.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority, authority)
-	}
-
-	return nil
-}
-
-// validateAmount check if amount is a valid coin
-func validateAmount(amount sdk.Coin) error {
-	if err := amount.Validate(); err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidCoins, amount.String())
-	}
-
-	return nil
-}
-
-// validateTime checks if time is in the past
-func validateTime(endTime time.Time) error {
-	if endTime.Before(time.Now()) {
-		return fmt.Errorf("end time %s is not in the future", endTime)
-	}
-
-	return nil
-}
-
-// fundsAvailable checks if the asked funds are available in the pool
-func (k Keeper) fundsAvailable(ctx context.Context, amount sdk.Coin) error {
-	// Fetch releaser
-	releaser, err := k.RewardReleaser.Get(ctx)
-	if err != nil {
-		return err
-	}
-	// Check if releaser is active (means some amt of the pool is promised)
-	if releaser.Active {
-		// Sum the promised amt to the asked funds
-		amount = amount.Add(releaser.TotalAmount.Sub(releaser.ReleasedAmount))
-	}
-
-	// Get reward pool
-	rewardPool, err := k.RewardPool.Get(ctx)
-	if err != nil {
-		return err
-	}
-
-	// Check if it is trying to use more funds than available
-	poolAmount := rewardPool.CommunityPool.AmountOf(amount.Denom)
-	if sdk.NewDecCoinFromCoin(amount).Amount.GT(poolAmount) {
-		return fmt.Errorf("reward pool (%s) has less funds than requested (%s)", poolAmount, amount)
-	}
-
-	return nil
 }
