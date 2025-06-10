@@ -425,7 +425,6 @@ func NewAppKeeper(
 	appKeepers.RewardsKeeper = rewardskeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[rewardstypes.StoreKey]),
-		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		authtypes.FeeCollectorName,

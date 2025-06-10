@@ -20,8 +20,7 @@ type (
 	Keeper struct {
 		cdc codec.BinaryCodec
 
-		accountKeeper types.AccountKeeper
-		bankKeeper    types.BankKeeper
+		bankKeeper types.BankKeeper
 
 		// the address capable of executing a MsgUpdateParams message. Typically, this
 		// should be the x/gov module account.
@@ -39,7 +38,6 @@ type (
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeService store.KVStoreService,
-	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 	authority, feeCollectorName string,
 ) Keeper {
@@ -47,8 +45,7 @@ func NewKeeper(
 	k := Keeper{
 		cdc: cdc,
 
-		accountKeeper: accountKeeper,
-		bankKeeper:    bankKeeper,
+		bankKeeper: bankKeeper,
 
 		authority:        authority,
 		feeCollectorName: feeCollectorName,

@@ -116,7 +116,7 @@ func appModules(
 		ibc.NewAppModule(app.IBCKeeper),
 		ibctm.NewAppModule(),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
-		rewards.NewAppModule(app.RewardsKeeper, app.AccountKeeper, app.BankKeeper),
+		rewards.NewAppModule(app.RewardsKeeper, app.BankKeeper),
 		sdkparams.NewAppModule(app.ParamsKeeper),
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),

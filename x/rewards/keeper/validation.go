@@ -13,7 +13,7 @@ import (
 
 // validateAuthority checks if address authority is valid and same as expected
 func (k *Keeper) validateAuthority(authority string) error {
-	if _, err := k.accountKeeper.AddressCodec().StringToBytes(authority); err != nil {
+	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 	}
 
