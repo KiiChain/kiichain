@@ -10,4 +10,5 @@
 - Add bech32 wasmbinding queries
 - Add IBC precompile to transfer via EVM
 - Add bech32 wasmbinding queries
+- Add correct ibc keepers to ibc precompiles
 - Add Rewards module
