@@ -67,38 +67,25 @@ func (k msgServer) FundPool(ctx context.Context, msg *types.MsgFundPool) (*types
 
 // ChangeSchedule validates changes to the release scheduler
 func (k msgServer) ChangeSchedule(ctx context.Context, msg *types.MsgChangeSchedule) (*types.MsgChangeScheduleResponse, error) {
+	// Authority validation
 	if err := k.validateAuthority(msg.Authority); err != nil {
 		return nil, err
 	}
 
-	// TODO check other balances
-	// Validate amt
-	if err := validateAmount(msg.Schedule.TotalAmount); err != nil {
-		return nil, err
+	// Check if schedule is sound
+	schedule := msg.Schedule
+	if err := k.validateSchedule(ctx, schedule); err != nil {
+		return nil, fmt.Errorf("invalid schedule: %w", err)
 	}
 
-	params, err := k.Params.Get(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if params.TokenDenom != msg.Schedule.TotalAmount.Denom {
-		return nil, fmt.Errorf("denom %s does not match expected denom: %s", msg.Schedule.TotalAmount.Denom, params.TokenDenom)
+	// Check available funds
+	if err := k.fundsAvailable(ctx, schedule.TotalAmount); err != nil {
+		return nil, fmt.Errorf("insufficient funds: %w", err)
 	}
 
-	// Validate time
-	// Should only time extensions be allowed? I.e do not allow reducing the time
-	if err := validateTime(msg.Schedule.EndTime); err != nil {
-		return nil, err
-	}
-
-	// Check if funds exist (community pool funds - to be released > extra amount)
-	if err := k.fundsAvailable(ctx, msg.Schedule.TotalAmount); err != nil {
-		return nil, err
-	}
-
-	// Do actual work
-	if err := k.Keeper.ReleaseSchedule.Set(ctx, msg.Schedule); err != nil {
-		return nil, err
+	// Save the new schedule
+	if err := k.Keeper.ReleaseSchedule.Set(ctx, schedule); err != nil {
+		return nil, fmt.Errorf("failed to set release schedule: %w", err)
 	}
 
 	return &types.MsgChangeScheduleResponse{}, nil
