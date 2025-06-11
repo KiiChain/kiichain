@@ -34,8 +34,14 @@ func CreateUpgradeHandler(
 			return vm, err
 		}
 
-		// Set default params
+		// Set default params and initial states
 		if err := keepers.RewardsKeeper.Params.Set(ctx, rewardtypes.DefaultParams()); err != nil {
+			return vm, err
+		}
+		if err := keepers.RewardsKeeper.RewardPool.Set(ctx, rewardtypes.DefaultGenesisState().RewardPool); err != nil {
+			return vm, err
+		}
+		if err := keepers.RewardsKeeper.ReleaseSchedule.Set(ctx, rewardtypes.DefaultGenesisState().ReleaseSchedule); err != nil {
 			return vm, err
 		}
 
