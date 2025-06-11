@@ -3,7 +3,7 @@ package utils
 import sdk "github.com/cosmos/cosmos-sdk/types"
 
 const (
-	BlocksPerMinute = uint64(75)
+	BlocksPerMinute = uint64(17)
 	BlocksPerHour   = BlocksPerMinute * 60
 	BlocksPerDay    = BlocksPerHour * 24
 	BlocksPerWeek   = BlocksPerDay * 7
