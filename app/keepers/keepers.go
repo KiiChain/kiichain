@@ -86,6 +86,8 @@ import (
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/kiichain/kiichain/v2/wasmbinding"
+	oraclekeeper "github.com/kiichain/kiichain/v2/x/oracle/keeper"
+	oracletypes "github.com/kiichain/kiichain/v2/x/oracle/types"
 	rewardskeeper "github.com/kiichain/kiichain/v2/x/rewards/keeper"
 	rewardstypes "github.com/kiichain/kiichain/v2/x/rewards/types"
 	tokenfactorykeeper "github.com/kiichain/kiichain/v2/x/tokenfactory/keeper"
@@ -121,6 +123,7 @@ type AppKeepers struct {
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	AuthzKeeper           authzkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
+	OracleKeeper          oraclekeeper.Keeper
 
 	PFMRouterKeeper *pfmrouterkeeper.Keeper
 	RatelimitKeeper ratelimitkeeper.Keeper
@@ -479,6 +482,15 @@ func NewAppKeeper(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
+	appKeepers.OracleKeeper = oraclekeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[oracletypes.StoreKey]),
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.StakingKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	appKeepers.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[tokenfactorytypes.StoreKey],
@@ -625,6 +637,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(rewardstypes.ModuleName)
+	paramsKeeper.Subspace(oracletypes.ModuleName)
 
 	// Cosmos EVM modules
 	paramsKeeper.Subspace(evmtypes.ModuleName)
