@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"time"
 
 	"cosmossdk.io/math"
@@ -15,6 +16,11 @@ func CalculateReward(blockTime time.Time, schedule ReleaseSchedule) (sdk.Coin, e
 	remaining := schedule.TotalAmount.Sub(schedule.ReleasedAmount)
 	if remaining.IsZero() {
 		return remaining, nil
+	}
+
+	// If total duration would be 0, there would be a div by 0
+	if schedule.EndTime.Equal(schedule.LastReleaseTime) {
+		return sdk.Coin{}, fmt.Errorf("end time is equal to last release and would do a division by 0. EndTime: %s", schedule.EndTime)
 	}
 
 	// Get time parameters

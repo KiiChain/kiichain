@@ -103,6 +103,19 @@ func TestCalculateReward(t *testing.T) {
 			expectedCoin:  sdk.NewCoin(denom, math.NewInt(200)), // Cap at remaining 200
 			expectedError: false,
 		},
+		{
+			name:      "invalid - end time equal last release",
+			blockTime: now.Add(time.Hour * 2),
+			schedule: types.ReleaseSchedule{
+				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
+				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(800)),
+				LastReleaseTime: now,
+				EndTime:         now,
+				Active:          true,
+			},
+			expectedCoin:  sdk.Coin{},
+			expectedError: true,
+		},
 	}
 
 	for _, tt := range tests {
