@@ -170,16 +170,20 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 // ConsensusVersion returns the version the module's version
 func (AppModule) ConsensusVersion() uint64 { return 6 }
 
+// BeginBlock returns the begin blocker for the oracle module.
+func (am AppModule) BeginBlock(ctx context.Context) error {
+	// Initialize the sdk context from the context
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
+	// BeginBlocker will check validators for slashing behavior
+	return BeginBlocker(sdkCtx, am.Kepper)
+}
+
 // EndBlock returns the module's end blocker
-func (am AppModule) EndBlock(ctx sdk.Context) (res []abci.ValidatorUpdate) {
-	// TODO: CHECK ME
-	err := MidBlocker(ctx, am.Kepper)
-	if err != nil {
-		ctx.Logger().Error(fmt.Sprintf("failed to execute mid-blocker: %s", err.Error()))
-	}
-	err = Endblocker(ctx, am.Kepper)
-	if err != nil {
-		ctx.Logger().Error(fmt.Sprintf("failed to execute end-blocker: %s", err.Error()))
-	}
-	return []abci.ValidatorUpdate{}
+func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error) {
+	// Initialize the sdk context from the context
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
+	// EndBlocker will generate the mean price and update the validator set
+	return []abci.ValidatorUpdate{}, Endblocker(sdkCtx, am.Kepper)
 }

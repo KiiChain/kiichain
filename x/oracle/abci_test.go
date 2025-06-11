@@ -54,7 +54,7 @@ func TestMidBlocker(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		err = MidBlocker(ctx, oracleKeeper)
+		err = BeginBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 		err = Endblocker(ctx, oracleKeeper)
 		require.NoError(t, err)
@@ -87,7 +87,7 @@ func TestMidBlocker(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		err = MidBlocker(ctx, oracleKeeper)
+		err = BeginBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 		err = Endblocker(ctx, oracleKeeper)
 		require.NoError(t, err)
@@ -120,7 +120,7 @@ func TestMidBlocker(t *testing.T) {
 		_, err = msgServer.AggregateExchangeRateVote(ctx, voteMsg)
 		require.NoError(t, err)
 
-		err = MidBlocker(ctx, oracleKeeper) // rate did not storage on KVStore, ballot below ballot threshold
+		err = BeginBlocker(ctx, oracleKeeper) // rate did not storage on KVStore, ballot below ballot threshold
 		require.NoError(t, err)
 		err = Endblocker(ctx, oracleKeeper)
 		require.NoError(t, err)
@@ -151,7 +151,7 @@ func TestMidBlocker(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		err = MidBlocker(ctx, oracleKeeper)
+		err = BeginBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 		err = Endblocker(ctx, oracleKeeper)
 		require.NoError(t, err)
@@ -191,7 +191,7 @@ func TestMidBlocker(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		err = MidBlocker(ctx, oracleKeeper)
+		err = BeginBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 		err = Endblocker(ctx, oracleKeeper)
 		require.NoError(t, err)
@@ -230,7 +230,7 @@ func TestMidBlocker(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		err = MidBlocker(ctx, oracleKeeper)
+		err = BeginBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
 		voteTargetsAfter := make(map[string]types.Denom)
@@ -273,7 +273,7 @@ func TestOracleDrop(t *testing.T) {
 	require.NoError(t, err)
 
 	// Immediately swap halt after an illiquid oracle vote
-	err = MidBlocker(ctx, oracleKeeper)
+	err = BeginBlocker(ctx, oracleKeeper)
 	require.NoError(t, err)
 	err = Endblocker(ctx, oracleKeeper)
 	require.NoError(t, err)
