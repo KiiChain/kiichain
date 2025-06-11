@@ -12,7 +12,7 @@ import (
 
 // MidBlocker get the votes from the validators, calculate the exchange rate using
 // weighted median logic when the vote period is almost finished
-func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
+func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Get the params
 	params, err := k.Params.Get(ctx)
 	if err != nil {
@@ -194,8 +194,8 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	return nil
 }
 
-// Endblocker is the function that slash the validators and reset the miss counters
-func Endblocker(ctx sdk.Context, k keeper.Keeper) error {
+// BeginBlocker is the function that slash the validators and reset the miss counters
+func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Get the params
 	params, err := k.Params.Get(ctx)
 	if err != nil {

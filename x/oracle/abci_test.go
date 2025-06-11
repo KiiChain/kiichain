@@ -54,9 +54,9 @@ func TestMidBlocker(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		err = BeginBlocker(ctx, oracleKeeper)
+		err = EndBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
-		err = Endblocker(ctx, oracleKeeper)
+		err = BeginBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
 		exchangeRateResponse, err := oracleKeeper.ExchangeRate.Get(ctx, utils.MicroAtomDenom)
@@ -87,9 +87,9 @@ func TestMidBlocker(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		err = BeginBlocker(ctx, oracleKeeper)
+		err = EndBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
-		err = Endblocker(ctx, oracleKeeper)
+		err = BeginBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
 		// validate snapshot
@@ -120,9 +120,9 @@ func TestMidBlocker(t *testing.T) {
 		_, err = msgServer.AggregateExchangeRateVote(ctx, voteMsg)
 		require.NoError(t, err)
 
-		err = BeginBlocker(ctx, oracleKeeper) // rate did not storage on KVStore, ballot below ballot threshold
+		err = EndBlocker(ctx, oracleKeeper) // rate did not storage on KVStore, ballot below ballot threshold
 		require.NoError(t, err)
-		err = Endblocker(ctx, oracleKeeper)
+		err = BeginBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
 		_, err = oracleKeeper.ExchangeRate.Get(ctx, utils.MicroAtomDenom)
@@ -151,9 +151,9 @@ func TestMidBlocker(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		err = BeginBlocker(ctx, oracleKeeper)
+		err = EndBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
-		err = Endblocker(ctx, oracleKeeper)
+		err = BeginBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
 		// Get the Vote Penalty Counter for the abstaining validator
@@ -191,9 +191,9 @@ func TestMidBlocker(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		err = BeginBlocker(ctx, oracleKeeper)
+		err = EndBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
-		err = Endblocker(ctx, oracleKeeper)
+		err = BeginBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
 		// Get the Vote Penalty Counter for the abstaining validator
@@ -230,7 +230,7 @@ func TestMidBlocker(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		err = BeginBlocker(ctx, oracleKeeper)
+		err = EndBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
 		voteTargetsAfter := make(map[string]types.Denom)
@@ -273,9 +273,9 @@ func TestOracleDrop(t *testing.T) {
 	require.NoError(t, err)
 
 	// Immediately swap halt after an illiquid oracle vote
-	err = BeginBlocker(ctx, oracleKeeper)
+	err = EndBlocker(ctx, oracleKeeper)
 	require.NoError(t, err)
-	err = Endblocker(ctx, oracleKeeper)
+	err = BeginBlocker(ctx, oracleKeeper)
 	require.NoError(t, err)
 
 	exchangeRateRes, err := oracleKeeper.ExchangeRate.Get(ctx, utils.MicroAtomDenom)
@@ -309,7 +309,7 @@ func TestEndblocker(t *testing.T) {
 		// Execute EndBlocker on the last block of slash window
 		slashWindow := params.SlashWindow
 		ctx = ctx.WithBlockHeight(int64(slashWindow) - 1)
-		err = Endblocker(ctx, oracleKeeper)
+		err = BeginBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
 		// Get the validator
@@ -351,7 +351,7 @@ func TestEndblocker(t *testing.T) {
 		// Execute EndBlocker on the last block of slash window
 		slashWindow := params.SlashWindow
 		ctx = ctx.WithBlockHeight(int64(slashWindow) - 1)
-		err = Endblocker(ctx, oracleKeeper)
+		err = BeginBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
 		// Check if validator was jailed
@@ -404,7 +404,7 @@ func TestEndblocker(t *testing.T) {
 		require.NoError(t, err)
 		slashWindow := params.SlashWindow
 		ctx = ctx.WithBlockHeight(int64(slashWindow) - 1)
-		err = Endblocker(ctx, oracleKeeper)
+		err = BeginBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
 		// Validate the successful erased of the extra denoms

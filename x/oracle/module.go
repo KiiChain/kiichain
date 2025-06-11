@@ -185,5 +185,5 @@ func (am AppModule) EndBlock(ctx context.Context) ([]abci.ValidatorUpdate, error
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// EndBlocker will generate the mean price and update the validator set
-	return []abci.ValidatorUpdate{}, Endblocker(sdkCtx, am.Kepper)
+	return []abci.ValidatorUpdate{}, EndBlocker(sdkCtx, am.Kepper)
 }
