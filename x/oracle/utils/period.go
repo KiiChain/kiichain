@@ -6,9 +6,6 @@ const (
 	BlocksPerMinute = uint64(17)
 	BlocksPerHour   = BlocksPerMinute * 60
 	BlocksPerDay    = BlocksPerHour * 24
-	BlocksPerWeek   = BlocksPerDay * 7
-	BlocksPerMonth  = BlocksPerDay * 30
-	BlocksPerYear   = BlocksPerDay * 365
 )
 
 // IsPeriodLastBlock checks if the block time on the context means the
