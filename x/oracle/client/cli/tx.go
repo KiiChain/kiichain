@@ -19,7 +19,7 @@ func GetTxCmd() *cobra.Command {
 	// Register the oracle transactions subcommands
 	oracleTxCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Oracle transmition subcommands",
+		Short:                      "Oracle transmission subcommands",
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
