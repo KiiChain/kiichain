@@ -18,6 +18,7 @@ import (
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 
 	app "github.com/kiichain/kiichain/v1/app"
+	"github.com/kiichain/kiichain/v1/app/apptesting"
 	mock "github.com/kiichain/kiichain/v1/tests/e2e/mock"
 	"github.com/kiichain/kiichain/v1/wasmbinding"
 	evmbindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/evm/types"
@@ -26,7 +27,7 @@ import (
 
 // TestQueryEthCall test the EthCall query
 func TestQueryEthCall(t *testing.T) {
-	actor := helpers.RandomAccountAddress()
+	actor := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)
@@ -72,7 +73,7 @@ func TestQueryEthCall(t *testing.T) {
 
 // TestQueryEthCallWithError test the EthCall query with an error
 func TestQueryEthCallWithError(t *testing.T) {
-	actor := helpers.RandomAccountAddress()
+	actor := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)
@@ -94,7 +95,7 @@ func TestQueryEthCallWithError(t *testing.T) {
 
 // TestQueryERC20Information test the ERC20Information query
 func TestQueryERC20Information(t *testing.T) {
-	actor := helpers.RandomAccountAddress()
+	actor := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)
@@ -122,7 +123,7 @@ func TestQueryERC20Information(t *testing.T) {
 
 // TestQueryERC20Balance test the ERC20Balance query
 func TestQueryERC20Balance(t *testing.T) {
-	actor := helpers.RandomAccountAddress()
+	actor := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)
@@ -157,7 +158,7 @@ func TestQueryERC20Balance(t *testing.T) {
 
 // TestQueryERC20Allowance test the ERC20Allowance query
 func TestQueryERC20Allowance(t *testing.T) {
-	actor := helpers.RandomAccountAddress()
+	actor := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)
@@ -296,7 +297,7 @@ func createAccountAndRegister(t *testing.T, ctx sdk.Context, app *app.KiichainAp
 	t.Helper()
 
 	// Create a new account
-	randomAccount := helpers.RandomAccountAddress()
+	randomAccount := apptesting.RandomAccountAddress()
 
 	// Create the account in the auth module
 	accountI := app.AccountKeeper.NewAccountWithAddress(ctx, randomAccount)

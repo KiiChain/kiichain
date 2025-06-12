@@ -15,6 +15,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	app "github.com/kiichain/kiichain/v1/app"
+	"github.com/kiichain/kiichain/v1/app/apptesting"
 	"github.com/kiichain/kiichain/v1/wasmbinding"
 	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
 	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory/types"
@@ -23,10 +24,10 @@ import (
 
 // TestQueryFullDenom tests the query for full denom with a reflect contract
 func TestCreateDenomMsg(t *testing.T) {
-	creator := helpers.RandomAccountAddress()
+	creator := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, creator)
 
-	lucky := helpers.RandomAccountAddress()
+	lucky := apptesting.RandomAccountAddress()
 	reflect := helpers.InstantiateReflectContract(t, ctx, app, lucky)
 	require.NotEmpty(t, reflect)
 
@@ -55,10 +56,10 @@ func TestCreateDenomMsg(t *testing.T) {
 
 // TestMintMsg tests the minting of tokens with a reflect contract
 func TestMintMsg(t *testing.T) {
-	creator := helpers.RandomAccountAddress()
+	creator := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, creator)
 
-	lucky := helpers.RandomAccountAddress()
+	lucky := apptesting.RandomAccountAddress()
 	reflect := helpers.InstantiateReflectContract(t, ctx, app, lucky)
 	require.NotEmpty(t, reflect)
 
@@ -184,11 +185,11 @@ func TestMintMsg(t *testing.T) {
 
 // TestForceTransfer tests the force transfer of tokens with a reflect contract
 func TestForceTransfer(t *testing.T) {
-	creator := helpers.RandomAccountAddress()
+	creator := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, creator)
 
-	lucky := helpers.RandomAccountAddress()
-	rcpt := helpers.RandomAccountAddress()
+	lucky := apptesting.RandomAccountAddress()
+	rcpt := apptesting.RandomAccountAddress()
 	reflect := helpers.InstantiateReflectContract(t, ctx, app, lucky)
 	require.NotEmpty(t, reflect)
 
@@ -245,10 +246,10 @@ func TestForceTransfer(t *testing.T) {
 
 // TestBurnMsg tests the burn of tokens with a reflect contract
 func TestBurnMsg(t *testing.T) {
-	creator := helpers.RandomAccountAddress()
+	creator := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, creator)
 
-	lucky := helpers.RandomAccountAddress()
+	lucky := apptesting.RandomAccountAddress()
 	reflect := helpers.InstantiateReflectContract(t, ctx, app, lucky)
 	require.NotEmpty(t, reflect)
 

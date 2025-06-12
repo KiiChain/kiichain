@@ -10,6 +10,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/kiichain/kiichain/v1/app/apptesting"
 	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
 	wasmbinding "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
 	bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory/types"
@@ -18,7 +19,7 @@ import (
 
 // TestCreateDenom tests the CreateDenom function
 func TestCreateDenom(t *testing.T) {
-	actor := helpers.RandomAccountAddress()
+	actor := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	// Fund actor with 100 base denom creation fees
@@ -70,7 +71,7 @@ func TestCreateDenom(t *testing.T) {
 func TestChangeAdmin(t *testing.T) {
 	const validDenom = "validdenom"
 
-	tokenCreator := helpers.RandomAccountAddress()
+	tokenCreator := apptesting.RandomAccountAddress()
 
 	specs := map[string]struct {
 		actor       sdk.AccAddress
@@ -130,7 +131,7 @@ func TestChangeAdmin(t *testing.T) {
 				Denom:           fmt.Sprintf("factory/%s/%s", tokenCreator.String(), validDenom),
 				NewAdminAddress: helpers.RandomBech32AccountAddress(),
 			},
-			actor:     helpers.RandomAccountAddress(),
+			actor:     apptesting.RandomAccountAddress(),
 			expErrMsg: "failed changing admin from message: unauthorized account",
 		},
 		"change to the same address": {
@@ -173,7 +174,7 @@ func TestChangeAdmin(t *testing.T) {
 
 // TestMint tests the minting of tokens
 func TestMint(t *testing.T) {
-	creator := helpers.RandomAccountAddress()
+	creator := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, creator)
 
 	// Fund actor with 100 base denom creation fees
@@ -196,7 +197,7 @@ func TestMint(t *testing.T) {
 	validDenomStr := fmt.Sprintf("factory/%s/%s", creator.String(), validDenom.Subdenom)
 	emptyDenomStr := fmt.Sprintf("factory/%s/%s", creator.String(), emptyDenom.Subdenom)
 
-	lucky := helpers.RandomAccountAddress()
+	lucky := apptesting.RandomAccountAddress()
 
 	// lucky was broke
 	balances := app.BankKeeper.GetAllBalances(ctx, lucky)
@@ -293,7 +294,7 @@ func TestMint(t *testing.T) {
 
 // TestBurn tests the burning of tokens
 func TestBurn(t *testing.T) {
-	creator := helpers.RandomAccountAddress()
+	creator := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, creator)
 
 	// Fund actor with 100 base denom creation fees
@@ -313,7 +314,7 @@ func TestBurn(t *testing.T) {
 	_, err = wasmbinding.PerformCreateDenom(&app.TokenFactoryKeeper, app.BankKeeper, ctx, creator, &emptyDenom)
 	require.NoError(t, err)
 
-	lucky := helpers.RandomAccountAddress()
+	lucky := apptesting.RandomAccountAddress()
 
 	// lucky was broke
 	balances := app.BankKeeper.GetAllBalances(ctx, lucky)

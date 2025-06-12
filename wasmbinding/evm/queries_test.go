@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/require"
 
+	"github.com/kiichain/kiichain/v1/app/apptesting"
 	mock "github.com/kiichain/kiichain/v1/tests/e2e/mock"
 	evmwasmbinding "github.com/kiichain/kiichain/v1/wasmbinding/evm"
 	evmbindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/evm/types"
@@ -17,7 +18,7 @@ import (
 // TestHandleEVMQuery tests the HandleEVMQuery function
 func TestHandleEVMQuery(t *testing.T) {
 	// Setup the app
-	actor := helpers.RandomAccountAddress()
+	actor := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	// Deploy the counter contract
@@ -106,7 +107,7 @@ func TestHandleEVMQuery(t *testing.T) {
 // TestHandleERC20Information tests the HandleERC20Information function
 func TestHandleERC20Information(t *testing.T) {
 	// Setup the app
-	actor := helpers.RandomAccountAddress()
+	actor := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	// Deploy a erc20 contract
@@ -177,7 +178,7 @@ func TestHandleERC20Information(t *testing.T) {
 // TestHandleERC20Balance tests the HandleERC20Balance function
 func TestHandleERC20Balance(t *testing.T) {
 	// Setup the app
-	actor := helpers.RandomAccountAddress()
+	actor := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	// Deploy a erc20 contract
@@ -239,7 +240,7 @@ func TestHandleERC20Balance(t *testing.T) {
 // TestHandleERC20Allowance tests the HandleERC20Allowance function
 func TestHandleERC20Allowance(t *testing.T) {
 	// Setup the app
-	app, ctx := helpers.SetupCustomApp(t, helpers.RandomAccountAddress())
+	app, ctx := helpers.SetupCustomApp(t, apptesting.RandomAccountAddress())
 	actor := createAccountAndRegister(t, ctx, app)
 	actor2 := createAccountAndRegister(t, ctx, app)
 

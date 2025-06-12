@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/cometbft/cometbft/crypto"
 	"github.com/cometbft/cometbft/crypto/ed25519"
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
@@ -277,4 +278,18 @@ func GenerateTestAddrs() (string, string) {
 	validAddr := sdk.AccAddress(pk1.Address()).String()
 	invalidAddr := sdk.AccAddress("invalid").String()
 	return validAddr, invalidAddr
+}
+
+// we need to make this deterministic (same every test run), as content might affect gas costs
+func keyPubAddr() (crypto.PrivKey, crypto.PubKey, sdk.AccAddress) {
+	key := ed25519.GenPrivKey()
+	pub := key.PubKey()
+	addr := sdk.AccAddress(pub.Address())
+	return key, pub, addr
+}
+
+// RandomAccountAddress generates a random account address
+func RandomAccountAddress() sdk.AccAddress {
+	_, _, addr := keyPubAddr()
+	return addr
 }

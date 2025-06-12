@@ -7,8 +7,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cometbft/cometbft/crypto"
-	"github.com/cometbft/cometbft/crypto/ed25519"
 	tenderminttypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,6 +14,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	app "github.com/kiichain/kiichain/v1/app"
+	"github.com/kiichain/kiichain/v1/app/apptesting"
 	"github.com/kiichain/kiichain/v1/app/helpers"
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
@@ -37,23 +36,9 @@ func CreateTestInput(t *testing.T) (*app.KiichainApp, sdk.Context) {
 	return chain, sdk.UnwrapSDKContext(ctx)
 }
 
-// we need to make this deterministic (same every test run), as content might affect gas costs
-func keyPubAddr() (crypto.PrivKey, crypto.PubKey, sdk.AccAddress) {
-	key := ed25519.GenPrivKey()
-	pub := key.PubKey()
-	addr := sdk.AccAddress(pub.Address())
-	return key, pub, addr
-}
-
-// RandomAccountAddress generates a random account address
-func RandomAccountAddress() sdk.AccAddress {
-	_, _, addr := keyPubAddr()
-	return addr
-}
-
 // RandomBech32AccountAddress generates a random bech32 account address
 func RandomBech32AccountAddress() string {
-	return RandomAccountAddress().String()
+	return apptesting.RandomAccountAddress().String()
 }
 
 // storeReflectCode stores the reflect contract code

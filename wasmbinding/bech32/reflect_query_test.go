@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	app "github.com/kiichain/kiichain/v1/app"
+	"github.com/kiichain/kiichain/v1/app/apptesting"
 	"github.com/kiichain/kiichain/v1/wasmbinding"
 	bech32bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/bech32/types"
 	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
@@ -17,7 +18,7 @@ import (
 
 // TestHexToBech32Reflect tests the hex to bech32 reflect query
 func TestHexToBech32Reflect(t *testing.T) {
-	actor := helpers.RandomAccountAddress()
+	actor := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)
@@ -38,7 +39,7 @@ func TestHexToBech32Reflect(t *testing.T) {
 
 // TestBech32ToHexReflect tests the bech32 to hex reflect query
 func TestBech32ToHexReflect(t *testing.T) {
-	actor := helpers.RandomAccountAddress()
+	actor := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)
