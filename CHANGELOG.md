@@ -12,3 +12,4 @@
 - Add correct ibc keepers to ibc precompiles
 - Add Rewards module
 - Add the param change proposal to the oracle module
+- Integrate Oracle on the app and add the gas less fees
