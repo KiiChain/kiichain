@@ -18,6 +18,8 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
+
+	oraclekeeper "github.com/kiichain/kiichain/v1/x/oracle/keeper"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Cosmos EVM
@@ -39,6 +41,8 @@ type HandlerOptions struct {
 	StakingKeeper         *stakingkeeper.Keeper
 	TXCounterStoreService corestoretypes.KVStoreService
 	WasmConfig            *wasmtypes.WasmConfig
+
+	OracleKeeper *oraclekeeper.Keeper
 }
 
 // Validate checks if the keepers are defined
@@ -72,6 +76,9 @@ func (options HandlerOptions) Validate() error {
 	}
 	if options.StakingKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "staking param store is required for AnteHandler")
+	}
+	if options.OracleKeeper == nil {
+		return errorsmod.Wrap(errortypes.ErrLogic, "oracle keeper is required for AnteHandler")
 	}
 	return nil
 }
