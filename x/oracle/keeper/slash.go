@@ -59,10 +59,6 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) error {
 				if err != nil {
 					return true, err
 				}
-				err = k.StakingKeeper.Jail(ctx, consAddr) // Jail validator
-				if err != nil {
-					return true, err
-				}
 			}
 		}
 
