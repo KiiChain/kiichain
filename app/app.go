@@ -334,6 +334,7 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 		StakingKeeper:          app.StakingKeeper,
 		TXCounterStoreService:  runtime.NewKVStoreService(app.AppKeepers.GetKey(wasmtypes.StoreKey)),
 		WasmConfig:             &wasmConfig,
+		OracleKeeper:           &app.OracleKeeper,
 	}
 	if err := options.Validate(); err != nil {
 		panic(err)
