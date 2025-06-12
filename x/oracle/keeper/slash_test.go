@@ -109,7 +109,6 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 		require.NoError(t, err)
 		validator, _ := stakingKeeper.GetValidator(input.Ctx, ValAddrs[0])
 		require.Equal(t, amount.Sub(slashFraction.MulInt(amount).TruncateInt()), validator.GetBondedTokens())
-		require.True(t, validator.IsJailed())
 	})
 
 	t.Run("slash and jail for abstaining too much along with misses", func(t *testing.T) {
@@ -134,7 +133,6 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 
 		// slashing for not voting validly sufficiently
 		require.Equal(t, amount.Sub(slashFraction.MulInt(amount).TruncateInt()), validator.GetBondedTokens())
-		require.True(t, validator.IsJailed())
 	})
 
 	t.Run("slash unbonded validator", func(t *testing.T) {

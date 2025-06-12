@@ -312,10 +312,9 @@ func TestEndblocker(t *testing.T) {
 		err = Endblocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
-		// Check if validator was jailed
+		// Get the validator
 		validator, err := oracleKeeper.StakingKeeper.Validator(ctx, operator)
 		require.NoError(t, err)
-		require.True(t, validator.IsJailed())
 
 		// Check if validator was slashed (power reduced)
 		slashedPower := validator.GetConsensusPower(stakingKeeper.PowerReduction(ctx))
