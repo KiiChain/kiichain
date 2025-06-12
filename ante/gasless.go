@@ -42,20 +42,11 @@ func (gd GaslessDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 	// If gasless, ignore gas
 	if isGasless {
 		ctx = ctx.WithGasMeter(NewNoConsumptionGasMeter())
-	}
-
-	// Check if the tx is deliver TX
-	// The reasoning for this is that the tx may be
-	isDeliverTx := !ctx.IsCheckTx() && !ctx.IsReCheckTx() && !simulate
-
-	// If not gasless, continue with the fee decorator
-	if isDeliverTx || !isGasless {
-		// Execute the fee decorator
-		return gd.feeDecorator.AnteHandle(ctx, tx, simulate, next)
+		return next(ctx, tx, simulate)
 	}
 
 	// Go to the next ante handler using the No Consumption Gas Meter
-	return next(ctx, tx, simulate)
+	return gd.feeDecorator.AnteHandle(ctx, tx, simulate, next)
 }
 
 // IsTxGasless checks if the transaction is gasless
