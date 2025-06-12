@@ -18,7 +18,6 @@ type StakingKeeper interface {
 	Validator(ctx context.Context, address sdk.ValAddress) (stakingtypes.ValidatorI, error)                                           // Retrieves a validator's information
 	TotalBondedTokens(ctx context.Context) (math.Int, error)                                                                          // Retrieves total staked tokens (useful for slashing calculations)
 	Slash(ctx context.Context, consAddr sdk.ConsAddress, infractionHeight, power int64, slashFactor math.LegacyDec) (math.Int, error) // Slashes a validator or delegate who fails to vote in the oracle
-	Jail(ctx context.Context, consAddr sdk.ConsAddress) error                                                                         // Jail a validator or delegator
 	ValidatorsPowerStoreIterator(ctx context.Context) (corestore.Iterator, error)                                                     // Used to computing validator rankings or total power
 	MaxValidators(ctx context.Context) (uint32, error)                                                                                // Return the maximum amount of bonded validators
 	PowerReduction(ctx context.Context) (res math.Int)                                                                                // Returns the power reduction factor,
