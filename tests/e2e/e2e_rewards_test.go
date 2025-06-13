@@ -36,6 +36,11 @@ func (s *IntegrationTestSuite) testRewardUpdate() {
 	initialBalance, err := getSpecificBalance(chainEndpoint, senderAddress.String(), denom)
 	s.Require().NoError(err)
 
+	// Get initial balance
+	validatorB, err := s.chainA.validators[1].keyInfo.GetAddress()
+	initialBalanceOfB, err := getSpecificBalance(chainEndpoint, validatorB.String(), denom)
+	s.Require().NoError(err)
+
 	// 1. Fund pool via CLI
 	s.fundRewardPool(c, valIdx, amount, senderAddress.String())
 
@@ -67,13 +72,15 @@ func (s *IntegrationTestSuite) testRewardUpdate() {
 	scheduleResponse, err = queryReleaseSchedule(chainEndpoint)
 	s.Require().NoError(err)
 	finalSchedule := scheduleResponse.ReleaseSchedule
-	s.Require().Less(schedule.ReleasedAmount, finalSchedule.ReleasedAmount)
+	s.T().Logf("Scheduled amt before %s vs after %s", schedule.ReleasedAmount.Amount.String(), finalSchedule.ReleasedAmount.Amount.String())
+	s.Require().True(schedule.ReleasedAmount.Amount.LT(finalSchedule.ReleasedAmount.Amount))
 	s.Require().True(schedule.Active)
 
 	// Check validator balance change
-	finalBalance, err := getSpecificBalance(chainEndpoint, senderAddress.String(), denom)
+	finalBalanceOfB, err := getSpecificBalance(chainEndpoint, validatorB.String(), denom)
 	s.Require().NoError(err)
-	s.Require().Less(balance, finalBalance)
+	s.T().Logf("Balance amt before %s vs after %s", initialBalanceOfB.Amount.String(), finalBalanceOfB.Amount.String())
+	s.Require().True(initialBalanceOfB.Amount.LT(finalBalanceOfB.Amount))
 }
 
 // queryReleaseSchedule returns schedule information from the chain
@@ -179,14 +186,12 @@ func (s *IntegrationTestSuite) writeScheduleProposal(c *chain, amount sdk.Coin, 
         }
     ],
     "metadata": "ipfs://CID",
-    "deposit": "1000000akii",
+    "deposit": "1000akii",
     "title": "Add Schedule",
     "summary": "initial schedule"
 }`
 
 	propMsgBody := fmt.Sprintf(body, amount.Denom, amount.Amount.String(), amount.Denom, endTime.UTC().Format(time.RFC3339Nano))
-
-	s.T().Logf("Schedule proposal message: %s", propMsgBody)
 
 	err := writeFile(filepath.Join(c.validators[0].configDir(), "config", proposalAddSchedule), []byte(propMsgBody))
 	s.Require().NoError(err)
