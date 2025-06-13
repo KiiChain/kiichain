@@ -30,8 +30,8 @@ var feeCoin = sdk.Coin{
 	Amount: math.NewInt(1000),
 }
 
-// TestGaslessDecorator tests the GaslessDecorator
-func TestGaslessDecorator(t *testing.T) {
+// TestFeelessDecorator tests the FeelessDecorator
+func TestFeelessDecorator(t *testing.T) {
 	// Start the app
 	app := helpers.Setup(t)
 	ctx := app.BaseApp.NewUncachedContext(true, tenderminttypes.Header{Height: 1, ChainID: "testing_1010-1", Time: time.Now().UTC()})
@@ -51,8 +51,8 @@ func TestGaslessDecorator(t *testing.T) {
 	err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, funder, sdk.NewCoins(sdk.NewInt64Coin("stake", 1000000)))
 	require.NoError(t, err)
 
-	// Start a new GaslessDecorator with the wrapped fee handler
-	gaslessDecorator := ante.NewGaslessDecorator(
+	// Start a new FeelessDecorator with the wrapped fee handler
+	feelessDecorator := ante.NewFeelessDecorator(
 		authate.NewDeductFeeDecorator(
 			app.AccountKeeper,
 			app.BankKeeper,
@@ -63,7 +63,7 @@ func TestGaslessDecorator(t *testing.T) {
 	)
 
 	// Wrap into the sdk ante decorator
-	anteHandler := sdk.ChainAnteDecorators(gaslessDecorator)
+	anteHandler := sdk.ChainAnteDecorators(feelessDecorator)
 
 	// Write the test cases
 	testCases := []struct {
@@ -132,7 +132,7 @@ func TestGaslessDecorator(t *testing.T) {
 			balanceDiff: feeCoin.Amount, // Fee should be deducted for the because we have the bank message
 		},
 		{
-			name: "Gasless double message - should deduct fee",
+			name: "Feeless double message - should deduct fee",
 			msgs: []sdk.Msg{
 				&oracletypes.MsgAggregateExchangeRateVote{
 					ExchangeRates: "0.1stake,0.2stake",

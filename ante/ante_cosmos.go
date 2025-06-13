@@ -50,7 +50,7 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	// Skip the feemarket decorator is needed
 	if UseFeeMarketDecorator {
 		// This wraps using the gasless decorator
-		gasLessFeeDecorator := NewGaslessDecorator(
+		gasLessFeeDecorator := NewFeelessDecorator(
 			ante.NewDeductFeeDecorator(
 				options.AccountKeeper,
 				options.BankKeeper,
