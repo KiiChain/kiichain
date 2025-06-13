@@ -6,7 +6,7 @@ needs to be passed.
 
 ## Flow:
 1. Fund community pool with reward
-2. Create and pass a proposal to extend a distribution release
+2. Create and pass a proposal to create a release schedule
 3. At the end of every block, a linear % of the reward will be forward to distribution
 4. When the end time of the release is reached, all rewards will have been given away and it will go inactive
 
@@ -54,25 +54,41 @@ message MsgFundPool {
 
 - The community pool funds will increase, as well as the module's balance
 
-### ExtendRelease
-
-Extends the funds to be released and can change the end time of the release. If there is no active release, initializes it accordingly. Only the governor can utilize this call, others need to pass a proposal.
+### ChangeSchedule
+Set the schedule to match what is sent. Only the governor can utilize this call, others need to pass a proposal.
 
 ```go
-message MsgExtendReward {
+message MsgChangeSchedule {
   // authority is the address of the governance account.
   string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
 
-  // Amount to be taken from the community pool
-  cosmos.base.v1beta1.Coin extra_amount = 2 [
-    (gogoproto.moretags) = "yaml:\"extra_amount\"",
-    (amino.encoding) = "legacy_coin"
-  ];
 
-  // New timestamp of end of release
+  // New information for the schedule
+  ReleaseSchedule schedule = 2 [ (gogoproto.nullable) = false ];
+}
+
+message ReleaseSchedule {
+  // Total amount to be rewarded
+  cosmos.base.v1beta1.Coin total_amount = 1 [
+    (gogoproto.moretags) = "yaml:\"total_amount\""
+  ];
+  // Amount released
+  cosmos.base.v1beta1.Coin released_amount = 2 [
+    (gogoproto.moretags) = "yaml:\"released_amount\""
+  ];
+  // Timestamp of end of release
   google.protobuf.Timestamp end_time = 3 [
     (gogoproto.stdtime) = true,
     (gogoproto.moretags) = "yaml:\"end_time\""
+  ];
+  // Last height released
+  google.protobuf.Timestamp last_release_time = 5 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.moretags) = "yaml:\"last_release_time\""
+  ];
+  // If reward pool is active
+  bool active = 6 [
+    (gogoproto.moretags) = "yaml:\"active\""
   ];
 }
 ```
@@ -83,12 +99,7 @@ message MsgExtendReward {
   - Denom of the amt must be the one being used
   - End time must be in the future
   - Funds must be available in the pool
-- If the release is active:
-  - Overwrites the end time
-  - Increases total amount
-- If inactive
-  - Sets end time and total amount
-  - Makes it active
+- Changes the reward release schedule to match what is sent
 
 ### Update Params
 
