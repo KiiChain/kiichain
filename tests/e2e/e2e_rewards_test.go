@@ -23,9 +23,11 @@ func (s *IntegrationTestSuite) testRewardUpdate() {
 		c      = s.chainA
 		denom  = "akii"
 	)
+	// Amount 1k kii
 	bigAkii, ok := math.NewIntFromString("1000000000000000000000")
 	s.Require().True(ok)
 	amount := sdk.NewCoin(denom, bigAkii)
+	// Time
 	now := time.Now()
 	endTime := now.Add(time.Minute)
 	chainEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
@@ -36,7 +38,7 @@ func (s *IntegrationTestSuite) testRewardUpdate() {
 	initialBalance, err := getSpecificBalance(chainEndpoint, senderAddress.String(), denom)
 	s.Require().NoError(err)
 
-	// Get initial balance
+	// Get initial balance of other validator
 	validatorB, err := s.chainA.validators[1].keyInfo.GetAddress()
 	initialBalanceOfB, err := getSpecificBalance(chainEndpoint, validatorB.String(), denom)
 	s.Require().NoError(err)
