@@ -194,7 +194,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	return nil
 }
 
-// BeginBlocker is the function that slash the validators and reset the miss counters
+// BeginBlocker is the function that slashes the validators and resets the miss counters
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Get the params
 	params, err := k.Params.Get(ctx)
