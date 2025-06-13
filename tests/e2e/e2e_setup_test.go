@@ -72,6 +72,7 @@ const (
 	proposalSoftwareUpgrade          = "proposal_software_upgrade.json"
 	proposalCancelSoftwareUpgrade    = "proposal_cancel_software_upgrade.json"
 	proposalRegisterERC20            = "proposal_register_erc20.json"
+	proposalAddSchedule              = "proposal_add_schedule.json"
 
 	hermesBinary              = "hermes"
 	hermesConfigWithGasPrices = "/root/.hermes/config.toml"
