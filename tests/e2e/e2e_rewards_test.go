@@ -159,9 +159,9 @@ func (s *IntegrationTestSuite) passScheduleProposal(chainEndpoint string, amount
 // writeScheduleProposal stores a file with the change schedule proposal
 func (s *IntegrationTestSuite) writeScheduleProposal(c *chain, amount sdk.Coin, endTime time.Time) {
 	body := `{
-    "messages": [
-        {
-            "@type": "/kiichain.rewards.v1beta1.MsgChangeSchedule",
+		"messages": [
+                {
+			"@type": "/kiichain.rewards.v1beta1.MsgChangeSchedule",
             "authority": "kii10d07y265gmmuvt4z0w9aw880jnsr700jrff0qv",
             "schedule": {
                 "total_amount": {

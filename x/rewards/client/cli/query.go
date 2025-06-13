@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/spf13/cobra"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+
 	"github.com/kiichain/kiichain/v1/x/rewards/types"
-	"github.com/spf13/cobra"
 )
 
 // GetQueryCmd returns the cli query commands for this module

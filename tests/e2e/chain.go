@@ -32,6 +32,7 @@ import (
 
 	kiichain "github.com/kiichain/kiichain/v1/app"
 	kiiparams "github.com/kiichain/kiichain/v1/app/params"
+	rewardstypes "github.com/kiichain/kiichain/v1/x/rewards/types"
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
@@ -62,6 +63,7 @@ func init() {
 	upgradetypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	distribtypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	ratelimittypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
+	rewardstypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	tokenfactorytypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 
 	// EVM register interfaces

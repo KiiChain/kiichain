@@ -121,7 +121,7 @@ func (s *IntegrationTestSuite) TestVesting() {
 	s.testContinuousVestingAccount(chainAAPI)
 }
 
-// TestRewards runs the rewards factory tests. It is skipped if the variable is set
+// TestRewards runs the rewards tests. It is skipped if the variable is set
 func (s *IntegrationTestSuite) TestRewards() {
 	if !runRewardsTest {
 		s.T().Log("skipping rewards module e2e tests...")
