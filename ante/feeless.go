@@ -64,7 +64,7 @@ func (gd FeelessDecorator) IsTxFeeless(ctx sdk.Context, tx sdk.Tx) (bool, error)
 	for _, msg := range tx.GetMsgs() {
 		switch m := msg.(type) {
 		case *oracletypes.MsgAggregateExchangeRateVote:
-			// Check if the message message is a feeless message
+			// Check if the message is feeless
 			return gd.MsgAggregateExchangeRateVoteIsFeeless(ctx, m)
 		default:
 			// We can return that its not gasless
