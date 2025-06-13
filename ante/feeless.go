@@ -2,6 +2,7 @@ package ante
 
 import (
 	"errors"
+	"math"
 
 	"cosmossdk.io/collections"
 
@@ -11,37 +12,38 @@ import (
 	oracletypes "github.com/kiichain/kiichain/v1/x/oracle/types"
 )
 
-// GaslessDecorator defines a decorator that allows gasless transaction based on conditions
-type GaslessDecorator struct {
+// FeelessDecorator defines a decorator that allows feeless transaction based on conditions
+type FeelessDecorator struct {
 	// feeDecorator is the SDK fee decorator that deducts fees from the fee payer
 	feeDecorator sdk.AnteDecorator
 	// oracleKeeper is one of the modules that has feeless transactions
 	oracleKeeper *oraclekeeper.Keeper
 }
 
-// Type assertion for the GaslessDecorator
-var _ sdk.AnteDecorator = GaslessDecorator{}
+// Type assertion for the FeelessDecorator
+var _ sdk.AnteDecorator = FeelessDecorator{}
 
-// NewGaslessDecorator creates a new GaslessDecorator
-func NewGaslessDecorator(feeDecorator sdk.AnteDecorator, oracleKeeper *oraclekeeper.Keeper) GaslessDecorator {
-	return GaslessDecorator{
+// NewFeelessDecorator creates a new FeelessDecorator
+func NewFeelessDecorator(feeDecorator sdk.AnteDecorator, oracleKeeper *oraclekeeper.Keeper) FeelessDecorator {
+	return FeelessDecorator{
 		feeDecorator: feeDecorator,
 		oracleKeeper: oracleKeeper,
 	}
 }
 
-// AnteHandle executes the antehandler logic for gasless transactions
+// AnteHandle executes the antehandler logic for feeless transactions
 // This checks if the transaction is gasless and if so, it skips the fee deduction
-func (gd GaslessDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+// This also force the TX to take
+func (gd FeelessDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	// Check if the transaction is gasless
-	isGasless, err := gd.IsTxGasless(ctx, tx)
+	isFeeless, err := gd.IsTxFeeless(ctx, tx)
 	if err != nil {
 		return ctx, err
 	}
 
-	// If gasless, ignore gas
-	if isGasless {
-		ctx = ctx.WithGasMeter(NewNoConsumptionGasMeter())
+	// If feeless, ignore fee deduction
+	if isFeeless {
+		ctx = ctx.WithPriority(math.MaxInt64)
 		return next(ctx, tx, simulate)
 	}
 
@@ -49,8 +51,8 @@ func (gd GaslessDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 	return gd.feeDecorator.AnteHandle(ctx, tx, simulate, next)
 }
 
-// IsTxGasless checks if the transaction is gasless
-func (gd GaslessDecorator) IsTxGasless(ctx sdk.Context, tx sdk.Tx) (bool, error) {
+// IsTxFeeless checks if the transaction is feeless
+func (gd FeelessDecorator) IsTxFeeless(ctx sdk.Context, tx sdk.Tx) (bool, error) {
 	// Check if the transaction has exactly one message
 	// If it has any amount different than one, we can return that its not gasless
 	// This protects against DDoS attacks where a transaction has multiple messages
@@ -62,8 +64,8 @@ func (gd GaslessDecorator) IsTxGasless(ctx sdk.Context, tx sdk.Tx) (bool, error)
 	for _, msg := range tx.GetMsgs() {
 		switch m := msg.(type) {
 		case *oracletypes.MsgAggregateExchangeRateVote:
-			// Check if the message message is a gasless message
-			return gd.MsgAggregateExchangeRateVoteIsGasless(ctx, m)
+			// Check if the message message is a feeless message
+			return gd.MsgAggregateExchangeRateVoteIsFeeless(ctx, m)
 		default:
 			// We can return that its not gasless
 			return false, nil
@@ -73,10 +75,10 @@ func (gd GaslessDecorator) IsTxGasless(ctx sdk.Context, tx sdk.Tx) (bool, error)
 	return false, nil
 }
 
-// MsgAggregateExchangeRateVoteIsGasless checks if the MsgAggregateExchangeRateVote is gasless
-// A gasless MsgAggregateExchangeRateVote is one that has not been casted yet
+// MsgAggregateExchangeRateVoteIsFeeless checks if the MsgAggregateExchangeRateVote is feeless
+// A feeless MsgAggregateExchangeRateVote is one that has not been casted yet
 // and the feeder is allowed to vote for the validator
-func (gd GaslessDecorator) MsgAggregateExchangeRateVoteIsGasless(ctx sdk.Context, msg *oracletypes.MsgAggregateExchangeRateVote) (bool, error) {
+func (gd FeelessDecorator) MsgAggregateExchangeRateVoteIsFeeless(ctx sdk.Context, msg *oracletypes.MsgAggregateExchangeRateVote) (bool, error) {
 	// Validate the feeder address
 	feederAddr, err := sdk.AccAddressFromBech32(msg.Feeder)
 	if err != nil {
@@ -100,7 +102,7 @@ func (gd GaslessDecorator) MsgAggregateExchangeRateVoteIsGasless(ctx sdk.Context
 
 	// If the error is not nil and the error is not found means that the vote was not casted yet,
 	if err != nil && errors.Is(err, collections.ErrNotFound) {
-		// This means that the vote is gasless
+		// This means that the vote is feeless
 		return true, nil
 	}
 
