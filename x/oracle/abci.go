@@ -10,7 +10,7 @@ import (
 	"github.com/kiichain/kiichain/v1/x/oracle/utils"
 )
 
-// MidBlocker get the votes from the validators, calculate the exchange rate using
+// EndBlocker get the votes from the validators, calculate the exchange rate using
 // weighted median logic when the vote period is almost finished
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Get the params
