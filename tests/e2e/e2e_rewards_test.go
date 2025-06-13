@@ -11,6 +11,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	rewardstypes "github.com/kiichain/kiichain/v1/x/rewards/types"
 )
@@ -40,7 +41,9 @@ func (s *IntegrationTestSuite) testRewardUpdate() {
 
 	// Get initial balance of other validator
 	validatorB, err := s.chainA.validators[1].keyInfo.GetAddress()
-	initialBalanceOfB, err := getSpecificBalance(chainEndpoint, validatorB.String(), denom)
+	s.Require().NoError(err)
+	valOperAddressB := sdk.ValAddress(validatorB.Bytes()).String()
+	initialRewardsB, err := queryRewardFrom(chainEndpoint, validatorB.String(), valOperAddressB)
 	s.Require().NoError(err)
 
 	// 1. Fund pool via CLI
@@ -79,10 +82,12 @@ func (s *IntegrationTestSuite) testRewardUpdate() {
 	s.Require().True(schedule.Active)
 
 	// Check validator balance change
-	finalBalanceOfB, err := getSpecificBalance(chainEndpoint, validatorB.String(), denom)
+	finalRewardsB, err := queryRewardFrom(chainEndpoint, validatorB.String(), valOperAddressB)
 	s.Require().NoError(err)
-	s.T().Logf("Balance amt before %s vs after %s", initialBalanceOfB.Amount.String(), finalBalanceOfB.Amount.String())
-	s.Require().True(initialBalanceOfB.Amount.LT(finalBalanceOfB.Amount))
+	initialAkii := initialRewardsB.Rewards.AmountOf(denom)
+	finalAkii := finalRewardsB.Rewards.AmountOf(denom)
+	s.T().Logf("Balance amt before %s vs after %s", initialAkii.String(), finalAkii.String())
+	s.Require().True(initialAkii.LT(finalAkii))
 }
 
 // queryReleaseSchedule returns schedule information from the chain
@@ -112,6 +117,27 @@ func queryRewardPool(endpoint string) (rewardstypes.QueryRewardPoolResponse, err
 
 	// Construct the full URL
 	url := fmt.Sprintf("%s/kiichain/rewards/v1beta1/reward-pool", endpoint)
+
+	// Make HTTP GET request
+	body, err := httpGet(url)
+	if err != nil {
+		return res, err
+	}
+
+	// Unmarshal JSON response
+	if err := cdc.UnmarshalJSON(body, &res); err != nil {
+		return res, err
+	}
+
+	return res, nil
+}
+
+// queryRewardFrom returns reward from validator from the chain
+func queryRewardFrom(endpoint string, address string, valoperAddress string) (types.QueryDelegationRewardsResponse, error) {
+	var res types.QueryDelegationRewardsResponse
+
+	// Construct the full URL
+	url := fmt.Sprintf("%s/cosmos/distribution/v1beta1/delegators/%s/rewards/%s", endpoint, address, valoperAddress)
 
 	// Make HTTP GET request
 	body, err := httpGet(url)
