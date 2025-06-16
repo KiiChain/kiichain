@@ -26,12 +26,15 @@ service Msg {
 // MsgAggregateExchangeRateVote represent the message to submit
 // an aggregate exchange rate vote
 message MsgAggregateExchangeRateVote{
-    option (gogoproto.equal) = false;
-    option (gogoproto.goproto_getters) = false;
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
 
-    string exchange_rates = 1 [(gogoproto.moretags) = "yaml:\"exchange_rates\""];
-    string feeder = 2 [(gogoproto.moretags) = "yaml:\"feeder\""];
-    string validator = 3 [(gogoproto.moretags) = "yaml:\"validator\""];
+  option (cosmos.msg.v1.signer) = "feeder";
+  option (amino.name) = "oracle/aggregate-exchange-rate-vote";
+
+  string exchange_rates = 1 [(gogoproto.moretags) = "yaml:\"exchange_rates\""];
+  string feeder = 2 [(gogoproto.moretags) = "yaml:\"feeder\""];
+  string validator = 3 [(gogoproto.moretags) = "yaml:\"validator\""];
 }
 
 // MsgAggregateExchangeRateVoteResponse defines the MsgAggregateExchangeRateVote response
@@ -41,10 +44,13 @@ message MsgAggregateExchangeRateVoteResponse {}
 // MsgDelegateFeedConsent represents a message to delegate oracle voting 
 // rights to another address
 message MsgDelegateFeedConsent{
-    option (gogoproto.equal)           = false;
+  option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
-  string operator = 1 [(gogoproto.moretags) = "yaml:\"operator\""];
+  option (cosmos.msg.v1.signer) = "validator_owner";
+  option (amino.name) = "oracle/delegate-feed-consent";
+
+  string validator_owner = 1 [(gogoproto.moretags) = "yaml:\"validator_owner\""];
   string delegate = 2 [(gogoproto.moretags) = "yaml:\"delegate\""];
 }
 
