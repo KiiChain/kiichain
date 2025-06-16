@@ -16,7 +16,7 @@ service Msg {
   // aggregate exchange rate vote
   rpc AggregateExchangeRateVote(MsgAggregateExchangeRateVote) returns (MsgAggregateExchangeRateVoteResponse);
   
-  // DelegateFeedConsent defines the method for delegate the prive voting 
+  // DelegateFeedConsent defines the method for delegating the privileged voting 
   rpc DelegateFeedConsent(MsgDelegateFeedConsent) returns (MsgDelegateFeedConsentResponse);
 
   // UpdateParams defines a governance operation for updating the x/oracle module
