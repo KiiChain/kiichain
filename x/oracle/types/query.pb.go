@@ -1035,13 +1035,13 @@ type QueryClient interface {
 	// PriceSnapshotHistory returns the history of price snapshots for all assets
 	PriceSnapshotHistory(ctx context.Context, in *QueryPriceSnapshotHistoryRequest, opts ...grpc.CallOption) (*QueryPriceSnapshotHistoryResponse, error)
 	// Twap = Time-weighted average price
-	// Twaps returns the list of the average price over an specific period of time and denom
+	// Twaps returns the list of the average price over a specific period of time and denom
 	Twaps(ctx context.Context, in *QueryTwapsRequest, opts ...grpc.CallOption) (*QueryTwapsResponse, error)
 	// FeederDelegation returns the delegator by the validator address
 	FeederDelegation(ctx context.Context, in *QueryFeederDelegationRequest, opts ...grpc.CallOption) (*QueryFeederDelegationResponse, error)
 	// VotePenaltyCounter returns the voting behavior by an specific validator
 	VotePenaltyCounter(ctx context.Context, in *QueryVotePenaltyCounterRequest, opts ...grpc.CallOption) (*QueryVotePenaltyCounterResponse, error)
-	// SlashWindow returns slash window informacion
+	// SlashWindow returns slash window information
 	SlashWindow(ctx context.Context, in *QuerySlashWindowRequest, opts ...grpc.CallOption) (*QuerySlashWindowResponse, error)
 	// Params returns the Oracle module's params
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
@@ -1158,13 +1158,13 @@ type QueryServer interface {
 	// PriceSnapshotHistory returns the history of price snapshots for all assets
 	PriceSnapshotHistory(context.Context, *QueryPriceSnapshotHistoryRequest) (*QueryPriceSnapshotHistoryResponse, error)
 	// Twap = Time-weighted average price
-	// Twaps returns the list of the average price over an specific period of time and denom
+	// Twaps returns the list of the average price over a specific period of time and denom
 	Twaps(context.Context, *QueryTwapsRequest) (*QueryTwapsResponse, error)
 	// FeederDelegation returns the delegator by the validator address
 	FeederDelegation(context.Context, *QueryFeederDelegationRequest) (*QueryFeederDelegationResponse, error)
 	// VotePenaltyCounter returns the voting behavior by an specific validator
 	VotePenaltyCounter(context.Context, *QueryVotePenaltyCounterRequest) (*QueryVotePenaltyCounterResponse, error)
-	// SlashWindow returns slash window informacion
+	// SlashWindow returns slash window information
 	SlashWindow(context.Context, *QuerySlashWindowRequest) (*QuerySlashWindowResponse, error)
 	// Params returns the Oracle module's params
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
