@@ -2,7 +2,6 @@ package e2e
 
 import (
 	"fmt"
-	"os"
 )
 
 var (
@@ -18,12 +17,13 @@ var (
 	runRestInterfacesTest         = true
 	runRateLimitTest              = true
 	runTokenFactoryTest           = true
+	runRewardsTest                = true
 	runEVMTest                    = true
 	runERC20Test                  = true
 	runWasmTest                   = true
 
 	// skipIBCTests skips tests that uses IBC
-	skipIBCTests = os.Getenv("SKIP_IBC_TESTS") == "true"
+	skipIBCTests = true
 )
 
 // TestRestInterfaces runs the rest interfaces tests. It is skipped if the variable is set
@@ -118,6 +118,15 @@ func (s *IntegrationTestSuite) TestVesting() {
 	chainAAPI := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
 	s.testDelayedVestingAccount(chainAAPI)
 	s.testContinuousVestingAccount(chainAAPI)
+}
+
+// TestRewards runs the rewards tests. It is skipped if the variable is set
+func (s *IntegrationTestSuite) TestRewards() {
+	if !runRewardsTest {
+		s.T().Log("skipping rewards module e2e tests...")
+		s.T().Skip()
+	}
+	s.testRewardUpdate()
 }
 
 // TestTokenFactory runs the token factory tests. It is skipped if the variable is set

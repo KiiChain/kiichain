@@ -14,6 +14,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
@@ -26,6 +27,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
+	"github.com/kiichain/kiichain/v1/x/rewards/client/cli"
 	"github.com/kiichain/kiichain/v1/x/rewards/keeper"
 	"github.com/kiichain/kiichain/v1/x/rewards/types"
 )
@@ -88,6 +90,16 @@ func (AppModuleBasic) RegisterRESTRoutes(_ client.Context, _ *mux.Router) {
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
 	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)) //nolint:errcheck
+}
+
+// GetTxCmd returns the x/rewards module's root tx command.
+func (a AppModuleBasic) GetTxCmd() *cobra.Command {
+	return cli.GetTxCmd()
+}
+
+// GetQueryCmd returns the x/rewards module's root query command.
+func (AppModuleBasic) GetQueryCmd() *cobra.Command {
+	return cli.GetQueryCmd()
 }
 
 // ----------------------------------------------------------------------------
