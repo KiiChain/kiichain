@@ -28,10 +28,10 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type Params struct {
 	// The number of blocks per voting
 	VotePeriod uint64 `protobuf:"varint,1,opt,name=vote_period,json=votePeriod,proto3" json:"vote_period,omitempty" yaml:"vote_period"`
-	// Minimun percentage of validators required to approve a price. For instance, if vote_threshold = "0.5" at least 50% of validators must submit votes
+	// Minimum percentage of validators required to approve a price. For instance, if vote_threshold = "0.5" at least 50% of validators must submit votes
 	// "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
 	VoteThreshold cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=vote_threshold,json=voteThreshold,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"vote_threshold" yaml:"vote_threshold"`
-	// Acceptable desviation from the media price (higher and lower)
+	// Acceptable deviation from the media price (higher and lower)
 	// "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
 	RewardBand cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=reward_band,json=rewardBand,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"reward_band" yaml:"reward_band"`
 	// List of allowed assets
