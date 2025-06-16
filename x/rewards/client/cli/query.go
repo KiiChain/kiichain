@@ -23,7 +23,6 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		GetCmdQueryReleaseSchedule(),
 		GetCmdQueryParams(),
 		GetCmdQueryReleaseSchedule(),
 		GetCmdQueryRewardPool(),

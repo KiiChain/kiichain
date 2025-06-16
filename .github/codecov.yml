@@ -22,7 +22,7 @@ ignore:
   - "**/*.pb.gw.go"
   - "**/*.md"
   - "*.rst"
-  - "**/cli/*"
+  - "x/rewards/client/cli"
   - "cmd"
   - "client"
   - "contrib"
