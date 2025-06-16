@@ -347,7 +347,7 @@ type MsgClient interface {
 	// AggregateExchangeRateVote defines the method for submitting an
 	// aggregate exchange rate vote
 	AggregateExchangeRateVote(ctx context.Context, in *MsgAggregateExchangeRateVote, opts ...grpc.CallOption) (*MsgAggregateExchangeRateVoteResponse, error)
-	// DelegateFeedConsent defines the method for delegate the prive voting
+	// DelegateFeedConsent defines the method for delegating the privileged voting
 	DelegateFeedConsent(ctx context.Context, in *MsgDelegateFeedConsent, opts ...grpc.CallOption) (*MsgDelegateFeedConsentResponse, error)
 	// UpdateParams defines a governance operation for updating the x/oracle module
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
@@ -393,7 +393,7 @@ type MsgServer interface {
 	// AggregateExchangeRateVote defines the method for submitting an
 	// aggregate exchange rate vote
 	AggregateExchangeRateVote(context.Context, *MsgAggregateExchangeRateVote) (*MsgAggregateExchangeRateVoteResponse, error)
-	// DelegateFeedConsent defines the method for delegate the prive voting
+	// DelegateFeedConsent defines the method for delegating the privileged voting
 	DelegateFeedConsent(context.Context, *MsgDelegateFeedConsent) (*MsgDelegateFeedConsentResponse, error)
 	// UpdateParams defines a governance operation for updating the x/oracle module
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)

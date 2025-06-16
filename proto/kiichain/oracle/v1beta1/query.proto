@@ -35,7 +35,7 @@ service Query{
     }
 
     // Twap = Time-weighted average price
-    // Twaps returns the list of the average price over an specific period of time and denom
+    // Twaps returns the list of the average price over a specific period of time and denom
     rpc Twaps (QueryTwapsRequest) returns (QueryTwapsResponse){
         option (google.api.http).get = "/kiichain/oracle/denoms/twaps/{lookback_seconds}";
     }
@@ -50,7 +50,7 @@ service Query{
         option (google.api.http).get = "/kiichain/oracle/validators/{validator_addr}/vote_penalty_counter";
     }
 
-    // SlashWindow returns slash window informacion 
+    // SlashWindow returns slash window information 
     rpc SlashWindow(QuerySlashWindowRequest) returns (QuerySlashWindowResponse){
         option (google.api.http).get = "/kiichain/oracle/slash_window";
     }
