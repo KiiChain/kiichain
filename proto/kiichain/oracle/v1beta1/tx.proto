@@ -10,6 +10,8 @@ import "amino/amino.proto";
 option go_package = "github.com/kiichain/kiichain/x/oracle/types";
 
 service Msg {
+  option (cosmos.msg.v1.service) = true;
+
   // AggregateExchangeRateVote defines the method for submitting an 
   // aggregate exchange rate vote
   rpc AggregateExchangeRateVote(MsgAggregateExchangeRateVote) returns (MsgAggregateExchangeRateVoteResponse);
