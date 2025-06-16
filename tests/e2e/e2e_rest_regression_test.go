@@ -24,6 +24,8 @@ import (
 // 6. Mint params
 // 7. Slashing params
 // 8. Staking params
+// 9. Token factory
+// 10. Rewards
 // */
 const (
 	valSetLatestPath                    = "/cosmos/base/tendermint/v1beta1/validatorsets/latest"
@@ -58,6 +60,11 @@ const (
 
 	// Tokenfactory Endpoints
 	tokenFactoryParams = "/kiichain/tokenfactory/v1beta1/params"
+
+	// Rewards endpoints
+	rewardsParams   = "/kiichain/rewards/v1beta1/params"
+	rewardsPool     = "/kiichain/rewards/v1beta1/reward-pool"
+	rewardsSchedule = "/kiichain/rewards/v1beta1/release-schedule"
 )
 
 func (s *IntegrationTestSuite) testRestInterfaces() {
@@ -89,6 +96,9 @@ func (s *IntegrationTestSuite) testRestInterfaces() {
 				{missingPath, 501},
 				{localMinGasPriceQueryPath, 200},
 				{tokenFactoryParams, 200},
+				{rewardsParams, 200},
+				{rewardsPool, 200},
+				{rewardsSchedule, 200},
 				// EVM endpoints
 				{evmBaseFee, 200},
 				{evmParams, 200},
