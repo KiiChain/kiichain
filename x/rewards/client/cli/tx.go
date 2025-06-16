@@ -32,6 +32,7 @@ func GetTxCmd() *cobra.Command {
 	return cmd
 }
 
+// NewFundPoolCmd implements the fund-pool tx command.
 func NewFundPoolCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "fund-pool [amount]",
@@ -58,6 +59,7 @@ func NewFundPoolCmd() *cobra.Command {
 	return cmd
 }
 
+// NewUpdateParamsCmd implements the update-params tx command.
 func NewUpdateParamsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-params [params-json]",
@@ -87,6 +89,7 @@ $ %s tx gov submit-proposal update-rewards-params <path/to/params.json> --from m
 	return cmd
 }
 
+// NewChangeScheduleCmd implements the change-schedule tx command.
 func NewChangeScheduleCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "change-schedule [schedule-json]",
