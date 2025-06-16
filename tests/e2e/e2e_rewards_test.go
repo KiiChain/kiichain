@@ -39,12 +39,20 @@ func (s *IntegrationTestSuite) testRewardUpdate() {
 	initialBalance, err := getSpecificBalance(chainEndpoint, senderAddress.String(), denom)
 	s.Require().NoError(err)
 
-	// Get initial balance of other validator
+	// Get validator addresses
+	validatorA, err := s.chainA.validators[0].keyInfo.GetAddress()
+	s.Require().NoError(err)
 	validatorB, err := s.chainA.validators[1].keyInfo.GetAddress()
 	s.Require().NoError(err)
+	valOperAddressA := sdk.ValAddress(validatorA.Bytes()).String()
 	valOperAddressB := sdk.ValAddress(validatorB.Bytes()).String()
+
+	// Get their rewards
+	initialRewardsA, err := queryRewardFrom(chainEndpoint, validatorA.String(), valOperAddressA)
+	s.Require().NoError(err)
 	initialRewardsB, err := queryRewardFrom(chainEndpoint, validatorB.String(), valOperAddressB)
 	s.Require().NoError(err)
+	initialRewards := initialRewardsA.Rewards.Add(initialRewardsB.Rewards...)
 
 	// 1. Fund pool via CLI
 	s.fundRewardPool(c, valIdx, amount, senderAddress.String())
@@ -81,13 +89,17 @@ func (s *IntegrationTestSuite) testRewardUpdate() {
 	s.Require().True(schedule.ReleasedAmount.Amount.LT(finalSchedule.ReleasedAmount.Amount))
 	s.Require().True(schedule.Active)
 
-	// Check validator balance change
+	// 3. Check that the sum of validator rewards is at least initial + the released amt
+	finalRewardsA, err := queryRewardFrom(chainEndpoint, validatorA.String(), valOperAddressA)
+	s.Require().NoError(err)
 	finalRewardsB, err := queryRewardFrom(chainEndpoint, validatorB.String(), valOperAddressB)
 	s.Require().NoError(err)
-	initialAkii := initialRewardsB.Rewards.AmountOf(denom)
-	finalAkii := finalRewardsB.Rewards.AmountOf(denom)
-	s.T().Logf("Balance amt before %s vs after %s", initialAkii.String(), finalAkii.String())
-	s.Require().True(initialAkii.LT(finalAkii))
+	// Total
+	initialAkii := initialRewards.AmountOf(denom)
+	initialPlusScheduled := initialAkii.Add(schedule.ReleasedAmount.Amount.ToLegacyDec())
+	finalAkii := finalRewardsB.Rewards.AmountOf(denom).Add(finalRewardsA.Rewards.AmountOf(denom))
+	s.T().Logf("Reward amt before %s vs after %s", initialAkii.String(), initialPlusScheduled.String())
+	s.Require().True(finalAkii.GT(initialPlusScheduled))
 }
 
 // queryReleaseSchedule returns schedule information from the chain
