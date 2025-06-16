@@ -102,11 +102,14 @@ func (ms msgServer) DelegateFeedConsent(ctx context.Context, msg *types.MsgDeleg
 	// Get cosmos sdk context from golang context
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
-	// get the validator address from the message
-	validatorAddress, err := sdk.ValAddressFromBech32(msg.Operator)
+	// Get the acc address for the operator
+	operatorAddress, err := sdk.AccAddressFromBech32(msg.ValidatorOwner)
 	if err != nil {
 		return nil, err
 	}
+
+	// Get the validator address from the operator address
+	validatorAddress := sdk.ValAddress(operatorAddress.Bytes())
 
 	// Get the delegated address from the message
 	delegatorAddress, err := sdk.AccAddressFromBech32(msg.Delegate)
@@ -114,10 +117,10 @@ func (ms msgServer) DelegateFeedConsent(ctx context.Context, msg *types.MsgDeleg
 		return nil, err
 	}
 
-	// check if the operador address is a validator (must be, because the operator is a validator)
+	// check if the operator address is a validator (must be, because the operator is a validator)
 	val, err := ms.StakingKeeper.Validator(sdkCtx, validatorAddress)
 	if err != nil || val == nil {
-		return nil, errors.Wrap(stakingtypes.ErrNoValidatorFound, msg.Operator)
+		return nil, errors.Wrap(stakingtypes.ErrNoValidatorFound, validatorAddress.String())
 	}
 
 	// Assign the delegator from the validator address
@@ -135,7 +138,7 @@ func (ms msgServer) DelegateFeedConsent(ctx context.Context, msg *types.MsgDeleg
 		sdk.NewEvent( // the Event with the information who send the information (the validator address and the module name)
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Operator),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.ValidatorOwner),
 		),
 	})
 

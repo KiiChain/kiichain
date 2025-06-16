@@ -92,9 +92,6 @@ func setFeeder(cmd *cobra.Command, args []string) error {
 	// Get from address
 	voter := clientCtx.GetFromAddress()
 
-	// the delegator address
-	valAddress := sdk.ValAddress(voter)
-
 	// Get feeder address
 	feederStr := args[0]
 	feeder, err := sdk.AccAddressFromBech32(feederStr)
@@ -103,7 +100,7 @@ func setFeeder(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create delegate feed consent message
-	msg := types.NewMsgDelegateFeedConsent(valAddress, feeder)
+	msg := types.NewMsgDelegateFeedConsent(voter, feeder)
 	err = msg.ValidateBasic()
 	if err != nil {
 		return err

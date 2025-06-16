@@ -23,17 +23,6 @@ func NewMsgAggregateExchangeRateVote(exchangeRate string, feeder sdk.AccAddress,
 	}
 }
 
-// GetSigners implements sdk.Msg interface
-// Returns the signer of the transaction which is the feeder
-func (msg MsgAggregateExchangeRateVote) GetSigners() []sdk.AccAddress {
-	feeder, err := sdk.AccAddressFromBech32(msg.Feeder)
-	if err != nil {
-		panic(err)
-	}
-
-	return []sdk.AccAddress{feeder}
-}
-
 // ValidateBasic implements sdk.Msg interface
 // ValidateBasic validates the message content (valid addresses and valid values on exchange rates)
 func (msg MsgAggregateExchangeRateVote) ValidateBasic() error {
@@ -74,31 +63,20 @@ func (msg MsgAggregateExchangeRateVote) ValidateBasic() error {
 }
 
 // NewMsgDelegateFeedConsent creates a MsgDelegateFeedConsent instance
-func NewMsgDelegateFeedConsent(operatorAddress sdk.ValAddress, feederAddress sdk.AccAddress) *MsgDelegateFeedConsent {
+func NewMsgDelegateFeedConsent(operatorAddress sdk.AccAddress, feederAddress sdk.AccAddress) *MsgDelegateFeedConsent {
 	return &MsgDelegateFeedConsent{
-		Operator: operatorAddress.String(),
-		Delegate: feederAddress.String(),
+		ValidatorOwner: operatorAddress.String(),
+		Delegate:       feederAddress.String(),
 	}
-}
-
-// GetSigners implements sdk.Msg interface
-// Returns the signer of the transaction which is the feeder
-func (msg MsgDelegateFeedConsent) GetSigners() []sdk.AccAddress {
-	operator, err := sdk.ValAddressFromBech32(msg.Operator)
-	if err != nil {
-		panic(err)
-	}
-
-	return []sdk.AccAddress{sdk.AccAddress(operator)}
 }
 
 // ValidateBasic implements sdk.Msg interface
 // ValidateBasic validates the message content (valid addresses)
 func (msg MsgDelegateFeedConsent) ValidateBasic() error {
-	// Validate operator (validator) account
-	_, err := sdk.ValAddressFromBech32(msg.Operator)
+	// Validate the validator owner address
+	_, err := sdk.AccAddressFromBech32(msg.ValidatorOwner)
 	if err != nil {
-		return errors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid operator address (%s)", err)
+		return errors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid validator owner address (%s)", err)
 	}
 
 	// Validate delegate address
