@@ -58,10 +58,10 @@ func TestMsgDelegateFeedConsent(t *testing.T) {
 	}
 
 	tests := []test{
-		{sdk.AccAddress(addrs[0]), addrs[1], true},
+		{addrs[0], addrs[1], true},
 		{sdk.AccAddress{}, addrs[1], false},
-		{sdk.AccAddress(addrs[0]), sdk.AccAddress{}, false},
-		{sdk.AccAddress(addrs[0]), addrs[0], true},
+		{addrs[0], sdk.AccAddress{}, false},
+		{addrs[0], addrs[0], true},
 	}
 
 	// validation
