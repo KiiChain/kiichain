@@ -38,10 +38,6 @@ func TestMsgAggregateExchangeRateVote(t *testing.T) {
 		if test.expectPass {
 			require.Nil(t, msg.ValidateBasic(), "test: %v", i)
 
-			// last test must panic because there is no signer or feeder address
-			if i == len(tests)-1 {
-				require.Panics(t, func() { msg.GetSigners() })
-			}
 			continue
 		}
 
@@ -51,9 +47,9 @@ func TestMsgAggregateExchangeRateVote(t *testing.T) {
 
 func TestMsgDelegateFeedConsent(t *testing.T) {
 	type test struct {
-		delegator  sdk.ValAddress
-		delegated  sdk.AccAddress
-		expectPass bool
+		validatorOwner sdk.AccAddress
+		delegated      sdk.AccAddress
+		expectPass     bool
 	}
 
 	addrs := []sdk.AccAddress{
@@ -62,25 +58,20 @@ func TestMsgDelegateFeedConsent(t *testing.T) {
 	}
 
 	tests := []test{
-		{sdk.ValAddress(addrs[0]), addrs[1], true},
-		{sdk.ValAddress{}, addrs[1], false},
-		{sdk.ValAddress(addrs[0]), sdk.AccAddress{}, false},
-		{sdk.ValAddress(addrs[0]), addrs[0], true},
+		{sdk.AccAddress(addrs[0]), addrs[1], true},
+		{sdk.AccAddress{}, addrs[1], false},
+		{sdk.AccAddress(addrs[0]), sdk.AccAddress{}, false},
+		{sdk.AccAddress(addrs[0]), addrs[0], true},
 	}
 
 	// validation
 	for i, test := range tests {
-		msg := NewMsgDelegateFeedConsent(test.delegator, test.delegated)
+		msg := NewMsgDelegateFeedConsent(test.validatorOwner, test.delegated)
 		if test.expectPass {
 			require.Nil(t, msg.ValidateBasic(), "test: %v", i)
 			continue
 		}
 
 		require.NotNil(t, msg.ValidateBasic(), "test: %v", i)
-
-		// must panic because there is not delegator address
-		if i == 1 {
-			require.Panics(t, func() { msg.GetSigners() })
-		}
 	}
 }

@@ -69,7 +69,7 @@ func TestDelegateFeedConsent(t *testing.T) {
 	require.NoError(t, err)
 
 	// send messages
-	_, err = msgServer.DelegateFeedConsent(ctx, types.NewMsgDelegateFeedConsent(ValAddrs[0], Addrs[0]))
+	_, err = msgServer.DelegateFeedConsent(ctx, types.NewMsgDelegateFeedConsent(sdk.AccAddress(ValAddrs[0]), Addrs[0]))
 	require.NoError(t, err)
 
 	// create query server
