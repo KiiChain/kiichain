@@ -103,13 +103,13 @@ func (ms msgServer) DelegateFeedConsent(ctx context.Context, msg *types.MsgDeleg
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// Get the acc address for the operator
-	operatorAddress, err := sdk.AccAddressFromBech32(msg.ValidatorOwner)
+	validatorOwnerAddress, err := sdk.AccAddressFromBech32(msg.ValidatorOwner)
 	if err != nil {
 		return nil, err
 	}
 
 	// Get the validator address from the operator address
-	validatorAddress := sdk.ValAddress(operatorAddress.Bytes())
+	validatorAddress := sdk.ValAddress(validatorOwnerAddress.Bytes())
 
 	// Get the delegated address from the message
 	delegatorAddress, err := sdk.AccAddressFromBech32(msg.Delegate)

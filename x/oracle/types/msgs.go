@@ -63,9 +63,9 @@ func (msg MsgAggregateExchangeRateVote) ValidateBasic() error {
 }
 
 // NewMsgDelegateFeedConsent creates a MsgDelegateFeedConsent instance
-func NewMsgDelegateFeedConsent(operatorAddress sdk.AccAddress, feederAddress sdk.AccAddress) *MsgDelegateFeedConsent {
+func NewMsgDelegateFeedConsent(ValidatorOwner sdk.AccAddress, feederAddress sdk.AccAddress) *MsgDelegateFeedConsent {
 	return &MsgDelegateFeedConsent{
-		ValidatorOwner: operatorAddress.String(),
+		ValidatorOwner: ValidatorOwner.String(),
 		Delegate:       feederAddress.String(),
 	}
 }
