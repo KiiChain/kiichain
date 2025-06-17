@@ -59,7 +59,7 @@ require (
 require (
 	cloud.google.com/go/auth v0.6.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.2 // indirect
-	cosmossdk.io/collections v0.4.0 // indirect
+	cosmossdk.io/collections v0.4.0
 	cosmossdk.io/depinject v1.1.0 // indirect
 	cosmossdk.io/x/circuit v0.1.1 // indirect
 	dario.cat/mergo v1.0.0 // indirect
@@ -207,7 +207,7 @@ require (
 	github.com/opencontainers/runc v1.1.14 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/petermattis/goid v0.0.0-20240813172612-4fcff4a6cae7 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pkg/errors v0.9.1
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.62.0 // indirect
@@ -266,10 +266,10 @@ require (
 	google.golang.org/api v0.186.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20241202173237-19429a94021a
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241202173237-19429a94021a // indirect
-	google.golang.org/protobuf v1.36.4 // indirect
+	google.golang.org/protobuf v1.36.4
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 	nhooyr.io/websocket v1.8.7 // indirect

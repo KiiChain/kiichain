@@ -13,7 +13,7 @@ message Params {
     // The number of blocks per voting 
     uint64 vote_period =1 [(gogoproto.moretags) = "yaml:\"vote_period\""];
 
-    // Minimun percentage of validators required to approve a price. For instance, if vote_threshold = "0.5" at least 50% of validators must submit votes 
+    // Minimum percentage of validators required to approve a price. For instance, if vote_threshold = "0.5" at least 50% of validators must submit votes 
     // "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
     string vote_threshold = 2 [
         (gogoproto.moretags) = "yaml:\"vote_threshold\"",
@@ -21,7 +21,7 @@ message Params {
         (gogoproto.nullable) = false 
     ];        
 
-    // Acceptable desviation from the media price (higher and lower)
+    // Acceptable deviation from the media price (higher and lower)
     // "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
     string reward_band = 3 [
         (gogoproto.moretags) = "yaml:\"reward_band\"",
