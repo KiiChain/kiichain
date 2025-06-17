@@ -3,10 +3,12 @@ package oracle_test
 import (
 	"math/big"
 
+	"github.com/stretchr/testify/require"
+
 	"cosmossdk.io/math"
+
 	oracleprecompile "github.com/kiichain/kiichain/v1/precompiles/oracle"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
-	"github.com/stretchr/testify/require"
 )
 
 type ExchangeRateResponse struct {

@@ -4,15 +4,18 @@ import (
 	"embed"
 	"fmt"
 
-	"cosmossdk.io/log"
-
-	storetypes "cosmossdk.io/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	cmn "github.com/cosmos/evm/precompiles/common"
-	"github.com/cosmos/evm/x/vm/core/vm"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+
+	cmn "github.com/cosmos/evm/precompiles/common"
+	"github.com/cosmos/evm/x/vm/core/vm"
+
 	oraclekeeper "github.com/kiichain/kiichain/v1/x/oracle/keeper"
 )
 
@@ -101,7 +104,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// This handles any out of gas errors
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
-	// Nowe we call the method on the oracle keeper
+	// Now we call the method on the oracle keeper
 	switch method.Name {
 	case GetExchangeRateMethod:
 		bz, err = p.GetExchangeRate(ctx, method, args)
