@@ -4,9 +4,13 @@ import (
 	"encoding/json"
 	"testing"
 
-	"cosmossdk.io/math"
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
+	"github.com/stretchr/testify/require"
+
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	app "github.com/kiichain/kiichain/v1/app"
 	"github.com/kiichain/kiichain/v1/app/apptesting"
 	"github.com/kiichain/kiichain/v1/wasmbinding"
@@ -14,7 +18,6 @@ import (
 	oraclebindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	oracletypes "github.com/kiichain/kiichain/v1/x/oracle/types"
-	"github.com/stretchr/testify/require"
 )
 
 // TestOracleQueries test the Oracle query

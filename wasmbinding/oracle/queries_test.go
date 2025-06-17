@@ -3,13 +3,15 @@ package oracle_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"cosmossdk.io/math"
+
 	"github.com/kiichain/kiichain/v1/app/apptesting"
 	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
 	"github.com/kiichain/kiichain/v1/wasmbinding/oracle"
 	oraclebindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/oracle/types"
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
-	"github.com/stretchr/testify/require"
 )
 
 // TestHandleOracleQuery tests the HandleOracleQuery function of the oracle module
