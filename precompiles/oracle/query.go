@@ -1,18 +1,20 @@
 package oracle
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	oraclekeeper "github.com/kiichain/kiichain/v1/x/oracle/keeper"
 )
 
 const (
-	// QueryExchangeRateMethod is the method name for exchange rate query
-	QueryExchangeRateMethod = "queryExchangeRate"
-	// QueryExchangeRatesMethod is the method name for exchange rates query
-	QueryExchangeRatesMethod = "queryExchangeRates"
+	// GetExchangeRateMethod is the method name for exchange rate query
+	GetExchangeRateMethod = "getExchangeRate"
+	// GetExchangeRatesMethod is the method name for exchange rates query
+	GetExchangeRatesMethod = "getExchangeRates"
 	// QueryTwaps Method is the method name for twaps query
-	QueryTwapsMethod = "queryTwaps"
+	GetTwapsMethod = "getTwaps"
 )
 
 // GetExchangeRate queries the exchange rate though the oracle IOracle precompile
@@ -61,14 +63,14 @@ func (p Precompile) GetExchangeRates(ctx sdk.Context, method *abi.Method, args [
 	denoms := make([]string, len(res.DenomOracleExchangeRate))
 	rates := make([]string, len(res.DenomOracleExchangeRate))
 	lastUpdate := make([]string, len(res.DenomOracleExchangeRate))
-	lastUpdateTimestamps := make([]int64, len(res.DenomOracleExchangeRate))
+	lastUpdateTimestamps := make([]*big.Int, len(res.DenomOracleExchangeRate))
 
 	// Iterate over the exchange rates and fill the slices
 	for i, exchangeRate := range res.DenomOracleExchangeRate {
 		denoms[i] = exchangeRate.Denom
 		rates[i] = exchangeRate.OracleExchangeRate.ExchangeRate.String()
 		lastUpdate[i] = exchangeRate.OracleExchangeRate.LastUpdate.String()
-		lastUpdateTimestamps[i] = exchangeRate.OracleExchangeRate.LastUpdateTimestamp
+		lastUpdateTimestamps[i] = big.NewInt(exchangeRate.OracleExchangeRate.LastUpdateTimestamp)
 	}
 
 	// Return the packed response
