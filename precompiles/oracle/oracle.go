@@ -103,11 +103,11 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	// Nowe we call the method on the oracle keeper
 	switch method.Name {
-	case QueryExchangeRateMethod:
+	case GetExchangeRateMethod:
 		bz, err = p.GetExchangeRate(ctx, method, args)
-	case QueryExchangeRatesMethod:
+	case GetExchangeRatesMethod:
 		bz, err = p.GetExchangeRates(ctx, method, args)
-	case QueryTwapsMethod:
+	case GetTwapsMethod:
 		bz, err = p.GetTwaps(ctx, method, args)
 	default:
 		// If default error out
