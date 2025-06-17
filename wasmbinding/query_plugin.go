@@ -13,6 +13,8 @@ import (
 	bech32bindingtypes "github.com/kiichain/kiichain/v2/wasmbinding/bech32/types"
 	"github.com/kiichain/kiichain/v2/wasmbinding/evm"
 	evmbindingtypes "github.com/kiichain/kiichain/v2/wasmbinding/evm/types"
+	"github.com/kiichain/kiichain/v2/wasmbinding/oracle"
+	oraclebindingtypes "github.com/kiichain/kiichain/v2/wasmbinding/oracle/types"
 	"github.com/kiichain/kiichain/v2/wasmbinding/tokenfactory"
 	tfbindingtypes "github.com/kiichain/kiichain/v2/wasmbinding/tokenfactory/types"
 )
@@ -22,21 +24,29 @@ type KiichainQuery struct {
 	TokenFactory *tfbindingtypes.Query     `json:"token_factory,omitempty"`
 	EVM          *evmbindingtypes.Query    `json:"evm,omitempty"`
 	Bech32       *bech32bindingtypes.Query `json:"bech32,omitempty"`
+	Oracle       *oraclebindingtypes.Query `json:"oracle,omitempty"`
 }
 
 // QueryPlugin is the query plugin for all cosmwasm bindings
 type QueryPlugin struct {
-	tokenfactoryHandler tokenfactory.QueryPlugin
-	evmHandler          evm.QueryPlugin
-	bech32Handler       bech32.QueryPlugin
+	tokenfactoryHandler *tokenfactory.QueryPlugin
+	evmHandler          *evm.QueryPlugin
+	bech32Handler       *bech32.QueryPlugin
+	oracleHandler       *oracle.QueryPlugin
 }
 
 // NewQueryPlugin returns a reference to a new QueryPlugin
-func NewQueryPlugin(th *tokenfactory.QueryPlugin, evm *evm.QueryPlugin, bech32 *bech32.QueryPlugin) *QueryPlugin {
+func NewQueryPlugin(
+	th *tokenfactory.QueryPlugin,
+	evm *evm.QueryPlugin,
+	bech32 *bech32.QueryPlugin,
+	oracle *oracle.QueryPlugin,
+) *QueryPlugin {
 	return &QueryPlugin{
-		tokenfactoryHandler: *th,
-		evmHandler:          *evm,
-		bech32Handler:       *bech32,
+		tokenfactoryHandler: th,
+		evmHandler:          evm,
+		bech32Handler:       bech32,
+		oracleHandler:       oracle,
 	}
 }
 
@@ -60,6 +70,9 @@ func CustomQuerier(qp *QueryPlugin) func(ctx sdk.Context, request json.RawMessag
 		case contractQuery.Bech32 != nil:
 			// Call the bech32 custom querier
 			return qp.bech32Handler.HandleBech32Query(ctx, *contractQuery.Bech32)
+		case contractQuery.Oracle != nil:
+			// Call the oracle custom querier
+			return qp.oracleHandler.HandleOracleQuery(ctx, *contractQuery.Oracle)
 		default:
 			return nil, wasmvmtypes.UnsupportedRequest{Kind: "unknown query variant"}
 		}

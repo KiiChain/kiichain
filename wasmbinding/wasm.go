@@ -9,7 +9,9 @@ import (
 
 	"github.com/kiichain/kiichain/v2/wasmbinding/bech32"
 	evmwasmbinding "github.com/kiichain/kiichain/v2/wasmbinding/evm"
+	"github.com/kiichain/kiichain/v2/wasmbinding/oracle"
 	tfbinding "github.com/kiichain/kiichain/v2/wasmbinding/tokenfactory"
+	oraclekeeper "github.com/kiichain/kiichain/v2/x/oracle/keeper"
 	tokenfactorykeeper "github.com/kiichain/kiichain/v2/x/tokenfactory/keeper"
 )
 
@@ -18,14 +20,21 @@ func RegisterCustomPlugins(
 	bank bankkeeper.Keeper,
 	tokenFactory *tokenfactorykeeper.Keeper,
 	evmKeeper *evmkeeper.Keeper,
+	oracleKeeper oraclekeeper.Keeper,
 ) []wasmkeeper.Option {
 	// Register custom query plugins
 	tokenFactoryQueryPlugin := tfbinding.NewQueryPlugin(bank, tokenFactory)
 	evmQueryPlugin := evmwasmbinding.NewQueryPlugin(evmKeeper)
 	bech32QueryPlugin := bech32.NewQueryPlugin()
+	oracleQueryPlugin := oracle.NewQueryPlugin(oracleKeeper)
 
 	// Create the central query plugin
-	queryPlugin := NewQueryPlugin(tokenFactoryQueryPlugin, evmQueryPlugin, bech32QueryPlugin)
+	queryPlugin := NewQueryPlugin(
+		tokenFactoryQueryPlugin,
+		evmQueryPlugin,
+		bech32QueryPlugin,
+		oracleQueryPlugin,
+	)
 
 	// Register custom message handler decorators
 	queryPluginOpt := wasmkeeper.WithQueryPlugins(&wasmkeeper.QueryPlugins{
