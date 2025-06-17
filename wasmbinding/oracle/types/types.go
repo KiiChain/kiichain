@@ -18,5 +18,5 @@ type ExchangeRatesQuery struct{}
 // TwapsQuery defines the structure for querying time-weighted average prices
 type TwapsQuery struct {
 	// LookbackSeconds is how much we should look back in seconds
-	LookbackSeconds uint64 `json:"look_back_seconds"`
+	LookbackSeconds uint64 `json:"lookback_seconds"`
 }
