@@ -3,8 +3,10 @@ package oracle
 import (
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	oraclekeeper "github.com/kiichain/kiichain/v1/x/oracle/keeper"
 )
 

@@ -4,13 +4,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/suite"
+
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+
 	app "github.com/kiichain/kiichain/v1/app"
 	"github.com/kiichain/kiichain/v1/app/helpers"
 	oracleprecompile "github.com/kiichain/kiichain/v1/precompiles/oracle"
-	"github.com/stretchr/testify/suite"
 )
 
 // OraclePrecompileTestSuite is a test suite for the oracle precompile
