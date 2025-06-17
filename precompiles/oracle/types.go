@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
+
 	oracletypes "github.com/kiichain/kiichain/v1/x/oracle/types"
 )
 
