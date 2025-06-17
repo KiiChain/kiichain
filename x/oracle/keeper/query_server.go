@@ -20,7 +20,7 @@ type QueryServer struct {
 var _ types.QueryServer = QueryServer{}
 
 // NewQueryServer returns a new instance of the QueryServer
-func NewQueryServer(keeper Keeper) types.QueryServer {
+func NewQueryServer(keeper Keeper) QueryServer {
 	return QueryServer{
 		Keeper: keeper,
 	}
@@ -40,7 +40,7 @@ func (qs QueryServer) Params(ctx context.Context, req *types.QueryParamsRequest)
 
 // ExchangeRate returns the exchange rate specific by denom
 func (qs QueryServer) ExchangeRate(ctx context.Context, req *types.QueryExchangeRateRequest) (*types.QueryExchangeRateResponse, error) {
-	// Validate request
+	// Validate 544
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
