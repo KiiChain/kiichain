@@ -1,0 +1,92 @@
+{
+    "_format": "hh-sol-artifact-1",
+    "contractName": "IOracle",
+    "sourceName": "./precompiles/oracle/IOracle.sol",
+    "abi": [
+        {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "denom",
+                    "type": "string"
+                }
+            ],
+            "name": "getExchangeRate",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "rate",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "lastUpdate",
+                    "type": "string"
+                },
+                {
+                    "internalType": "int64",
+                    "name": "lastUpdateTimestamp",
+                    "type": "int64"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "getExchangeRates",
+            "outputs": [
+                {
+                    "internalType": "string[]",
+                    "name": "denoms",
+                    "type": "string[]"
+                },
+                {
+                    "internalType": "string[]",
+                    "name": "rates",
+                    "type": "string[]"
+                },
+                {
+                    "internalType": "string[]",
+                    "name": "lastUpdate",
+                    "type": "string[]"
+                },
+                {
+                    "internalType": "uint256[]",
+                    "name": "lastUpdateTimestamps",
+                    "type": "uint256[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "lookbackSeconds",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getTwaps",
+            "outputs": [
+                {
+                    "internalType": "string[]",
+                    "name": "denoms",
+                    "type": "string[]"
+                },
+                {
+                    "internalType": "string[]",
+                    "name": "twaps",
+                    "type": "string[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        }
+    ],
+    "bytecode": "0x",
+    "deployedBytecode": "0x",
+    "linkReferences": {},
+    "deployedLinkReferences": {}
+}
