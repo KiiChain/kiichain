@@ -16,7 +16,6 @@ import (
 	"github.com/kiichain/kiichain/v1/wasmbinding"
 	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
 	oraclebindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/oracle/types"
-	"github.com/kiichain/kiichain/v1/x/oracle/types"
 	oracletypes "github.com/kiichain/kiichain/v1/x/oracle/types"
 )
 
@@ -36,12 +35,12 @@ func TestOracleQueries(t *testing.T) {
 	})
 	require.NoError(t, err)
 	// Register a price snapshot for the twaps query
-	err = app.OracleKeeper.PriceSnapshot.Set(ctx, 2, types.PriceSnapshot{
+	err = app.OracleKeeper.PriceSnapshot.Set(ctx, 2, oracletypes.PriceSnapshot{
 		SnapshotTimestamp: 2,
-		PriceSnapshotItems: []types.PriceSnapshotItem{
+		PriceSnapshotItems: []oracletypes.PriceSnapshotItem{
 			{
 				Denom: "uusdc",
-				OracleExchangeRate: types.OracleExchangeRate{
+				OracleExchangeRate: oracletypes.OracleExchangeRate{
 					ExchangeRate:        math.LegacyMustNewDecFromStr("0.5"),
 					LastUpdate:          math.NewIntFromUint64(1000000),
 					LastUpdateTimestamp: 1000000,
@@ -58,7 +57,8 @@ func TestOracleQueries(t *testing.T) {
 		},
 	}
 	resp := oracletypes.QueryExchangeRateResponse{}
-	queryCustom(t, ctx, app, reflect, query, &resp)
+	err = queryCustom(t, ctx, app, reflect, query, &resp)
+	require.NoError(t, err)
 
 	require.EqualValues(t, resp.OracleExchangeRate.ExchangeRate, math.LegacyMustNewDecFromStr("0.5"))
 
@@ -68,7 +68,8 @@ func TestOracleQueries(t *testing.T) {
 	}
 
 	respAll := oracletypes.QueryExchangeRatesResponse{}
-	queryCustom(t, ctx, app, reflect, query, &respAll)
+	err = queryCustom(t, ctx, app, reflect, query, &respAll)
+	require.NoError(t, err)
 	require.Len(t, respAll.DenomOracleExchangeRate, 1)
 	require.EqualValues(t, respAll.DenomOracleExchangeRate[0].Denom, "uusdc")
 
