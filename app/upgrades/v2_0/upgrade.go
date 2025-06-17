@@ -9,7 +9,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/kiichain/kiichain/v1/app/keepers"
-	rewardtypes "github.com/kiichain/kiichain/v1/x/rewards/types"
 )
 
 // CreateUpgradeHandler creates the upgrade handler for the v2.0.0 upgrade
@@ -23,25 +22,9 @@ func CreateUpgradeHandler(
 		ctx := sdk.UnwrapSDKContext(c)
 		ctx.Logger().Info("Starting module migrations...")
 
-		// Set the initial version for the new module to 1
-		if vm["rewards"] == 0 {
-			vm["rewards"] = 1
-		}
-
-		// Run the module migrations
+		// Run the module migrations, it will start the new module with it's init genesis
 		vm, err := mm.RunMigrations(ctx, configurator, vm)
 		if err != nil {
-			return vm, err
-		}
-
-		// Set default params and initial states
-		if err := keepers.RewardsKeeper.Params.Set(ctx, rewardtypes.DefaultParams()); err != nil {
-			return vm, err
-		}
-		if err := keepers.RewardsKeeper.RewardPool.Set(ctx, rewardtypes.DefaultGenesisState().RewardPool); err != nil {
-			return vm, err
-		}
-		if err := keepers.RewardsKeeper.ReleaseSchedule.Set(ctx, rewardtypes.DefaultGenesisState().ReleaseSchedule); err != nil {
 			return vm, err
 		}
 

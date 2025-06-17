@@ -1,7 +1,10 @@
 package v200
 
 import (
+	storetypes "cosmossdk.io/store/types"
+
 	"github.com/kiichain/kiichain/v1/app/upgrades"
+	rewardtypes "github.com/kiichain/kiichain/v1/x/rewards/types"
 )
 
 const (
@@ -13,4 +16,7 @@ const (
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateUpgradeHandler,
+	StoreUpgrades: storetypes.StoreUpgrades{
+		Added: []string{rewardtypes.StoreKey},
+	},
 }
