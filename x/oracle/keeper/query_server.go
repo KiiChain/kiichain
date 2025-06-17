@@ -11,23 +11,23 @@ import (
 	"github.com/kiichain/kiichain/v1/x/oracle/types"
 )
 
-// queryServer struct that handlers the rpc request
-type queryServer struct {
+// QueryServer struct that handlers the rpc request
+type QueryServer struct {
 	Keeper Keeper
 }
 
 // Ensure the struct queryServer implement the QueryServer interface
-var _ types.QueryServer = queryServer{}
+var _ types.QueryServer = QueryServer{}
 
 // NewQueryServer returns a new instance of the QueryServer
 func NewQueryServer(keeper Keeper) types.QueryServer {
-	return queryServer{
+	return QueryServer{
 		Keeper: keeper,
 	}
 }
 
 // Params returns the oracle's params
-func (qs queryServer) Params(ctx context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+func (qs QueryServer) Params(ctx context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	// Get the module's params from the keeper
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	params, err := qs.Keeper.Params.Get(sdkCtx)
@@ -39,7 +39,7 @@ func (qs queryServer) Params(ctx context.Context, req *types.QueryParamsRequest)
 }
 
 // ExchangeRate returns the exchange rate specific by denom
-func (qs queryServer) ExchangeRate(ctx context.Context, req *types.QueryExchangeRateRequest) (*types.QueryExchangeRateResponse, error) {
+func (qs QueryServer) ExchangeRate(ctx context.Context, req *types.QueryExchangeRateRequest) (*types.QueryExchangeRateResponse, error) {
 	// Validate request
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
@@ -65,7 +65,7 @@ func (qs queryServer) ExchangeRate(ctx context.Context, req *types.QueryExchange
 }
 
 // ExchangeRates returns all exchange rates
-func (qs queryServer) ExchangeRates(ctx context.Context, req *types.QueryExchangeRatesRequest) (*types.QueryExchangeRatesResponse, error) {
+func (qs QueryServer) ExchangeRates(ctx context.Context, req *types.QueryExchangeRatesRequest) (*types.QueryExchangeRatesResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	exchangeRates := []types.DenomOracleExchangeRate{}
@@ -81,7 +81,7 @@ func (qs queryServer) ExchangeRates(ctx context.Context, req *types.QueryExchang
 }
 
 // Actives queries all denoms for which exchange rates exist
-func (qs queryServer) Actives(ctx context.Context, req *types.QueryActivesRequest) (*types.QueryActivesResponse, error) {
+func (qs QueryServer) Actives(ctx context.Context, req *types.QueryActivesRequest) (*types.QueryActivesResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	denomsActive := []string{}
@@ -97,7 +97,7 @@ func (qs queryServer) Actives(ctx context.Context, req *types.QueryActivesReques
 }
 
 // VoteTargets queries the voting target list on current vote period
-func (qs queryServer) VoteTargets(ctx context.Context, req *types.QueryVoteTargetsRequest) (*types.QueryVoteTargetsResponse, error) {
+func (qs QueryServer) VoteTargets(ctx context.Context, req *types.QueryVoteTargetsRequest) (*types.QueryVoteTargetsResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	// Get the vote targets
 	voteTargets, err := qs.Keeper.GetVoteTargets(sdkCtx)
@@ -107,7 +107,7 @@ func (qs queryServer) VoteTargets(ctx context.Context, req *types.QueryVoteTarge
 }
 
 // PriceSnapshotHistory queries all snapshots
-func (qs queryServer) PriceSnapshotHistory(ctx context.Context, req *types.QueryPriceSnapshotHistoryRequest) (*types.QueryPriceSnapshotHistoryResponse, error) {
+func (qs QueryServer) PriceSnapshotHistory(ctx context.Context, req *types.QueryPriceSnapshotHistoryRequest) (*types.QueryPriceSnapshotHistoryResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// Get the snapshots available on the KVStore
@@ -124,7 +124,7 @@ func (qs queryServer) PriceSnapshotHistory(ctx context.Context, req *types.Query
 }
 
 // Twaps queries the Time-weighted average price (TWAPs) whitin an specific period of time
-func (qs queryServer) Twaps(ctx context.Context, req *types.QueryTwapsRequest) (*types.QueryTwapsResponse, error) {
+func (qs QueryServer) Twaps(ctx context.Context, req *types.QueryTwapsRequest) (*types.QueryTwapsResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	twaps, err := qs.Keeper.CalculateTwaps(sdkCtx, req.LookbackSeconds)
@@ -136,7 +136,7 @@ func (qs queryServer) Twaps(ctx context.Context, req *types.QueryTwapsRequest) (
 }
 
 // FeederDelegation queries the account data address assigned as a delegator by a validator
-func (qs queryServer) FeederDelegation(ctx context.Context, req *types.QueryFeederDelegationRequest) (*types.QueryFeederDelegationResponse, error) {
+func (qs QueryServer) FeederDelegation(ctx context.Context, req *types.QueryFeederDelegationRequest) (*types.QueryFeederDelegationResponse, error) {
 	// Validate request information
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
@@ -158,7 +158,7 @@ func (qs queryServer) FeederDelegation(ctx context.Context, req *types.QueryFeed
 }
 
 // VotePenaltyCounter queries the validator penalty's counter information
-func (qs queryServer) VotePenaltyCounter(ctx context.Context, req *types.QueryVotePenaltyCounterRequest) (*types.QueryVotePenaltyCounterResponse, error) {
+func (qs QueryServer) VotePenaltyCounter(ctx context.Context, req *types.QueryVotePenaltyCounterRequest) (*types.QueryVotePenaltyCounterResponse, error) {
 	// Validate request information
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
@@ -179,7 +179,7 @@ func (qs queryServer) VotePenaltyCounter(ctx context.Context, req *types.QueryVo
 }
 
 // SlashWindow queries the slash window progress
-func (qs queryServer) SlashWindow(ctx context.Context, req *types.QuerySlashWindowRequest) (*types.QuerySlashWindowResponse, error) {
+func (qs QueryServer) SlashWindow(ctx context.Context, req *types.QuerySlashWindowRequest) (*types.QuerySlashWindowResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	params, err := qs.Keeper.Params.Get(sdkCtx)
 	if err != nil {
