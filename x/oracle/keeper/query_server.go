@@ -20,9 +20,9 @@ type queryServer struct {
 var _ types.QueryServer = queryServer{}
 
 // NewQueryServer returns a new instance of the QueryServer
-func NewQueryServer(keepr Keeper) types.QueryServer {
+func NewQueryServer(keeper Keeper) types.QueryServer {
 	return queryServer{
-		Keeper: keepr,
+		Keeper: keeper,
 	}
 }
 
