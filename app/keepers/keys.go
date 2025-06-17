@@ -33,6 +33,8 @@ import (
 	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
+	// Kiichain
+	rewardstypes "github.com/kiichain/kiichain/v1/x/rewards/types"
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
 
@@ -68,6 +70,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		erc20types.StoreKey,
 		// Custom modules
 		tokenfactorytypes.StoreKey,
+		rewardstypes.StoreKey,
 	)
 
 	// Define transient store keys

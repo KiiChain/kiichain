@@ -61,6 +61,8 @@ import (
 	"github.com/cosmos/evm/x/vm"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
+	"github.com/kiichain/kiichain/v1/x/rewards"
+	rewardstypes "github.com/kiichain/kiichain/v1/x/rewards/types"
 	"github.com/kiichain/kiichain/v1/x/tokenfactory"
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
@@ -82,6 +84,7 @@ var maccPerms = map[string][]string{
 	erc20types.ModuleName:     {authtypes.Minter, authtypes.Burner}, // Allows erc20 module to mint/burn for token pairs
 	// Custom modules
 	tokenfactorytypes.ModuleName: {authtypes.Minter, authtypes.Burner},
+	rewardstypes.ModuleName:      nil,
 }
 
 func appModules(
@@ -113,6 +116,7 @@ func appModules(
 		ibc.NewAppModule(app.IBCKeeper),
 		ibctm.NewAppModule(),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
+		rewards.NewAppModule(app.RewardsKeeper, app.BankKeeper),
 		sdkparams.NewAppModule(app.ParamsKeeper),
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
@@ -181,6 +185,8 @@ BeginBlockers, which are run at the beginning of every block.
 func orderBeginBlockers() []string {
 	return []string{
 		capabilitytypes.ModuleName,
+		// Rewards should be added to distribution before it runs
+		rewardstypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -232,6 +238,7 @@ func orderEndBlockers() []string {
 		feemarkettypes.ModuleName,
 		evmtypes.ModuleName,
 
+		rewardstypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		genutiltypes.ModuleName,
@@ -289,6 +296,7 @@ func orderInitBlockers() []string {
 		consensusparamtypes.ModuleName,
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		rewardstypes.ModuleName,
 		// crisis needs to be last so that the genesis state is consistent
 		// when it checks invariants
 		crisistypes.ModuleName,

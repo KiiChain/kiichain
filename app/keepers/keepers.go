@@ -86,6 +86,8 @@ import (
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/kiichain/kiichain/v1/wasmbinding"
+	rewardskeeper "github.com/kiichain/kiichain/v1/x/rewards/keeper"
+	rewardstypes "github.com/kiichain/kiichain/v1/x/rewards/types"
 	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
 )
@@ -109,6 +111,7 @@ type AppKeepers struct {
 	ParamsKeeper       paramskeeper.Keeper
 	WasmKeeper         wasmkeeper.Keeper
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
+	RewardsKeeper      rewardskeeper.Keeper
 	// IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	IBCKeeper             *ibckeeper.Keeper
 	ICAHostKeeper         icahostkeeper.Keeper
@@ -418,6 +421,15 @@ func NewAppKeeper(
 		govAuthority,
 	)
 
+	// Rewards Keeper
+	appKeepers.RewardsKeeper = rewardskeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[rewardstypes.StoreKey]),
+		appKeepers.BankKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authtypes.FeeCollectorName,
+	)
+
 	// Cosmos EVM keepers
 	appKeepers.FeeMarketKeeper = feemarketkeeper.NewKeeper(
 		appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
@@ -612,6 +624,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ratelimittypes.ModuleName).WithKeyTable(ratelimittypes.ParamKeyTable())
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
+	paramsKeeper.Subspace(rewardstypes.ModuleName)
 
 	// Cosmos EVM modules
 	paramsKeeper.Subspace(evmtypes.ModuleName)

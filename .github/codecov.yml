@@ -18,10 +18,11 @@ comment:
   require_changes: true
 
 ignore:
-  - "*.pb.go"
-  - "*.pb.gw.go"
-  - "*.md"
+  - "**/*.pb.go"
+  - "**/*.pb.gw.go"
+  - "**/*.md"
   - "*.rst"
+  - "x/rewards/client/cli"
   - "cmd"
   - "client"
   - "contrib"
