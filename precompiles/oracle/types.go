@@ -39,19 +39,19 @@ func ParseGetExchangeRatesArgs(args []interface{}) (*oracletypes.QueryExchangeRa
 
 // ParseGetTwapsArgs parses the arguments for the GetTwaps method
 func ParseGetTwapsArgs(args []interface{}) (*oracletypes.QueryTwapsRequest, error) {
-	// Check the number of arguments, should be 2
-	if len(args) != 2 {
-		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
+	// Check the number of arguments, should be 1
+	if len(args) != 1 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
 	// Parse the second arg, the lookback period
-	lookbackPeriod, ok := args[0].(uint64)
+	lookbackPeriod, ok := args[0].(int)
 	if !ok || lookbackPeriod == 0 {
 		return nil, fmt.Errorf("invalid lookback period")
 	}
 
 	// Create the QueryTwapsRequest and return
 	return &oracletypes.QueryTwapsRequest{
-		LookbackSeconds: lookbackPeriod,
+		LookbackSeconds: uint64(lookbackPeriod),
 	}, nil
 }
