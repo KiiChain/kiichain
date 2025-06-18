@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## UNRELEASED
+## RELEASED
 
 - Initial chain creation
 - Update pipelines by adding codeql, codecov and changelog diff checker
@@ -12,3 +12,5 @@
 - Add bech32 wasmbinding queries
 - Add correct ibc keepers to ibc precompiles
 - Add Rewards module
+
+## UNRELEASED
