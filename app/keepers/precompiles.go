@@ -33,7 +33,9 @@ import (
 	"github.com/cosmos/evm/x/vm/core/vm"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 
+	"github.com/kiichain/kiichain/v1/precompiles/oracle"
 	"github.com/kiichain/kiichain/v1/precompiles/wasmd"
+	oraclekeeper "github.com/kiichain/kiichain/v1/x/oracle/keeper"
 )
 
 const bech32PrecompileBaseGas = 6_000
@@ -54,6 +56,7 @@ func NewAvailableStaticPrecompiles(
 	slashingKeeper slashingkeeper.Keeper,
 	evidenceKeeper evidencekeeper.Keeper,
 	wasmdKeeper wasmkeeper.Keeper,
+	oracleKeeper oraclekeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -126,6 +129,12 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate wasmd precompile: %w", err))
 	}
 
+	// Prepare the oracle precompile
+	oraclePrecompile, err := oracle.NewPrecompile(oracleKeeper, authzKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate oracle precompile: %w", err))
+	}
+
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
@@ -139,6 +148,7 @@ func NewAvailableStaticPrecompiles(
 	precompiles[slashingPrecompile.Address()] = slashingPrecompile
 	precompiles[evidencePrecompile.Address()] = evidencePrecompile
 	precompiles[wasmdPrecompile.Address()] = wasmdPrecompile
+	precompiles[oraclePrecompile.Address()] = oraclePrecompile
 
 	// Return the precompiles
 	return precompiles

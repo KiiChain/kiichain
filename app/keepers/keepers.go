@@ -583,6 +583,7 @@ func NewAppKeeper(
 		appKeepers.SlashingKeeper,
 		appKeepers.EvidenceKeeper,
 		appKeepers.WasmKeeper,
+		appKeepers.OracleKeeper,
 	)
 	appKeepers.EVMKeeper.WithStaticPrecompiles(
 		corePrecompiles,
