@@ -101,7 +101,7 @@ func TestHandleOracleQuery(t *testing.T) {
 			expected: []byte(`{"oracle_twap":[{"denom":"uusdc","twap":"0.500000000000000000","lookback_seconds":1000}]}`),
 		},
 		{
-			name: "valid - twaps",
+			name: "invalid - twaps bad lookback",
 			query: oraclebindingtypes.Query{
 				Twaps: &oraclebindingtypes.TwapsQuery{
 					LookbackSeconds: 0,
