@@ -1,6 +1,7 @@
 # Oracle module
 
 The Oracle module brings up price feeds and exchange rates to Kiichain.
+
 - It allows validators to submit price data, which can be used by other modules or smart contracts (EVM and Wasm).
 - It supports multiple price feeds, allowing for a diverse set of data sources
 - It provides a mechanism for price data to be aggregated and made available on-chain
@@ -8,6 +9,7 @@ The Oracle module brings up price feeds and exchange rates to Kiichain.
 ## Price feeder
 
 Our official implementation for the price feeder is available at [Kiichain Price Feeder](https://github.com/KiiChain/price-feeder).
+
 - The price must be ran by a validator or a delegated address
 - The price feeder is responsible for submitting the price data to the Oracle module
 - More information can be found at the project readme
@@ -15,14 +17,20 @@ Our official implementation for the price feeder is available at [Kiichain Price
 ## Core functionality
 
 The Oracle module works as follows:
+
 - Validators submit price data for arbitrary assets, which are defined in the module params
 - The module aggregates the price data submitted by validators and calculates a final exchange rate for each asset
 - The final exchange rate is stored on-chain and can be queried by other modules or smart contracts
 
 The Exchange Vote is done as following:
+
 1. A new block is created
-2. Validators submit their votes for the price of each asset in the whitelist though the `MsgExchangeRateVote` message
-  - This message is feeless as long as its the first vote for the validator in the current voting period
+2. Validators submit their votes for the price of each asset in the whitelist through the `MsgExchangeRateVote` message
+
+- This message is feeless as long as its the first vote for the validator in the current voting period
+- The vote can be submitted by the validator itself or a delegated address (feeder address)
+  - By using a delegated address, validators can separate their voting actions from their staking address
+
 3. The module aggregates the votes and calculates the final exchange rate for each asset
 4. If no vote is submitted by a validator in the current voting period, the module will slash the validator's stake according to the `slash_fraction` parameter
 5. The final exchange rate is stored on-chain and can be queried by other modules or smart contracts
@@ -39,55 +47,55 @@ Params stores the module wide configuration. Its defined as:
 // Params defines the parameters for the module
 message Params {
     option (gogoproto.equal)            = true;
-    option (gogoproto.goproto_stringer) = false; // Allow custom logs 
-    
-    // The number of blocks per voting 
+    option (gogoproto.goproto_stringer) = false; // Allow custom logs
+
+    // The number of blocks per voting
     uint64 vote_period =1 [(gogoproto.moretags) = "yaml:\"vote_period\""];
 
-    // Minimum percentage of validators required to approve a price. For instance, if vote_threshold = "0.5" at least 50% of validators must submit votes 
+    // Minimum percentage of validators required to approve a price. For instance, if vote_threshold = "0.5" at least 50% of validators must submit votes
     // "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
     string vote_threshold = 2 [
         (gogoproto.moretags) = "yaml:\"vote_threshold\"",
-        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
-        (gogoproto.nullable) = false 
-    ];        
+        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+        (gogoproto.nullable) = false
+    ];
 
     // Acceptable deviation from the media price (higher and lower)
     // "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
     string reward_band = 3 [
         (gogoproto.moretags) = "yaml:\"reward_band\"",
-        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
+        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
         (gogoproto.nullable) = false
     ];
 
-    // List of allowed assets 
+    // List of allowed assets
     // DenomList is a custom data type, defined on x/oracle/types/denom.go
     repeated Denom whitelist = 4 [
         (gogoproto.moretags) = "yaml:\"whitelist\"",
-        (gogoproto.castrepeated) = "DenomList", 
+        (gogoproto.castrepeated) = "DenomList",
         (gogoproto.nullable) = false
     ];
 
-    // How much stake is slashed if a validator fails to submit votes 
+    // How much stake is slashed if a validator fails to submit votes
     // "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
     string slash_fraction = 5 [
         (gogoproto.moretags) = "yaml:\"slash_fraction\"",
-        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
+        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
         (gogoproto.nullable) = false
     ];
 
     // Define the window (in blocks) to vote, if not receive penalties due to bad performance
     uint64 slash_window = 6 [(gogoproto.moretags) = "yaml:\"slash_window\""];
 
-    // Minimum percentage of voting on windows to avoid slashing. For instance, if min_valid_per_window = 0.8, then a validator must submit votes in 80% of windows to avoid slashing 
+    // Minimum percentage of voting on windows to avoid slashing. For instance, if min_valid_per_window = 0.8, then a validator must submit votes in 80% of windows to avoid slashing
     // "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
     string min_valid_per_window = 7 [
         (gogoproto.moretags) = "yaml:\"min_valid_per_window\"",
-        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
+        (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
         (gogoproto.nullable) = false
     ];
 
-    // How far back (in blocks) the module can compute historical price metrics 
+    // How far back (in blocks) the module can compute historical price metrics
     uint64 lookback_duration = 9 [(gogoproto.moretags) = "yaml:\"lookback_duration\""];
 }
 ```
@@ -99,8 +107,8 @@ Exchange rates are the single entry for a price data on the chain. Its stored as
 The price data is defined as:
 
 ```proto
-// Data type that stores the final calculated exchange rate after all votes were 
-// aggregated to that single exchange, record the last block height and timestamp when rate was updated 
+// Data type that stores the final calculated exchange rate after all votes were
+// aggregated to that single exchange, record the last block height and timestamp when rate was updated
 message OracleExchangeRate {
     option (gogoproto.equal)            = false;
     option (gogoproto.goproto_getters)  = false;
@@ -130,12 +138,12 @@ It allows validators to use a different address to submit votes.
 The FeederDelegation is defined as:
 
 ```proto
-// FeederDelegation is the structure on the genesis regarding the delegation process 
+// FeederDelegation is the structure on the genesis regarding the delegation process
 message FeederDelegation {
-  // feeder_address is the address delegated  
+  // feeder_address is the address delegated
   string feeder_address    = 1;
 
-  // validator_address is the validator's address who delegate its voting action 
+  // validator_address is the validator's address who delegate its voting action
   string validator_address = 2;
 }
 ```
@@ -169,7 +177,7 @@ message MsgAggregateExchangeRateVote{
 The `MsgDelegateFeedConsent` message is used to delegate the right to submit votes to a different address. The message contains the following fields:
 
 ```proto
-// MsgDelegateFeedConsent represents a message to delegate oracle voting 
+// MsgDelegateFeedConsent represents a message to delegate oracle voting
 // rights to another address
 message MsgDelegateFeedConsent{
   option (gogoproto.equal)           = false;
@@ -206,6 +214,7 @@ message MsgUpdateParams {
 ## Begin block
 
 On each ABCI call, the Oracle module performs the following actions:
+
 1. Check if we are under a new slash window
 2. Check the slash counters for validators and slash them if they didn't submit enough votes in the previous voting period
 3. Remove the excess feeds
@@ -213,6 +222,7 @@ On each ABCI call, the Oracle module performs the following actions:
 ## End block
 
 At the end of each block, the Oracle module performs the following actions:
+
 1. Check if we are under a new voting period
 2. Iterate the votes
 3. Calculate the final exchange rate for each asset in the whitelist
@@ -222,6 +232,7 @@ At the end of each block, the Oracle module performs the following actions:
 
 The Oracle module ignores fees from validators on their first vote in the current voting period.
 The following is done:
+
 1. Check if the message is a `MsgAggregateExchangeRateVote`
 2. Check the validator/feeder relationship
 3. If the validator is voting for the first time in the current voting period, ignore the fees
