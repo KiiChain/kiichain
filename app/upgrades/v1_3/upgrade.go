@@ -3,14 +3,14 @@ package v130
 import (
 	"context"
 
-	"github.com/ethereum/go-ethereum/common"
-
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/kiichain/kiichain/v2/app/keepers"
+	utils "github.com/kiichain/kiichain/v2/app/upgrades/utils"
 	"github.com/kiichain/kiichain/v2/precompiles/ibc"
 	"github.com/kiichain/kiichain/v2/precompiles/wasmd"
 )
@@ -33,7 +33,14 @@ func CreateUpgradeHandler(
 		}
 
 		// Install the new precompile
-		err = InstallNewPrecompiles(ctx, keepers)
+		err = utils.InstallNewPrecompiles(
+			ctx,
+			keepers,
+			[]common.Address{
+				common.HexToAddress(wasmd.WasmdPrecompileAddress),
+				common.HexToAddress(ibc.IBCPrecompileAddress),
+			},
+		)
 		if err != nil {
 			return vm, err
 		}
@@ -42,16 +49,4 @@ func CreateUpgradeHandler(
 		ctx.Logger().Info("Upgrade v1.3.0 complete")
 		return vm, nil
 	}
-}
-
-// InstallNewPrecompiles is a placeholder for installing new precompiles.
-func InstallNewPrecompiles(ctx sdk.Context, keepers *keepers.AppKeepers) error {
-	// Log the upgrade
-	ctx.Logger().Info("Installing new precompile for wasmd")
-
-	// Install the new address
-	return keepers.EVMKeeper.EnableStaticPrecompiles(ctx, []common.Address{
-		common.HexToAddress(wasmd.WasmdPrecompileAddress),
-		common.HexToAddress(ibc.IBCPrecompileAddress),
-	}...)
 }
