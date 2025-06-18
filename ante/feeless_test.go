@@ -17,11 +17,11 @@ import (
 
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	"github.com/kiichain/kiichain/v1/ante"
-	"github.com/kiichain/kiichain/v1/app/apptesting"
-	"github.com/kiichain/kiichain/v1/app/helpers"
-	kiiparams "github.com/kiichain/kiichain/v1/app/params"
-	oracletypes "github.com/kiichain/kiichain/v1/x/oracle/types"
+	"github.com/kiichain/kiichain/v2/ante"
+	"github.com/kiichain/kiichain/v2/app/apptesting"
+	"github.com/kiichain/kiichain/v2/app/helpers"
+	kiiparams "github.com/kiichain/kiichain/v2/app/params"
+	oracletypes "github.com/kiichain/kiichain/v2/x/oracle/types"
 )
 
 // Constant fee value for testing

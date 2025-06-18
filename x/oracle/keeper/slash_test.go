@@ -11,7 +11,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/kiichain/kiichain/v1/x/oracle/types"
+	"github.com/kiichain/kiichain/v2/x/oracle/types"
 )
 
 func TestSlashAndResetMissCounters(t *testing.T) {

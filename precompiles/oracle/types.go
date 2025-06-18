@@ -6,7 +6,7 @@ import (
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 
-	oracletypes "github.com/kiichain/kiichain/v1/x/oracle/types"
+	oracletypes "github.com/kiichain/kiichain/v2/x/oracle/types"
 )
 
 // ParseGetExchangeRateArgs parses the arguments for the GetExchangeRate method

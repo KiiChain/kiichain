@@ -3,8 +3,8 @@ package wasm
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	oraclekeeper "github.com/kiichain/kiichain/v1/x/oracle/keeper"
-	"github.com/kiichain/kiichain/v1/x/oracle/types"
+	oraclekeeper "github.com/kiichain/kiichain/v2/x/oracle/keeper"
+	"github.com/kiichain/kiichain/v2/x/oracle/types"
 )
 
 // OracleWasmQueryHandler represents a wasm bridge to execute queries on the query_server

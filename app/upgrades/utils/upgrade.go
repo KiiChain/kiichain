@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v1/app/keepers"
+	"github.com/kiichain/kiichain/v2/app/keepers"
 )
 
 // InstallNewPrecompiles is a placeholder for installing new precompiles.

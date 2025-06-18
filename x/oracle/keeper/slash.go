@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v1/x/oracle/types"
+	"github.com/kiichain/kiichain/v2/x/oracle/types"
 )
 
 // SlashAndResetCounters calculate if the validator must be slashed if success votes / total votes

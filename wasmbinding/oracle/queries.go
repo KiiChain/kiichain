@@ -7,9 +7,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	oraclebindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/oracle/types"
-	oraclekeeper "github.com/kiichain/kiichain/v1/x/oracle/keeper"
-	oracletypes "github.com/kiichain/kiichain/v1/x/oracle/types"
+	oraclebindingtypes "github.com/kiichain/kiichain/v2/wasmbinding/oracle/types"
+	oraclekeeper "github.com/kiichain/kiichain/v2/x/oracle/keeper"
+	oracletypes "github.com/kiichain/kiichain/v2/x/oracle/types"
 )
 
 // QueryPlugin is the query plugin object for the oracle queries

@@ -8,8 +8,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/kiichain/kiichain/v1/x/oracle/keeper"
-	"github.com/kiichain/kiichain/v1/x/oracle/types"
+	"github.com/kiichain/kiichain/v2/x/oracle/keeper"
+	"github.com/kiichain/kiichain/v2/x/oracle/types"
 )
 
 // SpammingPreventionDecorator will check if

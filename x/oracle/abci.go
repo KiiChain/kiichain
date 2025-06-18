@@ -5,9 +5,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v1/x/oracle/keeper"
-	"github.com/kiichain/kiichain/v1/x/oracle/types"
-	"github.com/kiichain/kiichain/v1/x/oracle/utils"
+	"github.com/kiichain/kiichain/v2/x/oracle/keeper"
+	"github.com/kiichain/kiichain/v2/x/oracle/types"
+	"github.com/kiichain/kiichain/v2/x/oracle/utils"
 )
 
 // EndBlocker get the votes from the validators, calculate the exchange rate using

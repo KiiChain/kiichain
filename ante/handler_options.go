@@ -19,7 +19,7 @@ import (
 
 	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
 
-	oraclekeeper "github.com/kiichain/kiichain/v1/x/oracle/keeper"
+	oraclekeeper "github.com/kiichain/kiichain/v2/x/oracle/keeper"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Cosmos EVM

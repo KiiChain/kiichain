@@ -8,8 +8,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	oraclekeeper "github.com/kiichain/kiichain/v1/x/oracle/keeper"
-	oracletypes "github.com/kiichain/kiichain/v1/x/oracle/types"
+	oraclekeeper "github.com/kiichain/kiichain/v2/x/oracle/keeper"
+	oracletypes "github.com/kiichain/kiichain/v2/x/oracle/types"
 )
 
 // FeelessDecorator defines a decorator that allows feeless transaction based on conditions

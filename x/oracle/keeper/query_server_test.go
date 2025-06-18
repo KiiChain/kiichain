@@ -7,8 +7,8 @@ import (
 
 	"cosmossdk.io/math"
 
-	"github.com/kiichain/kiichain/v1/x/oracle/types"
-	"github.com/kiichain/kiichain/v1/x/oracle/utils"
+	"github.com/kiichain/kiichain/v2/x/oracle/types"
+	"github.com/kiichain/kiichain/v2/x/oracle/utils"
 )
 
 func TestQueryParams(t *testing.T) {
