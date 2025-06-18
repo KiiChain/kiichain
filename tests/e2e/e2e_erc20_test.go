@@ -17,7 +17,7 @@ import (
 
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 
-	"github.com/kiichain/kiichain/v1/tests/e2e/mock"
+	"github.com/kiichain/kiichain/v2/tests/e2e/mock"
 )
 
 // testEVM Tests EVM send and contract usage

@@ -62,7 +62,7 @@ import (
 	evmserverconfig "github.com/cosmos/evm/server/config"
 	srvflags "github.com/cosmos/evm/server/flags"
 
-	kiichain "github.com/kiichain/kiichain/v1/app"
+	kiichain "github.com/kiichain/kiichain/v2/app"
 )
 
 // CustomAppConfig generates a new custom config

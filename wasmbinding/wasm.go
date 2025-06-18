@@ -7,10 +7,10 @@ import (
 
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 
-	"github.com/kiichain/kiichain/v1/wasmbinding/bech32"
-	evmwasmbinding "github.com/kiichain/kiichain/v1/wasmbinding/evm"
-	tfbinding "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
-	tokenfactorykeeper "github.com/kiichain/kiichain/v1/x/tokenfactory/keeper"
+	"github.com/kiichain/kiichain/v2/wasmbinding/bech32"
+	evmwasmbinding "github.com/kiichain/kiichain/v2/wasmbinding/evm"
+	tfbinding "github.com/kiichain/kiichain/v2/wasmbinding/tokenfactory"
+	tokenfactorykeeper "github.com/kiichain/kiichain/v2/x/tokenfactory/keeper"
 )
 
 // RegisterCustomPlugins registers custom plugins for the wasm module

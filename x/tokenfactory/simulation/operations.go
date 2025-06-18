@@ -14,8 +14,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 
-	appparams "github.com/kiichain/kiichain/v1/app/params"
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
+	appparams "github.com/kiichain/kiichain/v2/app/params"
+	"github.com/kiichain/kiichain/v2/x/tokenfactory/types"
 )
 
 // Simulation operation weights constants

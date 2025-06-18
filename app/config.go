@@ -10,7 +10,7 @@ import (
 
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	"github.com/kiichain/kiichain/v1/app/params"
+	"github.com/kiichain/kiichain/v2/app/params"
 )
 
 // EVMOptionsFn defines a function type for setting app options specifically for

@@ -15,9 +15,9 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	app "github.com/kiichain/kiichain/v1/app"
-	"github.com/kiichain/kiichain/v1/app/helpers"
-	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
+	app "github.com/kiichain/kiichain/v2/app"
+	"github.com/kiichain/kiichain/v2/app/helpers"
+	tokenfactorytypes "github.com/kiichain/kiichain/v2/x/tokenfactory/types"
 )
 
 // CreateTestInput initializes a new test input for the app and returns the app instance and context

@@ -10,9 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/kiichain/kiichain/v1/app/keepers"
-	"github.com/kiichain/kiichain/v1/precompiles/ibc"
-	"github.com/kiichain/kiichain/v1/precompiles/wasmd"
+	"github.com/kiichain/kiichain/v2/app/keepers"
+	"github.com/kiichain/kiichain/v2/precompiles/ibc"
+	"github.com/kiichain/kiichain/v2/precompiles/wasmd"
 )
 
 // CreateUpgradeHandler creates the upgrade handler for the v1.3.0 upgrade

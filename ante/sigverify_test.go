@@ -20,7 +20,7 @@ import (
 	"github.com/cosmos/evm/crypto/ethsecp256k1"
 	"github.com/cosmos/evm/encoding"
 
-	"github.com/kiichain/kiichain/v1/ante"
+	"github.com/kiichain/kiichain/v2/ante"
 )
 
 func TestConsumeSignatureVerificationGas(t *testing.T) {
