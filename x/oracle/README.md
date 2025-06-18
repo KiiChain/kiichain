@@ -5,6 +5,13 @@ The Oracle module brings up price feeds and exchange rates to Kiichain.
 - It supports multiple price feeds, allowing for a diverse set of data sources
 - It provides a mechanism for price data to be aggregated and made available on-chain
 
+## Price feeder
+
+Our official implementation for the price feeder is available at [Kiichain Price Feeder](https://github.com/KiiChain/price-feeder).
+- The price must be ran by a validator or a delegated address
+- The price feeder is responsible for submitting the price data to the Oracle module
+- More information can be found at the project readme
+
 ## Core functionality
 
 The Oracle module works as follows:
