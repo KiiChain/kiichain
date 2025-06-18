@@ -41,7 +41,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/kiichain/kiichain/v1/app/params"
+	"github.com/kiichain/kiichain/v2/app/params"
 )
 
 const (

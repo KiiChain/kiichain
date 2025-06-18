@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
-	xerrors "github.com/kiichain/kiichain/v1/x/types/errors"
+	xerrors "github.com/kiichain/kiichain/v2/x/types/errors"
 )
 
 var expeditedPropDecoratorEnabled = true

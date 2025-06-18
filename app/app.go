@@ -63,11 +63,11 @@ import (
 	srvflags "github.com/cosmos/evm/server/flags"
 	cosmosevmtypes "github.com/cosmos/evm/types"
 
-	kiiante "github.com/kiichain/kiichain/v1/ante"
-	"github.com/kiichain/kiichain/v1/app/keepers"
-	"github.com/kiichain/kiichain/v1/app/upgrades"
-	v2_0 "github.com/kiichain/kiichain/v1/app/upgrades/v2_0"
-	"github.com/kiichain/kiichain/v1/client/docs"
+	kiiante "github.com/kiichain/kiichain/v2/ante"
+	"github.com/kiichain/kiichain/v2/app/keepers"
+	"github.com/kiichain/kiichain/v2/app/upgrades"
+	v2_0 "github.com/kiichain/kiichain/v2/app/upgrades/v2_0"
+	"github.com/kiichain/kiichain/v2/client/docs"
 )
 
 var (

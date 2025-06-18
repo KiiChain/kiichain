@@ -3,8 +3,8 @@ package v200
 import (
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/kiichain/kiichain/v1/app/upgrades"
-	rewardtypes "github.com/kiichain/kiichain/v1/x/rewards/types"
+	"github.com/kiichain/kiichain/v2/app/upgrades"
+	rewardtypes "github.com/kiichain/kiichain/v2/x/rewards/types"
 )
 
 const (

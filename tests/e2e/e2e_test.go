@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"fmt"
+	"os"
 )
 
 var (
@@ -23,7 +24,7 @@ var (
 	runWasmTest                   = true
 
 	// skipIBCTests skips tests that uses IBC
-	skipIBCTests = true
+	skipIBCTests = os.Getenv("SKIP_IBC_TESTS") == "true"
 )
 
 // TestRestInterfaces runs the rest interfaces tests. It is skipped if the variable is set

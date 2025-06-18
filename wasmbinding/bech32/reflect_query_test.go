@@ -9,10 +9,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	app "github.com/kiichain/kiichain/v1/app"
-	"github.com/kiichain/kiichain/v1/wasmbinding"
-	bech32bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/bech32/types"
-	"github.com/kiichain/kiichain/v1/wasmbinding/helpers"
+	app "github.com/kiichain/kiichain/v2/app"
+	"github.com/kiichain/kiichain/v2/wasmbinding"
+	bech32bindingtypes "github.com/kiichain/kiichain/v2/wasmbinding/bech32/types"
+	"github.com/kiichain/kiichain/v2/wasmbinding/helpers"
 )
 
 // TestHexToBech32Reflect tests the hex to bech32 reflect query

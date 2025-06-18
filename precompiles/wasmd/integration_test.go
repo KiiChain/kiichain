@@ -19,9 +19,9 @@ import (
 	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
 	"github.com/cosmos/evm/x/vm/statedb"
 
-	app "github.com/kiichain/kiichain/v1/app"
-	helpers "github.com/kiichain/kiichain/v1/app/helpers"
-	wasmdprecompile "github.com/kiichain/kiichain/v1/precompiles/wasmd"
+	app "github.com/kiichain/kiichain/v2/app"
+	helpers "github.com/kiichain/kiichain/v2/app/helpers"
+	wasmdprecompile "github.com/kiichain/kiichain/v2/precompiles/wasmd"
 )
 
 // CounterWasmCode is the bytecode of the counter smart contract

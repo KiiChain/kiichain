@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/kiichain/kiichain/v1/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v2/x/tokenfactory/types"
 )
 
 // ConvertToBaseToken converts a fee amount in a whitelisted fee token to the base fee token amount

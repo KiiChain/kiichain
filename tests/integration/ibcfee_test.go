@@ -14,7 +14,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	kiichainApp "github.com/kiichain/kiichain/v1/app"
+	kiichainApp "github.com/kiichain/kiichain/v2/app"
 )
 
 // These integration tests were modified to work with the KiichainApp

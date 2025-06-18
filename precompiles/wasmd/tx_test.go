@@ -9,7 +9,7 @@ import (
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/testutil"
 
-	wasmdprecompile "github.com/kiichain/kiichain/v1/precompiles/wasmd"
+	wasmdprecompile "github.com/kiichain/kiichain/v2/precompiles/wasmd"
 )
 
 // TestInstantiate is a test for the Instantiate precompile method

@@ -28,7 +28,7 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	"github.com/kiichain/kiichain/v1/app/params"
+	"github.com/kiichain/kiichain/v2/app/params"
 )
 
 // initCmd initializes the configuration files for a new node

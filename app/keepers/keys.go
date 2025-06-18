@@ -34,8 +34,8 @@ import (
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	// Kiichain
-	rewardstypes "github.com/kiichain/kiichain/v1/x/rewards/types"
-	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
+	rewardstypes "github.com/kiichain/kiichain/v2/x/rewards/types"
+	tokenfactorytypes "github.com/kiichain/kiichain/v2/x/tokenfactory/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {

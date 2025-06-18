@@ -61,10 +61,10 @@ import (
 	"github.com/cosmos/evm/x/vm"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	"github.com/kiichain/kiichain/v1/x/rewards"
-	rewardstypes "github.com/kiichain/kiichain/v1/x/rewards/types"
-	"github.com/kiichain/kiichain/v1/x/tokenfactory"
-	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v2/x/rewards"
+	rewardstypes "github.com/kiichain/kiichain/v2/x/rewards/types"
+	"github.com/kiichain/kiichain/v2/x/tokenfactory"
+	tokenfactorytypes "github.com/kiichain/kiichain/v2/x/tokenfactory/types"
 )
 
 var maccPerms = map[string][]string{

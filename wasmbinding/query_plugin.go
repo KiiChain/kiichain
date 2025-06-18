@@ -9,12 +9,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v1/wasmbinding/bech32"
-	bech32bindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/bech32/types"
-	"github.com/kiichain/kiichain/v1/wasmbinding/evm"
-	evmbindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/evm/types"
-	"github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory"
-	tfbindingtypes "github.com/kiichain/kiichain/v1/wasmbinding/tokenfactory/types"
+	"github.com/kiichain/kiichain/v2/wasmbinding/bech32"
+	bech32bindingtypes "github.com/kiichain/kiichain/v2/wasmbinding/bech32/types"
+	"github.com/kiichain/kiichain/v2/wasmbinding/evm"
+	evmbindingtypes "github.com/kiichain/kiichain/v2/wasmbinding/evm/types"
+	"github.com/kiichain/kiichain/v2/wasmbinding/tokenfactory"
+	tfbindingtypes "github.com/kiichain/kiichain/v2/wasmbinding/tokenfactory/types"
 )
 
 // KiichainQuery is the query type for all cosmwasm bindings
