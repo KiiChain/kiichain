@@ -2,6 +2,7 @@ package oracle
 
 import (
 	"fmt"
+	"math/big"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 
@@ -46,13 +47,13 @@ func ParseGetTwapsArgs(args []interface{}) (*oracletypes.QueryTwapsRequest, erro
 	}
 
 	// Parse the second arg, the lookback period
-	lookbackPeriod, ok := args[0].(int)
-	if !ok || lookbackPeriod == 0 {
+	lookbackPeriod, ok := args[0].(*big.Int)
+	if !ok {
 		return nil, fmt.Errorf("invalid lookback period")
 	}
 
 	// Create the QueryTwapsRequest and return
 	return &oracletypes.QueryTwapsRequest{
-		LookbackSeconds: uint64(lookbackPeriod),
+		LookbackSeconds: lookbackPeriod.Uint64(),
 	}, nil
 }
