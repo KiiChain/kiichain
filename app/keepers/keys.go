@@ -34,8 +34,6 @@ import (
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	// Kiichain
-
-	// Kiichain
 	oracletypes "github.com/kiichain/kiichain/v1/x/oracle/types"
 	rewardstypes "github.com/kiichain/kiichain/v1/x/rewards/types"
 	tokenfactorytypes "github.com/kiichain/kiichain/v1/x/tokenfactory/types"
