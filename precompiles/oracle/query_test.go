@@ -188,7 +188,7 @@ func (s *OraclePrecompileTestSuite) TestGetTwaps() {
 	}{
 		{
 			name: "valid query - get twaps",
-			args: []any{2},
+			args: []any{big.NewInt(2)},
 			expValue: []TwapsResponse{
 				{Denom: "uusdc", Twap: "0.500000000000000000"},
 			},
