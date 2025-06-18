@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## UNRELEASED
+
 ## RELEASED
 
 - Initial chain creation
@@ -12,5 +14,3 @@
 - Add bech32 wasmbinding queries
 - Add correct ibc keepers to ibc precompiles
 - Add Rewards module
-
-## UNRELEASED
