@@ -25,6 +25,8 @@ var (
 
 	// skipIBCTests skips tests that uses IBC
 	skipIBCTests = os.Getenv("SKIP_IBC_TESTS") == "true"
+	// skipEV<Tests skips tests that uses EVM
+	skipEVMTests = os.Getenv("SKIP_EVM_TESTS") == "true"
 )
 
 // TestRestInterfaces runs the rest interfaces tests. It is skipped if the variable is set
@@ -155,7 +157,7 @@ func (s *IntegrationTestSuite) TestRateLimit() {
 
 // TestEVM runs basic EVM tests. It is skipped if the variable is set
 func (s *IntegrationTestSuite) TestEVM() {
-	if !runEVMTest {
+	if !runEVMTest || skipEVMTests {
 		s.T().Log("skipping evm e2e tests...")
 		s.T().Skip()
 	}
@@ -166,7 +168,7 @@ func (s *IntegrationTestSuite) TestEVM() {
 
 // TestERC20 runs the ERC20 tests. It is skipped if the variable is set
 func (s *IntegrationTestSuite) TestERC20() {
-	if !runERC20Test {
+	if !runERC20Test || skipEVMTests {
 		s.T().Skip()
 	}
 	jsonRPC := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("8545/tcp"))
