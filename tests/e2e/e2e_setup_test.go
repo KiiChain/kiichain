@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -14,6 +15,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/spf13/viper"
@@ -169,6 +172,13 @@ func (s *IntegrationTestSuite) SetupSuite() {
 		s.T().Log("skipping IBC tests e2e preparation")
 	} else {
 		s.runIBCRelayer()
+	}
+
+	// Check if we should skip ibc tests
+	if skipEVMTests {
+		s.T().Log("skipping EVM tests e2e preparation")
+	} else {
+		s.setupEVMAccountOnChainA()
 	}
 }
 
@@ -688,6 +698,105 @@ func (s *IntegrationTestSuite) runIBCRelayer() {
 	// create the client, connection and channel between the two Kiichain chains
 	s.createConnection()
 	s.createChannel()
+}
+
+// setupEVMAccountOnChainA sets up a new EVM account on chain A and sends funds from Alice to it, checking balance changes
+func (s *IntegrationTestSuite) setupEVMAccountOnChainA() {
+	valIdx := 0
+	c := s.chainA
+	chainEndpoint := fmt.Sprintf("http://%s", s.valResources[c.id][valIdx].GetHostPort("1317/tcp"))
+	jsonRPC := fmt.Sprintf("http://%s", s.valResources[c.id][valIdx].GetHostPort("8545/tcp"))
+	// 1. Create new account
+	// Make a key
+	key, err := crypto.HexToECDSA("88cbead91aee890d27bf06e003ade3d4e952427e88f88d31d61d3ef5e5d54305")
+	s.Require().NoError(err)
+
+	// Make a message to extract key, making sure we are using correct way
+	msg := crypto.Keccak256([]byte("foo"))
+	ethSig, _ := crypto.Sign(msg, key)
+	recoveredPub, _ := crypto.Ecrecover(msg, ethSig)
+
+	// Get pubkey, evm and cosmos address
+	pubKey, _ := crypto.UnmarshalPubkey(recoveredPub)
+	evmAddress := crypto.PubkeyToAddress(*pubKey)
+	s.T().Logf("Newly created evm address: %s", evmAddress)
+	cosmosAddress, err := PubKeyBytesToCosmosAddress(evmAddress.Bytes())
+	s.Require().NoError(err)
+	s.T().Logf("Newly created cosmos address: %s", cosmosAddress)
+
+	// Get alice's cosmos and evm address
+	alice, err := s.chainA.genesisAccounts[1].keyInfo.GetAddress()
+	s.Require().NoError(err)
+	s.T().Logf("Alice address: %s", alice)
+
+	publicKey, err := s.chainA.genesisAccounts[1].keyInfo.GetPubKey()
+	s.Require().NoError(err)
+	// Make sure we are using correct generation
+	aliceCosmosAddress, err := PubKeyToCosmosAddress(publicKey)
+	s.Require().NoError(err)
+	s.Require().Equal(alice.String(), aliceCosmosAddress)
+
+	// Get her EVM address
+	aliceEvmAddress, err := CosmosPubKeyToEVMAddress(publicKey)
+	s.Require().NoError(err)
+	s.T().Logf("Alice evm address : %s", aliceEvmAddress)
+
+	// 2. Send funds via cosmos for new account so it can do operations
+	s.execBankSend(s.chainA, valIdx, alice.String(), cosmosAddress, tokenAmount.String(), standardFees.String(), false)
+
+	var newBalance sdk.Coin
+	// Get balances of sender and recipient accounts
+	s.Require().Eventually(
+		func() bool {
+			// Get balance via cosmos
+			newBalance, err = getSpecificBalance(chainEndpoint, cosmosAddress, akiiDenom)
+			s.Require().NoError(err)
+
+			// Balance should already have some coin
+			return newBalance.IsValid() && newBalance.Amount.GT(math.ZeroInt())
+		},
+		10*time.Second,
+		5*time.Second,
+	)
+
+	s.Run("eth_getBalance on new address", func() {
+		// Get balance via evm
+		res, err := httpEVMPostJSON(jsonRPC, "eth_getBalance", []interface{}{
+			evmAddress.String(), "latest",
+		})
+		s.Require().NoError(err)
+
+		balance, err := parseResultAsHex(res)
+		s.Require().NoError(err)
+		s.T().Logf("Balance : %s", balance)
+
+		// Balance should have something
+		s.Require().False(strings.HasPrefix(balance, "0x0"))
+	})
+
+	// 3. Send via evm
+	client, err := ethclient.Dial(jsonRPC)
+	amount := big.NewInt(1000000000000000000)
+	receipt, err := sendEVM(client, key, evmAddress, aliceEvmAddress, amount)
+	s.Require().NoError(err)
+	s.T().Logf("Transaction status: %d\n", receipt.Status)
+
+	// 4. check changes
+	s.Run("eth_getBalance on address after send", func() {
+		res, err := httpEVMPostJSON(jsonRPC, "eth_getBalance", []interface{}{
+			evmAddress.String(), "latest",
+		})
+		s.Require().NoError(err)
+
+		balance, err := parseResultAsHex(res)
+		s.Require().NoError(err)
+		s.T().Logf("Balance : %s", balance)
+		// Balance should have something now
+		s.Require().False(strings.HasPrefix(balance, "0x0"))
+	})
+
+	// 5. Set up evm account on chain A
+	c.evmAccount = EVMAccount{key, evmAddress}
 }
 
 func (s *IntegrationTestSuite) writeGovCommunitySpendProposal(c *chain, amount sdk.Coin, recipient string) {
