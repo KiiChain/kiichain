@@ -24,7 +24,7 @@ var (
 	runWasmTest                   = true
 
 	// skipIBCTests skips tests that uses IBC
-	skipIBCTests = true
+	skipIBCTests = os.Getenv("SKIP_EVM_TESTS") == "true"
 	// skipEV<Tests skips tests that uses EVM
 	skipEVMTests = os.Getenv("SKIP_EVM_TESTS") == "true"
 )
@@ -98,7 +98,8 @@ func (s *IntegrationTestSuite) TestIBC() {
 		s.T().Log("skipping IBC precompile test")
 		s.T().Skip()
 	}
-	s.testIBCPrecompileTransfer()
+	jsonRPC := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("8545/tcp"))
+	s.testIBCPrecompileTransfer(jsonRPC)
 }
 
 // TestSlashing runs the slashing tests. It is skipped if the variable is set
