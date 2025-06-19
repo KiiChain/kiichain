@@ -386,7 +386,7 @@ func (s *IntegrationTestSuite) testFailedMultihopIBCTokenTransfer() {
 		forwardPort := "transfer"
 		forwardChannel := "channel-0"
 
-		tokenAmt := mustNewIntFromString("3300000000000000000000") // 3,300 Kii
+		tokenAmt := tokenAmount.Amount // 3,300 Kii
 
 		chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
 

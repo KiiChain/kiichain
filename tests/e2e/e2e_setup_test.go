@@ -178,7 +178,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	if skipEVMTests {
 		s.T().Log("skipping EVM tests e2e preparation")
 	} else {
-		s.setupEVMAccountOnChainA()
+		s.setupEVMAccountOnChain(s.chainA, 0)
 	}
 }
 
@@ -701,11 +701,11 @@ func (s *IntegrationTestSuite) runIBCRelayer() {
 }
 
 // setupEVMAccountOnChainA sets up a new EVM account on chain A and sends funds from Alice to it, checking balance changes
-func (s *IntegrationTestSuite) setupEVMAccountOnChainA() {
-	valIdx := 0
-	c := s.chainA
+func (s *IntegrationTestSuite) setupEVMAccountOnChain(c *chain, valIdx int) {
+	// Endpoint infos
 	chainEndpoint := fmt.Sprintf("http://%s", s.valResources[c.id][valIdx].GetHostPort("1317/tcp"))
 	jsonRPC := fmt.Sprintf("http://%s", s.valResources[c.id][valIdx].GetHostPort("8545/tcp"))
+
 	// 1. Create new account
 	// Make a key
 	key, err := crypto.HexToECDSA("88cbead91aee890d27bf06e003ade3d4e952427e88f88d31d61d3ef5e5d54305")
