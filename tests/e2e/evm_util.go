@@ -12,6 +12,12 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
+// EVMAccount stores an address and a key used for EVM interaction
+type EVMAccount struct {
+	key     *ecdsa.PrivateKey
+	address common.Address
+}
+
 // sendEVM does a send native coin via EVM
 func sendEVM(
 	client *ethclient.Client,
