@@ -28,9 +28,9 @@ const (
 )
 
 // testEVMQueries Test EVM queries
-func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
+func (s *IntegrationTestSuite) testEVMQueries(jsonRPC string) {
 	s.Run("eth_blockNumber", func() {
-		res, err := httpEVMPostJSON(jsonRCP, "eth_blockNumber", []interface{}{})
+		res, err := httpEVMPostJSON(jsonRPC, "eth_blockNumber", []interface{}{})
 		s.Require().NoError(err)
 
 		blockNumber, err := parseResultAsHex(res)
@@ -39,7 +39,7 @@ func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
 	})
 
 	s.Run("eth_chainId", func() {
-		res, err := httpEVMPostJSON(jsonRCP, "eth_chainId", []interface{}{})
+		res, err := httpEVMPostJSON(jsonRPC, "eth_chainId", []interface{}{})
 		s.Require().NoError(err)
 
 		chainID, err := parseResultAsHex(res)
@@ -48,7 +48,7 @@ func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
 	})
 
 	s.Run("eth_getBalance on zero address", func() {
-		res, err := httpEVMPostJSON(jsonRCP, "eth_getBalance", []interface{}{
+		res, err := httpEVMPostJSON(jsonRPC, "eth_getBalance", []interface{}{
 			"0x0000000000000000000000000000000000000000", "latest",
 		})
 		s.Require().NoError(err)
@@ -59,7 +59,7 @@ func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
 	})
 
 	s.Run("web3_clientVersion", func() {
-		res, err := httpEVMPostJSON(jsonRCP, "web3_clientVersion", []interface{}{})
+		res, err := httpEVMPostJSON(jsonRPC, "web3_clientVersion", []interface{}{})
 		s.Require().NoError(err)
 
 		_, ok := res["result"].(string)
@@ -68,14 +68,14 @@ func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
 }
 
 // testEVM Tests EVM send and contract usage
-func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
+func (s *IntegrationTestSuite) testEVM(jsonRPC string) {
 	var err error
 
 	// Get a funded EVM account and check balance transactions
 	evmAccount := s.chainA.evmAccount
 
 	// Setup client
-	client, err := ethclient.Dial(jsonRCP)
+	client, err := ethclient.Dial(jsonRPC)
 	s.Require().NoError(err)
 
 	// Deploy contract

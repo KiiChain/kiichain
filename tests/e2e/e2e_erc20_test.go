@@ -21,7 +21,7 @@ import (
 )
 
 // testEVM Tests EVM send and contract usage
-func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
+func (s *IntegrationTestSuite) testERC20(jsonRPC string) {
 	var (
 		err    error
 		valIdx = 0
@@ -32,7 +32,7 @@ func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
 	evmAccount := c.evmAccount
 
 	// Setup client
-	client, err := ethclient.Dial(jsonRCP)
+	client, err := ethclient.Dial(jsonRPC)
 	s.Require().NoError(err)
 
 	// 1. Deploy ERC20 contract
