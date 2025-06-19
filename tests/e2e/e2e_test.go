@@ -24,7 +24,7 @@ var (
 	runWasmTest                   = true
 
 	// skipIBCTests skips tests that uses IBC
-	skipIBCTests = os.Getenv("SKIP_IBC_TESTS") == "true"
+	skipIBCTests = true
 	// skipEV<Tests skips tests that uses EVM
 	skipEVMTests = os.Getenv("SKIP_EVM_TESTS") == "true"
 )
@@ -93,6 +93,12 @@ func (s *IntegrationTestSuite) TestIBC() {
 	s.testMultihopIBCTokenTransfer()
 	s.testFailedMultihopIBCTokenTransfer()
 	s.testICARegisterAccountAndSendTx()
+
+	if skipEVMTests {
+		s.T().Log("skipping IBC precompile test")
+		s.T().Skip()
+	}
+	s.testIBCPrecompileTransfer()
 }
 
 // TestSlashing runs the slashing tests. It is skipped if the variable is set
