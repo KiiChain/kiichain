@@ -8,13 +8,15 @@ import (
 	"strings"
 	"time"
 
-	"cosmossdk.io/math"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	geth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
+
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/kiichain/kiichain/v2/tests/e2e/precompiles"
 )
 
@@ -56,9 +58,8 @@ func (s *IntegrationTestSuite) testIBCPrecompileTransfer(jsonRPC string) {
 			}
 		}
 
-		tokenAmt := tokenAmount.Amount // 3,300 Kii
-		s.sendIBCPrecompile(jsonRPC, evmAccount, recipient, tokenAmount, "precompile ibc transfer")
-		s.sendIBCPrecompile(jsonRPC, evmAccount, recipient, tokenAmount, "")
+		tokenAmt := standardFees.Amount // 0.33 Kii
+		s.sendIBCPrecompile(jsonRPC, evmAccount, recipient, standardFees, "")
 
 		pass := s.hermesClearPacket(hermesConfigWithGasPrices, s.chainA.id, transferPort, transferChannel)
 		s.Require().True(pass)
@@ -103,29 +104,35 @@ func (s *IntegrationTestSuite) sendIBCPrecompile(jsonRPC string, senderEvmAccoun
 		auth.GasLimit = uint64(3000000) // gas limit
 		auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
 
-		// Deploy
+		// Bind
 		ibcPrecompile, err := precompiles.NewIbcPrecompile(common.HexToAddress(IBCPrecompileAddress), client)
 		s.Require().NoError(err)
 
-		// Get height + 25 blocks
-		height := 25 + s.getLatestBlockHeight(s.chainA, 0)
-
-		tx, err := ibcPrecompile.Transfer(
+		// Call transfer
+		tx, err := ibcPrecompile.TransferWithDefaultTimeout(
 			auth,
 			recipient,
 			transferPort,
 			transferChannel,
 			token.Denom,
 			token.Amount.BigInt(),
-			1, // revisionNumber
-			uint64(height),
-			0, // timeoutTimestamp
 			note,
 		)
 		s.Require().NoError(err)
 
 		// Wait and check tx
-		receipt := s.waitForTransaction(client, tx)
+		receipt, err := bind.WaitMined(context.Background(), client, tx)
+		s.Require().NoError(err)
+
+		if receipt.Status == geth.ReceiptStatusFailed {
+			// Try to get the revert reason
+			reason, err := getRevertReason(client, tx.Hash(), senderEvmAccount.address)
+			if err != nil {
+				s.T().Logf("Failed to get revert reason: %v", err)
+			} else if reason != "" {
+				s.T().Logf("Revert reason: %s", reason)
+			}
+		}
 		s.Require().False(receipt.Status == geth.ReceiptStatusFailed)
 	})
 }
