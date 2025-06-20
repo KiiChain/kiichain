@@ -15,6 +15,7 @@ import (
 	"testing"
 	"time"
 
+	geth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ory/dockertest/v3"
@@ -719,15 +720,12 @@ func (s *IntegrationTestSuite) setupEVMAccountOnChain(c *chain, valIdx int) {
 	// Get pubkey, evm and cosmos address
 	pubKey, _ := crypto.UnmarshalPubkey(recoveredPub)
 	evmAddress := crypto.PubkeyToAddress(*pubKey)
-	s.T().Logf("Newly created evm address: %s", evmAddress)
 	cosmosAddress, err := PubKeyBytesToCosmosAddress(evmAddress.Bytes())
 	s.Require().NoError(err)
-	s.T().Logf("Newly created cosmos address: %s", cosmosAddress)
 
 	// Get alice's cosmos and evm address
 	alice, err := s.chainA.genesisAccounts[1].keyInfo.GetAddress()
 	s.Require().NoError(err)
-	s.T().Logf("Alice address: %s", alice)
 
 	publicKey, err := s.chainA.genesisAccounts[1].keyInfo.GetPubKey()
 	s.Require().NoError(err)
@@ -739,7 +737,6 @@ func (s *IntegrationTestSuite) setupEVMAccountOnChain(c *chain, valIdx int) {
 	// Get her EVM address
 	aliceEvmAddress, err := CosmosPubKeyToEVMAddress(publicKey)
 	s.Require().NoError(err)
-	s.T().Logf("Alice evm address : %s", aliceEvmAddress)
 
 	// 2. Send funds via cosmos for new account so it can do operations
 	s.execBankSend(s.chainA, valIdx, alice.String(), cosmosAddress, tokenAmount.String(), standardFees.String(), false)
@@ -759,41 +756,35 @@ func (s *IntegrationTestSuite) setupEVMAccountOnChain(c *chain, valIdx int) {
 		5*time.Second,
 	)
 
-	s.Run("eth_getBalance on new address", func() {
-		// Get balance via evm
-		res, err := httpEVMPostJSON(jsonRPC, "eth_getBalance", []interface{}{
-			evmAddress.String(), "latest",
-		})
-		s.Require().NoError(err)
-
-		balance, err := parseResultAsHex(res)
-		s.Require().NoError(err)
-		s.T().Logf("Balance : %s", balance)
-
-		// Balance should have something
-		s.Require().False(strings.HasPrefix(balance, "0x0"))
+	// Get balance via evm
+	res, err := httpEVMPostJSON(jsonRPC, "eth_getBalance", []interface{}{
+		evmAddress.String(), "latest",
 	})
+	s.Require().NoError(err)
+
+	balance, err := parseResultAsHex(res)
+	s.Require().NoError(err)
+
+	// Balance should have something
+	s.Require().False(strings.HasPrefix(balance, "0x0"))
 
 	// 3. Send via evm
 	client, err := ethclient.Dial(jsonRPC)
 	amount := big.NewInt(1000000000000000000)
 	receipt, err := sendEVM(client, key, evmAddress, aliceEvmAddress, amount)
 	s.Require().NoError(err)
-	s.T().Logf("Transaction status: %d\n", receipt.Status)
+	s.Require().False(receipt.Status == geth.ReceiptStatusFailed)
 
 	// 4. check changes
-	s.Run("eth_getBalance on address after send", func() {
-		res, err := httpEVMPostJSON(jsonRPC, "eth_getBalance", []interface{}{
-			evmAddress.String(), "latest",
-		})
-		s.Require().NoError(err)
-
-		balance, err := parseResultAsHex(res)
-		s.Require().NoError(err)
-		s.T().Logf("Balance : %s", balance)
-		// Balance should have something now
-		s.Require().False(strings.HasPrefix(balance, "0x0"))
+	res, err = httpEVMPostJSON(jsonRPC, "eth_getBalance", []interface{}{
+		evmAddress.String(), "latest",
 	})
+	s.Require().NoError(err)
+
+	balance, err = parseResultAsHex(res)
+	s.Require().NoError(err)
+	// Balance should have something now
+	s.Require().False(strings.HasPrefix(balance, "0x0"))
 
 	// 5. Set up evm account on chain A
 	c.evmAccount = EVMAccount{key, evmAddress}
