@@ -13,6 +13,7 @@ LOGLEVEL="info"
 HOMEDIR="$HOME/.kiichain"
 
 BASEFEE=10000000
+KIICHAIND=kiichaind
 
 # Path variables
 CONFIG=$HOMEDIR/config/config.toml
@@ -91,8 +92,8 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	rm -rf "$HOMEDIR"
 
 	# Set client config
-	kiichaind config set client chain-id "$CHAINID" --home "$HOMEDIR"
-	kiichaind config set client keyring-backend "$KEYRING" --home "$HOMEDIR"
+	$KIICHAIND config set client chain-id "$CHAINID" --home "$HOMEDIR"
+	$KIICHAIND config set client keyring-backend "$KEYRING" --home "$HOMEDIR"
 
 	# myKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e | os10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky
 	VAL_KEY="mykey"
@@ -103,11 +104,11 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	USER1_MNEMONIC="copper push brief egg scan entry inform record adjust fossil boss egg comic alien upon aspect dry avoid interest fury window hint race symptom"
 
 	# Import keys from mnemonics
-	echo "$VAL_MNEMONIC" | kiichaind keys add "$VAL_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$HOMEDIR"
-	echo "$USER1_MNEMONIC" | kiichaind keys add "$USER1_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$HOMEDIR"
+	echo "$VAL_MNEMONIC" | $KIICHAIND keys add "$VAL_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$HOMEDIR"
+	echo "$USER1_MNEMONIC" | $KIICHAIND keys add "$USER1_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$HOMEDIR"
 
 	# Set moniker and chain-id for the example chain (Moniker can be anything, chain-id must be an integer)
-	kiichaind init $MONIKER -o --chain-id "$CHAINID" --home "$HOMEDIR"
+	$KIICHAIND init $MONIKER -o --chain-id "$CHAINID" --home "$HOMEDIR"
 
 	# Change parameter token denominations to desired value
 	jq '.app_state["staking"]["params"]["bond_denom"]="akii"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -151,17 +152,17 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	sed -i.bak 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
 
 	# Allocate genesis accounts (cosmos formatted addresses)
-	kiichaind genesis add-genesis-account "$VAL_KEY" 1000000000000000000000000000akii --keyring-backend "$KEYRING" --home "$HOMEDIR"
-	kiichaind genesis add-genesis-account "$USER1_KEY" 1000000000000000000000000000akii --keyring-backend "$KEYRING" --home "$HOMEDIR"
+	$KIICHAIND genesis add-genesis-account "$VAL_KEY" 1000000000000000000000000000akii --keyring-backend "$KEYRING" --home "$HOMEDIR"
+	$KIICHAIND genesis add-genesis-account "$USER1_KEY" 1000000000000000000000000000akii --keyring-backend "$KEYRING" --home "$HOMEDIR"
 
 	# Sign genesis transaction
-	kiichaind genesis gentx "$VAL_KEY" 100000000000000000000akii --gas-prices ${BASEFEE}akii --keyring-backend "$KEYRING" --chain-id "$CHAINID" --home "$HOMEDIR"
+	$KIICHAIND genesis gentx "$VAL_KEY" 100000000000000000000akii --gas-prices ${BASEFEE}akii --keyring-backend "$KEYRING" --chain-id "$CHAINID" --home "$HOMEDIR"
 
 	# Collect genesis tx
-	kiichaind genesis collect-gentxs --home "$HOMEDIR"
+	$KIICHAIND genesis collect-gentxs --home "$HOMEDIR"
 
 	# Run this to ensure everything worked and that the genesis file is setup correctly
-	kiichaind genesis validate-genesis --home "$HOMEDIR"
+	$KIICHAIND genesis validate-genesis --home "$HOMEDIR"
 
 	if [[ $1 == "pending" ]]; then
 		echo "pending mode is on, please wait for the first block committed."
@@ -169,7 +170,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 fi
 
 # Start the node
-kiichaind start "$TRACE" \
+$KIICHAIND start "$TRACE" \
 	--log_level $LOGLEVEL \
 	--minimum-gas-prices=0.0001akii \
 	--home "$HOMEDIR" \
