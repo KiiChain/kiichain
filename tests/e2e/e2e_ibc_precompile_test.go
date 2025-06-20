@@ -13,6 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	geth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/kiichain/kiichain/v2/tests/e2e/precompiles"
 )
@@ -56,6 +57,7 @@ func (s *IntegrationTestSuite) testIBCPrecompileTransfer(jsonRPC string) {
 		}
 
 		tokenAmt := tokenAmount.Amount // 3,300 Kii
+		s.sendIBCPrecompile(jsonRPC, evmAccount, recipient, tokenAmount, "precompile ibc transfer")
 		s.sendIBCPrecompile(jsonRPC, evmAccount, recipient, tokenAmount, "")
 
 		pass := s.hermesClearPacket(hermesConfigWithGasPrices, s.chainA.id, transferPort, transferChannel)
@@ -105,8 +107,25 @@ func (s *IntegrationTestSuite) sendIBCPrecompile(jsonRPC string, senderEvmAccoun
 		ibcPrecompile, err := precompiles.NewIbcPrecompile(common.HexToAddress(IBCPrecompileAddress), client)
 		s.Require().NoError(err)
 
-		tx, err := ibcPrecompile.TransferWithDefaultTimeout(auth, recipient, "transfer", "channel-0", token.Denom, token.Amount.BigInt(), note)
+		// Get height + 25 blocks
+		height := 25 + s.getLatestBlockHeight(s.chainA, 0)
+
+		tx, err := ibcPrecompile.Transfer(
+			auth,
+			recipient,
+			transferPort,
+			transferChannel,
+			token.Denom,
+			token.Amount.BigInt(),
+			1, // revisionNumber
+			uint64(height),
+			0, // timeoutTimestamp
+			note,
+		)
 		s.Require().NoError(err)
-		s.waitForTransaction(client, tx)
+
+		// Wait and check tx
+		receipt := s.waitForTransaction(client, tx)
+		s.Require().False(receipt.Status == geth.ReceiptStatusFailed)
 	})
 }
