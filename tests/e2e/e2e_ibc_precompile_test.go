@@ -26,7 +26,7 @@ const (
 
 // testIBCPrecompileTransfer tests transfer with the ibc precompile
 func (s *IntegrationTestSuite) testIBCPrecompileTransfer(jsonRPC string) {
-	s.Run("send_akii_to_chainB", func() {
+	s.Run("send_akii_to_chainB via precompile", func() {
 		// require the recipient account receives the IBC tokens (IBC packets ACKd)
 		var (
 			balances      sdk.Coins
@@ -46,21 +46,25 @@ func (s *IntegrationTestSuite) testIBCPrecompileTransfer(jsonRPC string) {
 			func() bool {
 				balances, err = queryKiichainAllBalances(chainBAPIEndpoint, recipient)
 				s.Require().NoError(err)
-				return balances.Len() != 0
+
+				// There should be some IBC balance from previous tests
+				for _, c := range balances {
+					if strings.Contains(c.Denom, "ibc/") {
+						beforeBalance = c.Amount
+						return true
+					}
+				}
+				return false
 			},
 			time.Minute,
 			5*time.Second,
 		)
-		for _, c := range balances {
-			if strings.Contains(c.Denom, "ibc/") {
-				beforeBalance = c.Amount
-				break
-			}
-		}
 
+		// Send via precompile
 		tokenAmt := standardFees.Amount // 0.33 Kii
 		s.sendIBCPrecompile(jsonRPC, evmAccount, recipient, standardFees, "")
 
+		// Apply packet changes
 		pass := s.hermesClearPacket(hermesConfigWithGasPrices, s.chainA.id, transferPort, transferChannel)
 		s.Require().True(pass)
 
@@ -68,18 +72,20 @@ func (s *IntegrationTestSuite) testIBCPrecompileTransfer(jsonRPC string) {
 			func() bool {
 				balances, err = queryKiichainAllBalances(chainBAPIEndpoint, recipient)
 				s.Require().NoError(err)
-				return balances.Len() != 0
+
+				// Check if the balance has increased
+				for _, c := range balances {
+					if strings.Contains(c.Denom, "ibc/") {
+						ibcStakeDenom = c.Denom
+						s.Require().Equal((tokenAmt.Add(beforeBalance)), c.Amount)
+						return true
+					}
+				}
+				return false
 			},
 			time.Minute,
 			5*time.Second,
 		)
-		for _, c := range balances {
-			if strings.Contains(c.Denom, "ibc/") {
-				ibcStakeDenom = c.Denom
-				s.Require().Equal((tokenAmt.Add(beforeBalance)), c.Amount)
-				break
-			}
-		}
 
 		s.Require().NotEmpty(ibcStakeDenom)
 	})
