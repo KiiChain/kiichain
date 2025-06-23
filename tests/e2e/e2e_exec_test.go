@@ -765,3 +765,19 @@ func (s *IntegrationTestSuite) defaultExecValidation(chain *chain, valIdx int) f
 		return false
 	}
 }
+
+// execValidationWithError is a validation function that checks if the transaction execution resulted in an error
+func (s *IntegrationTestSuite) execValidationWithError(_ *chain, _ int, errorContains string) func([]byte, []byte) bool {
+	return func(stdOut []byte, stdErr []byte) bool {
+		// Take the response from the call
+		var txResp sdk.TxResponse
+		if err := cdc.UnmarshalJSON(stdOut, &txResp); err != nil {
+			return false
+		}
+		// Now we check if we have the expected error in the response (raw_log)
+		if strings.Contains(txResp.RawLog, errorContains) {
+			return true
+		}
+		return false
+	}
+}
