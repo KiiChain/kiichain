@@ -11,53 +11,53 @@ option go_package = "github.com/kiichain/kiichain/x/oracle/types";
 service Query{
     // ExchangeRate returns exchange rate of a specific denom
     rpc ExchangeRate(QueryExchangeRateRequest) returns (QueryExchangeRateResponse){
-        option (google.api.http).get = "/kiichain/oracle/denoms/{denom}/exchange_rate";
+        option (google.api.http).get = "/kiichain/oracle/v1beta1/denoms/{denom}/exchange_rate";
     }
 
     // ExchangeRates returns the exchange rate for all denoms
     rpc ExchangeRates(QueryExchangeRatesRequest) returns (QueryExchangeRatesResponse){
-        option (google.api.http).get = "/kiichain/oracle/denoms/exchange_rates";
+        option (google.api.http).get = "/kiichain/oracle/v1beta1/denoms/exchange_rates";
     }
 
     // Actives returns all actives denoms on the module's KVStore
     rpc Actives (QueryActivesRequest) returns (QueryActivesResponse){
-        option (google.api.http).get = "/kiichain/oracle/denoms/actives";
+        option (google.api.http).get = "/kiichain/oracle/v1beta1/denoms/actives";
     }
 
     // VoteTargets returns all vote targets denoms 
     rpc VoteTargets (QueryVoteTargetsRequest) returns (QueryVoteTargetsResponse){
-        option (google.api.http).get = "/kiichain/oracle/denoms/vote_targets";
+        option (google.api.http).get = "/kiichain/oracle/v1beta1/denoms/vote_targets";
     }
 
     // PriceSnapshotHistory returns the history of price snapshots for all assets
     rpc PriceSnapshotHistory(QueryPriceSnapshotHistoryRequest) returns (QueryPriceSnapshotHistoryResponse){
-        option (google.api.http).get = "/kiichain/oracle/denoms/price_snapshot_history";
+        option (google.api.http).get = "/kiichain/oracle/v1beta1/denoms/price_snapshot_history";
     }
 
     // Twap = Time-weighted average price
     // Twaps returns the list of the average price over a specific period of time and denom
     rpc Twaps (QueryTwapsRequest) returns (QueryTwapsResponse){
-        option (google.api.http).get = "/kiichain/oracle/denoms/twaps/{lookback_seconds}";
+        option (google.api.http).get = "/kiichain/oracle/v1beta1/denoms/twaps/{lookback_seconds}";
     }
 
     // FeederDelegation returns the delegator by the validator address
     rpc FeederDelegation (QueryFeederDelegationRequest) returns (QueryFeederDelegationResponse){
-        option (google.api.http).get = "/kiichain/oracle/validators/{validator_addr}/feeder";
+        option (google.api.http).get = "/kiichain/oracle/v1beta1/validators/{validator_addr}/feeder";
     }
 
     // VotePenaltyCounter returns the voting behavior by an specific validator
     rpc VotePenaltyCounter (QueryVotePenaltyCounterRequest) returns (QueryVotePenaltyCounterResponse){
-        option (google.api.http).get = "/kiichain/oracle/validators/{validator_addr}/vote_penalty_counter";
+        option (google.api.http).get = "/kiichain/oracle/v1beta1/validators/{validator_addr}/vote_penalty_counter";
     }
 
     // SlashWindow returns slash window information 
     rpc SlashWindow(QuerySlashWindowRequest) returns (QuerySlashWindowResponse){
-        option (google.api.http).get = "/kiichain/oracle/slash_window";
+        option (google.api.http).get = "/kiichain/oracle/v1beta1/slash_window";
     }
 
     // Params returns the Oracle module's params
     rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-        option (google.api.http).get = "/kiichain/oracle/params";
+        option (google.api.http).get = "/kiichain/oracle/v1beta1/params";
     }
 }
 
