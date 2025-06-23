@@ -133,7 +133,6 @@ func (s *IntegrationTestSuite) testSlash() {
 	s.Require().NoError(err, "failed to query penalty counter for validator %s", validatorAddress)
 
 	// Both the success and the abstain votes should be above zero
-	fmt.Println(queryPenaltyCounter)
 	s.Require().Greater(queryPenaltyCounter.VotePenaltyCounter.SuccessCount, uint64(0), "success penalty counter should be greater than zero")
 	s.Require().Greater(queryPenaltyCounter.VotePenaltyCounter.AbstainCount, uint64(0), "abstain penalty counter should be greater than zero")
 }
