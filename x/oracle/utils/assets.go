@@ -10,4 +10,5 @@ const (
 	MicroXrpDenom  = "uxrp"
 	MicroBnbDenom  = "ubnb"
 	MicroUsdtDenom = "uusdt"
+	MicroTrxDenom  = "utrx"
 )

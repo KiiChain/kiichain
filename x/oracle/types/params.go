@@ -24,6 +24,7 @@ var (
 		{Name: utils.MicroBnbDenom},
 		{Name: utils.MicroUsdtDenom},
 		{Name: utils.MicroUsdcDenom},
+		{Name: utils.MicroTrxDenom},
 	}
 	DefaultSlashFraction     = math.LegacyNewDecWithPrec(0, 4) // 0.00 | 0%
 	DefaultMinValidPerWindow = math.LegacyNewDecWithPrec(5, 2) // 0.05 | 5%

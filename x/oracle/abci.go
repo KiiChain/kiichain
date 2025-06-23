@@ -21,6 +21,9 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 
 	// Check if the current block is the last one to finish the voting period
 	if utils.IsPeriodLastBlock(ctx, params.VotePeriod) {
+		// Log that we are aggregating the exchange rates
+		k.Logger(ctx).Info("Aggregating exchange rates")
+
 		validatorClaimMap := make(map[string]types.Claim) // here I will store the claim per validator
 
 		iterator, err := k.StakingKeeper.ValidatorsPowerStoreIterator(ctx)
