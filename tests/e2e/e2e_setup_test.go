@@ -175,12 +175,8 @@ func (s *IntegrationTestSuite) SetupSuite() {
 		s.runIBCRelayer()
 	}
 
-	// Check if we should skip ibc tests
-	if skipEVMTests {
-		s.T().Log("skipping EVM tests e2e preparation")
-	} else {
-		s.setupEVMAccountOnChain(s.chainA, 0)
-	}
+	// Fund and set up an EVM account
+	s.setupEVMAccountOnChain(s.chainA, 0, big.NewInt(1000000000000000000))
 }
 
 func (s *IntegrationTestSuite) TearDownSuite() {
@@ -702,7 +698,7 @@ func (s *IntegrationTestSuite) runIBCRelayer() {
 }
 
 // setupEVMAccountOnChainA sets up a new EVM account on chain A and sends funds from Alice to it, checking balance changes
-func (s *IntegrationTestSuite) setupEVMAccountOnChain(c *chain, valIdx int) {
+func (s *IntegrationTestSuite) setupEVMAccountOnChain(c *chain, valIdx int, amount *big.Int) {
 	// Endpoint infos
 	chainEndpoint := fmt.Sprintf("http://%s", s.valResources[c.id][valIdx].GetHostPort("1317/tcp"))
 	jsonRPC := fmt.Sprintf("http://%s", s.valResources[c.id][valIdx].GetHostPort("8545/tcp"))
@@ -770,7 +766,6 @@ func (s *IntegrationTestSuite) setupEVMAccountOnChain(c *chain, valIdx int) {
 
 	// 3. Send via evm
 	client, err := ethclient.Dial(jsonRPC)
-	amount := big.NewInt(1000000000000000000)
 	receipt, err := sendEVM(client, key, evmAddress, aliceEvmAddress, amount)
 	s.Require().NoError(err)
 	s.Require().False(receipt.Status == geth.ReceiptStatusFailed)
