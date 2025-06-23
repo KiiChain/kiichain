@@ -80,6 +80,7 @@ type chain struct {
 	id         string
 	validators []*validator
 	accounts   []*account //nolint:unused
+	evmAccount EVMAccount
 	// initial accounts in genesis
 	genesisAccounts        []*account
 	genesisVestingAccounts map[string]sdk.AccAddress

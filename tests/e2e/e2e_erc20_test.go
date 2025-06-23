@@ -21,24 +21,23 @@ import (
 )
 
 // testEVM Tests EVM send and contract usage
-func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
+func (s *IntegrationTestSuite) testERC20(jsonRPC string) {
 	var (
-		err           error
-		valIdx        = 0
-		c             = s.chainA
-		chainEndpoint = fmt.Sprintf("http://%s", s.valResources[c.id][valIdx].GetHostPort("1317/tcp"))
+		err    error
+		valIdx = 0
+		c      = s.chainA
 	)
 
 	// Get a funded EVM account and check balance transactions
-	key, evmAddress := s.setupEVMwithFunds(jsonRCP, chainEndpoint, valIdx)
+	evmAccount := c.evmAccount
 
 	// Setup client
-	client, err := ethclient.Dial(jsonRCP)
+	client, err := ethclient.Dial(jsonRPC)
 	s.Require().NoError(err)
 
 	// 1. Deploy ERC20 contract
 	// Prepare auth
-	auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1010))
+	auth, err := bind.NewKeyedTransactorWithChainID(evmAccount.key, big.NewInt(1010))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,7 +67,7 @@ func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
 		auth.Nonce = big.NewInt(int64(tx.Nonce() + 1)) // update nonce
 
 		// Mint some amount
-		mintTx, err := erc20.Mint(auth, evmAddress, doubleAmount)
+		mintTx, err := erc20.Mint(auth, evmAccount.address, doubleAmount)
 		s.Require().NoError(err)
 		s.waitForTransaction(client, mintTx)
 
@@ -79,7 +78,7 @@ func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
 		}
 
 		// Balance should have changed
-		newBalance, err := erc20.BalanceOf(callOpts, evmAddress)
+		newBalance, err := erc20.BalanceOf(callOpts, evmAccount.address)
 		s.Require().NoError(err)
 		s.Require().Equal(doubleAmount, newBalance)
 

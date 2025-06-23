@@ -21,6 +21,8 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govlegacytypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 func modifyGenesis(path, moniker, amountStr string, addrAll []sdk.AccAddress, denom string) error {
@@ -174,6 +176,26 @@ func modifyGenesis(path, moniker, amountStr string, addrAll []sdk.AccAddress, de
 		return fmt.Errorf("failed to marshal gov genesis state: %w", err)
 	}
 	appState[govtypes.ModuleName] = govGenStateBz
+
+	evmGenesisState := evmtypes.DefaultGenesisState()
+	evmGenesisState.Params.ActiveStaticPrecompiles = []string{
+		"0x0000000000000000000000000000000000000100",
+		"0x0000000000000000000000000000000000000400",
+		"0x0000000000000000000000000000000000000800",
+		"0x0000000000000000000000000000000000000801",
+		"0x0000000000000000000000000000000000000802",
+		"0x0000000000000000000000000000000000000803",
+		"0x0000000000000000000000000000000000000804",
+		"0x0000000000000000000000000000000000000805",
+		"0x0000000000000000000000000000000000001001",
+		"0x0000000000000000000000000000000000001002",
+	}
+
+	evmGenStateBz, err := cdc.MarshalJSON(evmGenesisState)
+	if err != nil {
+		return fmt.Errorf("failed to marshal evm genesis state: %w", err)
+	}
+	appState[evmtypes.ModuleName] = evmGenStateBz
 
 	appStateJSON, err := json.Marshal(appState)
 	if err != nil {

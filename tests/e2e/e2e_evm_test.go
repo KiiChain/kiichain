@@ -3,7 +3,6 @@ package e2e
 import (
 	"bytes"
 	"context"
-	"crypto/ecdsa"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -11,7 +10,6 @@ import (
 	"math/big"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -19,10 +17,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	"cosmossdk.io/math"
-
 	"github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 
 	"github.com/kiichain/kiichain/v2/tests/e2e/mock"
@@ -33,9 +28,9 @@ const (
 )
 
 // testEVMQueries Test EVM queries
-func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
+func (s *IntegrationTestSuite) testEVMQueries(jsonRPC string) {
 	s.Run("eth_blockNumber", func() {
-		res, err := httpEVMPostJSON(jsonRCP, "eth_blockNumber", []interface{}{})
+		res, err := httpEVMPostJSON(jsonRPC, "eth_blockNumber", []interface{}{})
 		s.Require().NoError(err)
 
 		blockNumber, err := parseResultAsHex(res)
@@ -44,7 +39,7 @@ func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
 	})
 
 	s.Run("eth_chainId", func() {
-		res, err := httpEVMPostJSON(jsonRCP, "eth_chainId", []interface{}{})
+		res, err := httpEVMPostJSON(jsonRPC, "eth_chainId", []interface{}{})
 		s.Require().NoError(err)
 
 		chainID, err := parseResultAsHex(res)
@@ -53,7 +48,7 @@ func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
 	})
 
 	s.Run("eth_getBalance on zero address", func() {
-		res, err := httpEVMPostJSON(jsonRCP, "eth_getBalance", []interface{}{
+		res, err := httpEVMPostJSON(jsonRPC, "eth_getBalance", []interface{}{
 			"0x0000000000000000000000000000000000000000", "latest",
 		})
 		s.Require().NoError(err)
@@ -64,7 +59,7 @@ func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
 	})
 
 	s.Run("web3_clientVersion", func() {
-		res, err := httpEVMPostJSON(jsonRCP, "web3_clientVersion", []interface{}{})
+		res, err := httpEVMPostJSON(jsonRPC, "web3_clientVersion", []interface{}{})
 		s.Require().NoError(err)
 
 		_, ok := res["result"].(string)
@@ -73,25 +68,20 @@ func (s *IntegrationTestSuite) testEVMQueries(jsonRCP string) {
 }
 
 // testEVM Tests EVM send and contract usage
-func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
-	var (
-		err           error
-		valIdx        = 0
-		c             = s.chainA
-		chainEndpoint = fmt.Sprintf("http://%s", s.valResources[c.id][valIdx].GetHostPort("1317/tcp"))
-	)
+func (s *IntegrationTestSuite) testEVM(jsonRPC string) {
+	var err error
 
 	// Get a funded EVM account and check balance transactions
-	key, _ := s.setupEVMwithFunds(jsonRCP, chainEndpoint, valIdx)
+	evmAccount := s.chainA.evmAccount
 
 	// Setup client
-	client, err := ethclient.Dial(jsonRCP)
+	client, err := ethclient.Dial(jsonRPC)
 	s.Require().NoError(err)
 
 	// Deploy contract
 	s.Run("create and interact w/ contract", func() {
 		// Prepare auth
-		auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1010))
+		auth, err := bind.NewKeyedTransactorWithChainID(evmAccount.key, big.NewInt(1010))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -117,99 +107,6 @@ func (s *IntegrationTestSuite) testEVM(jsonRCP string) {
 		s.Require().NoError(err)
 		s.Require().Equal(big.NewInt(1), counterValue)
 	})
-}
-
-// setupEVMwithFunds sets up a new EVM account and sends funds from Alice to it, checking balance changes
-func (s *IntegrationTestSuite) setupEVMwithFunds(jsonRCP, chainEndpoint string, valIdx int) (*ecdsa.PrivateKey, common.Address) {
-	// 1. Create new account
-	// Make a key
-	key, err := crypto.HexToECDSA("88cbead91aee890d27bf06e003ade3d4e952427e88f88d31d61d3ef5e5d54305")
-	s.Require().NoError(err)
-
-	// Make a message to extract key, making sure we are using correct way
-	msg := crypto.Keccak256([]byte("foo"))
-	ethSig, _ := crypto.Sign(msg, key)
-	recoveredPub, _ := crypto.Ecrecover(msg, ethSig)
-
-	// Get pubkey, evm and cosmos address
-	pubKey, _ := crypto.UnmarshalPubkey(recoveredPub)
-	evmAddress := crypto.PubkeyToAddress(*pubKey)
-	s.T().Logf("Newly created evm address: %s", evmAddress)
-	cosmosAddress, err := PubKeyBytesToCosmosAddress(evmAddress.Bytes())
-	s.Require().NoError(err)
-	s.T().Logf("Newly created cosmos address: %s", cosmosAddress)
-
-	// Get alice's cosmos and evm address
-	alice, err := s.chainA.genesisAccounts[1].keyInfo.GetAddress()
-	s.Require().NoError(err)
-	s.T().Logf("Alice address: %s", alice)
-
-	publicKey, err := s.chainA.genesisAccounts[1].keyInfo.GetPubKey()
-	s.Require().NoError(err)
-	// Make sure we are using correct generation
-	aliceCosmosAddress, err := PubKeyToCosmosAddress(publicKey)
-	s.Require().NoError(err)
-	s.Require().Equal(alice.String(), aliceCosmosAddress)
-
-	// Get her EVM address
-	aliceEvmAddress, err := CosmosPubKeyToEVMAddress(publicKey)
-	s.Require().NoError(err)
-	s.T().Logf("Alice evm address : %s", aliceEvmAddress)
-
-	// 2. Send funds via cosmos for new account so it can do operations
-	s.execBankSend(s.chainA, valIdx, alice.String(), cosmosAddress, tokenAmount.String(), standardFees.String(), false)
-
-	var newBalance sdk.Coin
-	// Get balances of sender and recipient accounts
-	s.Require().Eventually(
-		func() bool {
-			// Get balance via cosmos
-			newBalance, err = getSpecificBalance(chainEndpoint, cosmosAddress, akiiDenom)
-			s.Require().NoError(err)
-
-			// Balance should already have some coin
-			return newBalance.IsValid() && newBalance.Amount.GT(math.ZeroInt())
-		},
-		10*time.Second,
-		5*time.Second,
-	)
-
-	s.Run("eth_getBalance on new address", func() {
-		// Get balance via evm
-		res, err := httpEVMPostJSON(jsonRCP, "eth_getBalance", []interface{}{
-			evmAddress.String(), "latest",
-		})
-		s.Require().NoError(err)
-
-		balance, err := parseResultAsHex(res)
-		s.Require().NoError(err)
-		s.T().Logf("Balance : %s", balance)
-
-		// Balance should have something
-		s.Require().False(strings.HasPrefix(balance, "0x0"))
-	})
-
-	// 3. Send via evm
-	client, err := ethclient.Dial(jsonRCP)
-	amount := big.NewInt(1000000000000000000)
-	receipt, err := sendEVM(client, key, evmAddress, aliceEvmAddress, amount)
-	s.Require().NoError(err)
-	s.T().Logf("Transaction status: %d\n", receipt.Status)
-
-	// 4. check changes
-	s.Run("eth_getBalance on address after send", func() {
-		res, err := httpEVMPostJSON(jsonRCP, "eth_getBalance", []interface{}{
-			evmAddress.String(), "latest",
-		})
-		s.Require().NoError(err)
-
-		balance, err := parseResultAsHex(res)
-		s.Require().NoError(err)
-		s.T().Logf("Balance : %s", balance)
-		// Balance should have something now
-		s.Require().False(strings.HasPrefix(balance, "0x0"))
-	})
-	return key, evmAddress
 }
 
 // waitForTransaction waits until transaction is mined, requiring its success

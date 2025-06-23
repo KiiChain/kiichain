@@ -37,8 +37,8 @@ func (s *IntegrationTestSuite) sendIBC(c *chain, valIdx int, sender, recipient, 
 		txCommand,
 		"ibc-transfer",
 		"transfer",
-		"transfer",
-		"channel-0",
+		transferPort,
+		transferChannel,
 		recipient,
 		token,
 		fmt.Sprintf("--from=%s", sender),
@@ -386,7 +386,7 @@ func (s *IntegrationTestSuite) testFailedMultihopIBCTokenTransfer() {
 		forwardPort := "transfer"
 		forwardChannel := "channel-0"
 
-		tokenAmt := mustNewIntFromString("3300000000000000000000") // 3,300 Kii
+		tokenAmt := tokenAmount.Amount // 3,300 Kii
 
 		chainAAPIEndpoint := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
 
