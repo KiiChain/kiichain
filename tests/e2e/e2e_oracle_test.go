@@ -51,17 +51,17 @@ func (s *IntegrationTestSuite) testFeelessTx() {
 	s.execAggregateVote(s.chainA, 0, "1000akii", validatorAddress, voterAddr.String(), kiichainHomePath, Fee.String(), nil)
 
 	// The balance should be the same as before, since the vote is fee-less
-	newBalance, err := getSpecificBalance(chainEndpoint, voterAddr.String(), akiiDenom)
+	balanceAfterFirstVote, err := getSpecificBalance(chainEndpoint, voterAddr.String(), akiiDenom)
 	s.Require().NoError(err, "failed to get balance for %s after voting", voterAddr.String())
-	s.Require().Equal(balance.Amount, newBalance.Amount, "balance should remain the same after fee-less vote")
+	s.Require().Equal(balance.Amount, balanceAfterFirstVote.Amount, "balance should remain the same after fee-less vote")
 
 	// If we vote again, the balance should change
 	s.execAggregateVote(s.chainA, 0, "1000akii", validatorAddress, voterAddr.String(), kiichainHomePath, Fee.String(), nil)
 
 	// Get the new balance after the second vote
-	newBalanceAfterSecondVote, err := getSpecificBalance(chainEndpoint, voterAddr.String(), akiiDenom)
+	balanceAfterSecondVote, err := getSpecificBalance(chainEndpoint, voterAddr.String(), akiiDenom)
 	s.Require().NoError(err, "failed to get balance for %s after second vote", voterAddr.String())
-	s.Require().NotEqual(newBalance.Amount, newBalanceAfterSecondVote.Amount, "balance should change after second vote")
+	s.Require().True(balanceAfterSecondVote.Amount.LT(balanceAfterFirstVote.Amount), "new balance should be less than the previous balance after second vote")
 }
 
 // testFeeder tests the feeder address functionality
