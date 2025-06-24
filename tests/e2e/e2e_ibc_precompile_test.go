@@ -1,16 +1,11 @@
 package e2e
 
 import (
-	"context"
 	"fmt"
-	"log"
-	"math/big"
 	"strings"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	geth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 
 	"cosmossdk.io/math"
@@ -99,24 +94,13 @@ func (s *IntegrationTestSuite) sendIBCPrecompile(jsonRPC string, senderEvmAccoun
 
 	// Deploy contract
 	s.Run("send to IBC precompile transfer", func() {
-		// Prepare auth
-		auth, err := bind.NewKeyedTransactorWithChainID(senderEvmAccount.key, big.NewInt(1010))
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// Set optional params
-		auth.Value = big.NewInt(0)
-		auth.GasLimit = uint64(3000000) // gas limit
-		auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
-
 		// Bind
 		ibcPrecompile, err := precompiles.NewIbcPrecompile(common.HexToAddress(IBCPrecompileAddress), client)
 		s.Require().NoError(err)
 
 		// Call transfer
 		tx, err := ibcPrecompile.TransferWithDefaultTimeout(
-			auth,
+			setupDefaultAuth(client, senderEvmAccount.key),
 			recipient,
 			transferPort,
 			transferChannel,
@@ -127,18 +111,6 @@ func (s *IntegrationTestSuite) sendIBCPrecompile(jsonRPC string, senderEvmAccoun
 		s.Require().NoError(err)
 
 		// Wait and check tx
-		receipt, err := bind.WaitMined(context.Background(), client, tx)
-		s.Require().NoError(err)
-
-		if receipt.Status == geth.ReceiptStatusFailed {
-			// Try to get the revert reason
-			reason, err := getRevertReason(client, tx.Hash(), senderEvmAccount.address)
-			if err != nil {
-				s.T().Logf("Failed to get revert reason: %v", err)
-			} else if reason != "" {
-				s.T().Logf("Revert reason: %s", reason)
-			}
-		}
-		s.Require().False(receipt.Status == geth.ReceiptStatusFailed)
+		s.waitForTransaction(client, tx, senderEvmAccount.address)
 	})
 }
