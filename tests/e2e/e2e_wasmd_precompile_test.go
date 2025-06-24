@@ -38,7 +38,7 @@ func (s *IntegrationTestSuite) testWasmdPrecompile() {
 	s.Require().NoError(err)
 	storeWasmPath := configFile("counter.wasm")
 
-	// Store the contract using the CLI
+	// 1. Store the contract using the CLI
 	s.WasmdStoreCLI(s.chainA, valIdx, from, storeWasmPath, standardFees.String(), false)
 
 	// Get EVM acc
@@ -55,7 +55,7 @@ func (s *IntegrationTestSuite) testWasmdPrecompile() {
 	wasmdPrecompile, err := precompiles.NewWasmdPrecompile(common.HexToAddress(WasmdPrecompileAddress), client)
 	s.Require().NoError(err)
 
-	// Instantiate the contract via precompile
+	// 2. Instantiate the contract via precompile
 	s.wasmIntantiateViaPrecompile(client, wasmdPrecompile, evmAccount, 1, `"zero"`, "counter")
 
 	// Query contract address
@@ -67,7 +67,7 @@ func (s *IntegrationTestSuite) testWasmdPrecompile() {
 	state := s.wasmSmartQueryViaPrecompile(wasmdPrecompile, contractAddress, `"value"`)
 	s.Require().Equal(string(state), `{"value":0}`)
 
-	// Execute the contract via precompile
+	// 3. Execute the contract via precompile
 	s.wasmExecuteViaPrecompile(client, wasmdPrecompile, evmAccount, contractAddress, `{"set": 34}`)
 
 	// Query the contract state again the value should be 34
