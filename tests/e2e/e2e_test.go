@@ -184,4 +184,7 @@ func (s *IntegrationTestSuite) TestWasmd() {
 		s.T().Skip()
 	}
 	s.testWasmdCounter()
+
+	// Test precompile
+	s.testWasmdPrecompile()
 }

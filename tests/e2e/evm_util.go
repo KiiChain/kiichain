@@ -5,11 +5,13 @@ import (
 	"crypto/ecdsa"
 	"errors"
 	"fmt"
+	"log"
 	"math/big"
 	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	geth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -168,4 +170,18 @@ func extractRevertReason(err error) string {
 
 	// Return full error if no specific pattern matched
 	return str
+}
+
+// setupDefaultAuth creates an auth with a given evm key and client
+func setupDefaultAuth(client *ethclient.Client, key *ecdsa.PrivateKey) *bind.TransactOpts {
+	auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1010))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Set optional params
+	auth.Value = big.NewInt(0)
+	auth.GasLimit = uint64(3000000) // gas limit
+	auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
+	return auth
 }
