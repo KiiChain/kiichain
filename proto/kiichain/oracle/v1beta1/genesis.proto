@@ -1,0 +1,49 @@
+syntax = "proto3";
+package kiichain.oracle.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "kiichain/oracle/v1beta1/params.proto";
+
+option go_package = "github.com/kiichain/kiichain/x/oracle/types";
+
+// GenesisState is the data struct on the genesis
+message GenesisState{
+    Params params = 1 [(gogoproto.nullable) = false];
+    // exchange_rates represents the array of exchange rate: Denom and Rate 
+    repeated ExchangeRateTuple exchange_rates = 2 [
+      (gogoproto.castrepeated) = "ExchangeRateTuples",
+      (gogoproto.nullable) = false
+    ];
+
+    // feeder_delegations represents the array of delegated address
+    repeated FeederDelegation feeder_delegations = 3 [(gogoproto.nullable) = false];
+
+    // vote_penalty_counters represents the voting behavior per validator  
+    repeated VotePenaltyCounter vote_penalty_counters = 4 [(gogoproto.nullable) = false];
+
+    // aggregate_exchange_rate_votes represents the array with the vote process by each denom
+    repeated AggregateExchangeRateVote aggregate_exchange_rate_votes = 5 [(gogoproto.nullable) = false];
+
+    // price_snapshots represents the initial array of snapshots 
+    repeated PriceSnapshot price_snapshots = 6 [
+        (gogoproto.nullable) = false,
+        (gogoproto.castrepeated) = "PriceSnapshots"
+    ];
+    // penalty_counters represents the array with the penalty counter by validator
+    repeated PenaltyCounter penalty_counters = 7 [(gogoproto.nullable) = false];
+}
+
+// FeederDelegation is the structure on the genesis regarding the delegation process 
+message FeederDelegation {
+  // feeder_address is the address delegated  
+  string feeder_address    = 1;
+
+  // validator_address is the validator's address who delegate its voting action 
+  string validator_address = 2;
+}
+
+// PenaltyCounter is the structure on the keeper that link the voting info with a validator address   
+message PenaltyCounter {
+  string validator_address = 1;
+  VotePenaltyCounter vote_penalty_counter = 2;
+}

@@ -11,6 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	app "github.com/kiichain/kiichain/v2/app"
+	"github.com/kiichain/kiichain/v2/app/apptesting"
 	"github.com/kiichain/kiichain/v2/wasmbinding"
 	"github.com/kiichain/kiichain/v2/wasmbinding/helpers"
 	bindingtypes "github.com/kiichain/kiichain/v2/wasmbinding/tokenfactory/types"
@@ -18,7 +19,7 @@ import (
 
 // TestQueryDenomAdmin tests the GetDenomAdmin query
 func TestQueryFullDenom(t *testing.T) {
-	actor := helpers.RandomAccountAddress()
+	actor := apptesting.RandomAccountAddress()
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	reflect := helpers.InstantiateReflectContract(t, ctx, app, actor)

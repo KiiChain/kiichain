@@ -32,6 +32,7 @@ import (
 
 	kiichain "github.com/kiichain/kiichain/v2/app"
 	kiiparams "github.com/kiichain/kiichain/v2/app/params"
+	oracletypes "github.com/kiichain/kiichain/v2/x/oracle/types"
 	rewardstypes "github.com/kiichain/kiichain/v2/x/rewards/types"
 	tokenfactorytypes "github.com/kiichain/kiichain/v2/x/tokenfactory/types"
 )
@@ -70,6 +71,9 @@ func init() {
 	evmtypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	erc20types.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	feemarkettypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
+
+	// Register the oracle interfaces
+	oracletypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 
 	cdc = encodingConfig.Marshaler
 	txConfig = encodingConfig.TxConfig

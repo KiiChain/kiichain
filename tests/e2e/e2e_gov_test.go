@@ -90,7 +90,7 @@ func (s *IntegrationTestSuite) GovCancelSoftwareUpgrade() {
 	voteGovFlags = []string{strconv.Itoa(proposalCounter), "yes"}
 	s.submitGovProposal(chainAAPIEndpoint, sender, proposalCounter, upgradetypes.ProposalTypeCancelSoftwareUpgrade, submitGovFlags, depositGovFlags, voteGovFlags, "vote")
 
-	s.verifyChainPassesUpgradeHeight(s.chainA, 0, proposalHeight)
+	s.waitUntilPassedHeight(s.chainA, 0, proposalHeight)
 	s.T().Logf("Successfully canceled upgrade at height %d", proposalHeight)
 }
 
@@ -176,15 +176,15 @@ func (s *IntegrationTestSuite) verifyChainHaltedAtUpgradeHeight(c *chain, valIdx
 	)
 }
 
-func (s *IntegrationTestSuite) verifyChainPassesUpgradeHeight(c *chain, valIdx, upgradeHeight int) {
+func (s *IntegrationTestSuite) waitUntilPassedHeight(c *chain, valIdx, height int) {
 	s.Require().Eventually(
 		func() bool {
 			currentHeight := s.getLatestBlockHeight(c, valIdx)
 
-			return currentHeight > upgradeHeight
+			return currentHeight > height
 		},
-		30*time.Second,
-		5*time.Second,
+		60*time.Second,
+		1*time.Second,
 	)
 }
 

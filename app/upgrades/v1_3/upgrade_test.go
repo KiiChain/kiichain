@@ -4,12 +4,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
 
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/kiichain/kiichain/v2/app/helpers"
-	v130 "github.com/kiichain/kiichain/v2/app/upgrades/v1_3"
+	utils "github.com/kiichain/kiichain/v2/app/upgrades/utils"
 	"github.com/kiichain/kiichain/v2/precompiles/ibc"
 	"github.com/kiichain/kiichain/v2/precompiles/wasmd"
 )
@@ -33,7 +34,14 @@ func TestUpgrade(t *testing.T) {
 	require.NoError(t, err)
 
 	// Now run add wasmd upgrade
-	err = v130.InstallNewPrecompiles(ctx, &app.AppKeepers)
+	err = utils.InstallNewPrecompiles(
+		ctx,
+		&app.AppKeepers,
+		[]common.Address{
+			common.HexToAddress(wasmd.WasmdPrecompileAddress),
+			common.HexToAddress(ibc.IBCPrecompileAddress),
+		},
+	)
 	require.NoError(t, err)
 
 	// Get the params again

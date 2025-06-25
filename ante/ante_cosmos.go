@@ -49,14 +49,19 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 
 	// Skip the feemarket decorator is needed
 	if UseFeeMarketDecorator {
-		anteDecorators = append(anteDecorators,
+		// This wraps using the gasless decorator
+		gasLessFeeDecorator := NewFeelessDecorator(
 			ante.NewDeductFeeDecorator(
 				options.AccountKeeper,
 				options.BankKeeper,
 				options.FeegrantKeeper,
 				options.TxFeeChecker,
 			),
+			options.OracleKeeper,
 		)
+
+		// Add to the ante decorators
+		anteDecorators = append(anteDecorators, gasLessFeeDecorator)
 	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...)

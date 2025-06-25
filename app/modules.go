@@ -61,6 +61,8 @@ import (
 	"github.com/cosmos/evm/x/vm"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
+	"github.com/kiichain/kiichain/v2/x/oracle"
+	oracletypes "github.com/kiichain/kiichain/v2/x/oracle/types"
 	"github.com/kiichain/kiichain/v2/x/rewards"
 	rewardstypes "github.com/kiichain/kiichain/v2/x/rewards/types"
 	"github.com/kiichain/kiichain/v2/x/tokenfactory"
@@ -85,6 +87,7 @@ var maccPerms = map[string][]string{
 	// Custom modules
 	tokenfactorytypes.ModuleName: {authtypes.Minter, authtypes.Burner},
 	rewardstypes.ModuleName:      nil,
+	oracletypes.ModuleName:       nil,
 }
 
 func appModules(
@@ -117,6 +120,7 @@ func appModules(
 		ibctm.NewAppModule(),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
 		rewards.NewAppModule(app.RewardsKeeper, app.BankKeeper),
+		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 		sdkparams.NewAppModule(app.ParamsKeeper),
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
@@ -215,6 +219,7 @@ func orderBeginBlockers() []string {
 		consensusparamtypes.ModuleName,
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		oracletypes.ModuleName,
 	}
 }
 
@@ -251,6 +256,7 @@ func orderEndBlockers() []string {
 		consensusparamtypes.ModuleName,
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		oracletypes.ModuleName,
 	}
 }
 
@@ -296,6 +302,7 @@ func orderInitBlockers() []string {
 		consensusparamtypes.ModuleName,
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
+		oracletypes.ModuleName,
 		rewardstypes.ModuleName,
 		// crisis needs to be last so that the genesis state is consistent
 		// when it checks invariants
