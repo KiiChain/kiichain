@@ -3,7 +3,6 @@ package e2e
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/big"
 	"path/filepath"
 	"strconv"
@@ -21,37 +20,28 @@ import (
 )
 
 // testEVM Tests EVM send and contract usage
-func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
+func (s *IntegrationTestSuite) testERC20(jsonRPC string) {
 	var (
-		err           error
-		valIdx        = 0
-		c             = s.chainA
-		chainEndpoint = fmt.Sprintf("http://%s", s.valResources[c.id][valIdx].GetHostPort("1317/tcp"))
+		err    error
+		valIdx = 0
+		c      = s.chainA
 	)
 
 	// Get a funded EVM account and check balance transactions
-	key, evmAddress := s.setupEVMwithFunds(jsonRCP, chainEndpoint, valIdx)
+	evmAccount := c.evmAccount
 
 	// Setup client
-	client, err := ethclient.Dial(jsonRCP)
+	client, err := ethclient.Dial(jsonRPC)
 	s.Require().NoError(err)
 
 	// 1. Deploy ERC20 contract
 	// Prepare auth
-	auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1010))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Set optional params
-	auth.Value = big.NewInt(0)
-	auth.GasLimit = uint64(3000000) // gas limit
-	auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
+	auth := setupDefaultAuth(client, evmAccount.key)
 
 	// Deploy
 	contractAddress, tx, erc20, err := mock.DeployERC20Mock(auth, client)
 	s.Require().NoError(err)
-	s.waitForTransaction(client, tx)
+	s.waitForTransaction(client, tx, evmAccount.address)
 
 	// Setup alice information
 	publicKey, err := s.chainA.genesisAccounts[1].keyInfo.GetPubKey()
@@ -68,9 +58,9 @@ func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
 		auth.Nonce = big.NewInt(int64(tx.Nonce() + 1)) // update nonce
 
 		// Mint some amount
-		mintTx, err := erc20.Mint(auth, evmAddress, doubleAmount)
+		mintTx, err := erc20.Mint(auth, evmAccount.address, doubleAmount)
 		s.Require().NoError(err)
-		s.waitForTransaction(client, mintTx)
+		s.waitForTransaction(client, mintTx, evmAccount.address)
 
 		// Setup call options
 		callOpts := &bind.CallOpts{
@@ -79,7 +69,7 @@ func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
 		}
 
 		// Balance should have changed
-		newBalance, err := erc20.BalanceOf(callOpts, evmAddress)
+		newBalance, err := erc20.BalanceOf(callOpts, evmAccount.address)
 		s.Require().NoError(err)
 		s.Require().Equal(doubleAmount, newBalance)
 
@@ -87,7 +77,7 @@ func (s *IntegrationTestSuite) testERC20(jsonRCP string) {
 		auth.Nonce = big.NewInt(int64(mintTx.Nonce() + 1)) // update nounce
 		transferTx, err := erc20.Transfer(auth, aliceEvmAddress, amount)
 		s.Require().NoError(err)
-		s.waitForTransaction(client, transferTx)
+		s.waitForTransaction(client, transferTx, evmAccount.address)
 
 		aliceBalance, err := erc20.BalanceOf(callOpts, aliceEvmAddress)
 		s.Require().NoError(err)

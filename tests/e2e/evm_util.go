@@ -3,14 +3,25 @@ package e2e
 import (
 	"context"
 	"crypto/ecdsa"
+	"errors"
 	"fmt"
+	"log"
 	"math/big"
+	"strings"
 	"time"
 
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	geth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
+
+// EVMAccount stores an address and a key used for EVM interaction
+type EVMAccount struct {
+	key     *ecdsa.PrivateKey
+	address common.Address
+}
 
 // sendEVM does a send native coin via EVM
 func sendEVM(
@@ -105,4 +116,72 @@ func checkTransactionByHash(client *ethclient.Client, txHash common.Hash) (*geth
 	}
 
 	return tx, receipt, nil
+}
+
+// getRevertReason tries to extract the revert reason from a failed transaction
+func getRevertReason(client *ethclient.Client, txHash common.Hash, from common.Address) (string, error) {
+	tx, _, err := client.TransactionByHash(context.Background(), txHash)
+	if err != nil {
+		return "", err
+	}
+
+	msg := &ethereum.CallMsg{
+		From:     from,
+		To:       tx.To(),
+		Gas:      tx.Gas(),
+		GasPrice: tx.GasPrice(),
+		Value:    tx.Value(),
+		Data:     tx.Data(),
+	}
+
+	_, err = client.CallContract(context.Background(), *msg, nil)
+	if err == nil {
+		return "", errors.New("no error occurred (transaction should have failed)")
+	}
+
+	return extractRevertReason(err), nil
+}
+
+// extractRevertReason parses the revert reason from the error message
+func extractRevertReason(err error) string {
+	if err == nil {
+		return ""
+	}
+
+	// Check for different error formats
+	str := err.Error()
+
+	// Common formats:
+	// 1. "execution reverted: {reason}"
+	// 2. "VM execution error. {reason}"
+	if strings.Contains(str, "execution reverted:") {
+		parts := strings.SplitN(str, "execution reverted:", 2)
+		if len(parts) > 1 {
+			return strings.TrimSpace(parts[1])
+		}
+	}
+
+	if strings.Contains(str, "VM execution error.") {
+		parts := strings.SplitN(str, "VM execution error.", 2)
+		if len(parts) > 1 {
+			return strings.TrimSpace(parts[1])
+		}
+	}
+
+	// Return full error if no specific pattern matched
+	return str
+}
+
+// setupDefaultAuth creates an auth with a given evm key and client
+func setupDefaultAuth(client *ethclient.Client, key *ecdsa.PrivateKey) *bind.TransactOpts {
+	auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1010))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Set optional params
+	auth.Value = big.NewInt(0)
+	auth.GasLimit = uint64(3000000) // gas limit
+	auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
+	return auth
 }

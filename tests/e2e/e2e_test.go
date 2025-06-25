@@ -92,6 +92,10 @@ func (s *IntegrationTestSuite) TestIBC() {
 	s.testMultihopIBCTokenTransfer()
 	s.testFailedMultihopIBCTokenTransfer()
 	s.testICARegisterAccountAndSendTx()
+
+	// IBC precompile
+	jsonRPC := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("8545/tcp"))
+	s.testIBCPrecompileTransfer(jsonRPC)
 }
 
 // TestSlashing runs the slashing tests. It is skipped if the variable is set
@@ -181,6 +185,9 @@ func (s *IntegrationTestSuite) TestWasmd() {
 		s.T().Skip()
 	}
 	s.testWasmdCounter()
+
+	// Test precompile
+	s.testWasmdPrecompile()
 }
 
 // TestOracle runs the Oracle tests. It is skipped if the variable is set

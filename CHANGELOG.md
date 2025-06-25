@@ -5,6 +5,8 @@
 - Add the oracle module to the chain
 - Add the oracle wasmbinding
 - Add the oracle EMV precompile
+- Add E2E tests to IBC precompile
+- Add E2E tests to wasmd precompile
 
 ## v2.0.0 -- 2025-06-18
 
