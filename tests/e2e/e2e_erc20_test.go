@@ -3,7 +3,6 @@ package e2e
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/big"
 	"path/filepath"
 	"strconv"
@@ -37,20 +36,12 @@ func (s *IntegrationTestSuite) testERC20(jsonRPC string) {
 
 	// 1. Deploy ERC20 contract
 	// Prepare auth
-	auth, err := bind.NewKeyedTransactorWithChainID(evmAccount.key, big.NewInt(1010))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Set optional params
-	auth.Value = big.NewInt(0)
-	auth.GasLimit = uint64(3000000) // gas limit
-	auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
+	auth := setupDefaultAuth(client, evmAccount.key)
 
 	// Deploy
 	contractAddress, tx, erc20, err := mock.DeployERC20Mock(auth, client)
 	s.Require().NoError(err)
-	s.waitForTransaction(client, tx)
+	s.waitForTransaction(client, tx, evmAccount.address)
 
 	// Setup alice information
 	publicKey, err := s.chainA.genesisAccounts[1].keyInfo.GetPubKey()
@@ -69,7 +60,7 @@ func (s *IntegrationTestSuite) testERC20(jsonRPC string) {
 		// Mint some amount
 		mintTx, err := erc20.Mint(auth, evmAccount.address, doubleAmount)
 		s.Require().NoError(err)
-		s.waitForTransaction(client, mintTx)
+		s.waitForTransaction(client, mintTx, evmAccount.address)
 
 		// Setup call options
 		callOpts := &bind.CallOpts{
@@ -86,7 +77,7 @@ func (s *IntegrationTestSuite) testERC20(jsonRPC string) {
 		auth.Nonce = big.NewInt(int64(mintTx.Nonce() + 1)) // update nounce
 		transferTx, err := erc20.Transfer(auth, aliceEvmAddress, amount)
 		s.Require().NoError(err)
-		s.waitForTransaction(client, transferTx)
+		s.waitForTransaction(client, transferTx, evmAccount.address)
 
 		aliceBalance, err := erc20.BalanceOf(callOpts, aliceEvmAddress)
 		s.Require().NoError(err)

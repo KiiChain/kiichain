@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/big"
 	"net/http"
 	"strings"
@@ -81,27 +80,19 @@ func (s *IntegrationTestSuite) testEVM(jsonRPC string) {
 	// Deploy contract
 	s.Run("create and interact w/ contract", func() {
 		// Prepare auth
-		auth, err := bind.NewKeyedTransactorWithChainID(evmAccount.key, big.NewInt(1010))
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// Set optional params
-		auth.Value = big.NewInt(0)
-		auth.GasLimit = uint64(3000000) // gas limit
-		auth.GasPrice, _ = client.SuggestGasPrice(context.Background())
+		auth := setupDefaultAuth(client, evmAccount.key)
 
 		// Deploy
 		contractAddress, tx, counter, err := mock.DeployCounter(auth, client)
 		s.Require().NoError(err)
 
-		s.waitForTransaction(client, tx)
+		s.waitForTransaction(client, tx, evmAccount.address)
 		s.T().Logf("ContractAddress : %s", contractAddress.String())
 
 		// 6. Interact w/ contract and see changes
 		tx, err = counter.Increment(auth)
 		s.Require().NoError(err)
-		s.waitForTransaction(client, tx)
+		s.waitForTransaction(client, tx, evmAccount.address)
 
 		counterValue, err := counter.GetCounter(nil)
 		s.Require().NoError(err)
@@ -109,10 +100,21 @@ func (s *IntegrationTestSuite) testEVM(jsonRPC string) {
 	})
 }
 
-// waitForTransaction waits until transaction is mined, requiring its success
-func (s *IntegrationTestSuite) waitForTransaction(client *ethclient.Client, tx *geth.Transaction) *geth.Receipt {
+// waitForTransaction waits until transaction is mined, requiring its success and checks reason in case of failure
+func (s *IntegrationTestSuite) waitForTransaction(client *ethclient.Client, tx *geth.Transaction, sender common.Address) *geth.Receipt {
+	// Wait and check tx
 	receipt, err := bind.WaitMined(context.Background(), client, tx)
 	s.Require().NoError(err)
+
+	if receipt.Status == geth.ReceiptStatusFailed {
+		// Try to get the revert reason
+		reason, err := getRevertReason(client, tx.Hash(), sender)
+		if err != nil {
+			s.T().Logf("Failed to get revert reason: %v", err)
+		} else if reason != "" {
+			s.T().Logf("Revert reason: %s", reason)
+		}
+	}
 	s.Require().False(receipt.Status == geth.ReceiptStatusFailed)
 	return receipt
 }
