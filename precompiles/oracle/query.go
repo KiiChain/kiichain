@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	oraclekeeper "github.com/kiichain/kiichain/v2/x/oracle/keeper"
+	oraclekeeper "github.com/kiichain/kiichain/v3/x/oracle/keeper"
 )
 
 const (

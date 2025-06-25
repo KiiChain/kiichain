@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	"github.com/kiichain/kiichain/v2/x/rewards/types"
+	"github.com/kiichain/kiichain/v3/x/rewards/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module

@@ -35,10 +35,10 @@ import (
 	"github.com/cosmos/evm/x/vm/core/vm"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 
-	"github.com/kiichain/kiichain/v2/precompiles/ibc"
-	"github.com/kiichain/kiichain/v2/precompiles/oracle"
-	"github.com/kiichain/kiichain/v2/precompiles/wasmd"
-	oraclekeeper "github.com/kiichain/kiichain/v2/x/oracle/keeper"
+	"github.com/kiichain/kiichain/v3/precompiles/ibc"
+	"github.com/kiichain/kiichain/v3/precompiles/oracle"
+	"github.com/kiichain/kiichain/v3/precompiles/wasmd"
+	oraclekeeper "github.com/kiichain/kiichain/v3/x/oracle/keeper"
 )
 
 const bech32PrecompileBaseGas = 6_000

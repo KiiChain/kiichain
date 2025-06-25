@@ -10,7 +10,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v2/x/rewards/types"
+	"github.com/kiichain/kiichain/v3/x/rewards/types"
 )
 
 func TestRewardReleaserValidateGenesis(t *testing.T) {

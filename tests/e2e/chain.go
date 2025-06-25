@@ -30,11 +30,11 @@ import (
 	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	kiichain "github.com/kiichain/kiichain/v2/app"
-	kiiparams "github.com/kiichain/kiichain/v2/app/params"
-	oracletypes "github.com/kiichain/kiichain/v2/x/oracle/types"
-	rewardstypes "github.com/kiichain/kiichain/v2/x/rewards/types"
-	tokenfactorytypes "github.com/kiichain/kiichain/v2/x/tokenfactory/types"
+	kiichain "github.com/kiichain/kiichain/v3/app"
+	kiiparams "github.com/kiichain/kiichain/v3/app/params"
+	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
+	rewardstypes "github.com/kiichain/kiichain/v3/x/rewards/types"
+	tokenfactorytypes "github.com/kiichain/kiichain/v3/x/tokenfactory/types"
 )
 
 const (

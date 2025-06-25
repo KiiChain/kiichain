@@ -1,4 +1,4 @@
-module github.com/kiichain/kiichain/v2
+module github.com/kiichain/kiichain/v3
 
 go 1.23.6
 

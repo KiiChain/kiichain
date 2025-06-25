@@ -27,9 +27,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/kiichain/kiichain/v2/x/rewards/client/cli"
-	"github.com/kiichain/kiichain/v2/x/rewards/keeper"
-	"github.com/kiichain/kiichain/v2/x/rewards/types"
+	"github.com/kiichain/kiichain/v3/x/rewards/client/cli"
+	"github.com/kiichain/kiichain/v3/x/rewards/keeper"
+	"github.com/kiichain/kiichain/v3/x/rewards/types"
 )
 
 var (

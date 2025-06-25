@@ -23,9 +23,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 	simcli "github.com/cosmos/cosmos-sdk/x/simulation/client/cli"
 
-	"github.com/kiichain/kiichain/v2/ante"
-	kiichain "github.com/kiichain/kiichain/v2/app"
-	"github.com/kiichain/kiichain/v2/app/sim"
+	"github.com/kiichain/kiichain/v3/ante"
+	kiichain "github.com/kiichain/kiichain/v3/app"
+	"github.com/kiichain/kiichain/v3/app/sim"
 )
 
 // AppChainID hardcoded chainID for simulation
