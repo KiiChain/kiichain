@@ -1,6 +1,8 @@
 # CHANGELOG
 
-## UNRELEASED
+## v3.0.0-rc1 -- 2025-06-25
+
+### Added
 
 - Add the oracle module to the chain
 - Add the oracle wasmbinding

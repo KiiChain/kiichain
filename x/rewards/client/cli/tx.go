@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v2/x/rewards/types"
+	"github.com/kiichain/kiichain/v3/x/rewards/types"
 )
 
 // GetTxCmd returns the transaction commands for this module

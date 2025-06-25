@@ -10,9 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/kiichain/kiichain/v2/app/keepers"
-	"github.com/kiichain/kiichain/v2/app/upgrades/utils"
-	"github.com/kiichain/kiichain/v2/precompiles/oracle"
+	"github.com/kiichain/kiichain/v3/app/keepers"
+	"github.com/kiichain/kiichain/v3/app/upgrades/utils"
+	"github.com/kiichain/kiichain/v3/precompiles/oracle"
 )
 
 // CreateUpgradeHandler creates the upgrade handler for the v3.0.0 upgrade

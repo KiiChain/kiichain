@@ -7,8 +7,8 @@ import (
 
 	"cosmossdk.io/math"
 
-	oracleprecompile "github.com/kiichain/kiichain/v2/precompiles/oracle"
-	"github.com/kiichain/kiichain/v2/x/oracle/types"
+	oracleprecompile "github.com/kiichain/kiichain/v3/precompiles/oracle"
+	"github.com/kiichain/kiichain/v3/x/oracle/types"
 )
 
 type ExchangeRateResponse struct {

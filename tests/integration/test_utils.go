@@ -23,9 +23,9 @@ import (
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v2/ante"
-	kiichain "github.com/kiichain/kiichain/v2/app"
-	"github.com/kiichain/kiichain/v2/app/params"
+	"github.com/kiichain/kiichain/v3/ante"
+	kiichain "github.com/kiichain/kiichain/v3/app"
+	"github.com/kiichain/kiichain/v3/app/params"
 )
 
 var app *kiichain.KiichainApp

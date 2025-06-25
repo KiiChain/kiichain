@@ -32,8 +32,8 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	kiichain "github.com/kiichain/kiichain/v2/app"
-	"github.com/kiichain/kiichain/v2/app/params"
+	kiichain "github.com/kiichain/kiichain/v3/app"
+	"github.com/kiichain/kiichain/v3/app/params"
 )
 
 // SimAppChainID hardcoded chainID for simulation
