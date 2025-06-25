@@ -838,25 +838,25 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_ExchangeRate_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"kiichain", "oracle", "denoms", "denom", "exchange_rate"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_ExchangeRate_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"kiichain", "oracle", "v1beta1", "denoms", "denom", "exchange_rate"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_ExchangeRates_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"kiichain", "oracle", "denoms", "exchange_rates"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_ExchangeRates_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"kiichain", "oracle", "v1beta1", "denoms", "exchange_rates"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Actives_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"kiichain", "oracle", "denoms", "actives"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Actives_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"kiichain", "oracle", "v1beta1", "denoms", "actives"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_VoteTargets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"kiichain", "oracle", "denoms", "vote_targets"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_VoteTargets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"kiichain", "oracle", "v1beta1", "denoms", "vote_targets"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_PriceSnapshotHistory_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"kiichain", "oracle", "denoms", "price_snapshot_history"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_PriceSnapshotHistory_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"kiichain", "oracle", "v1beta1", "denoms", "price_snapshot_history"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Twaps_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"kiichain", "oracle", "denoms", "twaps", "lookback_seconds"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Twaps_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"kiichain", "oracle", "v1beta1", "denoms", "twaps", "lookback_seconds"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_FeederDelegation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"kiichain", "oracle", "validators", "validator_addr", "feeder"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_FeederDelegation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"kiichain", "oracle", "v1beta1", "validators", "validator_addr", "feeder"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_VotePenaltyCounter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"kiichain", "oracle", "validators", "validator_addr", "vote_penalty_counter"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_VotePenaltyCounter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"kiichain", "oracle", "v1beta1", "validators", "validator_addr", "vote_penalty_counter"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_SlashWindow_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"kiichain", "oracle", "slash_window"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_SlashWindow_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"kiichain", "oracle", "v1beta1", "slash_window"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"kiichain", "oracle", "params"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"kiichain", "oracle", "v1beta1", "params"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (

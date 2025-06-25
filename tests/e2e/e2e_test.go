@@ -22,6 +22,7 @@ var (
 	runEVMTest                    = true
 	runERC20Test                  = true
 	runWasmTest                   = true
+	runOracleTest                 = true
 
 	// skipIBCTests skips tests that uses IBC
 	skipIBCTests = os.Getenv("SKIP_IBC_TESTS") == "true"
@@ -180,4 +181,15 @@ func (s *IntegrationTestSuite) TestWasmd() {
 		s.T().Skip()
 	}
 	s.testWasmdCounter()
+}
+
+// TestOracle runs the Oracle tests. It is skipped if the variable is set
+func (s *IntegrationTestSuite) TestOracle() {
+	if !runOracleTest {
+		s.T().Log("skipping oracle e2e tests...")
+		s.T().Skip()
+	}
+	s.testFeelessTx()
+	s.testFeeder()
+	s.testSlash()
 }

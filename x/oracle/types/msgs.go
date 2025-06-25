@@ -12,6 +12,7 @@ import (
 var (
 	_ sdk.Msg = &MsgDelegateFeedConsent{}
 	_ sdk.Msg = &MsgAggregateExchangeRateVote{}
+	_ sdk.Msg = &MsgUpdateParams{}
 )
 
 // NewMsgAggregateExchangeRateVote creates a MsgAggregateExchangeRateVote instance

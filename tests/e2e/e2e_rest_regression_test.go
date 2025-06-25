@@ -65,6 +65,14 @@ const (
 	rewardsParams   = "/kiichain/rewards/v1beta1/params"
 	rewardsPool     = "/kiichain/rewards/v1beta1/reward-pool"
 	rewardsSchedule = "/kiichain/rewards/v1beta1/release-schedule"
+
+	// Oracle Endpoints
+	oracleExchangeRates        = "/kiichain/oracle/v1beta1/denoms/exchange_rates"
+	oracleActives              = "/kiichain/oracle/v1beta1/denoms/actives"
+	oracleVoteTargets          = "/kiichain/oracle/v1beta1/denoms/vote_targets"
+	oraclePriceSnapshotHistory = "/kiichain/oracle/v1beta1/denoms/price_snapshot_history"
+	oracleSlashWindow          = "/kiichain/oracle/v1beta1/slash_window"
+	oracleParams               = "/kiichain/oracle/v1beta1/params"
 )
 
 func (s *IntegrationTestSuite) testRestInterfaces() {
@@ -109,6 +117,13 @@ func (s *IntegrationTestSuite) testRestInterfaces() {
 				{erc20Params, 200},
 				{erc20TokenPairs, 200},
 				{wasmParamsPath, 200},
+				// Oracle Endpoints
+				{oracleExchangeRates, 200},
+				{oracleActives, 200},
+				{oracleVoteTargets, 200},
+				{oraclePriceSnapshotHistory, 200},
+				{oracleSlashWindow, 200},
+				{oracleParams, 200},
 			}
 		)
 
