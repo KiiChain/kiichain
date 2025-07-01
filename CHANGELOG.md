@@ -1,6 +1,10 @@
 # CHANGELOG
 
-## v3.0.0 -- 2025-07-01
+## v3.0.0 — 2025-07-01
+
+No changes were made since the release candidate.
+
+## v3.0.0-rc1 -- 2025-06-25
 
 ### Added
 
