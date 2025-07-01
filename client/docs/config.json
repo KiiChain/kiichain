@@ -23,6 +23,22 @@
       }
     },
     {
+      "url": "./tmp-swagger-gen/kiichain/oracle/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "OracleParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/kiichain/rewards/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "RewardsParams"
+        }
+      }
+    },
+    {
       "url": "./tmp-swagger-gen/cosmos/bank/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
