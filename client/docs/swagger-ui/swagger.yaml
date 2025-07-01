@@ -3707,6 +3707,810 @@ paths:
                       format: byte
       tags:
         - Query
+  /kiichain/oracle/v1beta1/denoms/actives:
+    get:
+      summary: Actives returns all actives denoms on the module's KVStore
+      operationId: Actives
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              actives:
+                type: array
+                items:
+                  type: string
+            title: >-
+              QueryActivesResponse is the response for the Query/Actives rpc
+              method
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /kiichain/oracle/v1beta1/denoms/exchange_rates:
+    get:
+      summary: ExchangeRates returns the exchange rate for all denoms
+      operationId: ExchangeRates
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              denom_oracle_exchange_rate:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    oracle_exchange_rate:
+                      type: object
+                      properties:
+                        exchange_rate:
+                          type: string
+                        last_update:
+                          type: string
+                        last_update_timestamp:
+                          type: string
+                          format: int64
+                      title: >-
+                        Data type that stores the final calculated exchange rate
+                        after all votes were 
+
+                        aggregated to that single exchange, record the last
+                        block height and timestamp when rate was updated
+                  title: >-
+                    DenomOracleExchangeRate is the data type that represents an
+                    set of denom - exchange rate values
+            title: >-
+              QueryExchangeRatesResponse is the response for the
+              Query/ExchangeRatess rpc method
+
+              DenomOracleExchangeRatePairs is the alias of the element
+              denom_oracle_exchange_rate after generating the code
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /kiichain/oracle/v1beta1/denoms/price_snapshot_history:
+    get:
+      summary: >-
+        PriceSnapshotHistory returns the history of price snapshots for all
+        assets
+      operationId: PriceSnapshotHistory
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              price_snapshot:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    snapshot_timestamp:
+                      type: string
+                      format: int64
+                    price_snapshot_items:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          oracle_exchange_rate:
+                            type: object
+                            properties:
+                              exchange_rate:
+                                type: string
+                              last_update:
+                                type: string
+                              last_update_timestamp:
+                                type: string
+                                format: int64
+                            title: >-
+                              Data type that stores the final calculated
+                              exchange rate after all votes were 
+
+                              aggregated to that single exchange, record the
+                              last block height and timestamp when rate was
+                              updated
+                        title: >-
+                          Data type represents one historical price record for a
+                          single exchange rate
+                  title: >-
+                    Data type represents a list of prices snapshots for all
+                    currencies at an specific time
+
+                    PriceSnapshotItems is a custom type, defined on
+                    x/orcale/types/snapshots.go
+            title: >-
+              QueryPriceSnapshotHistoryResponse is the response for the
+              Query/PriceSnapshotHistory rpc method
+
+              PriceSnapshots is the alias of the price_snapshot element
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /kiichain/oracle/v1beta1/denoms/twaps/{lookback_seconds}:
+    get:
+      summary: >-
+        Twap = Time-weighted average price
+
+        Twaps returns the list of the average price over a specific period of
+        time and denom
+      operationId: Twaps
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              oracle_twap:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    twap:
+                      type: string
+                    lookback_seconds:
+                      type: string
+                      format: int64
+                  title: >-
+                    Twap = Time-weighted average price
+
+                    Data type that computes the average price over an specific
+                    period of time
+                title: >-
+                  Twap = Time-weighted average price
+
+                  oracle_twap is the average price over an specific period of
+                  time and denom
+            title: |-
+              QueryTwapsRequest is the response for the Query/Twaps rpc method
+              OracleTwaps is the alias of the oracle_twap array element
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: lookback_seconds
+          description: time to lookback on the snapshots array
+          in: path
+          required: true
+          type: string
+          format: uint64
+      tags:
+        - Query
+  /kiichain/oracle/v1beta1/denoms/vote_targets:
+    get:
+      summary: VoteTargets returns all vote targets denoms
+      operationId: VoteTargets
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              vote_targets:
+                type: array
+                items:
+                  type: string
+            title: >-
+              QueryVoteTargetsRequest is the response for the Query/VoteTargets
+              rpc method
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /kiichain/oracle/v1beta1/denoms/{denom}/exchange_rate:
+    get:
+      summary: ExchangeRate returns exchange rate of a specific denom
+      operationId: ExchangeRate
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              oracle_exchange_rate:
+                type: object
+                properties:
+                  exchange_rate:
+                    type: string
+                  last_update:
+                    type: string
+                  last_update_timestamp:
+                    type: string
+                    format: int64
+                title: >-
+                  Data type that stores the final calculated exchange rate after
+                  all votes were 
+
+                  aggregated to that single exchange, record the last block
+                  height and timestamp when rate was updated
+            title: >-
+              QueryExchangeRateResponse is the response for the
+              Query/ExchangeRate rpc method
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: denom
+          description: denom defines the exchange rate denom to search
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /kiichain/oracle/v1beta1/params:
+    get:
+      summary: Params returns the Oracle module's params
+      operationId: OracleParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                title: return the params module's params
+                type: object
+                properties:
+                  vote_period:
+                    type: string
+                    format: uint64
+                    title: The number of blocks per voting
+                  vote_threshold:
+                    type: string
+                    title: >-
+                      Minimum percentage of validators required to approve a
+                      price. For instance, if vote_threshold = "0.5" at least
+                      50% of validators must submit votes 
+
+                      "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data
+                      type
+                  reward_band:
+                    type: string
+                    title: >-
+                      Acceptable deviation from the media price (higher and
+                      lower)
+
+                      "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data
+                      type
+                  whitelist:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          title: 'Stores the name of a token pair, e.g: "BTC/USD"'
+                      title: Data type which has the name of the currency
+                    title: >-
+                      List of allowed assets 
+
+                      DenomList is a custom data type, defined on
+                      x/oracle/types/denom.go
+                  slash_fraction:
+                    type: string
+                    title: >-
+                      How much stake is slashed if a validator fails to submit
+                      votes 
+
+                      "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data
+                      type
+                  slash_window:
+                    type: string
+                    format: uint64
+                    title: >-
+                      Define the window (in blocks) to vote, if not receive
+                      penalties due to bad performance
+                  min_valid_per_window:
+                    type: string
+                    title: >-
+                      Minimum percentage of voting on windows to avoid slashing.
+                      For instance, if min_valid_per_window = 0.8, then a
+                      validator must submit votes in 80% of windows to avoid
+                      slashing 
+
+                      "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data
+                      type
+                  lookback_duration:
+                    type: string
+                    format: uint64
+                    title: >-
+                      How far back (in blocks) the module can compute historical
+                      price metrics
+            title: >-
+              QueryParamsResponse is the response for the Query/Params rpc
+              method
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /kiichain/oracle/v1beta1/slash_window:
+    get:
+      summary: SlashWindow returns slash window information
+      operationId: SlashWindow
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              window_progress:
+                type: string
+                format: uint64
+                title: window_progress defines the number of voting periods
+            title: >-
+              QuerySlashWindowResponse is the response for the Query/SlashWindow
+              rpc
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /kiichain/oracle/v1beta1/validators/{validator_addr}/feeder:
+    get:
+      summary: FeederDelegation returns the delegator by the validator address
+      operationId: FeederDelegation
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              feed_addr:
+                type: string
+                title: delegated address
+            title: >-
+              QueryFeederDelegationResponse is the response for the
+              Query/FeederDelegation rpc method
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: validator_addr
+          description: validator address to query for
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /kiichain/oracle/v1beta1/validators/{validator_addr}/vote_penalty_counter:
+    get:
+      summary: VotePenaltyCounter returns the voting behavior by an specific validator
+      operationId: VotePenaltyCounter
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              vote_penalty_counter:
+                title: Returns the voting behavior per validator
+                type: object
+                properties:
+                  miss_count:
+                    type: string
+                    format: uint64
+                  abstain_count:
+                    type: string
+                    format: uint64
+                  success_count:
+                    type: string
+                    format: uint64
+            title: >-
+              QueryVotePenaltyCounterResponse is the response for the
+              Query/VotePenaltyCounter rpc
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: validator_addr
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /kiichain/rewards/v1beta1/params:
+    get:
+      summary: |-
+        Params defines a gRPC query method that returns the reward module's
+        parameters.
+      operationId: RewardsParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params defines the parameters of the module.
+                type: object
+                properties:
+                  token_denom:
+                    type: string
+                    title: Denom used
+            description: >-
+              QueryParamsResponse is the response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /kiichain/rewards/v1beta1/release-schedule:
+    get:
+      summary: |-
+        ReleaseSchedule defines a gRPC query method for fetching
+        ReleaseSchedule data.
+      operationId: ReleaseSchedule
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              release_schedule:
+                type: object
+                properties:
+                  total_amount:
+                    title: Total amount to be rewarded
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  released_amount:
+                    title: Amount released
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  end_time:
+                    type: string
+                    format: date-time
+                    title: Timestamp of end of release
+                  last_release_time:
+                    type: string
+                    format: date-time
+                    title: Last height released
+                  active:
+                    type: boolean
+                    title: If reward pool is active
+                title: >-
+                  ReleaseSchedule defines information related to reward
+                  distribution
+            description: >-
+              QueryReleaseScheduleResponse defines the response structure for
+              the
+
+              ReleaseSchedule gRPC query.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /kiichain/rewards/v1beta1/reward-pool:
+    get:
+      summary: |-
+        RewardPool defines a gRPC query method for fetching
+        RewardPool data.
+      operationId: RewardPool
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              reward_pool:
+                type: object
+                properties:
+                  community_pool:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        DecCoin defines a token with a denomination and a
+                        decimal amount.
+
+
+                        NOTE: The amount field is an Dec which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                description: RewardPool is the global fee pool for distribution.
+            description: |-
+              QueryRewardPoolResponse defines the response structure for the
+              RewardPool gRPC query.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
   /cosmos/bank/v1beta1/balances/{address}:
     get:
       summary: AllBalances queries the balance of all coins for a single account.
@@ -55583,6 +56387,620 @@ definitions:
 
               https://github.com/CosmWasm/token-factory/issues/11
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
+  kiichain.oracle.v1beta1.Denom:
+    type: object
+    properties:
+      name:
+        type: string
+        title: 'Stores the name of a token pair, e.g: "BTC/USD"'
+    title: Data type which has the name of the currency
+  kiichain.oracle.v1beta1.DenomOracleExchangeRate:
+    type: object
+    properties:
+      denom:
+        type: string
+      oracle_exchange_rate:
+        type: object
+        properties:
+          exchange_rate:
+            type: string
+          last_update:
+            type: string
+          last_update_timestamp:
+            type: string
+            format: int64
+        title: >-
+          Data type that stores the final calculated exchange rate after all
+          votes were 
+
+          aggregated to that single exchange, record the last block height and
+          timestamp when rate was updated
+    title: >-
+      DenomOracleExchangeRate is the data type that represents an set of denom -
+      exchange rate values
+  kiichain.oracle.v1beta1.OracleExchangeRate:
+    type: object
+    properties:
+      exchange_rate:
+        type: string
+      last_update:
+        type: string
+      last_update_timestamp:
+        type: string
+        format: int64
+    title: >-
+      Data type that stores the final calculated exchange rate after all votes
+      were 
+
+      aggregated to that single exchange, record the last block height and
+      timestamp when rate was updated
+  kiichain.oracle.v1beta1.OracleTwap:
+    type: object
+    properties:
+      denom:
+        type: string
+      twap:
+        type: string
+      lookback_seconds:
+        type: string
+        format: int64
+    title: |-
+      Twap = Time-weighted average price
+      Data type that computes the average price over an specific period of time
+  kiichain.oracle.v1beta1.Params:
+    type: object
+    properties:
+      vote_period:
+        type: string
+        format: uint64
+        title: The number of blocks per voting
+      vote_threshold:
+        type: string
+        title: >-
+          Minimum percentage of validators required to approve a price. For
+          instance, if vote_threshold = "0.5" at least 50% of validators must
+          submit votes 
+
+          "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
+      reward_band:
+        type: string
+        title: |-
+          Acceptable deviation from the media price (higher and lower)
+          "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
+      whitelist:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+              title: 'Stores the name of a token pair, e.g: "BTC/USD"'
+          title: Data type which has the name of the currency
+        title: |-
+          List of allowed assets 
+          DenomList is a custom data type, defined on x/oracle/types/denom.go
+      slash_fraction:
+        type: string
+        title: |-
+          How much stake is slashed if a validator fails to submit votes 
+          "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
+      slash_window:
+        type: string
+        format: uint64
+        title: >-
+          Define the window (in blocks) to vote, if not receive penalties due to
+          bad performance
+      min_valid_per_window:
+        type: string
+        title: >-
+          Minimum percentage of voting on windows to avoid slashing. For
+          instance, if min_valid_per_window = 0.8, then a validator must submit
+          votes in 80% of windows to avoid slashing 
+
+          "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
+      lookback_duration:
+        type: string
+        format: uint64
+        title: >-
+          How far back (in blocks) the module can compute historical price
+          metrics
+    title: Params defines the parameters for the module
+  kiichain.oracle.v1beta1.PriceSnapshot:
+    type: object
+    properties:
+      snapshot_timestamp:
+        type: string
+        format: int64
+      price_snapshot_items:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            oracle_exchange_rate:
+              type: object
+              properties:
+                exchange_rate:
+                  type: string
+                last_update:
+                  type: string
+                last_update_timestamp:
+                  type: string
+                  format: int64
+              title: >-
+                Data type that stores the final calculated exchange rate after
+                all votes were 
+
+                aggregated to that single exchange, record the last block height
+                and timestamp when rate was updated
+          title: >-
+            Data type represents one historical price record for a single
+            exchange rate
+    title: >-
+      Data type represents a list of prices snapshots for all currencies at an
+      specific time
+
+      PriceSnapshotItems is a custom type, defined on
+      x/orcale/types/snapshots.go
+  kiichain.oracle.v1beta1.PriceSnapshotItem:
+    type: object
+    properties:
+      denom:
+        type: string
+      oracle_exchange_rate:
+        type: object
+        properties:
+          exchange_rate:
+            type: string
+          last_update:
+            type: string
+          last_update_timestamp:
+            type: string
+            format: int64
+        title: >-
+          Data type that stores the final calculated exchange rate after all
+          votes were 
+
+          aggregated to that single exchange, record the last block height and
+          timestamp when rate was updated
+    title: >-
+      Data type represents one historical price record for a single exchange
+      rate
+  kiichain.oracle.v1beta1.QueryActivesResponse:
+    type: object
+    properties:
+      actives:
+        type: array
+        items:
+          type: string
+    title: QueryActivesResponse is the response for the Query/Actives rpc method
+  kiichain.oracle.v1beta1.QueryExchangeRateResponse:
+    type: object
+    properties:
+      oracle_exchange_rate:
+        type: object
+        properties:
+          exchange_rate:
+            type: string
+          last_update:
+            type: string
+          last_update_timestamp:
+            type: string
+            format: int64
+        title: >-
+          Data type that stores the final calculated exchange rate after all
+          votes were 
+
+          aggregated to that single exchange, record the last block height and
+          timestamp when rate was updated
+    title: >-
+      QueryExchangeRateResponse is the response for the Query/ExchangeRate rpc
+      method
+  kiichain.oracle.v1beta1.QueryExchangeRatesResponse:
+    type: object
+    properties:
+      denom_oracle_exchange_rate:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            oracle_exchange_rate:
+              type: object
+              properties:
+                exchange_rate:
+                  type: string
+                last_update:
+                  type: string
+                last_update_timestamp:
+                  type: string
+                  format: int64
+              title: >-
+                Data type that stores the final calculated exchange rate after
+                all votes were 
+
+                aggregated to that single exchange, record the last block height
+                and timestamp when rate was updated
+          title: >-
+            DenomOracleExchangeRate is the data type that represents an set of
+            denom - exchange rate values
+    title: >-
+      QueryExchangeRatesResponse is the response for the Query/ExchangeRatess
+      rpc method
+
+      DenomOracleExchangeRatePairs is the alias of the element
+      denom_oracle_exchange_rate after generating the code
+  kiichain.oracle.v1beta1.QueryFeederDelegationResponse:
+    type: object
+    properties:
+      feed_addr:
+        type: string
+        title: delegated address
+    title: >-
+      QueryFeederDelegationResponse is the response for the
+      Query/FeederDelegation rpc method
+  kiichain.oracle.v1beta1.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        title: return the params module's params
+        type: object
+        properties:
+          vote_period:
+            type: string
+            format: uint64
+            title: The number of blocks per voting
+          vote_threshold:
+            type: string
+            title: >-
+              Minimum percentage of validators required to approve a price. For
+              instance, if vote_threshold = "0.5" at least 50% of validators
+              must submit votes 
+
+              "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
+          reward_band:
+            type: string
+            title: |-
+              Acceptable deviation from the media price (higher and lower)
+              "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
+          whitelist:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                  title: 'Stores the name of a token pair, e.g: "BTC/USD"'
+              title: Data type which has the name of the currency
+            title: >-
+              List of allowed assets 
+
+              DenomList is a custom data type, defined on
+              x/oracle/types/denom.go
+          slash_fraction:
+            type: string
+            title: |-
+              How much stake is slashed if a validator fails to submit votes 
+              "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
+          slash_window:
+            type: string
+            format: uint64
+            title: >-
+              Define the window (in blocks) to vote, if not receive penalties
+              due to bad performance
+          min_valid_per_window:
+            type: string
+            title: >-
+              Minimum percentage of voting on windows to avoid slashing. For
+              instance, if min_valid_per_window = 0.8, then a validator must
+              submit votes in 80% of windows to avoid slashing 
+
+              "cosmossdk.io/math.LegacyDec" = Cosmos SDK decimal data type
+          lookback_duration:
+            type: string
+            format: uint64
+            title: >-
+              How far back (in blocks) the module can compute historical price
+              metrics
+    title: QueryParamsResponse is the response for the Query/Params rpc method
+  kiichain.oracle.v1beta1.QueryPriceSnapshotHistoryResponse:
+    type: object
+    properties:
+      price_snapshot:
+        type: array
+        items:
+          type: object
+          properties:
+            snapshot_timestamp:
+              type: string
+              format: int64
+            price_snapshot_items:
+              type: array
+              items:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  oracle_exchange_rate:
+                    type: object
+                    properties:
+                      exchange_rate:
+                        type: string
+                      last_update:
+                        type: string
+                      last_update_timestamp:
+                        type: string
+                        format: int64
+                    title: >-
+                      Data type that stores the final calculated exchange rate
+                      after all votes were 
+
+                      aggregated to that single exchange, record the last block
+                      height and timestamp when rate was updated
+                title: >-
+                  Data type represents one historical price record for a single
+                  exchange rate
+          title: >-
+            Data type represents a list of prices snapshots for all currencies
+            at an specific time
+
+            PriceSnapshotItems is a custom type, defined on
+            x/orcale/types/snapshots.go
+    title: >-
+      QueryPriceSnapshotHistoryResponse is the response for the
+      Query/PriceSnapshotHistory rpc method
+
+      PriceSnapshots is the alias of the price_snapshot element
+  kiichain.oracle.v1beta1.QuerySlashWindowResponse:
+    type: object
+    properties:
+      window_progress:
+        type: string
+        format: uint64
+        title: window_progress defines the number of voting periods
+    title: QuerySlashWindowResponse is the response for the Query/SlashWindow rpc
+  kiichain.oracle.v1beta1.QueryTwapsResponse:
+    type: object
+    properties:
+      oracle_twap:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            twap:
+              type: string
+            lookback_seconds:
+              type: string
+              format: int64
+          title: >-
+            Twap = Time-weighted average price
+
+            Data type that computes the average price over an specific period of
+            time
+        title: >-
+          Twap = Time-weighted average price
+
+          oracle_twap is the average price over an specific period of time and
+          denom
+    title: |-
+      QueryTwapsRequest is the response for the Query/Twaps rpc method
+      OracleTwaps is the alias of the oracle_twap array element
+  kiichain.oracle.v1beta1.QueryVotePenaltyCounterResponse:
+    type: object
+    properties:
+      vote_penalty_counter:
+        title: Returns the voting behavior per validator
+        type: object
+        properties:
+          miss_count:
+            type: string
+            format: uint64
+          abstain_count:
+            type: string
+            format: uint64
+          success_count:
+            type: string
+            format: uint64
+    title: >-
+      QueryVotePenaltyCounterResponse is the response for the
+      Query/VotePenaltyCounter rpc
+  kiichain.oracle.v1beta1.QueryVoteTargetsResponse:
+    type: object
+    properties:
+      vote_targets:
+        type: array
+        items:
+          type: string
+    title: >-
+      QueryVoteTargetsRequest is the response for the Query/VoteTargets rpc
+      method
+  kiichain.oracle.v1beta1.VotePenaltyCounter:
+    type: object
+    properties:
+      miss_count:
+        type: string
+        format: uint64
+      abstain_count:
+        type: string
+        format: uint64
+      success_count:
+        type: string
+        format: uint64
+    title: Data type that tracks the voting behavior per validator
+  cosmos.base.v1beta1.DecCoin:
+    type: object
+    properties:
+      denom:
+        type: string
+      amount:
+        type: string
+    description: |-
+      DecCoin defines a token with a denomination and a decimal amount.
+
+      NOTE: The amount field is an Dec which implements the custom method
+      signatures required by gogoproto.
+  kiichain.rewards.v1beta1.Params:
+    type: object
+    properties:
+      token_denom:
+        type: string
+        title: Denom used
+    description: Params defines the parameters for the rewards module.
+  kiichain.rewards.v1beta1.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params defines the parameters of the module.
+        type: object
+        properties:
+          token_denom:
+            type: string
+            title: Denom used
+    description: QueryParamsResponse is the response type for the Query/Params RPC method.
+  kiichain.rewards.v1beta1.QueryReleaseScheduleResponse:
+    type: object
+    properties:
+      release_schedule:
+        type: object
+        properties:
+          total_amount:
+            title: Total amount to be rewarded
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          released_amount:
+            title: Amount released
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          end_time:
+            type: string
+            format: date-time
+            title: Timestamp of end of release
+          last_release_time:
+            type: string
+            format: date-time
+            title: Last height released
+          active:
+            type: boolean
+            title: If reward pool is active
+        title: ReleaseSchedule defines information related to reward distribution
+    description: |-
+      QueryReleaseScheduleResponse defines the response structure for the
+      ReleaseSchedule gRPC query.
+  kiichain.rewards.v1beta1.QueryRewardPoolResponse:
+    type: object
+    properties:
+      reward_pool:
+        type: object
+        properties:
+          community_pool:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                DecCoin defines a token with a denomination and a decimal
+                amount.
+
+
+                NOTE: The amount field is an Dec which implements the custom
+                method
+
+                signatures required by gogoproto.
+        description: RewardPool is the global fee pool for distribution.
+    description: |-
+      QueryRewardPoolResponse defines the response structure for the
+      RewardPool gRPC query.
+  kiichain.rewards.v1beta1.ReleaseSchedule:
+    type: object
+    properties:
+      total_amount:
+        title: Total amount to be rewarded
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      released_amount:
+        title: Amount released
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      end_time:
+        type: string
+        format: date-time
+        title: Timestamp of end of release
+      last_release_time:
+        type: string
+        format: date-time
+        title: Last height released
+      active:
+        type: boolean
+        title: If reward pool is active
+    title: ReleaseSchedule defines information related to reward distribution
+  kiichain.rewards.v1beta1.RewardPool:
+    type: object
+    properties:
+      community_pool:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            DecCoin defines a token with a denomination and a decimal amount.
+
+            NOTE: The amount field is an Dec which implements the custom method
+            signatures required by gogoproto.
+    description: RewardPool is the global fee pool for distribution.
   cosmos.bank.v1beta1.DenomOwner:
     type: object
     properties:
@@ -71742,18 +73160,6 @@ definitions:
             type: string
             format: uint64
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
-  cosmos.base.v1beta1.DecCoin:
-    type: object
-    properties:
-      denom:
-        type: string
-      amount:
-        type: string
-    description: |-
-      DecCoin defines a token with a denomination and a decimal amount.
-
-      NOTE: The amount field is an Dec which implements the custom method
-      signatures required by gogoproto.
   cosmos.distribution.v1beta1.DelegationDelegatorReward:
     type: object
     properties:
