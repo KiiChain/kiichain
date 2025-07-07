@@ -3,13 +3,13 @@ package ante
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	evmante "github.com/cosmos/evm/ante/evm"
+	kiievmante "github.com/kiichain/kiichain/v3/ante/evm"
 )
 
 // newMonoEVMAnteHandler creates the sdk.AnteHandler implementation for the EVM transactions
 func newMonoEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
-		evmante.NewEVMMonoDecorator(
+		kiievmante.NewEVMMonoDecorator(
 			options.AccountKeeper,
 			options.FeeMarketKeeper,
 			options.EvmKeeper,
