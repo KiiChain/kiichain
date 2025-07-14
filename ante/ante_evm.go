@@ -13,6 +13,7 @@ func newMonoEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 			options.AccountKeeper,
 			options.FeeMarketKeeper,
 			options.EvmKeeper,
+			options.FeeAbstractionKeeper,
 			options.MaxTxGasWanted,
 		),
 	)
