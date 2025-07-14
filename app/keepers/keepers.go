@@ -86,6 +86,7 @@ import (
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/kiichain/kiichain/v3/wasmbinding"
+	feeabstractionkeeper "github.com/kiichain/kiichain/v3/x/feeabstraction/keeper"
 	oraclekeeper "github.com/kiichain/kiichain/v3/x/oracle/keeper"
 	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
 	rewardskeeper "github.com/kiichain/kiichain/v3/x/rewards/keeper"
@@ -124,6 +125,7 @@ type AppKeepers struct {
 	AuthzKeeper           authzkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
+	FeeAbstractionKeeper  feeabstractionkeeper.Keeper
 
 	PFMRouterKeeper *pfmrouterkeeper.Keeper
 	RatelimitKeeper ratelimitkeeper.Keeper
@@ -509,6 +511,12 @@ func NewAppKeeper(
 			appKeepers.EVMKeeper,
 			appKeepers.OracleKeeper,
 		)...,
+	)
+
+	// FeeAbstractionKeeper must be created after EVMKeeper and Erc20Keeper
+	appKeepers.FeeAbstractionKeeper = feeabstractionkeeper.NewKeeper(
+		appKeepers.Erc20Keeper,
+		appKeepers.BankKeeper,
 	)
 
 	// Must be called on PFMRouter AFTER TransferKeeper initialized
