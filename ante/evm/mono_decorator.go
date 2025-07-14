@@ -20,15 +20,18 @@ import (
 	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
+
+	antetypes "github.com/kiichain/kiichain/v3/ante/types"
 )
 
 // MonoDecorator is a single decorator that handles all the prechecks for
 // ethereum transactions.
 type MonoDecorator struct {
-	accountKeeper   anteinterfaces.AccountKeeper
-	feeMarketKeeper anteinterfaces.FeeMarketKeeper
-	evmKeeper       anteinterfaces.EVMKeeper
-	maxGasWanted    uint64
+	accountKeeper        anteinterfaces.AccountKeeper
+	feeMarketKeeper      anteinterfaces.FeeMarketKeeper
+	evmKeeper            anteinterfaces.EVMKeeper
+	feeAbstractionKeeper antetypes.FeeAbstractionKeeper
+	maxGasWanted         uint64
 }
 
 // NewEVMMonoDecorator creates the 'mono' decorator, that is used to run the ante handle logic
@@ -41,13 +44,15 @@ func NewEVMMonoDecorator(
 	accountKeeper anteinterfaces.AccountKeeper,
 	feeMarketKeeper anteinterfaces.FeeMarketKeeper,
 	evmKeeper anteinterfaces.EVMKeeper,
+	feeAbstractionKeeper antetypes.FeeAbstractionKeeper,
 	maxGasWanted uint64,
 ) MonoDecorator {
 	return MonoDecorator{
-		accountKeeper:   accountKeeper,
-		feeMarketKeeper: feeMarketKeeper,
-		evmKeeper:       evmKeeper,
-		maxGasWanted:    maxGasWanted,
+		accountKeeper:        accountKeeper,
+		feeMarketKeeper:      feeMarketKeeper,
+		evmKeeper:            evmKeeper,
+		feeAbstractionKeeper: feeAbstractionKeeper,
+		maxGasWanted:         maxGasWanted,
 	}
 }
 
@@ -138,19 +143,17 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		from := ethMsg.GetFrom()
-		fromAddr := common.BytesToAddress(from)
 
-		// 6. account balance verification
-		// We get the account with the balance from the EVM keeper because it is
-		// using a wrapper of the bank keeper as a dependency to scale all
-		// balances to 18 decimals.
+		// 6. verify if the account exists
+
+		// Get the user account, this is used on the account verification process
+		fromAddr := common.BytesToAddress(from)
 		account := md.evmKeeper.GetAccount(ctx, fromAddr)
-		if err := evmante.VerifyAccountBalance(
+		if err := VerifyIfAccountExists(
 			ctx,
 			md.accountKeeper,
 			account,
 			fromAddr,
-			txData,
 		); err != nil {
 			return ctx, err
 		}
@@ -164,6 +167,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			)
 		}
 
+		// This checks if the user has enough balance to transfer the value (not the fees) NOTE: WHAT IF WE MOVE THIS UP?
 		if err := evmante.CanTransfer(
 			ctx,
 			md.evmKeeper,
@@ -189,6 +193,15 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			return ctx, err
 		}
 
+		// Here the fee abstraction module does it work
+		// We check if the user has enough balance to pay for the fees using the
+		// native token (evmDenom), if not we iterate the fee abstraction module tokens
+		msgFees, err = md.feeAbstractionKeeper.ConvertNativeFee(ctx, from, msgFees)
+		if err != nil {
+			return ctx, err
+		}
+
+		// Here the gas is deducted from the user
 		err = evmante.ConsumeFeesAndEmitEvent(
 			ctx,
 			md.evmKeeper,
@@ -196,6 +209,20 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			from,
 		)
 		if err != nil {
+			return ctx, err
+		}
+
+		// This checks if the user has enough balance
+		// The main change here in comparison to the original implementation is that
+		// we only check if the user has enough balance to pay for the transaction value
+		// fees are ignored at this point and considered paid
+		account = md.evmKeeper.GetAccount(ctx, fromAddr)
+		if err := VerifyAccountBalance(
+			ctx,
+			md.accountKeeper,
+			account,
+			txData,
+		); err != nil {
 			return ctx, err
 		}
 
@@ -243,8 +270,20 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		// 11. emit events
-		txIdx := uint64(i) 
+		txIdx := uint64(i)
 		evmante.EmitTxHashEvent(ctx, ethMsg, decUtils.BlockTxIndex, txIdx)
+
+		ctx.Logger().Info(
+			"processed EVM message",
+			"msg_index", txIdx,
+			"from", from,
+			"gas_wanted", decUtils.GasWanted,
+			"gas_limit", gas,
+			"fee", decUtils.TxFee,
+			"min_priority", decUtils.MinPriority,
+			"base_fee", decUtils.BaseFee,
+			"tx_type", txData.TxType(),
+		)
 	}
 
 	if err := evmante.CheckTxFee(txFeeInfo, decUtils.TxFee, decUtils.TxGasLimit); err != nil {
