@@ -1,5 +1,12 @@
 // This file is based on the Cosmos EVM package
 // The original implementation can be found at: `https://github.com/cosmos/evm/blob/main/ante/evm/mono_decorator.go`
+// These are the main changes to the original implementation:
+// - VerifyIfAccountExists has been moved up, this ensures that the account is created before the transaction is processed
+// - After gas consumption, the fees are converted using the fee abstraction module
+// - ConsumeFeesAndEmitEvent will now use the fee calculated by the fee abstraction module
+// - VerifyAccountBalance will check if the user has enough balance to pay for the transaction value (before was fee + value)
+// - The key ContextPaidFeesKey is defined on the context to store the paid fees, this is used to refund the gas under the evm module
+//   - EVM module counterpart is defined under `x/vm/keeper/gas.go`
 
 package evm
 
@@ -144,8 +151,6 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		from := ethMsg.GetFrom()
 
-		// 6. verify if the account exists
-
 		// Get the user account, this is used on the account verification process
 		fromAddr := common.BytesToAddress(from)
 		account := md.evmKeeper.GetAccount(ctx, fromAddr)
@@ -167,7 +172,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			)
 		}
 
-		// This checks if the user has enough balance to transfer the value (not the fees) NOTE: WHAT IF WE MOVE THIS UP?
+		// This checks if the user has enough balance to transfer the value (not the fees)
 		if err := evmante.CanTransfer(
 			ctx,
 			md.evmKeeper,
@@ -284,6 +289,9 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			"base_fee", decUtils.BaseFee,
 			"tx_type", txData.TxType(),
 		)
+
+		// Define the fee on the context for gas refunding
+		ctx = ctx.WithValue(evmkeeper.ContextPaidFeesKey{}, msgFees)
 	}
 
 	if err := evmante.CheckTxFee(txFeeInfo, decUtils.TxFee, decUtils.TxGasLimit); err != nil {
