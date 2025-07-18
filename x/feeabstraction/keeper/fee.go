@@ -74,7 +74,6 @@ func (k Keeper) ConvertNativeFee(ctx sdk.Context, account sdk.AccAddress, fees s
 }
 
 // checkNativeFees checks if the user has enough native fees
-// This function is built
 func (k Keeper) checkNativeFees(ctx sdk.Context, account sdk.AccAddress, fees sdk.Coins) (bool, error) {
 	// First we check if the we have a single asset coin
 	if len(fees) != 1 {

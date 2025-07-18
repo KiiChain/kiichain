@@ -44,7 +44,7 @@ func NewKeeper(erc20Keeper types.Erc20Keeper, bankKeeper types.BankKeeper) Keepe
 func (k Keeper) GetFeePrices(ctx sdk.Context) ([]FeePrice, error) {
 	return []FeePrice{
 		{
-			Denom: "erc20/0x28B081E92CEf14492Ba90fdBCeCbe0693F9a1f8d",
+			Denom: "erc20/0x816644F8bc4633D268842628EB10ffC0AdcB6099",
 			Price: math.LegacyNewDecFromInt(math.NewInt(10)), // 10 uatom = 1 kii
 		},
 	}, nil
