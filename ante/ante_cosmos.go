@@ -12,6 +12,8 @@ import (
 	evmcosmosante "github.com/cosmos/evm/ante/cosmos"
 	evmante "github.com/cosmos/evm/ante/evm"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
+
+	cosmosante "github.com/kiichain/kiichain/v3/ante/cosmos"
 )
 
 // UseFeeMarketDecorator to make the integration testing easier: we can switch off its ante and post decorators with this flag
@@ -51,10 +53,11 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	if UseFeeMarketDecorator {
 		// This wraps using the gasless decorator
 		gasLessFeeDecorator := NewFeelessDecorator(
-			ante.NewDeductFeeDecorator(
+			cosmosante.NewDeductFeeDecorator(
 				options.AccountKeeper,
 				options.BankKeeper,
 				options.FeegrantKeeper,
+				options.FeeAbstractionKeeper,
 				options.TxFeeChecker,
 			),
 			options.OracleKeeper,
