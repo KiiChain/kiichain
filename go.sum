@@ -248,6 +248,8 @@ github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3
 github.com/DataDog/zstd v1.5.0/go.mod h1:g4AWEaM3yOg3HYfnJ3YIawPnVdXJh9QME85blwSAmyw=
 github.com/DataDog/zstd v1.5.5 h1:oWf5W7GtOLgp6bciQYDmhHHjdhYkALu6S/5Ni9ZgSvQ=
 github.com/DataDog/zstd v1.5.5/go.mod h1:g4AWEaM3yOg3HYfnJ3YIawPnVdXJh9QME85blwSAmyw=
+github.com/KiiChain/evm v0.1.0-fork.1 h1:KHjHcthiK4nLP4YrWiPmQPE8NMXMWVliNkGHlii9cuw=
+github.com/KiiChain/evm v0.1.0-fork.1/go.mod h1:eN3d6tB/F6P6xj96fKaEXO4YezsBal2epBKGPsPQTuw=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERoyfY=
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
@@ -448,8 +450,6 @@ github.com/cosmos/cosmos-sdk v0.50.13-0.20250319183239-53dea340efc7 h1:zoOAawQLQ
 github.com/cosmos/cosmos-sdk v0.50.13-0.20250319183239-53dea340efc7/go.mod h1:hrWEFMU1eoXqLJeE6VVESpJDQH67FS1nnMrQIjO2daw=
 github.com/cosmos/cosmos-sdk/store v1.1.2-0.20250319183239-53dea340efc7 h1:7EBHeRE/Kmba2A9JlJ9/sOlHhmEHggyyWRD/uGccnC8=
 github.com/cosmos/cosmos-sdk/store v1.1.2-0.20250319183239-53dea340efc7/go.mod h1:8DwVTz83/2PSI366FERGbWSH7hL6sB7HbYp8bqksNwM=
-github.com/cosmos/evm v0.1.0 h1:BDUgHSydAA26WNmno1U7TXlxwFim//OBk/cA85X6ATg=
-github.com/cosmos/evm v0.1.0/go.mod h1:eN3d6tB/F6P6xj96fKaEXO4YezsBal2epBKGPsPQTuw=
 github.com/cosmos/evm/example_chain v0.0.0-20250318095025-e69e57ff2698 h1:o3ZyXWlhFzIW0EvuRY0PeHkiprlqa26USiVX/lTwvfE=
 github.com/cosmos/evm/example_chain v0.0.0-20250318095025-e69e57ff2698/go.mod h1:YV7+LvR7SJpUgCKdMAJ7o9GxGeCEPlr+eyLhCFhbhQA=
 github.com/cosmos/go-bip39 v1.0.0 h1:pcomnQdrdH22njcAatO0yWojsUnCO3y2tNoV1cb6hHY=
