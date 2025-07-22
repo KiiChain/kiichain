@@ -1,8 +1,8 @@
 name: Check Markdown links
-on: 
+on:
   workflow_dispatch:
-  schedule: 
-    - cron: '* */24 * * *'
+  schedule:
+    - cron: "0 0 * * *" # Run daily at midnight UTC
 
 jobs:
   markdown-link-check:
@@ -12,3 +12,4 @@ jobs:
       - uses: gaurav-nelson/github-action-markdown-link-check@1.0.15
         with:
           file-extension: ".md"
+          config-file: ".github/workflows/mlc-config.json"
