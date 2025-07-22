@@ -67,6 +67,22 @@ func TestDeductFeeDecorator(t *testing.T) {
 			expected: sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
 		},
 		{
+			name: "success - valid fee deduction with multiple coins",
+			malleate: func(ctx sdk.Context) {
+				// Fun the account with enough funds to pay the fee
+				err := app.BankKeeper.MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)))
+				require.NoError(t, err)
+				err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, founder, sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)))
+				require.NoError(t, err)
+			},
+			fee: sdk.NewCoins(
+				sdk.NewInt64Coin("akii", DefaultMinFeeValue),
+				sdk.NewInt64Coin("other", DefaultMinFeeValue),
+			),
+			// Even with multiple coins, only akii is used for fees
+			expected: sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
+		},
+		{
 			name: "success - zero fee",
 			malleate: func(ctx sdk.Context) {
 				// Get the current params on the feemarket module
