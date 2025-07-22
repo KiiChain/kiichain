@@ -18,11 +18,11 @@ _This is the Kiichain kiichain Testnet_
 
 ## Hardware Requirements
 
-**Minimum**
+**Minimum:**
 
 - 8 GB RAM
-- 1 TB NVME SSD
-- 4 Cores (modern CPU's)
+- 1 TB NVMe SSD
+- 4 Cores (modern CPUs)
 
 ## Operating System
 
