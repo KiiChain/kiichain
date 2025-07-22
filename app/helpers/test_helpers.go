@@ -26,6 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -223,4 +224,26 @@ func genesisStateWithValSet(t *testing.T,
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	return genesisState
+}
+
+// BuildTxFromMsgs builds a tx from a set of messages
+func BuildTxFromMsgs(feePayer sdk.AccAddress, fee sdk.Coins, msgs ...sdk.Msg) (xauthsigning.Tx, error) {
+	// Start the tx builder
+	encodingConfig := params.MakeEncodingConfig()
+	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+	// Set the messages
+	err := txBuilder.SetMsgs(msgs...)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set the fee payer
+	txBuilder.SetFeePayer(feePayer) // Replace with actual address
+
+	// Set gas limit and fee amount
+	txBuilder.SetGasLimit(1000000)
+	txBuilder.SetFeeAmount(fee)
+
+	return txBuilder.GetTx(), nil
 }
