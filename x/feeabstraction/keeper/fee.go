@@ -21,6 +21,14 @@ func (k Keeper) ConvertNativeFee(ctx sdk.Context, account sdk.AccAddress, fees s
 		return fees, nil
 	}
 
+	// We only support a single asset coin for now
+	// This is ensure on both Cosmos and EVM side
+	// On Cosmos, when the TX goes though the fee market fee ante handler, it returns the only supported asset as the staking coin
+	// On EVM we always use the staking coin as the fee coin
+	if len(fees) != 1 {
+		return sdk.Coins{}, nil
+	}
+
 	// Check for the native fees
 	ok, err := k.checkNativeFees(ctx, account, fees)
 	if err != nil {

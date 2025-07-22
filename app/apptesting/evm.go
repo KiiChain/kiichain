@@ -58,12 +58,9 @@ func MintERC20(ctx sdk.Context, app *app.KiichainApp, contractAddr common.Addres
 	}
 
 	// Send transaction to call mint
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true)
+	_, err = app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true)
 	if err != nil {
 		return err
-	}
-	if res == nil || res.Ret == nil {
-		return errorsmod.Wrap(erc20types.ErrEVMCall, "failed to mint ERC20 token: empty response")
 	}
 
 	return nil
@@ -79,12 +76,9 @@ func CreateERC20Allowance(ctx sdk.Context, app *app.KiichainApp, contractAddr co
 	}
 
 	// Send transaction to call mint
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, owner, &contractAddr, inputData, true)
+	_, err = app.EVMKeeper.CallEVMWithData(ctx, owner, &contractAddr, inputData, true)
 	if err != nil {
 		return err
-	}
-	if res == nil || res.Ret == nil {
-		return errorsmod.Wrap(erc20types.ErrEVMCall, "failed to create ERC20 allowance: empty response")
 	}
 	return nil
 }

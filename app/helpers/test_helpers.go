@@ -226,6 +226,23 @@ func genesisStateWithValSet(t *testing.T,
 	return genesisState
 }
 
+// SetupWithContext initializes a new test input for the app and returns the app instance and context
+func SetupWithContext(t *testing.T) (*kiichain.KiichainApp, sdk.Context) {
+	t.Helper()
+	chain := Setup(t)
+	ctx := chain.BaseApp.NewUncachedContext(true, tmproto.Header{Height: 1, ChainID: "testing_1010-1", Time: time.Now().UTC()})
+	allVal, err := chain.StakingKeeper.GetAllValidators(ctx)
+	require.NoError(t, err)
+
+	// Validator consensus address
+	valConsAddr, err := allVal[0].GetConsAddr()
+	require.NoError(t, err)
+
+	// Set a final context with the proposer address for the EVM module
+	ctx = chain.BaseApp.NewUncachedContext(true, tmproto.Header{Height: 1, ChainID: "testing_1010-1", Time: time.Now().UTC(), ProposerAddress: valConsAddr})
+	return chain, sdk.UnwrapSDKContext(ctx)
+}
+
 // BuildTxFromMsgs builds a tx from a set of messages
 func BuildTxFromMsgs(feePayer sdk.AccAddress, fee sdk.Coins, msgs ...sdk.Msg) (xauthsigning.Tx, error) {
 	// Start the tx builder
