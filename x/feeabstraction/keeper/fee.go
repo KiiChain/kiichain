@@ -132,7 +132,7 @@ func (k Keeper) PrepareUserBalanceForFees(ctx sdk.Context, account sdk.AccAddres
 	erc20BalanceInt := math.NewIntFromBigInt(erc20Balance)
 	// If the user has enough erc20 balance, we convert the erc20 token to the native token
 	// and return true
-	if erc20BalanceInt.GTE(amount) {
+	if erc20Balance != nil && erc20BalanceInt.GTE(amount) {
 		// Prepare the convert message
 		msg := erc20types.NewMsgConvertERC20(
 			amount,
