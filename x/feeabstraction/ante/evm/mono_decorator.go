@@ -288,6 +288,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			"min_priority", decUtils.MinPriority,
 			"base_fee", decUtils.BaseFee,
 			"tx_type", txData.TxType(),
+			"paid_fees", msgFees,
 		)
 
 		// Define the fee on the context for gas refunding
