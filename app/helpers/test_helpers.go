@@ -244,7 +244,7 @@ func SetupWithContext(t *testing.T) (*kiichain.KiichainApp, sdk.Context) {
 }
 
 // BuildTxFromMsgs builds a tx from a set of messages
-func BuildTxFromMsgs(feePayer sdk.AccAddress, fee sdk.Coins, msgs ...sdk.Msg) (xauthsigning.Tx, error) {
+func BuildTxFromMsgs(feePayer sdk.AccAddress, feeGranter sdk.AccAddress, fee sdk.Coins, gasLimit uint64, msgs ...sdk.Msg) (xauthsigning.Tx, error) {
 	// Start the tx builder
 	encodingConfig := params.MakeEncodingConfig()
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
@@ -256,10 +256,11 @@ func BuildTxFromMsgs(feePayer sdk.AccAddress, fee sdk.Coins, msgs ...sdk.Msg) (x
 	}
 
 	// Set the fee payer
-	txBuilder.SetFeePayer(feePayer) // Replace with actual address
+	txBuilder.SetFeePayer(feePayer)
+	txBuilder.SetFeeGranter(feeGranter)
 
 	// Set gas limit and fee amount
-	txBuilder.SetGasLimit(1000000)
+	txBuilder.SetGasLimit(gasLimit)
 	txBuilder.SetFeeAmount(fee)
 
 	return txBuilder.GetTx(), nil

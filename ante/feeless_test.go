@@ -187,7 +187,7 @@ func TestFeelessDecorator(t *testing.T) {
 			}
 
 			// Build a tx from the messages
-			tx, err := helpers.BuildTxFromMsgs(funder, sdk.NewCoins(feeCoin), tc.msgs...)
+			tx, err := helpers.BuildTxFromMsgs(funder, nil, sdk.NewCoins(feeCoin), 1000000, tc.msgs...)
 			require.NoError(t, err)
 
 			// Take a sample of the user address

@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/math"
+	"cosmossdk.io/x/feegrant"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtestutil "github.com/cosmos/cosmos-sdk/x/auth/testutil"
@@ -41,6 +42,7 @@ func TestDeductFeeDecorator(t *testing.T) {
 
 	// Create a fee payer
 	founder := apptesting.RandomAccountAddress()
+	feeGranter := apptesting.RandomAccountAddress()
 
 	// Create the funder account
 	app.AccountKeeper.SetAccount(ctx, app.AccountKeeper.NewAccountWithAddress(ctx, founder))
@@ -51,13 +53,14 @@ func TestDeductFeeDecorator(t *testing.T) {
 		malleate    func(ctx sdk.Context)
 		fee         sdk.Coins
 		expected    sdk.Coins
+		feeGranter  sdk.AccAddress
 		errContains string
 		postCheck   func(ctx sdk.Context)
 	}{
 		{
 			name: "success - valid fee deduction",
 			malleate: func(ctx sdk.Context) {
-				// Fun the account with enough funds to pay the fee
+				// Fund the account with enough funds to pay the fee
 				err := app.BankKeeper.MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)))
 				require.NoError(t, err)
 				err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, founder, sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)))
@@ -67,9 +70,29 @@ func TestDeductFeeDecorator(t *testing.T) {
 			expected: sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
 		},
 		{
+			name: "success - valid fee deduction with fee granter",
+			malleate: func(ctx sdk.Context) {
+				// Fund the fee granter account with enough funds to pay the fee
+				err := app.BankKeeper.MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)))
+				require.NoError(t, err)
+				err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, feeGranter, sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)))
+				require.NoError(t, err)
+
+				// Create the fee grant
+				err = app.FeeGrantKeeper.GrantAllowance(ctx, feeGranter, founder, &feegrant.BasicAllowance{
+					SpendLimit: sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
+					Expiration: nil,
+				})
+				require.NoError(t, err)
+			},
+			feeGranter: feeGranter,
+			fee:        sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
+			expected:   sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
+		},
+		{
 			name: "success - valid fee deduction with multiple coins",
 			malleate: func(ctx sdk.Context) {
-				// Fun the account with enough funds to pay the fee
+				// Fund the account with enough funds to pay the fee
 				err := app.BankKeeper.MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)))
 				require.NoError(t, err)
 				err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, founder, sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)))
@@ -103,7 +126,13 @@ func TestDeductFeeDecorator(t *testing.T) {
 			errContains: "insufficient funds for fee",
 		},
 		{
-			name: "nonexistent fee payer",
+			name:        "fail - failure on tx fee checker",
+			fee:         sdk.NewCoins(sdk.NewInt64Coin("akii", 1)),
+			expected:    sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
+			errContains: " Please retry using a higher gas price or a higher fee",
+		},
+		{
+			name: "fail - nonexistent fee payer",
 			malleate: func(ctx sdk.Context) {
 				// Get the funder account
 				founderAcc := app.AccountKeeper.GetAccount(ctx, founder)
@@ -189,6 +218,13 @@ func TestDeductFeeDecorator(t *testing.T) {
 				require.Equal(t, big.NewInt(DefaultMinFeeValue/2), erc20Balance)
 			},
 		},
+		{
+			name:        "fail - unauthorized fee grant",
+			feeGranter:  feeGranter,
+			fee:         sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
+			expected:    sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
+			errContains: "fee-grant not found",
+		},
 	}
 
 	// Iterate and run the tests
@@ -211,6 +247,13 @@ func TestDeductFeeDecorator(t *testing.T) {
 			if !tc.expected.IsZero() {
 				mockBankKeeper.EXPECT().SendCoinsFromAccountToModule(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(
 					func(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr string, amt sdk.Coins) error {
+						// Check the fromAddr is the fee payer
+						if tc.feeGranter != nil {
+							require.Equal(t, tc.feeGranter, fromAddr)
+						} else {
+							require.Equal(t, founder, fromAddr)
+						}
+
 						// Check if the amount is equal to the expected value
 						require.Equal(t, tc.expected, amt)
 						return nil
@@ -222,7 +265,7 @@ func TestDeductFeeDecorator(t *testing.T) {
 			deductFeeDecorator := cosmos.NewDeductFeeDecorator(
 				app.AccountKeeper,
 				mockBankKeeper,
-				nil, // Skip all the feegrant shenanigans
+				app.FeeGrantKeeper,
 				app.FeeAbstractionKeeper,
 				cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
 			)
@@ -233,7 +276,9 @@ func TestDeductFeeDecorator(t *testing.T) {
 			// Build a TX
 			tx, err := helpers.BuildTxFromMsgs(
 				founder,
+				tc.feeGranter,
 				tc.fee,
+				1000000,
 				banktypes.NewMsgSend(founder, apptesting.RandomAccountAddress(), sdk.NewCoins(sdk.NewCoin("akii", math.NewInt(1000)))),
 			)
 			require.NoError(t, err)
@@ -252,4 +297,91 @@ func TestDeductFeeDecorator(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestDeductFeeDecoratorCheckerNil tests the DeductFeeDecorator with a nil checker
+func TestDeductFeeDecoratorCheckerNil(t *testing.T) {
+	// Start the app and the context
+	app, _ := helpers.SetupWithContext(t)
+
+	// Start up the DeductFeeDecorator with a nil checker
+	require.PanicsWithValue(t, "txFeeChecker cannot be nil", func() {
+		cosmos.NewDeductFeeDecorator(
+			app.AccountKeeper,
+			app.BankKeeper,
+			nil, // Skip all the feegrant shenanigans
+			app.FeeAbstractionKeeper,
+			nil, // Set checker to nil
+		)
+	})
+}
+
+// TestDeductFeeDecoratorGasZero tests the DeductFeeDecorator with a zero gas limit
+func TestDeductFeeDecoratorGasZero(t *testing.T) {
+	// Start the app and the context
+	app, ctx := helpers.SetupWithContext(t)
+
+	// Start up the DeductFeeDecorator with a nil checker
+	deductFeeDecorator := cosmos.NewDeductFeeDecorator(
+		app.AccountKeeper,
+		app.BankKeeper,
+		nil, // Skip all the feegrant shenanigans
+		app.FeeAbstractionKeeper,
+		cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+	)
+
+	// Create a fee payer
+	founder := apptesting.RandomAccountAddress()
+
+	// Wrap into a ante decorator
+	anteHandler := sdk.ChainAnteDecorators(deductFeeDecorator)
+
+	// Build a TX
+	tx, err := helpers.BuildTxFromMsgs(
+		founder,
+		nil,
+		sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
+		0, // Set gas limit to zero
+		banktypes.NewMsgSend(founder, apptesting.RandomAccountAddress(), sdk.NewCoins(sdk.NewCoin("akii", math.NewInt(1000)))),
+	)
+	require.NoError(t, err)
+
+	// Run the ante handler
+	_, err = anteHandler(ctx, tx, false)
+	require.ErrorContains(t, err, "must provide positive gas")
+}
+
+// TestDeductFeeDecoratorFeeGranterNoFeeKeeper tests the DeductFeeDecorator with a nil fee keeper
+func TestDeductFeeDecoratorFeeGranterNoFeeKeeper(t *testing.T) {
+	// Start the app and the context
+	app, ctx := helpers.SetupWithContext(t)
+
+	// Start up the DeductFeeDecorator with a nil checker
+	deductFeeDecorator := cosmos.NewDeductFeeDecorator(
+		app.AccountKeeper,
+		app.BankKeeper,
+		nil,
+		app.FeeAbstractionKeeper,
+		cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+	)
+
+	// Create a fee payer
+	founder := apptesting.RandomAccountAddress()
+
+	// Wrap into a ante decorator
+	anteHandler := sdk.ChainAnteDecorators(deductFeeDecorator)
+
+	// Build a TX
+	tx, err := helpers.BuildTxFromMsgs(
+		founder,
+		apptesting.RandomAccountAddress(), // Set fee granter to a random address
+		sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
+		1000000,
+		banktypes.NewMsgSend(founder, apptesting.RandomAccountAddress(), sdk.NewCoins(sdk.NewCoin("akii", math.NewInt(1000)))),
+	)
+	require.NoError(t, err)
+
+	// Run the ante handler
+	_, err = anteHandler(ctx, tx, false)
+	require.ErrorContains(t, err, "fee grants are not enabled")
 }
