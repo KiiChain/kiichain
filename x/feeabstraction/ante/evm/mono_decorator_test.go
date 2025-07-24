@@ -32,7 +32,7 @@ import (
 
 // TestMonoDecorator tests the MonoDecorator and its changes related to the fee abstraction
 // This test focus on the fee abstraction changes and slight cover the mono decorator implementation
-// Full coverage is ensure by the evm module
+// Full coverage is ensured by the evm module
 func TestMonoDecorator(t *testing.T) {
 	// Start the app and the context
 	app, ctx := helpers.SetupWithContext(t)
