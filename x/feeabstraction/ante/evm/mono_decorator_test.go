@@ -20,6 +20,7 @@ import (
 	"github.com/cosmos/evm/testutil/integration/os/keyring"
 	"github.com/cosmos/evm/testutil/tx"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
+	"github.com/cosmos/evm/x/vm/statedb"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	kiichain "github.com/kiichain/kiichain/v3/app"
@@ -29,6 +30,78 @@ import (
 	kiievmante "github.com/kiichain/kiichain/v3/x/feeabstraction/ante/evm"
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/keeper"
 )
+
+// TestMonoDecoratorTx tests the MonoDecorator with specific transaction cases
+// This focus on bad cases, while the good cases are covered by the TestMonoDecorator
+func TestMonoDecoratorTx(t *testing.T) {
+	// Create the app and the context
+	app, ctx := helpers.SetupWithContext(t)
+
+	// Define the test cases
+	testCases := []struct {
+		name        string
+		tx          signing.Tx
+		errContains string
+	}{
+		{
+			name: "tx validate fail",
+			tx: func() signing.Tx {
+				// Start the tx builder
+				encodingConfig := params.MakeEncodingConfig()
+				txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+				return txBuilder.GetTx()
+			}(),
+			errContains: "eth tx length of ExtensionOptions should be 1",
+		},
+		{
+			name: "tx fail - invalid signature",
+			tx: func() signing.Tx {
+				// Create a transaction with an invalid amount
+				ethChainID := big.NewInt(1010)
+				msgEthereumTx := evmtypes.NewTx(getDefaultEVMTxArgs(ethChainID, 20000000, big.NewInt(1000000), -10))
+
+				// Start the tx builder
+				encodingConfig := params.MakeEncodingConfig()
+				txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+				// Create the TX
+				tx, err := msgEthereumTx.BuildTx(txBuilder, "akii")
+				require.NoError(t, err)
+
+				return tx
+			}(),
+			errContains: "tx intended signer does not match the given signer",
+		},
+	}
+
+	// Run the test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Create a cached context
+			cacheCtx, _ := ctx.CacheContext()
+
+			// Start up the wrapped ante decorator
+			monoDecorator := kiievmante.NewEVMMonoDecorator(
+				app.AccountKeeper,
+				app.FeeMarketKeeper,
+				app.EVMKeeper,
+				app.FeeAbstractionKeeper,
+				20000000,
+			)
+			anteHandler := sdk.ChainAnteDecorators(monoDecorator)
+
+			// Execute the ante handler
+			_, err := anteHandler(cacheCtx, tc.tx, false)
+			if tc.errContains != "" {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.errContains)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
 
 // TestMonoDecorator tests the MonoDecorator and its changes related to the fee abstraction
 // This test focus on the fee abstraction changes and slight cover the mono decorator implementation
@@ -257,6 +330,41 @@ func TestMonoDecorator(t *testing.T) {
 			gasPrice:    big.NewInt(1000000),
 			txAmount:    1000000, // This is the amount to be sent in the tx, this makes the tx fail since the user has no funds to pay for the tx value
 			errContains: "insufficient funds",
+		},
+		{
+			name: "fail - account is a contract",
+			malleate: func(ctx sdk.Context) sdk.Context {
+				// Set the EVM account beforehand
+				fromAddr := keys.GetKey(0).Addr
+
+				// Create a contract account
+				// To define as a contract we need to set the code hash
+				err = app.EVMKeeper.SetAccount(ctx, fromAddr, statedb.Account{
+					Nonce:    0,
+					Balance:  big.NewInt(1000000),
+					CodeHash: []byte("contract code"),
+				})
+				require.NoError(t, err)
+
+				return ctx
+			},
+			gasLimit:    20000000,
+			gasPrice:    big.NewInt(1000000),
+			errContains: "the sender is not EOA",
+		},
+		{
+			name: "fail - invalid amount",
+			malleate: func(ctx sdk.Context) sdk.Context {
+				// Fund the account with token to pay for the fees
+				amount := sdk.NewCoins(sdk.NewCoin("akii", math.NewInt(20000000*1000000)))
+				err := mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
+				require.NoError(t, err)
+				return ctx
+			},
+			gasLimit:    20000000,
+			gasPrice:    big.NewInt(1000000),
+			txAmount:    -10,
+			errContains: "(-10) is negative and invalid",
 		},
 	}
 
