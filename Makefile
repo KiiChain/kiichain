@@ -294,6 +294,10 @@ endif
 
 .PHONY: run-tests $(TEST_TARGETS)
 
+test-unit-cover-html: test-unit-cover
+	@echo "--> Generating HTML coverage report"
+	@go tool cover -html=coverage.txt -o coverage.html
+
 docker-build-debug:
 	@docker build -t kiichain/kiichaind-e2e -f Dockerfile .
 

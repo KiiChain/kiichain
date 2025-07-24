@@ -30,6 +30,7 @@ mytestnet
 
 # Testing
 coverage.txt
+coverage.html
 profile.out
 
 # Vagrant
