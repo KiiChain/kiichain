@@ -6,6 +6,13 @@ import (
 	"github.com/kiichain/kiichain/v3/app/params"
 )
 
+// NewParams returns a new params instance
+func NewParams(nativeDenom string) Params {
+	return Params{
+		NativeDenom: nativeDenom,
+	}
+}
+
 // DefaultParams returns default params
 func DefaultParams() Params {
 	return Params{
