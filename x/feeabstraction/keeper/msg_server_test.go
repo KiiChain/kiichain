@@ -36,7 +36,15 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 				Authority: "invalid_authority",
 				Params:    types.NewParams("testcoin"),
 			},
-			errContains: "invalid authority address",
+			errContains: "invalid authority address: decoding bech32 failed",
+		},
+		{
+			name: "invalid - wrong authority",
+			msg: &types.MsgUpdateParams{
+				Authority: authtypes.NewModuleAddress(types.ModuleName).String(),
+				Params:    types.NewParams("testcoin"),
+			},
+			errContains: "expected gov account as only signer for proposal message",
 		},
 	}
 
