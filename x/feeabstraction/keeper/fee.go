@@ -93,12 +93,18 @@ func (k Keeper) checkNativeFees(ctx sdk.Context, account sdk.AccAddress, fees sd
 	}
 	fee := fees[0]
 
+	// Get the params
+	params, err := k.Params.Get(ctx)
+	if err != nil {
+		return false, err
+	}
+
 	// Then we check if the coin is the native coin
-	if fee.Denom != k.GetParams(ctx).DefaultDenom {
+	if fee.Denom != params.NativeDenom {
 		return false, errorsmod.Wrapf(
 			errortypes.ErrInvalidCoins,
 			"expected the native coin %s, got %s",
-			k.GetParams(ctx).DefaultDenom,
+			params.NativeDenom,
 			fee.Denom,
 		)
 	}

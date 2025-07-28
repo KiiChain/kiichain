@@ -1,0 +1,12 @@
+syntax = "proto3";
+package kiichain.feeabstraction.v1beta1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/kiichain/kiichain/x/feeabstraction/types";
+
+// Params defines the parameters for the fee abstraction module
+message Params {
+  // Native denom
+  string native_denom = 1;
+}

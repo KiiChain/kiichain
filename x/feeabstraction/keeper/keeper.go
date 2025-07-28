@@ -1,8 +1,14 @@
 package keeper
 
 import (
+	"fmt"
+
+	"cosmossdk.io/collections"
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
@@ -30,23 +36,63 @@ type Params struct {
 }
 
 // This is a mocked keeper for the fee abstraction module
-// This must be implemented
-// TODO: implement me and the module
 type Keeper struct {
-	erc20Keeper types.Erc20Keeper
+	// The chain codecs
+	cdc codec.BinaryCodec
+
+	// Modules used on the keeper
 	bankKeeper  types.BankKeeper
+	erc20Keeper types.Erc20Keeper
+
+	// The governance authority
+	authority string
+
+	// The schema and the different entries on collections
+	Schema collections.Schema
+	Params collections.Item[types.Params]
 
 	// Mocked fee prices
 	mockPrices []FeePrice
 }
 
 // NewKeeper creates a new instance of the Keeper
-// TODO: implement me and the module
-func NewKeeper(erc20Keeper types.Erc20Keeper, bankKeeper types.BankKeeper) Keeper {
-	return Keeper{
+func NewKeeper(
+	cdc codec.BinaryCodec,
+	storeService store.KVStoreService,
+	erc20Keeper types.Erc20Keeper, bankKeeper types.BankKeeper,
+	authority string,
+) Keeper {
+	// Start a new schema builder
+	sb := collections.NewSchemaBuilder(storeService)
+
+	// Initialize the keeper
+	k := Keeper{
+		cdc:         cdc,
 		erc20Keeper: erc20Keeper,
 		bankKeeper:  bankKeeper,
+		authority:   authority,
+		Params:      collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
 	}
+
+	// Build the schema
+	schema, err := sb.Build()
+	if err != nil {
+		panic(err)
+	}
+	k.Schema = schema
+
+	// Return the keeper
+	return k
+}
+
+// GetAuthority returns the module authority
+func (k Keeper) GetAuthority() string {
+	return k.authority
+}
+
+// Logger returns the logger for the module
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
 // SetFeePrices sets the fee prices
@@ -71,12 +117,4 @@ func (k Keeper) GetFeePrices(ctx sdk.Context) ([]FeePrice, error) {
 			Price: MockErc20Price,
 		},
 	}, nil
-}
-
-// GetParams returns the module params
-// TODO: implement me and the module
-func (k Keeper) GetParams(ctx sdk.Context) Params {
-	return Params{
-		DefaultDenom: "akii",
-	}
 }

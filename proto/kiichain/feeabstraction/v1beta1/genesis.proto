@@ -1,0 +1,13 @@
+syntax = "proto3";
+package kiichain.feeabstraction.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "kiichain/feeabstraction/v1beta1/params.proto";
+
+option go_package = "github.com/kiichain/kiichain/x/feeabstraction/types";
+
+// GenesisState defines the fee abstraction module's genesis state.
+message GenesisState {
+  // params defines the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
