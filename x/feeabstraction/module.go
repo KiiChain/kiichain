@@ -8,12 +8,16 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
+	"cosmossdk.io/api/tendermint/abci"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/client/cli"
+	"github.com/kiichain/kiichain/v3/x/feeabstraction/keeper"
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 )
 
@@ -21,7 +25,7 @@ import (
 var (
 	_ module.AppModuleBasic   = AppModuleBasic{}
 	_ module.HasGenesisBasics = AppModuleBasic{}
-	// _ module.AppModule        = AppModule{}
+	_ module.AppModule        = AppModule{}
 )
 
 // ConsensusVersion defines the current x/feeabstraction module consensus version
@@ -87,4 +91,80 @@ func (a AppModuleBasic) GetTxCmd() *cobra.Command {
 // GetQueryCmd returns the module root query CLI command
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
+}
+
+// ----------------------------------------------------------------------------
+// AppModule
+// ----------------------------------------------------------------------------
+
+// AppModule defines the AppModule while keeping the AppModuleBasic interface
+type AppModule struct {
+	// Wrap the AppModuleBasic
+	AppModuleBasic
+
+	// Has the keeper as param
+	keeper keeper.Keeper
+}
+
+// NewAppModule returns the a new AppModule
+func NewAppModule(k keeper.Keeper) AppModule {
+	return AppModule{
+		AppModuleBasic: NewAppModuleBasic(),
+		keeper:         k,
+	}
+}
+
+// IsAppModule implement the AppModule interface
+func (AppModule) IsAppModule() {}
+
+// IsOnePerModuleType implements the AppModule interface
+func (AppModule) IsOnePerModuleType() {}
+
+// Name returns the x/feeabstraction module name
+func (am AppModule) Name() string { return am.AppModuleBasic.Name() }
+
+// QuerierRoute returns the x/feeabstraction module query route key
+func (AppModule) QuerierRoute() string { return types.QuerierRoute }
+
+// RegisterServices registers the GRPC query and msg servers
+func (am AppModule) RegisterServices(c module.Configurator) {
+	types.RegisterMsgServer(c.MsgServer(), keeper.NewMsgServer(am.keeper))
+	types.RegisterQueryServer(c.QueryServer(), keeper.NewQuerier(am.keeper))
+}
+
+// RegisterInvariants register the module invariants
+func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
+
+// InitGenesis performs the module genesis initialization
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) []abci.ValidatorUpdate {
+	// Unmarshal the genesis state
+	var genState types.GenesisState
+	cdc.MustUnmarshalJSON(gs, &genState)
+
+	// Initialize the genesis
+	err := am.keeper.InitGenesis(ctx, genState)
+	if err != nil {
+		panic(err)
+	}
+
+	// Return no validator updates
+	return []abci.ValidatorUpdate{}
+}
+
+// ExportGenesis exports the module genesis in raw json bytes
+func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
+	// Export the keeper contents as a genesis state
+	genState, err := am.keeper.ExportGenesis(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return cdc.MustMarshalJSON(genState)
+}
+
+// ConsensusVersion returns the module consensus version
+func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
+
+// EndBlock returns the end blocker for the module
+func (am AppModule) EndBlock(ctx context.Context) []abci.ValidatorUpdate {
+	return []abci.ValidatorUpdate{}
 }
