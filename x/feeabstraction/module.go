@@ -26,6 +26,7 @@ var (
 	_ module.AppModuleBasic   = AppModuleBasic{}
 	_ module.HasGenesisBasics = AppModuleBasic{}
 	_ module.AppModule        = AppModule{}
+	_ module.HasGenesis       = AppModule{}
 )
 
 // ConsensusVersion defines the current x/feeabstraction module consensus version
@@ -136,7 +137,7 @@ func (am AppModule) RegisterServices(c module.Configurator) {
 func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // InitGenesis performs the module genesis initialization
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) {
 	// Unmarshal the genesis state
 	var genState types.GenesisState
 	cdc.MustUnmarshalJSON(gs, &genState)
@@ -146,9 +147,6 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.Ra
 	if err != nil {
 		panic(err)
 	}
-
-	// Return no validator updates
-	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis exports the module genesis in raw json bytes
