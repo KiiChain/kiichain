@@ -61,6 +61,8 @@ import (
 	"github.com/cosmos/evm/x/vm"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
+	"github.com/kiichain/kiichain/v3/x/feeabstraction"
+	feeabstractiontypes "github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 	"github.com/kiichain/kiichain/v3/x/oracle"
 	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
 	"github.com/kiichain/kiichain/v3/x/rewards"
@@ -85,9 +87,10 @@ var maccPerms = map[string][]string{
 	feemarkettypes.ModuleName: nil,                                  // Fee market doesn't need permissions
 	erc20types.ModuleName:     {authtypes.Minter, authtypes.Burner}, // Allows erc20 module to mint/burn for token pairs
 	// Custom modules
-	tokenfactorytypes.ModuleName: {authtypes.Minter, authtypes.Burner},
-	rewardstypes.ModuleName:      nil,
-	oracletypes.ModuleName:       nil,
+	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
+	rewardstypes.ModuleName:        nil,
+	oracletypes.ModuleName:         nil,
+	feeabstractiontypes.ModuleName: nil,
 }
 
 func appModules(
@@ -133,6 +136,7 @@ func appModules(
 		vm.NewAppModule(app.EVMKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
+		feeabstraction.NewAppModule(app.FeeAbstractionKeeper),
 	}
 }
 
@@ -220,6 +224,7 @@ func orderBeginBlockers() []string {
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		oracletypes.ModuleName,
+		feeabstractiontypes.ModuleName,
 	}
 }
 
@@ -257,6 +262,7 @@ func orderEndBlockers() []string {
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		oracletypes.ModuleName,
+		feeabstractiontypes.ModuleName,
 	}
 }
 
@@ -303,6 +309,7 @@ func orderInitBlockers() []string {
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		oracletypes.ModuleName,
+		feeabstractiontypes.ModuleName,
 		rewardstypes.ModuleName,
 		// crisis needs to be last so that the genesis state is consistent
 		// when it checks invariants
