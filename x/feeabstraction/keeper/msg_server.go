@@ -12,20 +12,20 @@ import (
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 )
 
-// msgServer defines the keeper msgServer wrapper
-type msgServer struct {
+// MsgServer defines the keeper MsgServer wrapper
+type MsgServer struct {
 	Keeper
 }
 
-var _ types.MsgServer = msgServer{}
+var _ types.MsgServer = MsgServer{}
 
 // NewMsgServer returns the keeper message server
 func NewMsgServer(k Keeper) types.MsgServer {
-	return &msgServer{Keeper: k}
+	return &MsgServer{Keeper: k}
 }
 
 // UpdateParams updates the module params though a proposal
-func (ms msgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
+func (ms MsgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	// Check the authority
 	if err := ms.validateAuthority(msg.Authority); err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (ms msgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams
 }
 
 // validateAuthority checks if address authority is valid and same as expected
-func (ms msgServer) validateAuthority(authority string) error {
+func (ms MsgServer) validateAuthority(authority string) error {
 	// Parse the authority as a acc address
 	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
