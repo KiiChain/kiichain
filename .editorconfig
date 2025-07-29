@@ -14,13 +14,10 @@ indent_size = 4
 [*.md]
 trim_trailing_whitespace = false
 
-[*.yml]
+[*.{yml,yaml}]
 indent_size = 2
 
-[*.yaml]
-indent_size = 2
-
-[Makefile]
+[Makefile,*.mk,*.make]
 indent_style = tab
 indent_size = 4
 trim_trailing_whitespace = false
