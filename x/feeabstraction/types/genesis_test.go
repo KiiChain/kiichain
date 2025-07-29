@@ -21,13 +21,44 @@ func TestGenesisStateValidate(t *testing.T) {
 			genesisState: types.DefaultGenesisState(),
 		},
 		{
-			name:         "valid - custom genesis state",
-			genesisState: types.NewGenesisState(types.NewParams("coin")),
+			name: "valid - custom genesis state",
+			genesisState: types.NewGenesisState(
+				types.NewParams(
+					"coin", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, true),
+				types.NewFeeTokenMetadataCollection(
+					types.NewFeeTokenMetadata("coin", "oraclecoin", 6, types.DefaultMaxPriceDeviation, types.DefaultClampFactor),
+					types.NewFeeTokenMetadata("two", "oracletwo", 18, types.DefaultMaxPriceDeviation.MulInt64(2), types.DefaultClampFactor.MulInt64(2)),
+				),
+			),
 		},
 		{
-			name:         "invalid - empty native denom",
-			genesisState: types.NewGenesisState(types.NewParams("")),
-			errContains:  "invalid denom",
+			name: "invalid - bad param",
+			genesisState: types.NewGenesisState(
+				types.NewParams("", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, true),
+				types.NewFeeTokenMetadataCollection(),
+			),
+			errContains: "invalid denom",
+		},
+		{
+			name: "invalid - invalid fee token metadata",
+			genesisState: types.NewGenesisState(
+				types.DefaultParams(),
+				types.NewFeeTokenMetadataCollection(
+					types.NewFeeTokenMetadata("", "oraclecoin", 6, types.DefaultMaxPriceDeviation, types.DefaultClampFactor),
+				),
+			),
+			errContains: "invalid fee token metadata",
+		},
+		{
+			name: "invalid - duplicate fee token denom",
+			genesisState: types.NewGenesisState(
+				types.DefaultParams(),
+				types.NewFeeTokenMetadataCollection(
+					types.NewFeeTokenMetadata("coin", "oraclecoin", 6, types.DefaultMaxPriceDeviation, types.DefaultClampFactor),
+					types.NewFeeTokenMetadata("coin", "oraclecoin2", 6, types.DefaultMaxPriceDeviation, types.DefaultClampFactor),
+				),
+			),
+			errContains: "duplicate denom found: coin",
 		},
 	}
 

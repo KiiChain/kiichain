@@ -16,3 +16,18 @@ func NewMessageUpdateParams(authority string, params Params) *MsgUpdateParams {
 		Params:    params,
 	}
 }
+
+// Validate performs basic validation on the MsgUpdateParams message
+func (msg *MsgUpdateParams) Validate() error {
+	// Validate the authority
+	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+		return err
+	}
+
+	// Validate the params
+	if err := msg.Params.Validate(); err != nil {
+		return err
+	}
+
+	return nil
+}
