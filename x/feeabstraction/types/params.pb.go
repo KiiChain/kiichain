@@ -4,6 +4,7 @@
 package types
 
 import (
+	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -27,6 +28,12 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type Params struct {
 	// Native denom
 	NativeDenom string `protobuf:"bytes,1,opt,name=native_denom,json=nativeDenom,proto3" json:"native_denom,omitempty"`
+	// Enabled indicates if the fee abstraction module is enabled
+	Enabled bool `protobuf:"varint,2,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// MaxPriceDeviation is the maximum allowed deviation for token prices per block
+	MaxPriceDeviation cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=max_price_deviation,json=maxPriceDeviation,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"max_price_deviation" yaml:"max_price_deviation"`
+	// ClampFactor is the factor to clamp the price deviation
+	ClampFactor cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=clamp_factor,json=clampFactor,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"clamp_factor" yaml:"clamp_factor"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -69,8 +76,140 @@ func (m *Params) GetNativeDenom() string {
 	return ""
 }
 
+func (m *Params) GetEnabled() bool {
+	if m != nil {
+		return m.Enabled
+	}
+	return false
+}
+
+// FeeTokenMetadata defines the metadata for a fee token
+type FeeTokenMetadata struct {
+	// Denom is the token denom
+	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// Identifier on the oracle module
+	OracleDenom string `protobuf:"bytes,2,opt,name=oracle_denom,json=oracleDenom,proto3" json:"oracle_denom,omitempty"`
+	// Decimals is the number of decimals for the token
+	Decimals uint32 `protobuf:"varint,3,opt,name=decimals,proto3" json:"decimals,omitempty"`
+	// Price is the price of the token in the native denom
+	Price cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price" yaml:"price"`
+	// FallbackPrice is the fallback price for the token in case the oracle price is not available
+	FallbackPrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=fallback_price,json=fallbackPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"fallback_price" yaml:"fallback_price"`
+	// Enabled indicates if the token is enabled for fee abstraction
+	Enabled bool `protobuf:"varint,6,opt,name=enabled,proto3" json:"enabled,omitempty"`
+}
+
+func (m *FeeTokenMetadata) Reset()         { *m = FeeTokenMetadata{} }
+func (m *FeeTokenMetadata) String() string { return proto.CompactTextString(m) }
+func (*FeeTokenMetadata) ProtoMessage()    {}
+func (*FeeTokenMetadata) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4c9ebe382042ec91, []int{1}
+}
+func (m *FeeTokenMetadata) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *FeeTokenMetadata) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_FeeTokenMetadata.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *FeeTokenMetadata) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FeeTokenMetadata.Merge(m, src)
+}
+func (m *FeeTokenMetadata) XXX_Size() int {
+	return m.Size()
+}
+func (m *FeeTokenMetadata) XXX_DiscardUnknown() {
+	xxx_messageInfo_FeeTokenMetadata.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FeeTokenMetadata proto.InternalMessageInfo
+
+func (m *FeeTokenMetadata) GetDenom() string {
+	if m != nil {
+		return m.Denom
+	}
+	return ""
+}
+
+func (m *FeeTokenMetadata) GetOracleDenom() string {
+	if m != nil {
+		return m.OracleDenom
+	}
+	return ""
+}
+
+func (m *FeeTokenMetadata) GetDecimals() uint32 {
+	if m != nil {
+		return m.Decimals
+	}
+	return 0
+}
+
+func (m *FeeTokenMetadata) GetEnabled() bool {
+	if m != nil {
+		return m.Enabled
+	}
+	return false
+}
+
+// Defines a collection of fee token metadata
+type FeeTokenMetadataCollection struct {
+	// Items is a repeated field of FeeTokenMetadata
+	Items []FeeTokenMetadata `protobuf:"bytes,1,rep,name=items,proto3" json:"items"`
+}
+
+func (m *FeeTokenMetadataCollection) Reset()         { *m = FeeTokenMetadataCollection{} }
+func (m *FeeTokenMetadataCollection) String() string { return proto.CompactTextString(m) }
+func (*FeeTokenMetadataCollection) ProtoMessage()    {}
+func (*FeeTokenMetadataCollection) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4c9ebe382042ec91, []int{2}
+}
+func (m *FeeTokenMetadataCollection) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *FeeTokenMetadataCollection) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_FeeTokenMetadataCollection.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *FeeTokenMetadataCollection) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FeeTokenMetadataCollection.Merge(m, src)
+}
+func (m *FeeTokenMetadataCollection) XXX_Size() int {
+	return m.Size()
+}
+func (m *FeeTokenMetadataCollection) XXX_DiscardUnknown() {
+	xxx_messageInfo_FeeTokenMetadataCollection.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FeeTokenMetadataCollection proto.InternalMessageInfo
+
+func (m *FeeTokenMetadataCollection) GetItems() []FeeTokenMetadata {
+	if m != nil {
+		return m.Items
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*Params)(nil), "kiichain.feeabstraction.v1beta1.Params")
+	proto.RegisterType((*FeeTokenMetadata)(nil), "kiichain.feeabstraction.v1beta1.FeeTokenMetadata")
+	proto.RegisterType((*FeeTokenMetadataCollection)(nil), "kiichain.feeabstraction.v1beta1.FeeTokenMetadataCollection")
 }
 
 func init() {
@@ -78,19 +217,37 @@ func init() {
 }
 
 var fileDescriptor_4c9ebe382042ec91 = []byte{
-	// 187 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xd2, 0xc9, 0xce, 0xcc, 0x4c,
-	0xce, 0x48, 0xcc, 0xcc, 0xd3, 0x4f, 0x4b, 0x4d, 0x4d, 0x4c, 0x2a, 0x2e, 0x29, 0x4a, 0x4c, 0x2e,
-	0xc9, 0xcc, 0xcf, 0xd3, 0x2f, 0x33, 0x4c, 0x4a, 0x2d, 0x49, 0x34, 0xd4, 0x2f, 0x48, 0x2c, 0x4a,
-	0xcc, 0x2d, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x92, 0x87, 0xa9, 0xd6, 0x43, 0x55, 0xad,
-	0x07, 0x55, 0x2d, 0x25, 0x92, 0x9e, 0x9f, 0x9e, 0x0f, 0x56, 0xab, 0x0f, 0x62, 0x41, 0xb4, 0x29,
-	0x69, 0x73, 0xb1, 0x05, 0x80, 0x8d, 0x11, 0x52, 0xe4, 0xe2, 0xc9, 0x4b, 0x2c, 0xc9, 0x2c, 0x4b,
-	0x8d, 0x4f, 0x49, 0xcd, 0xcb, 0xcf, 0x95, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x0c, 0xe2, 0x86, 0x88,
-	0xb9, 0x80, 0x84, 0x9c, 0x7c, 0x4f, 0x3c, 0x92, 0x63, 0xbc, 0xf0, 0x48, 0x8e, 0xf1, 0xc1, 0x23,
-	0x39, 0xc6, 0x09, 0x8f, 0xe5, 0x18, 0x2e, 0x3c, 0x96, 0x63, 0xb8, 0xf1, 0x58, 0x8e, 0x21, 0xca,
-	0x38, 0x3d, 0xb3, 0x24, 0xa3, 0x34, 0x49, 0x2f, 0x39, 0x3f, 0x57, 0x1f, 0xee, 0x6c, 0x38, 0xa3,
-	0x02, 0xdd, 0x07, 0x25, 0x95, 0x05, 0xa9, 0xc5, 0x49, 0x6c, 0x60, 0x27, 0x18, 0x03, 0x02, 0x00,
-	0x00, 0xff, 0xff, 0xfa, 0x2f, 0x05, 0x5e, 0xe9, 0x00, 0x00, 0x00,
+	// 478 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0x41, 0x8b, 0xda, 0x40,
+	0x14, 0xc7, 0x8d, 0xbb, 0xda, 0xed, 0xe8, 0x96, 0x76, 0x76, 0x0b, 0xc1, 0x42, 0xb4, 0x39, 0x79,
+	0x28, 0x09, 0xd6, 0xdb, 0xd2, 0x4b, 0xad, 0x2c, 0x14, 0x2a, 0x2c, 0xa1, 0xa7, 0x42, 0x91, 0x97,
+	0xc9, 0xa8, 0x43, 0x66, 0x32, 0x69, 0x32, 0x15, 0xfd, 0x16, 0xbd, 0xf5, 0x73, 0xf4, 0x5b, 0xec,
+	0x71, 0x8f, 0xa5, 0x07, 0x29, 0xfa, 0x0d, 0xfa, 0x09, 0x4a, 0x66, 0x8c, 0xa8, 0x14, 0xea, 0x6d,
+	0xde, 0x9f, 0xf7, 0x7e, 0x8f, 0xf7, 0x9f, 0xf7, 0xd0, 0xab, 0x98, 0x31, 0x32, 0x03, 0x96, 0xf8,
+	0x13, 0x4a, 0x21, 0xcc, 0x55, 0x06, 0x44, 0x31, 0x99, 0xf8, 0xf3, 0x5e, 0x48, 0x15, 0xf4, 0xfc,
+	0x14, 0x32, 0x10, 0xb9, 0x97, 0x66, 0x52, 0x49, 0xdc, 0x2e, 0xb3, 0xbd, 0xc3, 0x6c, 0x6f, 0x9b,
+	0xdd, 0xba, 0x9e, 0xca, 0xa9, 0xd4, 0xb9, 0x7e, 0xf1, 0x32, 0x65, 0xee, 0xf7, 0x2a, 0xaa, 0xdf,
+	0x69, 0x0e, 0x7e, 0x89, 0x9a, 0x09, 0x28, 0x36, 0xa7, 0xe3, 0x88, 0x26, 0x52, 0xd8, 0x56, 0xc7,
+	0xea, 0x3e, 0x0e, 0x1a, 0x46, 0x1b, 0x16, 0x12, 0xb6, 0xd1, 0x23, 0x9a, 0x40, 0xc8, 0x69, 0x64,
+	0x57, 0x3b, 0x56, 0xf7, 0x22, 0x28, 0x43, 0xfc, 0x05, 0x5d, 0x09, 0x58, 0x8c, 0xd3, 0x8c, 0x91,
+	0xa2, 0x7e, 0xce, 0xa0, 0x68, 0x6e, 0x9f, 0x17, 0x8c, 0xc1, 0xdb, 0xfb, 0x55, 0xbb, 0xf2, 0x6b,
+	0xd5, 0x7e, 0x41, 0x64, 0x2e, 0x64, 0x9e, 0x47, 0xb1, 0xc7, 0xa4, 0x2f, 0x40, 0xcd, 0xbc, 0x0f,
+	0x74, 0x0a, 0x64, 0x39, 0xa4, 0xe4, 0xcf, 0xaa, 0xdd, 0x5a, 0x82, 0xe0, 0x37, 0xee, 0x3f, 0x38,
+	0x6e, 0xf0, 0x4c, 0xc0, 0xe2, 0xae, 0x10, 0x87, 0xa5, 0x86, 0x3f, 0xa3, 0x26, 0xe1, 0x20, 0xd2,
+	0xf1, 0x04, 0x88, 0x92, 0x99, 0x5d, 0xd3, 0xbd, 0x6e, 0x4e, 0xeb, 0x75, 0x65, 0x7a, 0xed, 0x03,
+	0xdc, 0xa0, 0xa1, 0xc3, 0x5b, 0x13, 0xfd, 0xa8, 0xa2, 0xa7, 0xb7, 0x94, 0x7e, 0x94, 0x31, 0x4d,
+	0x46, 0x54, 0x41, 0x04, 0x0a, 0xf0, 0x35, 0xaa, 0xed, 0x9b, 0x63, 0x82, 0xc2, 0x39, 0x99, 0x01,
+	0xe1, 0xa5, 0x73, 0x55, 0xe3, 0x9c, 0xd1, 0x8c, 0x73, 0x2d, 0x74, 0x11, 0x51, 0xc2, 0x04, 0xf0,
+	0xdc, 0x3e, 0xeb, 0x58, 0xdd, 0xcb, 0x60, 0x17, 0xe3, 0xf7, 0xa8, 0xa6, 0xe7, 0xdd, 0xba, 0xd5,
+	0x3f, 0x6d, 0x82, 0xa6, 0x99, 0x40, 0x57, 0xba, 0x81, 0x21, 0x60, 0x82, 0x9e, 0x4c, 0x80, 0xf3,
+	0x10, 0x48, 0x6c, 0x3c, 0xdc, 0xba, 0xf2, 0xe6, 0x34, 0xe6, 0x73, 0xc3, 0x3c, 0x44, 0xb8, 0xc1,
+	0x65, 0x29, 0xe8, 0x1f, 0xd8, 0xdf, 0x82, 0xfa, 0xc1, 0x16, 0xb8, 0x31, 0x6a, 0x1d, 0x5b, 0xf6,
+	0x4e, 0x72, 0x4e, 0xf5, 0x26, 0xe2, 0x11, 0xaa, 0x31, 0x45, 0x45, 0x6e, 0x5b, 0x9d, 0xb3, 0x6e,
+	0xe3, 0x75, 0xcf, 0xfb, 0xcf, 0xca, 0x7a, 0xc7, 0xac, 0xc1, 0x79, 0x31, 0x46, 0x60, 0x28, 0x83,
+	0xd1, 0xfd, 0xda, 0xb1, 0x1e, 0xd6, 0x8e, 0xf5, 0x7b, 0xed, 0x58, 0xdf, 0x36, 0x4e, 0xe5, 0x61,
+	0xe3, 0x54, 0x7e, 0x6e, 0x9c, 0xca, 0xa7, 0xfe, 0x94, 0xa9, 0xd9, 0xd7, 0xd0, 0x23, 0x52, 0xf8,
+	0xbb, 0x23, 0xda, 0x3d, 0x16, 0xc7, 0xf7, 0xa4, 0x96, 0x29, 0xcd, 0xc3, 0xba, 0x3e, 0x88, 0xfe,
+	0xdf, 0x00, 0x00, 0x00, 0xff, 0xff, 0x62, 0x08, 0x40, 0xf4, 0x77, 0x03, 0x00, 0x00,
 }
 
 func (m *Params) Marshal() (dAtA []byte, err error) {
@@ -113,12 +270,151 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	{
+		size := m.ClampFactor.Size()
+		i -= size
+		if _, err := m.ClampFactor.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintParams(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x2a
+	{
+		size := m.MaxPriceDeviation.Size()
+		i -= size
+		if _, err := m.MaxPriceDeviation.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintParams(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	if m.Enabled {
+		i--
+		if m.Enabled {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x10
+	}
 	if len(m.NativeDenom) > 0 {
 		i -= len(m.NativeDenom)
 		copy(dAtA[i:], m.NativeDenom)
 		i = encodeVarintParams(dAtA, i, uint64(len(m.NativeDenom)))
 		i--
 		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *FeeTokenMetadata) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *FeeTokenMetadata) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *FeeTokenMetadata) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Enabled {
+		i--
+		if m.Enabled {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x30
+	}
+	{
+		size := m.FallbackPrice.Size()
+		i -= size
+		if _, err := m.FallbackPrice.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintParams(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x2a
+	{
+		size := m.Price.Size()
+		i -= size
+		if _, err := m.Price.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintParams(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	if m.Decimals != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.Decimals))
+		i--
+		dAtA[i] = 0x18
+	}
+	if len(m.OracleDenom) > 0 {
+		i -= len(m.OracleDenom)
+		copy(dAtA[i:], m.OracleDenom)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.OracleDenom)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Denom) > 0 {
+		i -= len(m.Denom)
+		copy(dAtA[i:], m.Denom)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.Denom)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *FeeTokenMetadataCollection) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *FeeTokenMetadataCollection) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *FeeTokenMetadataCollection) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Items) > 0 {
+		for iNdEx := len(m.Items) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Items[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintParams(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
 	}
 	return len(dAtA) - i, nil
 }
@@ -143,6 +439,55 @@ func (m *Params) Size() (n int) {
 	l = len(m.NativeDenom)
 	if l > 0 {
 		n += 1 + l + sovParams(uint64(l))
+	}
+	if m.Enabled {
+		n += 2
+	}
+	l = m.MaxPriceDeviation.Size()
+	n += 1 + l + sovParams(uint64(l))
+	l = m.ClampFactor.Size()
+	n += 1 + l + sovParams(uint64(l))
+	return n
+}
+
+func (m *FeeTokenMetadata) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Denom)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
+	l = len(m.OracleDenom)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
+	if m.Decimals != 0 {
+		n += 1 + sovParams(uint64(m.Decimals))
+	}
+	l = m.Price.Size()
+	n += 1 + l + sovParams(uint64(l))
+	l = m.FallbackPrice.Size()
+	n += 1 + l + sovParams(uint64(l))
+	if m.Enabled {
+		n += 2
+	}
+	return n
+}
+
+func (m *FeeTokenMetadataCollection) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Items) > 0 {
+		for _, e := range m.Items {
+			l = e.Size()
+			n += 1 + l + sovParams(uint64(l))
+		}
 	}
 	return n
 }
@@ -213,6 +558,399 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.NativeDenom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Enabled", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Enabled = bool(v != 0)
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceDeviation", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MaxPriceDeviation.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ClampFactor", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.ClampFactor.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipParams(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthParams
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *FeeTokenMetadata) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowParams
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: FeeTokenMetadata: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: FeeTokenMetadata: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Denom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Denom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OracleDenom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OracleDenom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Decimals", wireType)
+			}
+			m.Decimals = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Decimals |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Price", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Price.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FallbackPrice", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.FallbackPrice.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Enabled", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Enabled = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipParams(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthParams
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *FeeTokenMetadataCollection) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowParams
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: FeeTokenMetadataCollection: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: FeeTokenMetadataCollection: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Items", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Items = append(m.Items, FeeTokenMetadata{})
+			if err := m.Items[len(m.Items)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

@@ -9,4 +9,50 @@ option go_package = "github.com/kiichain/kiichain/x/feeabstraction/types";
 message Params {
   // Native denom
   string native_denom = 1;
+  // Enabled indicates if the fee abstraction module is enabled
+  bool enabled = 2;
+  // MaxPriceDeviation is the maximum allowed deviation for token prices per block
+  string max_price_deviation = 4 [
+    (gogoproto.moretags)   = "yaml:\"max_price_deviation\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable)   = false
+  ];
+  // ClampFactor is the factor to clamp the price deviation
+  string clamp_factor = 5 [
+    (gogoproto.moretags)   = "yaml:\"clamp_factor\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable)   = false
+  ];
+}
+
+// FeeTokenMetadata defines the metadata for a fee token
+message FeeTokenMetadata {
+  // Denom is the token denom
+  string denom = 1;
+  // Identifier on the oracle module
+  string oracle_denom = 2;
+  // Decimals is the number of decimals for the token
+  uint32 decimals = 3;
+  // Price is the price of the token in the native denom
+  string price = 4 [
+    (gogoproto.moretags) = "yaml:\"price\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
+    (gogoproto.nullable) = false
+  ];
+  // FallbackPrice is the fallback price for the token in case the oracle price is not available
+  string fallback_price = 5 [
+    (gogoproto.moretags) = "yaml:\"fallback_price\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
+    (gogoproto.nullable) = false
+  ];
+  // Enabled indicates if the token is enabled for fee abstraction
+  bool enabled = 6;
+}
+
+// Defines a collection of fee token metadata
+message FeeTokenMetadataCollection {
+  // Items is a repeated field of FeeTokenMetadata
+  repeated FeeTokenMetadata items = 1 [
+    (gogoproto.nullable) = false
+  ];
 }

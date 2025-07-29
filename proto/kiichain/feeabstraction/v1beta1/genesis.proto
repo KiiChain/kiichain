@@ -10,4 +10,6 @@ option go_package = "github.com/kiichain/kiichain/x/feeabstraction/types";
 message GenesisState {
   // params defines the parameters of the module.
   Params params = 1 [ (gogoproto.nullable) = false ];
+  // fee_tokens defines the list of fee tokens
+  FeeTokenMetadataCollection fee_tokens = 2;
 }
