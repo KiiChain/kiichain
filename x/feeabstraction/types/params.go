@@ -81,11 +81,11 @@ func NewFeeTokenMetadata(
 func (f FeeTokenMetadata) Validate() error {
 	// Validate the denom
 	if err := sdk.ValidateDenom(f.Denom); err != nil {
-		return err
+		return errorsmod.Wrap(ErrInvalidFeeTokenMetadata, "denom is invalid")
 	}
 	// Validate the oracle denom
 	if err := sdk.ValidateDenom(f.OracleDenom); err != nil {
-		return err
+		return errorsmod.Wrap(ErrInvalidFeeTokenMetadata, "oracle denom is invalid")
 	}
 
 	// Validate the decimals, must be between bigger than 0 and less than or equal to 18

@@ -39,7 +39,7 @@ func TestValidateParams(t *testing.T) {
 				types.DefaultClampFactor,
 				true,
 			),
-			errContains: "invalid denom",
+			errContains: "native denom is invalid",
 		},
 		{
 			name: "invalid - invalid denom",
@@ -49,7 +49,7 @@ func TestValidateParams(t *testing.T) {
 				types.DefaultClampFactor,
 				true,
 			),
-			errContains: "invalid denom",
+			errContains: "native denom is invalid",
 		},
 		{
 			name: "invalid - negative max price deviation",
@@ -124,27 +124,27 @@ func TestFeeTokenMetadataValidate(t *testing.T) {
 		{
 			name:        "invalid - empty denom",
 			metadata:    types.NewFeeTokenMetadata("", "oraclecoin", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
-			errContains: "denom cannot be empty",
+			errContains: "denom is invalid",
 		},
 		{
 			name:        "invalid - empty oracle denom",
 			metadata:    types.NewFeeTokenMetadata("coin", "", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
-			errContains: "oracle denom cannot be empty",
+			errContains: "oracle denom is invalid",
 		},
 		{
 			name:        "invalid - invalid denom",
 			metadata:    types.NewFeeTokenMetadata("123", "oraclecoin", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
-			errContains: "invalid denom",
+			errContains: "denom is invalid",
 		},
 		{
 			name:        "invalid - invalid oracle denom",
 			metadata:    types.NewFeeTokenMetadata("coin", "123", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
-			errContains: "invalid oracle denom",
+			errContains: "oracle denom is invalid",
 		},
 		{
 			name:        "invalid - decimals zero",
 			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 0, math.LegacyNewDec(100), math.LegacyNewDec(50)),
-			errContains: "decimals must be greater than 0",
+			errContains: "decimals must be between 1 and 18",
 		},
 		{
 			name:        "invalid - decimals greater than 18",
@@ -223,7 +223,7 @@ func TestFeeTokenMetadataCollectionValidate(t *testing.T) {
 			collection: types.NewFeeTokenMetadataCollection(
 				types.NewFeeTokenMetadata("", "oraclecoin", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
 			),
-			errContains: "denom cannot be empty",
+			errContains: "denom is invalid: invalid fee token metadata",
 		},
 		{
 			name: "invalid - duplicate denoms in collection",

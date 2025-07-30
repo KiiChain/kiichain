@@ -5,6 +5,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 )
 
@@ -18,21 +21,21 @@ func TestMsgUpdateParamsValidate(t *testing.T) {
 	}{
 		{
 			name: "valid - default params",
-			msg:  types.NewMessageUpdateParams("cosmos1...", types.DefaultParams()),
+			msg:  types.NewMessageUpdateParams(authtypes.NewModuleAddress(govtypes.ModuleName).String(), types.DefaultParams()),
 		},
 		{
 			name: "valid - custom params",
-			msg:  types.NewMessageUpdateParams("cosmos1...", types.NewParams("coin", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, true)),
+			msg:  types.NewMessageUpdateParams(authtypes.NewModuleAddress(govtypes.ModuleName).String(), types.NewParams("coin", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, true)),
 		},
 		{
 			name:        "invalid - empty authority",
 			msg:         types.NewMessageUpdateParams("", types.DefaultParams()),
-			errContains: "invalid bech32 address",
+			errContains: "empty address string is not allowed",
 		},
 		{
 			name:        "invalid - bad params",
-			msg:         types.NewMessageUpdateParams("cosmos1...", types.NewParams("", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, true)),
-			errContains: "invalid denom",
+			msg:         types.NewMessageUpdateParams(authtypes.NewModuleAddress(govtypes.ModuleName).String(), types.NewParams("", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, true)),
+			errContains: "native denom is invalid: invalid fee abstraction params",
 		},
 	}
 

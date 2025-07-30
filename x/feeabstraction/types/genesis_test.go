@@ -37,7 +37,7 @@ func TestGenesisStateValidate(t *testing.T) {
 				types.NewParams("", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, true),
 				types.NewFeeTokenMetadataCollection(),
 			),
-			errContains: "invalid denom",
+			errContains: "native denom is invalid",
 		},
 		{
 			name: "invalid - invalid fee token metadata",

@@ -161,8 +161,20 @@ func TestDeductFeeDecorator(t *testing.T) {
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
 
+				// Set the pair on the fee abstraction keeper
+				err := app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+					types.NewFeeTokenMetadata(
+						MockErc20Denom,
+						MockErc20Denom,
+						18,
+						MockErc20Price,
+						MockErc20Price,
+					),
+				))
+				require.NoError(t, err)
+
 				// Now we mint tokens for the fee payer
-				err := app.BankKeeper.MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, DefaultMinFeeValue*10)))
+				err = app.BankKeeper.MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, DefaultMinFeeValue*10)))
 				require.NoError(t, err)
 				err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, founder, sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, DefaultMinFeeValue*10)))
 				require.NoError(t, err)

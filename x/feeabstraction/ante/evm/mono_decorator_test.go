@@ -195,9 +195,21 @@ func TestMonoDecorator(t *testing.T) {
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
 
+				// Set the pair on the fee abstraction keeper
+				err := app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+					types.NewFeeTokenMetadata(
+						MockErc20Denom,
+						MockErc20Denom,
+						18,
+						MockErc20Price,
+						MockErc20Price,
+					),
+				))
+				require.NoError(t, err)
+
 				// Mint the tokens for the fee payer
 				amount := sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, 20000000*1000000*10))
-				err := mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
+				err = mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
 				require.NoError(t, err)
 				return ctx
 			},
@@ -220,9 +232,21 @@ func TestMonoDecorator(t *testing.T) {
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
 
+				// Set the pair on the fee abstraction keeper
+				err := app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+					types.NewFeeTokenMetadata(
+						MockErc20Denom,
+						MockErc20Denom,
+						18,
+						MockErc20Price,
+						MockErc20Price,
+					),
+				))
+				require.NoError(t, err)
+
 				// Mint the tokens for the fee payer
 				amount := sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, 20000000*1000000*10))
-				err := mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
+				err = mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
 				require.NoError(t, err)
 
 				// Mint the native token for the transaction value
