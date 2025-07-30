@@ -5,10 +5,10 @@ repos:
       - id: golangci-lint
         args: ["--timeout=5m"]
 
-  - repo: https://github.com/markdownlint/markdownlint
-    rev: v0.11.0
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.40.0
     hooks:
-      - id: markdownlint
+      - id: markdownlint-cli
 
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.32.0

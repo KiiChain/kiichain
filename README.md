@@ -79,15 +79,22 @@ To enable the hooks on your local environment:
 
 1. Install `pre-commit` (requires Python):
 
-   pip install pre-commit
+    ```bash
+    pip install pre-commit
+    ```
 
 2. Install the hooks defined in the config:
 
-   pre-commit install
+    ```bash
+    pre-commit install
+    ```
 
 3. (Optional) Run all hooks on all files:
 
-   pre-commit run --all-files
+    ```bash
+    pre-commit run --all-files
+    ```
+
 
 ### ✅ Enabled Hooks
 
