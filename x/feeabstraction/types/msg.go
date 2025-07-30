@@ -25,9 +25,5 @@ func (msg *MsgUpdateParams) Validate() error {
 	}
 
 	// Validate the params
-	if err := msg.Params.Validate(); err != nil {
-		return err
-	}
-
-	return nil
+	return msg.Params.Validate()
 }

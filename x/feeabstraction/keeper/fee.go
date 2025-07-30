@@ -42,13 +42,13 @@ func (k Keeper) ConvertNativeFee(ctx sdk.Context, account sdk.AccAddress, fees s
 	fee := fees[0]
 
 	// Get the fee prices
-	feePrices, err := k.GetFeePrices(ctx)
+	feePrices, err := k.FeeTokens.Get(ctx)
 	if err != nil {
 		return sdk.Coins{}, err
 	}
 
 	// Iterate over the fee prices and try to convert the native fee
-	for _, feePrice := range feePrices {
+	for _, feePrice := range feePrices.Items {
 		pairID := k.erc20Keeper.GetTokenPairID(ctx, feePrice.Denom)
 		pair, found := k.erc20Keeper.GetTokenPair(ctx, pairID)
 		if !found {

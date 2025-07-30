@@ -19,7 +19,7 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			name: "valid - valid param update",
 			msg: &types.MsgUpdateParams{
 				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				Params:    types.NewParams("testcoin"),
+				Params:    types.NewParams("testcoin", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, true),
 			},
 		},
 		{
@@ -34,7 +34,7 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			name: "invalid - invalid authority",
 			msg: &types.MsgUpdateParams{
 				Authority: "invalid_authority",
-				Params:    types.NewParams("testcoin"),
+				Params:    types.DefaultParams(),
 			},
 			errContains: "invalid authority address: decoding bech32 failed",
 		},
@@ -42,7 +42,7 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			name: "invalid - wrong authority",
 			msg: &types.MsgUpdateParams{
 				Authority: authtypes.NewModuleAddress(types.ModuleName).String(),
-				Params:    types.NewParams("testcoin"),
+				Params:    types.DefaultParams(),
 			},
 			errContains: "expected gov account as only signer for proposal message",
 		},

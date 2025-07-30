@@ -31,9 +31,12 @@ func (ms MsgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams
 		return nil, err
 	}
 
-	// Validate the new params
-	if err := msg.Params.ValidateBasic(); err != nil {
-		return nil, err
+	// Validate the message
+	if msg == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("msg cannot be nil")
+	}
+	if err := msg.Validate(); err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid message: %s", err)
 	}
 
 	// Set the params

@@ -3,8 +3,9 @@ package types_test
 import (
 	"testing"
 
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 )
 
 // TestMsgUpdateParamsValidate tests the Validate method of MsgUpdateParams
