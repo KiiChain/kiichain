@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/math"
-	"cosmossdk.io/store/types"
+	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -28,7 +28,15 @@ import (
 	"github.com/kiichain/kiichain/v3/app/helpers"
 	"github.com/kiichain/kiichain/v3/app/params"
 	kiievmante "github.com/kiichain/kiichain/v3/x/feeabstraction/ante/evm"
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/keeper"
+	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
+)
+
+var (
+	MockErc20Address = "0x816644F8bc4633D268842628EB10ffC0AdcB6099"
+	// The mock ERC20 denom
+	MockErc20Denom = "erc20/" + MockErc20Address
+	// The mock ERC20 price
+	MockErc20Price = math.LegacyNewDecFromInt(math.NewInt(10)) // 10 uatom = 1 kii
 )
 
 // TestMonoDecoratorTx tests the MonoDecorator with specific transaction cases
@@ -181,14 +189,14 @@ func TestMonoDecorator(t *testing.T) {
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Set up the token pair on the erc20 module
 				app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
-					Erc20Address:  keeper.MockErc20Address,
-					Denom:         keeper.MockErc20Denom,
+					Erc20Address:  MockErc20Address,
+					Denom:         MockErc20Denom,
 					Enabled:       true,
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
 
 				// Mint the tokens for the fee payer
-				amount := sdk.NewCoins(sdk.NewInt64Coin(keeper.MockErc20Denom, 20000000*1000000*10))
+				amount := sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, 20000000*1000000*10))
 				err := mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
 				require.NoError(t, err)
 				return ctx
@@ -197,7 +205,7 @@ func TestMonoDecorator(t *testing.T) {
 			gasPrice: big.NewInt(1000000),
 			postCheck: func(ctx sdk.Context) {
 				// Check the user balance, should be zero since all was used for fees
-				balance := app.BankKeeper.GetBalance(ctx, keys.GetKey(0).AccAddr, keeper.MockErc20Denom)
+				balance := app.BankKeeper.GetBalance(ctx, keys.GetKey(0).AccAddr, MockErc20Denom)
 				require.True(t, balance.IsZero())
 			},
 		},
@@ -206,14 +214,14 @@ func TestMonoDecorator(t *testing.T) {
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Set up the token pair on the erc20 module
 				app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
-					Erc20Address:  keeper.MockErc20Address,
-					Denom:         keeper.MockErc20Denom,
+					Erc20Address:  MockErc20Address,
+					Denom:         MockErc20Denom,
 					Enabled:       true,
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
 
 				// Mint the tokens for the fee payer
-				amount := sdk.NewCoins(sdk.NewInt64Coin(keeper.MockErc20Denom, 20000000*1000000*10))
+				amount := sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, 20000000*1000000*10))
 				err := mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
 				require.NoError(t, err)
 
@@ -227,7 +235,7 @@ func TestMonoDecorator(t *testing.T) {
 			gasPrice: big.NewInt(1000000),
 			postCheck: func(ctx sdk.Context) {
 				// Check the user balance, should be zero since all was used for fees
-				balance := app.BankKeeper.GetBalance(ctx, keys.GetKey(0).AccAddr, keeper.MockErc20Denom)
+				balance := app.BankKeeper.GetBalance(ctx, keys.GetKey(0).AccAddr, MockErc20Denom)
 				require.True(t, balance.IsZero())
 
 				// The user should have the transaction value in the native token
@@ -258,12 +266,16 @@ func TestMonoDecorator(t *testing.T) {
 
 				// Set the pair on the fee abstraction keeper
 				erc20NativeAddress := "erc20/" + erc20Address.Hex()
-				app.FeeAbstractionKeeper.SetFeePrices(ctx, []keeper.FeePrice{
-					{
-						Denom: erc20NativeAddress,
-						Price: math.LegacyMustNewDecFromStr("2"),
-					},
-				})
+				err = app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+					types.NewFeeTokenMetadata(
+						erc20NativeAddress,
+						erc20NativeAddress,
+						18,
+						math.LegacyMustNewDecFromStr("2"),
+						math.LegacyMustNewDecFromStr("2"),
+					),
+				))
+				require.NoError(t, err)
 
 				// Write up the token address on the context for reuse
 				return ctx.WithValue("erc20_token", erc20Address)
@@ -314,14 +326,14 @@ func TestMonoDecorator(t *testing.T) {
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Set up the token pair on the erc20 module
 				app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
-					Erc20Address:  keeper.MockErc20Address,
-					Denom:         keeper.MockErc20Denom,
+					Erc20Address:  MockErc20Address,
+					Denom:         MockErc20Denom,
 					Enabled:       true,
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
 
 				// Mint the tokens for the fee payer
-				amount := sdk.NewCoins(sdk.NewInt64Coin(keeper.MockErc20Denom, 20000000*1000000*10))
+				amount := sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, 20000000*1000000*10))
 				err := mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
 				require.NoError(t, err)
 				return ctx
@@ -373,7 +385,7 @@ func TestMonoDecorator(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create a cached context
 			cacheCtx, _ := ctx.CacheContext()
-			cacheCtx = cacheCtx.WithBlockGasMeter(types.NewGasMeter(20000000))
+			cacheCtx = cacheCtx.WithBlockGasMeter(storetypes.NewGasMeter(20000000))
 
 			// Malleate the context
 			if tc.malleate != nil {

@@ -25,13 +25,19 @@ import (
 	"github.com/kiichain/kiichain/v3/app/apptesting"
 	"github.com/kiichain/kiichain/v3/app/helpers"
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/ante/cosmos"
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/keeper"
+	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 )
 
-const (
+var (
 	DefaultFirstERC20      = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd"
 	DefaultFirstERC20Denom = "erc20/" + DefaultFirstERC20
-	DefaultMinFeeValue     = 875000000000000
+	DefaultMinFeeValue     = int64(875000000000000)
+
+	MockErc20Address = "0x816644F8bc4633D268842628EB10ffC0AdcB6099"
+	// The mock ERC20 denom
+	MockErc20Denom = "erc20/" + MockErc20Address
+	// The mock ERC20 price
+	MockErc20Price = math.LegacyNewDecFromInt(math.NewInt(10)) // 10 uatom = 1 kii
 )
 
 // TestDeductFeeDecorator tests the DeductFeeDecorator
@@ -149,23 +155,23 @@ func TestDeductFeeDecorator(t *testing.T) {
 			malleate: func(ctx sdk.Context) {
 				// Set the token pair on the erc20 keeper
 				app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
-					Erc20Address:  keeper.MockErc20Address,
-					Denom:         keeper.MockErc20Denom,
+					Erc20Address:  MockErc20Address,
+					Denom:         MockErc20Denom,
 					Enabled:       true,
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
 
 				// Now we mint tokens for the fee payer
-				err := app.BankKeeper.MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin(keeper.MockErc20Denom, DefaultMinFeeValue*10)))
+				err := app.BankKeeper.MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, DefaultMinFeeValue*10)))
 				require.NoError(t, err)
-				err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, founder, sdk.NewCoins(sdk.NewInt64Coin(keeper.MockErc20Denom, DefaultMinFeeValue*10)))
+				err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, founder, sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, DefaultMinFeeValue*10)))
 				require.NoError(t, err)
 			},
 			fee:      sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
-			expected: sdk.NewCoins(sdk.NewInt64Coin(keeper.MockErc20Denom, DefaultMinFeeValue*10)),
+			expected: sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, DefaultMinFeeValue*10)),
 			postCheck: func(ctx sdk.Context) {
 				// Check the user balance, should be zero since all was user for fees
-				balance := app.BankKeeper.GetBalance(ctx, founder, keeper.MockErc20Denom)
+				balance := app.BankKeeper.GetBalance(ctx, founder, MockErc20Denom)
 				require.True(t, balance.IsZero())
 			},
 		},
@@ -191,12 +197,16 @@ func TestDeductFeeDecorator(t *testing.T) {
 
 				// Set the pair on the fee abstraction keeper
 				erc20NativeAddress := "erc20/" + erc20Address.Hex()
-				app.FeeAbstractionKeeper.SetFeePrices(ctx, []keeper.FeePrice{
-					{
-						Denom: erc20NativeAddress,
-						Price: math.LegacyMustNewDecFromStr("0.5"),
-					},
-				})
+				err = app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+					types.NewFeeTokenMetadata(
+						erc20NativeAddress,
+						erc20NativeAddress,
+						18,
+						math.LegacyMustNewDecFromStr("0.5"),
+						math.LegacyMustNewDecFromStr("0.5"),
+					),
+				))
+				require.NoError(t, err)
 			},
 			fee:      sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
 			expected: sdk.NewCoins(sdk.NewInt64Coin(DefaultFirstERC20Denom, DefaultMinFeeValue/2)),
