@@ -66,3 +66,34 @@ The Kiichain is licensed under [Apache License 2.0][license].
 [coc]: ./CODE_OF_CONDUCT.md
 [issues]: https://github.com/kiichain/kiichain/issues
 [license]: ./LICENSE
+
+---
+
+## 🧹 Pre-commit Hook Support
+
+This repository supports [pre-commit](https://pre-commit.com/) hooks for automatic linting before each commit. It helps enforce code quality and consistency across the codebase.
+
+### 🔧 Setup Instructions
+
+To enable the hooks on your local environment:
+
+1. Install `pre-commit` (requires Python):
+
+   pip install pre-commit
+
+2. Install the hooks defined in the config:
+
+   pre-commit install
+
+3. (Optional) Run all hooks on all files:
+
+   pre-commit run --all-files
+
+### ✅ Enabled Hooks
+
+- golangci-lint: Linter for Go code  
+- markdownlint: Linter for Markdown files  
+- yamllint: Linter for YAML files  
+
+🗂️ Configuration file: `.pre-commit-config.yaml` (located at the project root).
+

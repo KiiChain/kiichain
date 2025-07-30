@@ -1,0 +1,17 @@
+repos:
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.59.0
+    hooks:
+      - id: golangci-lint
+        args: ["--timeout=5m"]
+
+  - repo: https://github.com/markdownlint/markdownlint
+    rev: v0.11.0
+    hooks:
+      - id: markdownlint
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.32.0
+    hooks:
+      - id: yamllint
+
