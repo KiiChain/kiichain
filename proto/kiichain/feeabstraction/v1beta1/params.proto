@@ -11,12 +11,6 @@ message Params {
   string native_denom = 1;
   // Enabled indicates if the fee abstraction module is enabled
   bool enabled = 2;
-  // MaxPriceDeviation is the maximum allowed deviation for token prices per block
-  string max_price_deviation = 4 [
-    (gogoproto.moretags)   = "yaml:\"max_price_deviation\"",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable)   = false
-  ];
   // ClampFactor is the factor to clamp the price deviation
   string clamp_factor = 5 [
     (gogoproto.moretags)   = "yaml:\"clamp_factor\"",
@@ -44,12 +38,6 @@ message FeeTokenMetadata {
   // Price is the price of the token in the native denom
   string price = 4 [
     (gogoproto.moretags) = "yaml:\"price\"",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
-    (gogoproto.nullable) = false
-  ];
-  // FallbackPrice is the fallback price for the token in case the oracle price is not available
-  string fallback_price = 5 [
-    (gogoproto.moretags) = "yaml:\"fallback_price\"",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
     (gogoproto.nullable) = false
   ];
