@@ -13,16 +13,17 @@ message Params {
   bool enabled = 2;
   // ClampFactor is the factor to clamp the price deviation
   string clamp_factor = 5 [
-    (gogoproto.moretags)   = "yaml:\"clamp_factor\"",
+    (gogoproto.moretags) = "yaml:\"clamp_factor\"",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable)   = false
+    (gogoproto.nullable) = false
   ];
   // TwapLookbackWindow is the lookback window for calculating TWAPs
   uint64 twap_lookback_window = 6;
-  // FallbackNativePrice is the fallback price for the native token in case the oracle price is not available (in USD)
+  // FallbackNativePrice is the fallback price for the native token in case the
+  // oracle price is not available (in USD)
   string fallback_native_price = 7 [
     (gogoproto.moretags) = "yaml:\"fallback_native_price\"",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -38,7 +39,7 @@ message FeeTokenMetadata {
   // Price is the price of the token in the native denom
   string price = 4 [
     (gogoproto.moretags) = "yaml:\"price\"",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // Enabled indicates if the token is enabled for fee abstraction
@@ -48,7 +49,5 @@ message FeeTokenMetadata {
 // Defines a collection of fee token metadata
 message FeeTokenMetadataCollection {
   // Items is a repeated field of FeeTokenMetadata
-  repeated FeeTokenMetadata items = 1 [
-    (gogoproto.nullable) = false
-  ];
+  repeated FeeTokenMetadata items = 1 [ (gogoproto.nullable) = false ];
 }

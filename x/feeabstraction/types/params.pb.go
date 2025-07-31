@@ -34,7 +34,8 @@ type Params struct {
 	ClampFactor cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=clamp_factor,json=clampFactor,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"clamp_factor" yaml:"clamp_factor"`
 	// TwapLookbackWindow is the lookback window for calculating TWAPs
 	TwapLookbackWindow uint64 `protobuf:"varint,6,opt,name=twap_lookback_window,json=twapLookbackWindow,proto3" json:"twap_lookback_window,omitempty"`
-	// FallbackNativePrice is the fallback price for the native token in case the oracle price is not available (in USD)
+	// FallbackNativePrice is the fallback price for the native token in case the
+	// oracle price is not available (in USD)
 	FallbackNativePrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=fallback_native_price,json=fallbackNativePrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"fallback_native_price" yaml:"fallback_native_price"`
 }
 

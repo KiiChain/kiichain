@@ -13,6 +13,12 @@ service Query {
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/kiichain/feeabstraction/v1beta1/params";
   }
+  // GetFeeTokens defines a gRPC query method that returns the fee tokens
+  rpc GetFeeTokens(QueryGetFeeTokensRequest)
+      returns (QueryGetFeeTokensResponse) {
+    option (google.api.http).get =
+        "/kiichain/feeabstraction/v1beta1/fee_tokens";
+  }
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -22,4 +28,15 @@ message QueryParamsRequest {}
 message QueryParamsResponse {
   // params defines the parameters of the module.
   Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryGetFeeTokensRequest is the request type for the Query/GetFeeTokens RPC
+// method
+message QueryGetFeeTokensRequest {}
+
+// QueryGetFeeTokensResponse is the response type for the Query/GetFeeTokens RPC
+// method
+message QueryGetFeeTokensResponse {
+  // fee_tokens defines the fee tokens registered in the module.
+  FeeTokenMetadataCollection fee_tokens = 1;
 }
