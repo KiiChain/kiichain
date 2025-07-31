@@ -520,6 +520,7 @@ func NewAppKeeper(
 		runtime.NewKVStoreService(appKeepers.keys[feeabstractiontypes.StoreKey]),
 		appKeepers.Erc20Keeper,
 		appKeepers.BankKeeper,
+		appKeepers.OracleKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 

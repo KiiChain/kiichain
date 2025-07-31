@@ -39,6 +39,11 @@ func (ms MsgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid message: %s", err)
 	}
 
+	// Validate the twap lookback window
+	if err := ms.Keeper.oracleKeeper.ValidateLookBackSeconds(sdk.UnwrapSDKContext(ctx), msg.Params.TwapLookbackWindow); err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid twap lookback window: %s", err)
+	}
+
 	// Set the params
 	if err := ms.Params.Set(ctx, msg.Params); err != nil {
 		return nil, err

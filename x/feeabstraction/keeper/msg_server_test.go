@@ -19,8 +19,16 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			name: "valid - valid param update",
 			msg: &types.MsgUpdateParams{
 				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				Params:    types.NewParams("testcoin", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, true),
+				Params:    types.NewParams("testcoin", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, types.DefaultFallbackNativePrice, types.DefaultTwapLookbackWindow, true),
 			},
+		},
+		{
+			name: "invalid - twap lookback window too high",
+			msg: &types.MsgUpdateParams{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Params:    types.NewParams("testcoin", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, types.DefaultFallbackNativePrice, 1000000, true),
+			},
+			errContains: "Twap lookback seconds is greater than max lookback duration",
 		},
 		{
 			name: "invalid - invalid params",
@@ -28,7 +36,7 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 				Params:    types.Params{NativeDenom: "invalid denom!"},
 			},
-			errContains: "invalid denom",
+			errContains: "native denom is invalid",
 		},
 		{
 			name: "invalid - invalid authority",

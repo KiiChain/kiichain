@@ -37,4 +37,5 @@ type BankKeeper interface {
 // OracleKeeper define the expected interface for the Oracle keeper
 type OracleKeeper interface {
 	CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (types.OracleTwaps, error)
+	ValidateLookBackSeconds(ctx sdk.Context, lookBackSeconds uint64) error
 }

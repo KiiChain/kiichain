@@ -16,6 +16,8 @@ func (s *KeeperTestSuite) TestGenesisInitExport() {
 		"newcoin",
 		types.DefaultMaxPriceDeviation.MulInt64(2),
 		types.DefaultClampFactor.MulInt64(3),
+		types.DefaultFallbackNativePrice,
+		types.DefaultTwapLookbackWindow,
 		true,
 	)
 
