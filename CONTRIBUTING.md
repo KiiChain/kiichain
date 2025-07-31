@@ -3,23 +3,22 @@
 Contributions to the Kiijs library are welcome. As a contributor, here are the guidelines we would like you to follow:
 
 - [Code of Conduct](#coc)
-- [Question or Problem?](#question)
 - [Issues and Bugs](#issue)
 - [Feature Requests](#feature)
 - [Submission Guidelines](#submit)
 - [Coding Rules](#rules)
 - [Commit Message Guidelines](#commit)
 
-## <a name="coc"></a> Code of Conduct
+## Code of Conduct {#coc}
 
 Please read and follow our [Code of Conduct][coc].
 
-## <a name="issue"></a> Found a Bug?
+## Found a Bug? {#issue}
 
 If you find a bug in the source code [submit a bug report issue](#submit-issue).
 Even better, you can [submit a Pull Request](#submit-pr) with a fix.
 
-## <a name="feature"></a> Missing a Feature?
+## Missing a Feature? {#feature}
 
 You can *request* a new feature by [submitting a feature request issue](#submit-issue).
 If you would like to *implement* a new feature:
@@ -27,9 +26,9 @@ If you would like to *implement* a new feature:
 - For a **Major Feature**, first [open an issue](#submit-issue) and outline your proposal so that it can be discussed.
 - **Small Features** can be crafted and directly [submitted as a Pull Request](#submit-pr).
 
-## <a name="submit"></a> Submission Guidelines
+## Submission Guidelines {#submit}
 
-### <a name="submit-issue"></a> Submitting an Issue
+### Submitting an Issue {#submit-issue}
 
 Before you submit an issue, please search the [issue tracker][issues]. An issue for your problem might already exist and the discussion might inform you of workarounds readily available.
 
@@ -37,7 +36,7 @@ For bug reports, it is important that we can reproduce and confirm it. For this,
 
 You can file new issues by selecting from our [new issue templates][new-issue] and filling out the issue template.
 
-### <a name="submit-pr"></a> Submitting a Pull Request (PR)
+### Submitting a Pull Request (PR) {#submit-pr}
 
 Before you submit your Pull Request (PR) consider the following guidelines:
 
@@ -84,7 +83,7 @@ If we ask for changes via code reviews then:
 
 After your pull request is merged, you can safely delete your branch and pull the changes from the (upstream) repository.
 
-## <a name="rules"></a> Coding Rules
+## Coding Rules {#rules}
 
 To ensure consistency throughout the source code, keep these rules in mind as you are working:
 
@@ -98,7 +97,7 @@ To ensure consistency throughout the source code, keep these rules in mind as yo
 - All files must include a license header. 
 - Keep API compatibility in mind when you change any code under `Kiijs`. Above version `1.0.0`, breaking changes can happen across versions with different left digit. Below version `1.0.0`, they can happen across versions with different middle digit. Reviewers of your pull request will comment on any API compatibility issues.
 
-## <a name="commit"></a> Commit Message Convention
+## Commit Message Convention {#commit}
 
 Please follow the [Conventional Commits v1.0.0][convcommit]. The commit types must be one of the following:
 

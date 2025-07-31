@@ -1,4 +1,3 @@
-# Kiichain
 
 <div align="center">
   <img src="assets/kii.png" alt="Kiichain Logo" width="200"/>
@@ -12,13 +11,13 @@
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Lines of Code](https://tokei.rs/b1/github/KiiChain/kiichain)](https://github.com/KiiChain/kiichain)
 [![GitHub Super-Linter](https://github.com/KiiChain/kiichain/workflows/Lint/badge.svg)](https://github.com/marketplace/actions/super-linter)
-[![GoDoc](https://godoc.org/github.com/KiiChain/kiichain?status.svg)](https://godoc.org/github.com/KiiChain/kiichain)
+[![GoDoc](https://godoc.org/github.com/KiiChain/kiichain?status.svg)](https://pkg.go.dev/github.com/kiichain/kiichain)
 
 </div>
 
 <div align="center">
 
-[![Discord](https://img.shields.io/discord/123456789?color=7289da&label=Discord&logo=discord&logoColor=white)](https://discord.gg/kiichain)
+[![Discord](https://img.shields.io/discord/996878520594735235?color=7289da&label=Discord&logo=discord&logoColor=white)](https://discord.gg/kiichain)
 [![Twitter Follow](https://img.shields.io/twitter/follow/kiichain?style=social)](https://x.com/KiiChainio)
 [![TikTok](https://img.shields.io/badge/TikTok-@kiichain-ff0050?style=flat&logo=tiktok&logoColor=white)](https://www.tiktok.com/@kiichain_)
 
@@ -28,7 +27,7 @@
 
 **KiiChain** is a CometBFT-based EVM-compatible blockchain providing a fast and scalable payment settlement layer for emerging market finance. As the first on-chain FX layer for stablecoins and RWA (Real World Assets), KiiChain is building the future of finance for emerging markets.
 
-## 🌟 Features
+## Features
 
 - **100% EVM Compatible** - Leverage all EVM infrastructure and build with Solidity
 - **High Performance** - Up to 12,000 TPS with ~1 second block times
@@ -36,22 +35,22 @@
 - **Custom Modules** - Built for RWA, PayFi, and CrediFi
 - **Emerging Market Focus** - Gas fee scalability designed for micro-payments
 
-## 🚀 Quick Links
+## Quick Links
 
-### 🧪 Oro Testnet
+### Oro Testnet
 
 - **[Join Oro Testnet](https://kiichain.io/testnet)** - Start validating on our testnet
 - **[Testnet Explorer](https://explorer.kiichain.io)** - View transactions and blocks
 - **[Testnet Faucet](https://explorer.kiichain.io/faucet)** - Get testnet tokens
 
-### 📚 Documentation & Resources
+### Documentation & Resources
 
 - **[Official Documentation](https://docs.kiiglobal.io/docs)** - Comprehensive guides and API docs
 - **[Developer Hub](https://docs.kiiglobal.io/docs/build-on-kiichain/developer-hub)** - Tools and resources for builders
 - **[Whitepaper](https://docs.kiiglobal.io/docs/learn/kiichain/whitepaper)** - Technical specifications
 - **[Blog](https://blog.kiiglobal.io/)** - Latest updates and insights
 
-## 💻 Hardware Requirements
+## Hardware Requirements
 
 **Minimum**
 
@@ -65,7 +64,7 @@
 - 2 TB NVME SSD
 - 8 Cores (modern CPU's)
 
-## 🔧 Operating System
+## Operating System
 
 > Linux (x86_64) or Linux (amd64) Recommended: Arch Linux or Ubuntu
 
@@ -104,7 +103,7 @@ source ~/.zshrc  # or restart terminal
 - **Arch Linux:** `pacman -S make`
 - **Ubuntu:** `sudo apt-get install make`
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Installation
 
@@ -183,7 +182,7 @@ kiichaind genesis validate-genesis
 
 For detailed setup instructions, visit our [documentation](https://docs.kiiglobal.io/docs).
 
-### 🔧 Troubleshooting
+### Troubleshooting
 
 **Common Issues:**
 
@@ -212,7 +211,7 @@ sed -i -e "/minimum-gas-prices =/ s^= .*^= \"1000000000akii\"^" ~/.kiichain/conf
 # On macOS, use curl instead of wget: curl -L <URL> -o filename
 ```
 
-## 🤝 Contributing
+## Contributing
 
 All contributions are very welcome! Remember, contribution is not only PRs and code, but any help with docs or helping other developers solve their issues are very appreciated!
 
@@ -226,7 +225,7 @@ Please be sure to read and follow our [Code of Conduct](./CODE_OF_CONDUCT.md). B
 
 We use [GitHub Issues](https://github.com/KiiChain/kiichain/issues) for tracking requests and bugs, and for general questions and discussion.
 
-## 🌍 Community
+## Community
 
 Join our vibrant community and stay connected:
 
@@ -236,7 +235,7 @@ Join our vibrant community and stay connected:
 - **[LinkedIn](https://www.linkedin.com/company/kiiglobal)** - Professional updates
 - **[Instagram](https://www.instagram.com/kiichainofficial/)** - Behind the scenes
 
-## 📜 License
+## License
 
 The KiiChain is licensed under [Apache License 2.0](./LICENSE).
 

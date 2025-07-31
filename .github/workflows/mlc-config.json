@@ -1,7 +1,9 @@
 {
   "ignoredUrls": [
     "https://docs.kiiglobal.io",
-    "https://github.com/KiiChain/testnets/blob/main/testnet_oro/genesis.json"
+    "https://github.com/KiiChain/testnets/blob/main/testnet_oro/genesis.json",
+        "https://x.com/KiiChainio",
+    "https://kiichain.io/testnet"
   ],
   "timeout": "10s",
   "retryCount": 3,
