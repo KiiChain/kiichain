@@ -168,7 +168,6 @@ func TestDeductFeeDecorator(t *testing.T) {
 						MockErc20Denom,
 						18,
 						MockErc20Price,
-						MockErc20Price,
 					),
 				))
 				require.NoError(t, err)
@@ -214,7 +213,6 @@ func TestDeductFeeDecorator(t *testing.T) {
 						erc20NativeAddress,
 						erc20NativeAddress,
 						18,
-						math.LegacyMustNewDecFromStr("0.5"),
 						math.LegacyMustNewDecFromStr("0.5"),
 					),
 				))

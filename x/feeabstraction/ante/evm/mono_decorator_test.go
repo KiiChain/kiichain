@@ -202,7 +202,6 @@ func TestMonoDecorator(t *testing.T) {
 						MockErc20Denom,
 						18,
 						MockErc20Price,
-						MockErc20Price,
 					),
 				))
 				require.NoError(t, err)
@@ -238,7 +237,6 @@ func TestMonoDecorator(t *testing.T) {
 						MockErc20Denom,
 						MockErc20Denom,
 						18,
-						MockErc20Price,
 						MockErc20Price,
 					),
 				))
@@ -295,7 +293,6 @@ func TestMonoDecorator(t *testing.T) {
 						erc20NativeAddress,
 						erc20NativeAddress,
 						18,
-						math.LegacyMustNewDecFromStr("2"),
 						math.LegacyMustNewDecFromStr("2"),
 					),
 				))

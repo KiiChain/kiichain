@@ -14,7 +14,6 @@ func (s *KeeperTestSuite) TestGenesisInitExport() {
 	// Modify the genesis state
 	genesisState.Params = types.NewParams(
 		"newcoin",
-		types.DefaultMaxPriceDeviation.MulInt64(2),
 		types.DefaultClampFactor.MulInt64(3),
 		types.DefaultFallbackNativePrice,
 		types.DefaultTwapLookbackWindow,

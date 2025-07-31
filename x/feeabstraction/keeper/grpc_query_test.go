@@ -7,8 +7,9 @@ func (s *KeeperTestSuite) TestQuerierParams() {
 	// Define new params for the chain
 	newParams := types.NewParams(
 		"testcoin",
-		types.DefaultMaxPriceDeviation.MulInt64(3),
 		types.DefaultClampFactor.MulInt64(2),
+		types.DefaultFallbackNativePrice,
+		types.DefaultTwapLookbackWindow,
 		false,
 	)
 
