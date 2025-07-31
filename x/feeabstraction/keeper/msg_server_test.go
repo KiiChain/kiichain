@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -73,6 +74,75 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 				params, err := s.keeper.Params.Get(s.ctx)
 				s.Require().NoError(err)
 				s.Require().Equal(tc.msg.Params, params)
+			}
+		})
+	}
+}
+
+// TestUpdateFeeTokens tests the UpdateFeeTokens method
+func (s *KeeperTestSuite) TestUpdateFeeTokens() {
+	defaultFeeTokens := types.NewFeeTokenMetadataCollection(
+		types.NewFeeTokenMetadata("coin", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
+	)
+
+	// Prepare all the test cases
+	testCases := []struct {
+		name        string
+		msg         *types.MsgUpdateFeeTokens
+		errContains string
+	}{
+		{
+			name: "valid - valid fee tokens update",
+			msg: types.NewMessageUpdateFeeTokens(
+				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				*defaultFeeTokens,
+			),
+		},
+		{
+			name: "invalid - invalid authority",
+			msg: types.NewMessageUpdateFeeTokens(
+				"",
+				*defaultFeeTokens,
+			),
+			errContains: "invalid authority address: empty address string is not allowed",
+		},
+		{
+			name: "invalid - wrong authority",
+			msg: &types.MsgUpdateFeeTokens{
+				Authority: authtypes.NewModuleAddress(types.ModuleName).String(),
+				FeeTokens: *defaultFeeTokens,
+			},
+			errContains: "expected gov account as only signer for proposal message",
+		},
+		{
+			name: "invalid - invalid fee tokens (bad denom)",
+			msg: types.NewMessageUpdateFeeTokens(
+				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				*types.NewFeeTokenMetadataCollection(
+					types.NewFeeTokenMetadata("invalid denom!", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
+				),
+			),
+			errContains: "denom is invalid: invalid fee token metadata: invalid request",
+		},
+	}
+
+	// Iterate through the test cases
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			// Call the UpdateFeeTokens method
+			_, err := s.msgServer.UpdateFeeTokens(s.ctx, tc.msg)
+
+			// Check for errors
+			if tc.errContains != "" {
+				s.Require().Error(err)
+				s.Require().Contains(err.Error(), tc.errContains)
+			} else {
+				s.Require().NoError(err)
+
+				// Verify the fee tokens were updated
+				tokens, err := s.keeper.FeeTokens.Get(s.ctx)
+				s.Require().NoError(err)
+				s.Require().Equal(tc.msg.FeeTokens, tokens)
 			}
 		})
 	}

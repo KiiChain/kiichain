@@ -53,6 +53,30 @@ func (ms MsgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams
 	return &types.MsgUpdateParamsResponse{}, nil
 }
 
+// UpdateFeeTokens updates the fee tokens through a proposal
+func (ms MsgServer) UpdateFeeTokens(ctx context.Context, msg *types.MsgUpdateFeeTokens) (*types.MsgUpdateFeeTokensResponse, error) {
+	// Check the authority
+	if err := ms.validateAuthority(msg.Authority); err != nil {
+		return nil, err
+	}
+
+	// Validate the message
+	if msg == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("msg cannot be nil")
+	}
+	if err := msg.Validate(); err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid message: %s", err)
+	}
+
+	// Update the fee tokens
+	if err := ms.FeeTokens.Set(ctx, msg.FeeTokens); err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to update fee tokens: %s", err)
+	}
+
+	// Return the response
+	return &types.MsgUpdateFeeTokensResponse{}, nil
+}
+
 // validateAuthority checks if address authority is valid and same as expected
 func (ms MsgServer) validateAuthority(authority string) error {
 	// Parse the authority as a acc address
