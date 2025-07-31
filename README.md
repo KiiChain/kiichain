@@ -1,4 +1,3 @@
-
 <div align="center">
   <img src="assets/kii.png" alt="Kiichain Logo" width="200"/>
 </div>
@@ -18,7 +17,13 @@
 <div align="center">
 
 [![Discord](https://img.shields.io/discord/996878520594735235?color=7289da&label=Discord&logo=discord&logoColor=white)](https://discord.gg/kiichain)
+
+<!-- markdown-link-check-disable -->
+
 [![Twitter Follow](https://img.shields.io/twitter/follow/kiichain?style=social)](https://x.com/KiiChainio)
+
+<!-- markdown-link-check-enable -->
+
 [![TikTok](https://img.shields.io/badge/TikTok-@kiichain-ff0050?style=flat&logo=tiktok&logoColor=white)](https://www.tiktok.com/@kiichain_)
 
 </div>
@@ -39,7 +44,10 @@
 
 ### Oro Testnet
 
+<!-- markdown-link-check-disable -->
+
 - **[Join Oro Testnet](https://kiichain.io/testnet)** - Start validating on our testnet
+<!-- markdown-link-check-enable -->
 - **[Testnet Explorer](https://explorer.kiichain.io)** - View transactions and blocks
 - **[Testnet Faucet](https://explorer.kiichain.io/faucet)** - Get testnet tokens
 
@@ -233,7 +241,6 @@ Join our vibrant community and stay connected:
 - **[X (Twitter)](https://x.com/KiiChainio)** - Follow for latest updates
 - **[TikTok](https://www.tiktok.com/@kiichain_)** - Watch our latest content
 - **[LinkedIn](https://www.linkedin.com/company/kiiglobal)** - Professional updates
-- **[Instagram](https://www.instagram.com/kiichainofficial/)** - Behind the scenes
 
 ## License
 
