@@ -112,23 +112,23 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
-// QueryGetFeeTokensRequest is the request type for the Query/GetFeeTokens RPC
+// QueryFeeTokensRequest is the request type for the Query/GetFeeTokens RPC
 // method
-type QueryGetFeeTokensRequest struct {
+type QueryFeeTokensRequest struct {
 }
 
-func (m *QueryGetFeeTokensRequest) Reset()         { *m = QueryGetFeeTokensRequest{} }
-func (m *QueryGetFeeTokensRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryGetFeeTokensRequest) ProtoMessage()    {}
-func (*QueryGetFeeTokensRequest) Descriptor() ([]byte, []int) {
+func (m *QueryFeeTokensRequest) Reset()         { *m = QueryFeeTokensRequest{} }
+func (m *QueryFeeTokensRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryFeeTokensRequest) ProtoMessage()    {}
+func (*QueryFeeTokensRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_88edc16f4ff36bc7, []int{2}
 }
-func (m *QueryGetFeeTokensRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeeTokensRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryGetFeeTokensRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeeTokensRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryGetFeeTokensRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeeTokensRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -138,37 +138,37 @@ func (m *QueryGetFeeTokensRequest) XXX_Marshal(b []byte, deterministic bool) ([]
 		return b[:n], nil
 	}
 }
-func (m *QueryGetFeeTokensRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryGetFeeTokensRequest.Merge(m, src)
+func (m *QueryFeeTokensRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeeTokensRequest.Merge(m, src)
 }
-func (m *QueryGetFeeTokensRequest) XXX_Size() int {
+func (m *QueryFeeTokensRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryGetFeeTokensRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryGetFeeTokensRequest.DiscardUnknown(m)
+func (m *QueryFeeTokensRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeeTokensRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryGetFeeTokensRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeeTokensRequest proto.InternalMessageInfo
 
-// QueryGetFeeTokensResponse is the response type for the Query/GetFeeTokens RPC
+// QueryFeeTokensResponse is the response type for the Query/GetFeeTokens RPC
 // method
-type QueryGetFeeTokensResponse struct {
+type QueryFeeTokensResponse struct {
 	// fee_tokens defines the fee tokens registered in the module.
 	FeeTokens *FeeTokenMetadataCollection `protobuf:"bytes,1,opt,name=fee_tokens,json=feeTokens,proto3" json:"fee_tokens,omitempty"`
 }
 
-func (m *QueryGetFeeTokensResponse) Reset()         { *m = QueryGetFeeTokensResponse{} }
-func (m *QueryGetFeeTokensResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryGetFeeTokensResponse) ProtoMessage()    {}
-func (*QueryGetFeeTokensResponse) Descriptor() ([]byte, []int) {
+func (m *QueryFeeTokensResponse) Reset()         { *m = QueryFeeTokensResponse{} }
+func (m *QueryFeeTokensResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryFeeTokensResponse) ProtoMessage()    {}
+func (*QueryFeeTokensResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_88edc16f4ff36bc7, []int{3}
 }
-func (m *QueryGetFeeTokensResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeeTokensResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryGetFeeTokensResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeeTokensResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryGetFeeTokensResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeeTokensResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -178,19 +178,19 @@ func (m *QueryGetFeeTokensResponse) XXX_Marshal(b []byte, deterministic bool) ([
 		return b[:n], nil
 	}
 }
-func (m *QueryGetFeeTokensResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryGetFeeTokensResponse.Merge(m, src)
+func (m *QueryFeeTokensResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeeTokensResponse.Merge(m, src)
 }
-func (m *QueryGetFeeTokensResponse) XXX_Size() int {
+func (m *QueryFeeTokensResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryGetFeeTokensResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryGetFeeTokensResponse.DiscardUnknown(m)
+func (m *QueryFeeTokensResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeeTokensResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryGetFeeTokensResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeeTokensResponse proto.InternalMessageInfo
 
-func (m *QueryGetFeeTokensResponse) GetFeeTokens() *FeeTokenMetadataCollection {
+func (m *QueryFeeTokensResponse) GetFeeTokens() *FeeTokenMetadataCollection {
 	if m != nil {
 		return m.FeeTokens
 	}
@@ -200,8 +200,8 @@ func (m *QueryGetFeeTokensResponse) GetFeeTokens() *FeeTokenMetadataCollection {
 func init() {
 	proto.RegisterType((*QueryParamsRequest)(nil), "kiichain.feeabstraction.v1beta1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "kiichain.feeabstraction.v1beta1.QueryParamsResponse")
-	proto.RegisterType((*QueryGetFeeTokensRequest)(nil), "kiichain.feeabstraction.v1beta1.QueryGetFeeTokensRequest")
-	proto.RegisterType((*QueryGetFeeTokensResponse)(nil), "kiichain.feeabstraction.v1beta1.QueryGetFeeTokensResponse")
+	proto.RegisterType((*QueryFeeTokensRequest)(nil), "kiichain.feeabstraction.v1beta1.QueryFeeTokensRequest")
+	proto.RegisterType((*QueryFeeTokensResponse)(nil), "kiichain.feeabstraction.v1beta1.QueryFeeTokensResponse")
 }
 
 func init() {
@@ -210,30 +210,30 @@ func init() {
 
 var fileDescriptor_88edc16f4ff36bc7 = []byte{
 	// 381 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x52, 0xcf, 0x4e, 0xf2, 0x40,
-	0x10, 0x6f, 0xc9, 0xf7, 0x91, 0xb8, 0x7a, 0x5a, 0x39, 0x60, 0x63, 0x8a, 0xe9, 0x05, 0x0d, 0xda,
-	0x0d, 0xd4, 0x8b, 0x7a, 0xc3, 0xa8, 0x27, 0x12, 0x25, 0x9e, 0x88, 0x89, 0xd9, 0xe2, 0x50, 0x1a,
-	0xa0, 0x5b, 0xda, 0x45, 0xe5, 0xea, 0x13, 0x98, 0xf8, 0x0a, 0x3e, 0x85, 0x4f, 0xc0, 0x91, 0xc4,
-	0x8b, 0x27, 0x63, 0xc0, 0x9b, 0x2f, 0x61, 0xd8, 0x2e, 0x20, 0x4a, 0x52, 0xf4, 0xb6, 0x99, 0xf9,
-	0xfd, 0x9b, 0x99, 0x45, 0xb9, 0x86, 0xeb, 0x56, 0xeb, 0xd4, 0xf5, 0x48, 0x0d, 0x80, 0xda, 0x21,
-	0x0f, 0x68, 0x95, 0xbb, 0xcc, 0x23, 0xd7, 0x79, 0x1b, 0x38, 0xcd, 0x93, 0x76, 0x07, 0x82, 0xae,
-	0xe9, 0x07, 0x8c, 0x33, 0x9c, 0x19, 0x83, 0xcd, 0x59, 0xb0, 0x29, 0xc1, 0x5a, 0xca, 0x61, 0x0e,
-	0x13, 0x58, 0x32, 0x7a, 0x45, 0x34, 0x6d, 0xdd, 0x61, 0xcc, 0x69, 0x02, 0xa1, 0xbe, 0x4b, 0xa8,
-	0xe7, 0x31, 0x4e, 0x47, 0xa4, 0x50, 0x76, 0xb7, 0xe3, 0x12, 0xf8, 0x34, 0xa0, 0x2d, 0x89, 0x36,
-	0x52, 0x08, 0x9f, 0x8d, 0x12, 0x9d, 0x8a, 0x62, 0x19, 0xda, 0x1d, 0x08, 0xb9, 0x71, 0x81, 0x56,
-	0x67, 0xaa, 0xa1, 0xcf, 0xbc, 0x10, 0xf0, 0x11, 0x4a, 0x46, 0xe4, 0xb4, 0xba, 0xa1, 0x6e, 0x2e,
-	0x17, 0xb2, 0x66, 0xcc, 0x00, 0x66, 0x24, 0x50, 0xfc, 0xd7, 0x7b, 0xcd, 0x28, 0x65, 0x49, 0x36,
-	0x34, 0x94, 0x16, 0xea, 0x27, 0xc0, 0x8f, 0x01, 0xce, 0x59, 0x03, 0xbc, 0x89, 0xf3, 0x0d, 0x5a,
-	0x9b, 0xd3, 0x93, 0xfe, 0x15, 0x84, 0x6a, 0x00, 0x97, 0x5c, 0x54, 0x65, 0x86, 0x83, 0xd8, 0x0c,
-	0x63, 0x9d, 0x12, 0x70, 0x7a, 0x45, 0x39, 0x3d, 0x64, 0xcd, 0x26, 0x08, 0x48, 0x79, 0xa9, 0x36,
-	0xf6, 0x28, 0x7c, 0x24, 0xd0, 0x7f, 0xe1, 0x8c, 0x1f, 0x55, 0x94, 0x8c, 0x72, 0x63, 0x2b, 0x56,
-	0xfc, 0xe7, 0xf2, 0xb4, 0xdd, 0xdf, 0x91, 0xa2, 0xd9, 0x0c, 0x72, 0xf7, 0xfc, 0xfe, 0x90, 0xd8,
-	0xc2, 0x59, 0xb2, 0xd8, 0xfd, 0xf0, 0x93, 0x8a, 0x56, 0xbe, 0x6e, 0x09, 0xef, 0x2d, 0xe6, 0x3b,
-	0x67, 0xeb, 0xda, 0xfe, 0x5f, 0xa8, 0x32, 0xb8, 0x25, 0x82, 0xef, 0xe0, 0x5c, 0x6c, 0xf0, 0xe9,
-	0xed, 0x8a, 0xa5, 0xde, 0x40, 0x57, 0xfb, 0x03, 0x5d, 0x7d, 0x1b, 0xe8, 0xea, 0xfd, 0x50, 0x57,
-	0xfa, 0x43, 0x5d, 0x79, 0x19, 0xea, 0x4a, 0xc5, 0x72, 0x5c, 0x5e, 0xef, 0xd8, 0x66, 0x95, 0xb5,
-	0xa6, 0x82, 0x93, 0xc7, 0xed, 0x77, 0x6d, 0xde, 0xf5, 0x21, 0xb4, 0x93, 0xe2, 0x33, 0x5b, 0x9f,
-	0x01, 0x00, 0x00, 0xff, 0xff, 0x59, 0xcf, 0x07, 0x83, 0x7e, 0x03, 0x00, 0x00,
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xd2, 0xce, 0xce, 0xcc, 0x4c,
+	0xce, 0x48, 0xcc, 0xcc, 0xd3, 0x4f, 0x4b, 0x4d, 0x4d, 0x4c, 0x2a, 0x2e, 0x29, 0x4a, 0x4c, 0x2e,
+	0xc9, 0xcc, 0xcf, 0xd3, 0x2f, 0x33, 0x4c, 0x4a, 0x2d, 0x49, 0x34, 0xd4, 0x2f, 0x2c, 0x4d, 0x2d,
+	0xaa, 0xd4, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x92, 0x87, 0x29, 0xd6, 0x43, 0x55, 0xac, 0x07,
+	0x55, 0x2c, 0x25, 0x92, 0x9e, 0x9f, 0x9e, 0x0f, 0x56, 0xab, 0x0f, 0x62, 0x41, 0xb4, 0x49, 0xc9,
+	0xa4, 0xe7, 0xe7, 0xa7, 0xe7, 0xa4, 0xea, 0x27, 0x16, 0x64, 0xea, 0x27, 0xe6, 0xe5, 0xe5, 0x97,
+	0x24, 0x82, 0x34, 0x15, 0x43, 0x65, 0x75, 0x08, 0xb9, 0xa0, 0x20, 0xb1, 0x28, 0x31, 0x17, 0xaa,
+	0x5a, 0x49, 0x84, 0x4b, 0x28, 0x10, 0xe4, 0xa2, 0x00, 0xb0, 0x60, 0x50, 0x6a, 0x61, 0x69, 0x6a,
+	0x71, 0x89, 0x52, 0x0c, 0x97, 0x30, 0x8a, 0x68, 0x71, 0x41, 0x7e, 0x5e, 0x71, 0xaa, 0x90, 0x2b,
+	0x17, 0x1b, 0x44, 0xb3, 0x04, 0xa3, 0x02, 0xa3, 0x06, 0xb7, 0x91, 0xba, 0x1e, 0x01, 0x0f, 0xe8,
+	0x41, 0x0c, 0x70, 0x62, 0x39, 0x71, 0x4f, 0x9e, 0x21, 0x08, 0xaa, 0x59, 0x49, 0x9c, 0x4b, 0x14,
+	0x6c, 0xba, 0x5b, 0x6a, 0x6a, 0x48, 0x7e, 0x76, 0x6a, 0x1e, 0xdc, 0xda, 0x12, 0x2e, 0x31, 0x74,
+	0x09, 0xa8, 0xcd, 0x51, 0x5c, 0x5c, 0x69, 0xa9, 0xa9, 0xf1, 0x25, 0x60, 0x51, 0xa8, 0xed, 0xd6,
+	0x04, 0x6d, 0x87, 0x99, 0xe3, 0x9b, 0x5a, 0x92, 0x98, 0x92, 0x58, 0x92, 0xe8, 0x9c, 0x9f, 0x93,
+	0x93, 0x0a, 0x56, 0x12, 0xc4, 0x99, 0x06, 0xb3, 0xc3, 0xe8, 0x29, 0x13, 0x17, 0x2b, 0xd8, 0x5a,
+	0xa1, 0x25, 0x8c, 0x5c, 0x6c, 0x10, 0x17, 0x0b, 0x19, 0x13, 0x34, 0x1c, 0x33, 0xd8, 0xa4, 0x4c,
+	0x48, 0xd3, 0x04, 0xf1, 0x9b, 0x92, 0x7e, 0xd3, 0xe5, 0x27, 0x93, 0x99, 0x34, 0x85, 0xd4, 0xf5,
+	0x89, 0x8b, 0x39, 0xa1, 0x2d, 0x8c, 0x5c, 0x3c, 0xee, 0xa9, 0x25, 0xf0, 0x50, 0x12, 0x32, 0x23,
+	0xce, 0x5e, 0xf4, 0xf0, 0x96, 0x32, 0x27, 0x59, 0x1f, 0xd4, 0xc9, 0xc6, 0x60, 0x27, 0xeb, 0x0a,
+	0x69, 0x13, 0x74, 0x32, 0x22, 0xd6, 0x9c, 0x7c, 0x4f, 0x3c, 0x92, 0x63, 0xbc, 0xf0, 0x48, 0x8e,
+	0xf1, 0xc1, 0x23, 0x39, 0xc6, 0x09, 0x8f, 0xe5, 0x18, 0x2e, 0x3c, 0x96, 0x63, 0xb8, 0xf1, 0x58,
+	0x8e, 0x21, 0xca, 0x38, 0x3d, 0xb3, 0x24, 0xa3, 0x34, 0x49, 0x2f, 0x39, 0x3f, 0x17, 0x61, 0x20,
+	0x9c, 0x51, 0x81, 0x6e, 0x76, 0x49, 0x65, 0x41, 0x6a, 0x71, 0x12, 0x1b, 0x38, 0x01, 0x1b, 0x03,
+	0x02, 0x00, 0x00, 0xff, 0xff, 0x11, 0xb7, 0x16, 0xe5, 0x72, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -251,7 +251,7 @@ type QueryClient interface {
 	// Params defines a gRPC query method that returns the fee abstraction params
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 	// GetFeeTokens defines a gRPC query method that returns the fee tokens
-	GetFeeTokens(ctx context.Context, in *QueryGetFeeTokensRequest, opts ...grpc.CallOption) (*QueryGetFeeTokensResponse, error)
+	GetFeeTokens(ctx context.Context, in *QueryFeeTokensRequest, opts ...grpc.CallOption) (*QueryFeeTokensResponse, error)
 }
 
 type queryClient struct {
@@ -271,8 +271,8 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 	return out, nil
 }
 
-func (c *queryClient) GetFeeTokens(ctx context.Context, in *QueryGetFeeTokensRequest, opts ...grpc.CallOption) (*QueryGetFeeTokensResponse, error) {
-	out := new(QueryGetFeeTokensResponse)
+func (c *queryClient) GetFeeTokens(ctx context.Context, in *QueryFeeTokensRequest, opts ...grpc.CallOption) (*QueryFeeTokensResponse, error) {
+	out := new(QueryFeeTokensResponse)
 	err := c.cc.Invoke(ctx, "/kiichain.feeabstraction.v1beta1.Query/GetFeeTokens", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -285,7 +285,7 @@ type QueryServer interface {
 	// Params defines a gRPC query method that returns the fee abstraction params
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	// GetFeeTokens defines a gRPC query method that returns the fee tokens
-	GetFeeTokens(context.Context, *QueryGetFeeTokensRequest) (*QueryGetFeeTokensResponse, error)
+	GetFeeTokens(context.Context, *QueryFeeTokensRequest) (*QueryFeeTokensResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -295,7 +295,7 @@ type UnimplementedQueryServer struct {
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
 }
-func (*UnimplementedQueryServer) GetFeeTokens(ctx context.Context, req *QueryGetFeeTokensRequest) (*QueryGetFeeTokensResponse, error) {
+func (*UnimplementedQueryServer) GetFeeTokens(ctx context.Context, req *QueryFeeTokensRequest) (*QueryFeeTokensResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFeeTokens not implemented")
 }
 
@@ -322,7 +322,7 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 }
 
 func _Query_GetFeeTokens_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryGetFeeTokensRequest)
+	in := new(QueryFeeTokensRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -334,7 +334,7 @@ func _Query_GetFeeTokens_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: "/kiichain.feeabstraction.v1beta1.Query/GetFeeTokens",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).GetFeeTokens(ctx, req.(*QueryGetFeeTokensRequest))
+		return srv.(QueryServer).GetFeeTokens(ctx, req.(*QueryFeeTokensRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -412,7 +412,7 @@ func (m *QueryParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryGetFeeTokensRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeeTokensRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -422,12 +422,12 @@ func (m *QueryGetFeeTokensRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryGetFeeTokensRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeeTokensRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryGetFeeTokensRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeeTokensRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -435,7 +435,7 @@ func (m *QueryGetFeeTokensRequest) MarshalToSizedBuffer(dAtA []byte) (int, error
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryGetFeeTokensResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeeTokensResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -445,12 +445,12 @@ func (m *QueryGetFeeTokensResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryGetFeeTokensResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeeTokensResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryGetFeeTokensResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeeTokensResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -501,7 +501,7 @@ func (m *QueryParamsResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryGetFeeTokensRequest) Size() (n int) {
+func (m *QueryFeeTokensRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -510,7 +510,7 @@ func (m *QueryGetFeeTokensRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryGetFeeTokensResponse) Size() (n int) {
+func (m *QueryFeeTokensResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -662,7 +662,7 @@ func (m *QueryParamsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryGetFeeTokensRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryFeeTokensRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -685,10 +685,10 @@ func (m *QueryGetFeeTokensRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryGetFeeTokensRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeeTokensRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryGetFeeTokensRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeeTokensRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -712,7 +712,7 @@ func (m *QueryGetFeeTokensRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryGetFeeTokensResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryFeeTokensResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -735,10 +735,10 @@ func (m *QueryGetFeeTokensResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryGetFeeTokensResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeeTokensResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryGetFeeTokensResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeeTokensResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
