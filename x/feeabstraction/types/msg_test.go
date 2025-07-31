@@ -64,3 +64,65 @@ func TestMsgUpdateParamsValidate(t *testing.T) {
 		})
 	}
 }
+
+// TestMsgUpdateFeeTokensValidate tests the Validate method of MsgUpdateFeeTokens
+func TestMsgUpdateFeeTokensValidate(t *testing.T) {
+	// Prepare all the test cases
+	testCases := []struct {
+		name        string
+		msg         *types.MsgUpdateFeeTokens
+		errContains string
+	}{
+		{
+			name: "valid - empty fee tokens",
+			msg: types.NewMessageUpdateFeeTokens(
+				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				*types.NewFeeTokenMetadataCollection(),
+			),
+		},
+		{
+			name: "valid - fee tokens",
+			msg: types.NewMessageUpdateFeeTokens(
+				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				*types.NewFeeTokenMetadataCollection(
+					types.NewFeeTokenMetadata("coin", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
+				),
+			),
+		},
+		{
+			name: "invalid - empty authority",
+			msg: types.NewMessageUpdateFeeTokens("",
+				*types.NewFeeTokenMetadataCollection(
+					types.NewFeeTokenMetadata("coin", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
+				),
+			),
+			errContains: "empty address string is not allowed",
+		},
+		{
+			name: "invalid - duplicate fee tokens",
+			msg: types.NewMessageUpdateFeeTokens(
+				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				*types.NewFeeTokenMetadataCollection(
+					types.NewFeeTokenMetadata("coin", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
+					types.NewFeeTokenMetadata("coin", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
+				),
+			),
+			errContains: "duplicate denom found: coin: invalid fee token metadata",
+		},
+	}
+
+	// Iterate through the test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := tc.msg.Validate()
+
+			// Check the error
+			if tc.errContains == "" {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.errContains)
+			}
+		})
+	}
+}
