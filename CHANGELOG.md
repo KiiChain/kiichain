@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v3.0.1 — 2025-07-31
+
+### Changed
+
+- Switched markdown linting hook to `markdownlint-cli` for faster CI and better compatibility
+- Fixed incorrect Markdown code block formatting in `README.md`
+
 ## v3.0.0 — 2025-07-01
 
 No changes were made since the release candidate.
