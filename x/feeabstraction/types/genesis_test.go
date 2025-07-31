@@ -25,17 +25,17 @@ func TestGenesisStateValidate(t *testing.T) {
 			name: "valid - custom genesis state",
 			genesisState: types.NewGenesisState(
 				types.NewParams(
-					"coin", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, types.DefaultFallbackNativePrice, types.DefaultTwapLookbackWindow, true),
+					"coin", types.DefaultClampFactor, types.DefaultFallbackNativePrice, types.DefaultTwapLookbackWindow, true),
 				types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("coin", "oraclecoin", 6, types.DefaultMaxPriceDeviation, types.DefaultClampFactor),
-					types.NewFeeTokenMetadata("two", "oracletwo", 18, types.DefaultMaxPriceDeviation.MulInt64(2), types.DefaultClampFactor.MulInt64(2)),
+					types.NewFeeTokenMetadata("coin", "oraclecoin", 6, types.DefaultClampFactor),
+					types.NewFeeTokenMetadata("two", "oracletwo", 18, types.DefaultClampFactor.MulInt64(2)),
 				),
 			),
 		},
 		{
 			name: "invalid - bad param",
 			genesisState: types.NewGenesisState(
-				types.NewParams("", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, math.LegacyZeroDec(), 0, true),
+				types.NewParams("", types.DefaultClampFactor, math.LegacyZeroDec(), 0, true),
 				types.NewFeeTokenMetadataCollection(),
 			),
 			errContains: "native denom is invalid",
@@ -45,7 +45,7 @@ func TestGenesisStateValidate(t *testing.T) {
 			genesisState: types.NewGenesisState(
 				types.DefaultParams(),
 				types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("", "oraclecoin", 6, types.DefaultMaxPriceDeviation, types.DefaultClampFactor),
+					types.NewFeeTokenMetadata("", "oraclecoin", 6, types.DefaultClampFactor),
 				),
 			),
 			errContains: "invalid fee token metadata",
@@ -55,8 +55,8 @@ func TestGenesisStateValidate(t *testing.T) {
 			genesisState: types.NewGenesisState(
 				types.DefaultParams(),
 				types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("coin", "oraclecoin", 6, types.DefaultMaxPriceDeviation, types.DefaultClampFactor),
-					types.NewFeeTokenMetadata("coin", "oraclecoin2", 6, types.DefaultMaxPriceDeviation, types.DefaultClampFactor),
+					types.NewFeeTokenMetadata("coin", "oraclecoin", 6, types.DefaultClampFactor),
+					types.NewFeeTokenMetadata("coin", "oraclecoin2", 6, types.DefaultClampFactor),
 				),
 			),
 			errContains: "duplicate denom found: coin",

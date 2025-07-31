@@ -11,8 +11,7 @@ import (
 
 var (
 	// Default values for the fee abstraction parameters
-	DefaultMaxPriceDeviation   = math.LegacyMustNewDecFromStr("0.1")  // 10%
-	DefaultClampFactor         = math.LegacyMustNewDecFromStr("0.1")  // 10%
+	DefaultClampFactor         = math.LegacyMustNewDecFromStr("0.10") // 0.10%
 	DefaultFallbackNativePrice = math.LegacyMustNewDecFromStr("0.01") // 0.01 USD
 	DefaultTwapLookbackWindow  = uint64(120)                          // 120 seconds (2 minutes)
 )
@@ -20,13 +19,12 @@ var (
 // NewParams returns a new params instance
 func NewParams(
 	nativeDenom string,
-	maxPriceDeviation, clampFactor, fallbackNativePrice math.LegacyDec,
+	clampFactor, fallbackNativePrice math.LegacyDec,
 	twapLookbackWindow uint64,
 	enabled bool,
 ) Params {
 	return Params{
 		NativeDenom:         nativeDenom,
-		MaxPriceDeviation:   maxPriceDeviation,
 		ClampFactor:         clampFactor,
 		Enabled:             enabled,
 		FallbackNativePrice: fallbackNativePrice,
@@ -38,7 +36,6 @@ func NewParams(
 func DefaultParams() Params {
 	return Params{
 		NativeDenom:         params.BaseDenom,
-		MaxPriceDeviation:   DefaultMaxPriceDeviation,
 		ClampFactor:         DefaultClampFactor,
 		FallbackNativePrice: DefaultFallbackNativePrice,
 		TwapLookbackWindow:  DefaultTwapLookbackWindow,
@@ -51,11 +48,6 @@ func (p Params) Validate() error {
 	// Validate the native denom
 	if err := sdk.ValidateDenom(p.NativeDenom); err != nil {
 		return errorsmod.Wrap(ErrInvalidParams, "native denom is invalid")
-	}
-
-	// Validate the max price deviation
-	if p.MaxPriceDeviation.IsNegative() || p.MaxPriceDeviation.GT(math.LegacyOneDec()) {
-		return errorsmod.Wrap(ErrInvalidParams, "max price deviation must be between 0 and 1")
 	}
 
 	// Validate the clamp factor
@@ -80,15 +72,14 @@ func (p Params) Validate() error {
 func NewFeeTokenMetadata(
 	denom, oracleDenom string,
 	decimals uint32,
-	price, fallbackPrice math.LegacyDec,
+	price math.LegacyDec,
 ) FeeTokenMetadata {
 	return FeeTokenMetadata{
-		Denom:         denom,
-		OracleDenom:   oracleDenom,
-		Decimals:      decimals,
-		Price:         price,
-		FallbackPrice: fallbackPrice,
-		Enabled:       true,
+		Denom:       denom,
+		OracleDenom: oracleDenom,
+		Decimals:    decimals,
+		Price:       price,
+		Enabled:     true,
 	}
 }
 
@@ -111,9 +102,6 @@ func (f FeeTokenMetadata) Validate() error {
 	// Validate the price and fallback price, must be greater than 0
 	if f.Price.IsNegative() || f.Price.IsZero() {
 		return errorsmod.Wrap(ErrInvalidFeeTokenMetadata, "price must be greater than 0")
-	}
-	if f.FallbackPrice.IsNegative() || f.FallbackPrice.IsZero() {
-		return errorsmod.Wrap(ErrInvalidFeeTokenMetadata, "fallback price must be greater than 0")
 	}
 
 	return nil

@@ -104,3 +104,56 @@ func TestTokenToMinimalDenom(t *testing.T) {
 		}
 	}
 }
+
+// TestClampPrice tests the ClampPrice function
+func TestClampPrice(t *testing.T) {
+	// Prepare the test cases
+	testCases := []struct {
+		prevPrice   math.LegacyDec
+		newPrice    math.LegacyDec
+		clampFactor math.LegacyDec
+		expected    math.LegacyDec
+	}{
+		{
+			prevPrice:   math.LegacyNewDec(100),
+			newPrice:    math.LegacyNewDec(110),
+			clampFactor: math.LegacyMustNewDecFromStr("0.1"), // 10%
+			expected:    math.LegacyNewDec(110),
+		},
+		{
+			prevPrice:   math.LegacyNewDec(100),
+			newPrice:    math.LegacyNewDec(90),
+			clampFactor: math.LegacyMustNewDecFromStr("0.1"), // 10%
+			expected:    math.LegacyNewDec(90),
+		},
+		{
+			prevPrice:   math.LegacyNewDec(100),
+			newPrice:    math.LegacyNewDec(80),
+			clampFactor: math.LegacyMustNewDecFromStr("0.1"), // 10%
+			expected:    math.LegacyNewDec(90),               // Clamped to min bound
+		},
+		{
+			prevPrice:   math.LegacyNewDec(100),
+			newPrice:    math.LegacyNewDec(120),
+			clampFactor: math.LegacyMustNewDecFromStr("0.1"), // 10%
+			expected:    math.LegacyNewDec(110),              // Clamped to max bound
+		},
+		{
+			prevPrice:   math.LegacyNewDec(0), // prevPrice is zero,
+			newPrice:    math.LegacyNewDec(100),
+			clampFactor: math.LegacyMustNewDecFromStr("0.1"), // 10%
+			expected:    math.LegacyNewDec(100),              // Should return newPrice
+		},
+		{
+			prevPrice:   math.LegacyNewDec(100), // prevPrice is non-zero, clampFactor is zero
+			newPrice:    math.LegacyNewDec(100),
+			clampFactor: math.LegacyZeroDec(),
+			expected:    math.LegacyNewDec(100), // Should return newPrice
+		},
+	}
+
+	for _, tc := range testCases {
+		result := types.ClampPrice(tc.prevPrice, tc.newPrice, tc.clampFactor)
+		require.Equal(t, tc.expected, result)
+	}
+}

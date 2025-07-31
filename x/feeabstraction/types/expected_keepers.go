@@ -6,7 +6,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/kiichain/kiichain/v3/x/oracle/types"
+	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -36,6 +36,6 @@ type BankKeeper interface {
 
 // OracleKeeper define the expected interface for the Oracle keeper
 type OracleKeeper interface {
-	CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (types.OracleTwaps, error)
+	CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (oracletypes.OracleTwaps, error)
 	ValidateLookBackSeconds(ctx sdk.Context, lookBackSeconds uint64) error
 }

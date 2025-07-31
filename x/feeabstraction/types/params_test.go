@@ -26,7 +26,6 @@ func TestValidateParams(t *testing.T) {
 			name: "valid - custom params",
 			params: types.NewParams(
 				"coin",
-				types.DefaultMaxPriceDeviation,
 				types.DefaultClampFactor,
 				types.DefaultFallbackNativePrice,
 				types.DefaultTwapLookbackWindow,
@@ -37,7 +36,6 @@ func TestValidateParams(t *testing.T) {
 			name: "invalid - empty native denom",
 			params: types.NewParams(
 				"",
-				types.DefaultMaxPriceDeviation,
 				types.DefaultClampFactor,
 				types.DefaultFallbackNativePrice,
 				types.DefaultTwapLookbackWindow,
@@ -49,7 +47,6 @@ func TestValidateParams(t *testing.T) {
 			name: "invalid - invalid denom",
 			params: types.NewParams(
 				"123",
-				types.DefaultMaxPriceDeviation,
 				types.DefaultClampFactor,
 				types.DefaultFallbackNativePrice,
 				types.DefaultTwapLookbackWindow,
@@ -58,34 +55,9 @@ func TestValidateParams(t *testing.T) {
 			errContains: "native denom is invalid",
 		},
 		{
-			name: "invalid - negative max price deviation",
-			params: types.NewParams(
-				"coin",
-				types.DefaultMaxPriceDeviation.Neg(), // Negative value
-				types.DefaultClampFactor,
-				types.DefaultFallbackNativePrice,
-				types.DefaultTwapLookbackWindow,
-				true,
-			),
-			errContains: "max price deviation must be between 0 and 1",
-		},
-		{
-			name: "invalid - max price deviation greater than 1",
-			params: types.NewParams(
-				"coin",
-				types.DefaultMaxPriceDeviation.Add(math.LegacyOneDec()), // Greater than 1
-				types.DefaultClampFactor,
-				types.DefaultFallbackNativePrice,
-				types.DefaultTwapLookbackWindow,
-				true,
-			),
-			errContains: "max price deviation must be between 0 and 1",
-		},
-		{
 			name: "invalid - negative clamp factor",
 			params: types.NewParams(
 				"coin",
-				types.DefaultMaxPriceDeviation,
 				types.DefaultClampFactor.Neg(), // Negative value
 				types.DefaultFallbackNativePrice,
 				types.DefaultTwapLookbackWindow,
@@ -97,7 +69,6 @@ func TestValidateParams(t *testing.T) {
 			name: "invalid - clamp factor greater than 1",
 			params: types.NewParams(
 				"coin",
-				types.DefaultMaxPriceDeviation,
 				types.DefaultClampFactor.Add(math.LegacyOneDec()), // Greater than 1
 				types.DefaultFallbackNativePrice,
 				types.DefaultTwapLookbackWindow,
@@ -109,7 +80,6 @@ func TestValidateParams(t *testing.T) {
 			name: "invalid - invalid fallback native price (negative)",
 			params: types.NewParams(
 				"coin",
-				types.DefaultMaxPriceDeviation,
 				types.DefaultClampFactor,
 				types.DefaultFallbackNativePrice.Neg(), // Negative value
 				types.DefaultTwapLookbackWindow,
@@ -121,7 +91,6 @@ func TestValidateParams(t *testing.T) {
 			name: "invalid - invalid fallback native price (zero)",
 			params: types.NewParams(
 				"coin",
-				types.DefaultMaxPriceDeviation,
 				types.DefaultClampFactor,
 				math.LegacyZeroDec(), // Zero value
 				types.DefaultTwapLookbackWindow,
@@ -133,7 +102,6 @@ func TestValidateParams(t *testing.T) {
 			name: "invalid - twap lookback window zero",
 			params: types.NewParams(
 				"coin",
-				types.DefaultMaxPriceDeviation,
 				types.DefaultClampFactor,
 				types.DefaultFallbackNativePrice.Neg(), // Negative value
 				0,
@@ -169,57 +137,47 @@ func TestFeeTokenMetadataValidate(t *testing.T) {
 	}{
 		{
 			name:     "valid - default metadata",
-			metadata: types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
+			metadata: types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100)),
 		},
 		{
 			name:        "invalid - empty denom",
-			metadata:    types.NewFeeTokenMetadata("", "oraclecoin", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
+			metadata:    types.NewFeeTokenMetadata("", "oraclecoin", 6, math.LegacyNewDec(100)),
 			errContains: "denom is invalid",
 		},
 		{
 			name:        "invalid - empty oracle denom",
-			metadata:    types.NewFeeTokenMetadata("coin", "", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
+			metadata:    types.NewFeeTokenMetadata("coin", "", 6, math.LegacyNewDec(100)),
 			errContains: "oracle denom is invalid",
 		},
 		{
 			name:        "invalid - invalid denom",
-			metadata:    types.NewFeeTokenMetadata("123", "oraclecoin", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
+			metadata:    types.NewFeeTokenMetadata("123", "oraclecoin", 6, math.LegacyNewDec(100)),
 			errContains: "denom is invalid",
 		},
 		{
 			name:        "invalid - invalid oracle denom",
-			metadata:    types.NewFeeTokenMetadata("coin", "123", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
+			metadata:    types.NewFeeTokenMetadata("coin", "123", 6, math.LegacyNewDec(100)),
 			errContains: "oracle denom is invalid",
 		},
 		{
 			name:        "invalid - decimals zero",
-			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 0, math.LegacyNewDec(100), math.LegacyNewDec(50)),
+			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 0, math.LegacyNewDec(100)),
 			errContains: "decimals must be between 1 and 18",
 		},
 		{
 			name:        "invalid - decimals greater than 18",
-			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 19, math.LegacyNewDec(100), math.LegacyNewDec(50)),
+			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 19, math.LegacyNewDec(100)),
 			errContains: "decimals must be between 1 and 18",
 		},
 		{
 			name:        "invalid - negative price",
-			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(-100), math.LegacyNewDec(50)),
+			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(-100)),
 			errContains: "price must be greater than 0",
 		},
 		{
 			name:        "invalid - zero price",
-			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(0), math.LegacyNewDec(50)),
+			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(0)),
 			errContains: "price must be greater than 0",
-		},
-		{
-			name:        "invalid - negative fallback price",
-			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100), math.LegacyNewDec(-50)),
-			errContains: "fallback price must be greater than 0",
-		},
-		{
-			name:        "invalid - zero fallback price",
-			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100), math.LegacyNewDec(0)),
-			errContains: "fallback price must be greater than 0",
 		},
 	}
 
@@ -253,14 +211,14 @@ func TestFeeTokenMetadataCollectionValidate(t *testing.T) {
 		{
 			name: "valid - single valid token",
 			collection: types.NewFeeTokenMetadataCollection(
-				types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
+				types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100)),
 			),
 		},
 		{
 			name: "valid - multiple valid tokens",
 			collection: types.NewFeeTokenMetadataCollection(
-				types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
-				types.NewFeeTokenMetadata("two", "oracletwo", 18, math.LegacyNewDec(200), math.LegacyNewDec(100)),
+				types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100)),
+				types.NewFeeTokenMetadata("two", "oracletwo", 18, math.LegacyNewDec(200)),
 			),
 		},
 		{
@@ -271,15 +229,15 @@ func TestFeeTokenMetadataCollectionValidate(t *testing.T) {
 		{
 			name: "invalid - invalid token in collection",
 			collection: types.NewFeeTokenMetadataCollection(
-				types.NewFeeTokenMetadata("", "oraclecoin", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
+				types.NewFeeTokenMetadata("", "oraclecoin", 6, math.LegacyNewDec(100)),
 			),
 			errContains: "denom is invalid: invalid fee token metadata",
 		},
 		{
 			name: "invalid - duplicate denoms in collection",
 			collection: types.NewFeeTokenMetadataCollection(
-				types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
-				types.NewFeeTokenMetadata("coin", "oraclecoin2", 6, math.LegacyNewDec(100), math.LegacyNewDec(50)),
+				types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100)),
+				types.NewFeeTokenMetadata("coin", "oraclecoin2", 6, math.LegacyNewDec(100)),
 			),
 			errContains: "duplicate denom found: coin",
 		},
