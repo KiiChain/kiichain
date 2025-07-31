@@ -28,6 +28,8 @@ func TestValidateParams(t *testing.T) {
 				"coin",
 				types.DefaultMaxPriceDeviation,
 				types.DefaultClampFactor,
+				types.DefaultFallbackNativePrice,
+				types.DefaultTwapLookbackWindow,
 				true,
 			),
 		},
@@ -37,6 +39,8 @@ func TestValidateParams(t *testing.T) {
 				"",
 				types.DefaultMaxPriceDeviation,
 				types.DefaultClampFactor,
+				types.DefaultFallbackNativePrice,
+				types.DefaultTwapLookbackWindow,
 				true,
 			),
 			errContains: "native denom is invalid",
@@ -47,6 +51,8 @@ func TestValidateParams(t *testing.T) {
 				"123",
 				types.DefaultMaxPriceDeviation,
 				types.DefaultClampFactor,
+				types.DefaultFallbackNativePrice,
+				types.DefaultTwapLookbackWindow,
 				true,
 			),
 			errContains: "native denom is invalid",
@@ -57,6 +63,8 @@ func TestValidateParams(t *testing.T) {
 				"coin",
 				types.DefaultMaxPriceDeviation.Neg(), // Negative value
 				types.DefaultClampFactor,
+				types.DefaultFallbackNativePrice,
+				types.DefaultTwapLookbackWindow,
 				true,
 			),
 			errContains: "max price deviation must be between 0 and 1",
@@ -67,6 +75,8 @@ func TestValidateParams(t *testing.T) {
 				"coin",
 				types.DefaultMaxPriceDeviation.Add(math.LegacyOneDec()), // Greater than 1
 				types.DefaultClampFactor,
+				types.DefaultFallbackNativePrice,
+				types.DefaultTwapLookbackWindow,
 				true,
 			),
 			errContains: "max price deviation must be between 0 and 1",
@@ -77,6 +87,8 @@ func TestValidateParams(t *testing.T) {
 				"coin",
 				types.DefaultMaxPriceDeviation,
 				types.DefaultClampFactor.Neg(), // Negative value
+				types.DefaultFallbackNativePrice,
+				types.DefaultTwapLookbackWindow,
 				true,
 			),
 			errContains: "clamp factor must be between 0 and 1",
@@ -87,9 +99,47 @@ func TestValidateParams(t *testing.T) {
 				"coin",
 				types.DefaultMaxPriceDeviation,
 				types.DefaultClampFactor.Add(math.LegacyOneDec()), // Greater than 1
+				types.DefaultFallbackNativePrice,
+				types.DefaultTwapLookbackWindow,
 				true,
 			),
 			errContains: "clamp factor must be between 0 and 1",
+		},
+		{
+			name: "invalid - invalid fallback native price (negative)",
+			params: types.NewParams(
+				"coin",
+				types.DefaultMaxPriceDeviation,
+				types.DefaultClampFactor,
+				types.DefaultFallbackNativePrice.Neg(), // Negative value
+				types.DefaultTwapLookbackWindow,
+				true,
+			),
+			errContains: "fallback native price must be greater than 0",
+		},
+		{
+			name: "invalid - invalid fallback native price (zero)",
+			params: types.NewParams(
+				"coin",
+				types.DefaultMaxPriceDeviation,
+				types.DefaultClampFactor,
+				math.LegacyZeroDec(), // Zero value
+				types.DefaultTwapLookbackWindow,
+				true,
+			),
+			errContains: "fallback native price must be greater than 0",
+		},
+		{
+			name: "invalid - twap lookback window zero",
+			params: types.NewParams(
+				"coin",
+				types.DefaultMaxPriceDeviation,
+				types.DefaultClampFactor,
+				types.DefaultFallbackNativePrice.Neg(), // Negative value
+				0,
+				true,
+			),
+			errContains: "fallback native price must be greater than 0",
 		},
 	}
 

@@ -3,6 +3,7 @@ package types_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -21,11 +22,17 @@ func TestMsgUpdateParamsValidate(t *testing.T) {
 	}{
 		{
 			name: "valid - default params",
-			msg:  types.NewMessageUpdateParams(authtypes.NewModuleAddress(govtypes.ModuleName).String(), types.DefaultParams()),
+			msg: types.NewMessageUpdateParams(
+				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				types.DefaultParams(),
+			),
 		},
 		{
 			name: "valid - custom params",
-			msg:  types.NewMessageUpdateParams(authtypes.NewModuleAddress(govtypes.ModuleName).String(), types.NewParams("coin", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, true)),
+			msg: types.NewMessageUpdateParams(
+				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				types.NewParams("coin", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, types.DefaultFallbackNativePrice, types.DefaultTwapLookbackWindow, true),
+			),
 		},
 		{
 			name:        "invalid - empty authority",
@@ -33,8 +40,11 @@ func TestMsgUpdateParamsValidate(t *testing.T) {
 			errContains: "empty address string is not allowed",
 		},
 		{
-			name:        "invalid - bad params",
-			msg:         types.NewMessageUpdateParams(authtypes.NewModuleAddress(govtypes.ModuleName).String(), types.NewParams("", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, true)),
+			name: "invalid - bad params",
+			msg: types.NewMessageUpdateParams(
+				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				types.NewParams("", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, math.LegacyZeroDec(), 0, true),
+			),
 			errContains: "native denom is invalid: invalid fee abstraction params",
 		},
 	}

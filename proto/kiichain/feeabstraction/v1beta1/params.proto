@@ -23,6 +23,14 @@ message Params {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable)   = false
   ];
+  // TwapLookbackWindow is the lookback window for calculating TWAPs
+  uint64 twap_lookback_window = 6;
+  // FallbackNativePrice is the fallback price for the native token in case the oracle price is not available (in USD)
+  string fallback_native_price = 7 [
+    (gogoproto.moretags) = "yaml:\"fallback_native_price\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", 
+    (gogoproto.nullable) = false
+  ];
 }
 
 // FeeTokenMetadata defines the metadata for a fee token

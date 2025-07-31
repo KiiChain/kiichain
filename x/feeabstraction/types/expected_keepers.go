@@ -6,6 +6,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/kiichain/kiichain/v3/x/oracle/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -31,4 +32,9 @@ type Erc20Keeper interface {
 type BankKeeper interface {
 	GetBalance(ctx context.Context, addr sdk.AccAddress, denom string) sdk.Coin
 	SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
+}
+
+// OracleKeeper define the expected interface for the Oracle keeper
+type OracleKeeper interface {
+	CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (types.OracleTwaps, error)
 }

@@ -3,6 +3,7 @@ package types_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
 
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
@@ -24,7 +25,7 @@ func TestGenesisStateValidate(t *testing.T) {
 			name: "valid - custom genesis state",
 			genesisState: types.NewGenesisState(
 				types.NewParams(
-					"coin", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, true),
+					"coin", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, types.DefaultFallbackNativePrice, types.DefaultTwapLookbackWindow, true),
 				types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata("coin", "oraclecoin", 6, types.DefaultMaxPriceDeviation, types.DefaultClampFactor),
 					types.NewFeeTokenMetadata("two", "oracletwo", 18, types.DefaultMaxPriceDeviation.MulInt64(2), types.DefaultClampFactor.MulInt64(2)),
@@ -34,7 +35,7 @@ func TestGenesisStateValidate(t *testing.T) {
 		{
 			name: "invalid - bad param",
 			genesisState: types.NewGenesisState(
-				types.NewParams("", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, true),
+				types.NewParams("", types.DefaultMaxPriceDeviation, types.DefaultClampFactor, math.LegacyZeroDec(), 0, true),
 				types.NewFeeTokenMetadataCollection(),
 			),
 			errContains: "native denom is invalid",
