@@ -238,7 +238,9 @@ We use [GitHub Issues](https://github.com/KiiChain/kiichain/issues) for tracking
 Join our vibrant community and stay connected:
 
 - **[Discord](https://discord.gg/kiichain)** - Chat with developers and community
+<!-- markdown-link-check-disable -->
 - **[X (Twitter)](https://x.com/KiiChainio)** - Follow for latest updates
+<!-- markdown-link-check-enable -->
 - **[TikTok](https://www.tiktok.com/@kiichain_)** - Watch our latest content
 - **[LinkedIn](https://www.linkedin.com/company/kiiglobal)** - Professional updates
 
