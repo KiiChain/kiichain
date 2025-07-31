@@ -2,33 +2,33 @@
 
 Contributions to the Kiijs library are welcome. As a contributor, here are the guidelines we would like you to follow:
 
-- [Code of Conduct](#coc)
-- [Issues and Bugs](#issue)
-- [Feature Requests](#feature)
-- [Submission Guidelines](#submit)
-- [Coding Rules](#rules)
-- [Commit Message Guidelines](#commit)
+- [Code of Conduct](#code-of-conduct)
+- [Issues and Bugs](#found-a-bug)
+- [Feature Requests](#missing-a-feature)
+- [Submission Guidelines](#submission-guidelines)
+- [Coding Rules](#coding-rules)
+- [Commit Message Guidelines](#commit-message-convention)
 
-## Code of Conduct {#coc}
+## Code of Conduct
 
 Please read and follow our [Code of Conduct][coc].
 
-## Found a Bug? {#issue}
+## Found a Bug?
 
-If you find a bug in the source code [submit a bug report issue](#submit-issue).
-Even better, you can [submit a Pull Request](#submit-pr) with a fix.
+If you find a bug in the source code [submit a bug report issue](#submitting-an-issue).
+Even better, you can [submit a Pull Request](#submitting-a-pull-request-pr) with a fix.
 
-## Missing a Feature? {#feature}
+## Missing a Feature?
 
-You can *request* a new feature by [submitting a feature request issue](#submit-issue).
+You can *request* a new feature by [submitting a feature request issue](#submitting-an-issue).
 If you would like to *implement* a new feature:
 
-- For a **Major Feature**, first [open an issue](#submit-issue) and outline your proposal so that it can be discussed.
-- **Small Features** can be crafted and directly [submitted as a Pull Request](#submit-pr).
+- For a **Major Feature**, first [open an issue](#submitting-an-issue) and outline your proposal so that it can be discussed.
+- **Small Features** can be crafted and directly [submitted as a Pull Request](#submitting-a-pull-request-pr).
 
-## Submission Guidelines {#submit}
+## Submission Guidelines
 
-### Submitting an Issue {#submit-issue}
+### Submitting an Issue
 
 Before you submit an issue, please search the [issue tracker][issues]. An issue for your problem might already exist and the discussion might inform you of workarounds readily available.
 
@@ -36,7 +36,7 @@ For bug reports, it is important that we can reproduce and confirm it. For this,
 
 You can file new issues by selecting from our [new issue templates][new-issue] and filling out the issue template.
 
-### Submitting a Pull Request (PR) {#submit-pr}
+### Submitting a Pull Request (PR)
 
 Before you submit your Pull Request (PR) consider the following guidelines:
 
@@ -53,11 +53,11 @@ Before you submit your Pull Request (PR) consider the following guidelines:
 
 6. Make your changes, **including test cases and documentation updates where appropriate**.
 
-7. Follow our [coding rules](#rules).
+7. Follow our [coding rules](#coding-rules).
 
 8. Run all tests and checks locally, as described in the [development guide][developing], and ensure they pass. This saves CI hours and ensures you only commit clean code.
 
-9. Commit your changes using a descriptive commit message that follows our [commit message conventions](#commit).
+9. Commit your changes using a descriptive commit message that follows our [commit message conventions](#commit-message-convention).
 
 10. Push your branch to GitHub.
 
@@ -83,7 +83,7 @@ If we ask for changes via code reviews then:
 
 After your pull request is merged, you can safely delete your branch and pull the changes from the (upstream) repository.
 
-## Coding Rules {#rules}
+## Coding Rules
 
 To ensure consistency throughout the source code, keep these rules in mind as you are working:
 
@@ -97,7 +97,7 @@ To ensure consistency throughout the source code, keep these rules in mind as yo
 - All files must include a license header. 
 - Keep API compatibility in mind when you change any code under `Kiijs`. Above version `1.0.0`, breaking changes can happen across versions with different left digit. Below version `1.0.0`, they can happen across versions with different middle digit. Reviewers of your pull request will comment on any API compatibility issues.
 
-## Commit Message Convention {#commit}
+## Commit Message Convention
 
 Please follow the [Conventional Commits v1.0.0][convcommit]. The commit types must be one of the following:
 
