@@ -201,7 +201,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		// Here the fee abstraction module does it work
 		// We check if the user has enough balance to pay for the fees using the
 		// native token (evmDenom), if not we iterate the fee abstraction module tokens
-		msgFees, err = md.feeAbstractionKeeper.ConvertNativeFee(ctx, from, msgFees)
+		convertedMsgFees, err := md.feeAbstractionKeeper.ConvertNativeFee(ctx, from, msgFees)
 		if err != nil {
 			return ctx, err
 		}
@@ -210,7 +210,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		err = evmante.ConsumeFeesAndEmitEvent(
 			ctx,
 			md.evmKeeper,
-			msgFees,
+			convertedMsgFees,
 			from,
 		)
 		if err != nil {
@@ -288,11 +288,11 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			"min_priority", decUtils.MinPriority,
 			"base_fee", decUtils.BaseFee,
 			"tx_type", txData.TxType(),
-			"paid_fees", msgFees,
+			"paid_fees", convertedMsgFees,
 		)
 
 		// Define the fee on the context for gas refunding
-		ctx = ctx.WithValue(evmkeeper.ContextPaidFeesKey{}, msgFees)
+		ctx = ctx.WithValue(evmkeeper.ContextPaidFeesKey{}, convertedMsgFees)
 	}
 
 	if err := evmante.CheckTxFee(txFeeInfo, decUtils.TxFee, decUtils.TxGasLimit); err != nil {
