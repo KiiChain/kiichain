@@ -18,13 +18,14 @@ var (
 
 // NewParams returns a new params instance
 func NewParams(
-	nativeDenom string,
+	nativeDenom, nativeOracleDenom string,
 	clampFactor, fallbackNativePrice math.LegacyDec,
 	twapLookbackWindow uint64,
 	enabled bool,
 ) Params {
 	return Params{
 		NativeDenom:         nativeDenom,
+		NativeOracleDenom:   nativeOracleDenom,
 		ClampFactor:         clampFactor,
 		Enabled:             enabled,
 		FallbackNativePrice: fallbackNativePrice,
@@ -36,6 +37,7 @@ func NewParams(
 func DefaultParams() Params {
 	return Params{
 		NativeDenom:         params.BaseDenom,
+		NativeOracleDenom:   params.DisplayDenom,
 		ClampFactor:         DefaultClampFactor,
 		FallbackNativePrice: DefaultFallbackNativePrice,
 		TwapLookbackWindow:  DefaultTwapLookbackWindow,
@@ -48,6 +50,11 @@ func (p Params) Validate() error {
 	// Validate the native denom
 	if err := sdk.ValidateDenom(p.NativeDenom); err != nil {
 		return errorsmod.Wrap(ErrInvalidParams, "native denom is invalid")
+	}
+
+	// Validate the native oracle denom
+	if err := sdk.ValidateDenom(p.NativeOracleDenom); err != nil {
+		return errorsmod.Wrap(ErrInvalidParams, "native oracle denom is invalid")
 	}
 
 	// Validate the clamp factor

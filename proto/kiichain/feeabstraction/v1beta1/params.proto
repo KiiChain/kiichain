@@ -9,19 +9,21 @@ option go_package = "github.com/kiichain/kiichain/x/feeabstraction/types";
 message Params {
   // Native denom
   string native_denom = 1;
+  // Oracle module identifier
+  string native_oracle_denom = 2;
   // Enabled indicates if the fee abstraction module is enabled
-  bool enabled = 2;
+  bool enabled = 3;
   // ClampFactor is the factor to clamp the price deviation
-  string clamp_factor = 5 [
+  string clamp_factor = 4 [
     (gogoproto.moretags) = "yaml:\"clamp_factor\"",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // TwapLookbackWindow is the lookback window for calculating TWAPs
-  uint64 twap_lookback_window = 6;
-  // FallbackNativePrice is the fallback price for the native token in case the
+  uint64 twap_lookback_window = 5;
+  // FallbackNativePrice is the fallback price for the native token if the
   // oracle price is not available (in USD)
-  string fallback_native_price = 7 [
+  string fallback_native_price = 6 [
     (gogoproto.moretags) = "yaml:\"fallback_native_price\"",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -37,6 +39,8 @@ message FeeTokenMetadata {
   // Decimals is the number of decimals for the token
   uint32 decimals = 3;
   // Price is the price of the token in the native denom
+  // This price is paired against the native denom
+  // So, this is equals to the token per akii
   string price = 4 [
     (gogoproto.moretags) = "yaml:\"price\"",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
