@@ -23,21 +23,30 @@ func CalculateTokenPrice(
 	return price, nil
 }
 
-// TokenToMinimalDenom converts a token amount to its minimal denomination
-func TokenToMinimalDenom(amount math.LegacyDec, decimals uint64) (math.Int, error) {
-	// Check if the decimals are valid
-	if decimals == 0 {
-		return math.Int{}, fmt.Errorf("invalid decimals: must be > 0")
+// CalculateTokenAmountWithDecimals calculate the amount give a price and decimals
+// This handles the logic for price handling at token minimal amounts
+func CalculateTokenAmountWithDecimals(
+	price math.LegacyDec,
+	amountAtMinimal math.Int,
+	decimalsBase uint64,
+	decimalsOther uint64,
+) (math.LegacyDec, error) {
+	// Check if the values are valid
+	if decimalsBase == 0 || decimalsOther == 0 {
+		return math.LegacyDec{}, fmt.Errorf("invalid decimals: must be > 0")
+	}
+	if amountAtMinimal.IsZero() || price.IsZero() {
+		return math.LegacyZeroDec(), nil
 	}
 
-	// Calculate the factor to convert to minimal denom
-	factor := math.LegacyNewDec(10).Power(decimals)
+	// Calculate the minimal token to full token
+	amountFull := amountAtMinimal.ToLegacyDec().Quo(math.LegacyNewDec(10).Power(decimalsBase))
 
-	// Convert the amount to minimal denom
-	minimalDenom := amount.Mul(factor)
+	// Multiply the amount by the price
+	amountInOtherFull := amountFull.Mul(price)
 
-	// Return the minimal denom as an integer
-	return minimalDenom.TruncateInt(), nil
+	// Convert the units back
+	return amountInOtherFull.Mul(math.LegacyNewDec(10).Power(decimalsOther)), nil
 }
 
 // ClampPrice ensures newPrice is within ±clampFactor of prevPrice.

@@ -65,43 +65,104 @@ func TestCalculateTokenPrice(t *testing.T) {
 	}
 }
 
-// TestTokenToMinimalDenom tests the TokenToMinimalDenom function
-func TestTokenToMinimalDenom(t *testing.T) {
+// TestCalculateTokenAmountWithDecimals tests the CalculateTokenAmountWithDecimals function
+func TestCalculateTokenAmountWithDecimals(t *testing.T) {
 	// Prepare the test cases
 	testCases := []struct {
-		amount      math.LegacyDec
-		decimals    uint64
-		expected    math.Int
-		errContains string
+		name          string
+		price         math.LegacyDec
+		amount        math.Int
+		decimalsBase  uint64
+		decimalsOther uint64
+		expected      math.LegacyDec
+		errContains   string
 	}{
 		{
-			amount:   math.LegacyNewDec(1),
-			decimals: 2,
-			expected: math.NewInt(100),
+			// Both tokens have 2 decimals, the price is 10, and the amount is 123
+			// The expected result is 1230
+			name:          "Same decimals, simple price",
+			price:         math.LegacyNewDec(10),
+			amount:        math.NewInt(123),
+			decimalsBase:  2,
+			decimalsOther: 2,
+			expected:      math.LegacyMustNewDecFromStr("1230"),
 		},
 		{
-			amount:   math.LegacyMustNewDecFromStr("0.1"),
-			decimals: 3,
-			expected: math.NewInt(100),
+			// Now lets imagine that we have USD with price of 10 per KII
+			// and we want to convert 123 KII to USD
+			// But the USD has 2 decimals and KII has 4 decimals
+			// It should return 12.3
+			name:          "different decimals, (Kii 4, USD 2)",
+			price:         math.LegacyMustNewDecFromStr("10"),
+			amount:        math.NewInt(123),
+			decimalsBase:  4,
+			decimalsOther: 2,
+			expected:      math.LegacyMustNewDecFromStr("12.3"),
 		},
 		{
-			amount:      math.LegacyNewDec(1),
-			decimals:    0,
-			errContains: "invalid decimals: must be > 0",
+			// Now lets imagine the same situation as `Same decimals, simple price`
+			// but with 6 decimals for USD and 18 decimals for KII
+			// The result should be 1230*10^6
+			name:          "different decimals, (Kii 18, USD 6)",
+			price:         math.LegacyMustNewDecFromStr("10"),
+			amount:        math.Int(math.LegacyNewDec(123).Mul(math.LegacyNewDec(1e18)).TruncateInt()),
+			decimalsBase:  18,
+			decimalsOther: 6,
+			expected:      math.LegacyMustNewDecFromStr("1230000000"),
+		},
+		{
+			// Test with zero price, should return zero
+			name:          "zero price",
+			price:         math.LegacyNewDec(0),
+			amount:        math.NewInt(123),
+			decimalsBase:  2,
+			decimalsOther: 2,
+			expected:      math.LegacyZeroDec(),
+		},
+		{
+			// Test with zero amount, should return zero
+			name:          "zero amount",
+			price:         math.LegacyNewDec(10),
+			amount:        math.NewInt(0),
+			decimalsBase:  2,
+			decimalsOther: 2,
+			expected:      math.LegacyZeroDec(),
+		},
+		{
+			// Test with zero decimals, should return an error
+			name:          "zero decimals",
+			price:         math.LegacyNewDec(10),
+			amount:        math.NewInt(123),
+			decimalsBase:  0,
+			decimalsOther: 2,
+			errContains:   "invalid decimals: must be > 0",
+		},
+		{
+			name:          "zero decimals other",
+			price:         math.LegacyNewDec(10),
+			amount:        math.NewInt(123),
+			decimalsBase:  2,
+			decimalsOther: 0,
+			errContains:   "invalid decimals: must be > 0",
 		},
 	}
 
-	// Run the test cases
+	// Iterate over the test cases
 	for _, tc := range testCases {
-		result, err := types.TokenToMinimalDenom(tc.amount, tc.decimals)
+		t.Run(tc.name, func(t *testing.T) {
+			// Calculate the token price with decimals
+			result, err := types.CalculateTokenAmountWithDecimals(tc.price, tc.amount, tc.decimalsBase, tc.decimalsOther)
 
-		if tc.errContains != "" {
-			require.Error(t, err)
-			require.Contains(t, err.Error(), tc.errContains)
-		} else {
-			require.NoError(t, err)
-			require.Equal(t, tc.expected, result)
-		}
+			// Check for expected error
+			if tc.errContains != "" {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.errContains)
+			} else {
+				require.NoError(t, err)
+				// Check if the result matches the expected value
+				require.Equal(t, tc.expected, result)
+			}
+		})
 	}
 }
 
