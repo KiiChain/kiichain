@@ -30,7 +30,7 @@
 
 ---
 
-**KiiChain** is a CometBFT-based EVM-compatible blockchain providing a fast and scalable payment settlement layer for emerging market finance. As the first on-chain FX layer for stablecoins and RWA (Real World Assets), KiiChain is building the future of finance for emerging markets.
+**KiiChain** is a CometBFT-based EVM-compatible blockchain providing a fast and scalable payment settlement network. As the first on-chain FX layer for stablecoins and RWA (Real World Assets), KiiChain is building the future of finance for emerging markets.
 
 ## Features
 
