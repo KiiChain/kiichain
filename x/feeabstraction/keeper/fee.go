@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/kiichain/kiichain/v3/app/params"
+	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -42,7 +44,6 @@ func (k Keeper) ConvertNativeFee(ctx sdk.Context, account sdk.AccAddress, fees s
 	fee := fees[0]
 
 	// Check if the fee is under the native denom
-
 	if fee.Denom != params.NativeDenom {
 		return fees, nil
 	}
@@ -84,24 +85,33 @@ func (k Keeper) convertERC20ForFees(ctx sdk.Context, account sdk.AccAddress, fee
 
 	// Iterate over the fee prices and try to convert the native fee
 	for _, feePrice := range feePrices.Items {
-		pairID := k.erc20Keeper.GetTokenPairID(ctx, feePrice.Denom)
-		pair, found := k.erc20Keeper.GetTokenPair(ctx, pairID)
-		if !found {
-			continue // Skip if the pair is not found
+		// Check if the token is enabled
+		if !feePrice.Enabled {
+			continue
 		}
 
 		// Convert the amount using the price
-		amountEquivalent := math.LegacyNewDecFromInt(fee.Amount).Mul(feePrice.Price).TruncateInt()
+		amountEquivalent, err := types.CalculateTokenAmountWithDecimals(
+			feePrice.Price,
+			fee.Amount,
+			params.BaseDenomUnit,
+			uint64(feePrice.Decimals),
+		)
+		if err != nil {
+			return sdk.Coins{}, err
+		}
+		// Truncate the decimals
+		amountEquivalentInt := amountEquivalent.TruncateInt()
 
 		// Prepare the user balance for fees
-		ok, err := k.convertERC20ToNative(ctx, account, pair, amountEquivalent)
+		ok, err := k.convertERC20ToNative(ctx, account, fee.Denom, amountEquivalentInt)
 		if err != nil {
 			return sdk.Coins{}, err
 		}
 
 		// If all went well we return the selected fee
 		if ok {
-			return sdk.Coins{sdk.NewCoin(pair.Denom, amountEquivalent)}, nil
+			return sdk.Coins{sdk.NewCoin(fee.Denom, amountEquivalentInt)}, nil
 		}
 	}
 
@@ -116,16 +126,23 @@ func (k Keeper) convertERC20ForFees(ctx sdk.Context, account sdk.AccAddress, fee
 // convertERC20ToNative converts the ERC20 token to the native token
 // It checks if the user has enough balance in the native token, if not it tries to
 // convert the ERC20 token to the native token
-func (k Keeper) convertERC20ToNative(ctx sdk.Context, account sdk.AccAddress, pair erc20types.TokenPair, amount math.Int) (bool, error) {
-	// Take the ABI
-	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
-
+func (k Keeper) convertERC20ToNative(ctx sdk.Context, account sdk.AccAddress, denom string, amount math.Int) (bool, error) {
 	// Get the balance for the pair native token on cosmos
 	// and check if the user has enough balance, if so we return true
-	balance := k.bankKeeper.GetBalance(ctx, account, pair.Denom)
+	balance := k.bankKeeper.GetBalance(ctx, account, denom)
 	if balance.Amount.GTE(amount) {
 		return true, nil
 	}
+
+	// Get the pair ID and check if it exists
+	pairID := k.erc20Keeper.GetTokenPairID(ctx, denom)
+	pair, found := k.erc20Keeper.GetTokenPair(ctx, pairID)
+	if !found {
+		return false, nil
+	}
+
+	// Take the ABI
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	// Get the balance for the erc20 token
 	erc20Balance := k.erc20Keeper.BalanceOf(ctx, erc20, pair.GetERC20Contract(), common.BytesToAddress(account.Bytes()))
