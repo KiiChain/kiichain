@@ -31,7 +31,7 @@ func (k Keeper) CalculateFeeTokenPrices(ctx sdk.Context) error {
 	}
 
 	// Find the price for the base token
-	baseTokenPrice, ok := twapPriceMap[params.NativeDenom]
+	baseTokenPrice, ok := twapPriceMap[params.NativeOracleDenom]
 	if !ok {
 		baseTokenPrice = params.FallbackNativePrice
 	}
@@ -74,7 +74,10 @@ func (k Keeper) calculatePriceTokens(
 		}
 
 		// Missing TWAP, fallback to zero
-		tokenPrice := twapPriceMap[token.OracleDenom]
+		tokenPrice, ok := twapPriceMap[token.OracleDenom]
+		if !ok {
+			tokenPrice = math.LegacyZeroDec()
+		}
 
 		// If the token price is zero, we disable the token for safety
 		if tokenPrice.IsZero() {
