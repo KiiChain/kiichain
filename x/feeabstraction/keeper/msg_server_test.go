@@ -20,14 +20,14 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			name: "valid - valid param update",
 			msg: &types.MsgUpdateParams{
 				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				Params:    types.NewParams("testcoin", types.DefaultClampFactor, types.DefaultFallbackNativePrice, types.DefaultTwapLookbackWindow, true),
+				Params:    types.NewParams("testcoin", "testcoin", types.DefaultClampFactor, types.DefaultFallbackNativePrice, types.DefaultTwapLookbackWindow, true),
 			},
 		},
 		{
 			name: "invalid - twap lookback window too high",
 			msg: &types.MsgUpdateParams{
 				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				Params:    types.NewParams("testcoin", types.DefaultClampFactor, types.DefaultFallbackNativePrice, 1000000, true),
+				Params:    types.NewParams("testcoin", "testcoin", types.DefaultClampFactor, types.DefaultFallbackNativePrice, 1000000, true),
 			},
 			errContains: "Twap lookback seconds is greater than max lookback duration",
 		},
