@@ -25,6 +25,37 @@ func (k Keeper) BeginBlocker(ctx context.Context) error {
 		return nil
 	}
 
-	// Calculate the token prices at the beginning of each block
-	return k.CalculateFeeTokenPrices(sdkCtx)
+	// Apply the price calculation logic
+	if err := k.CalculateFeeTokenPrices(sdkCtx); err != nil {
+		return err
+	}
+
+	// Write the fee token prices to telemetry metrics
+	if err := k.WriteFeeTokenPricesMetrics(sdkCtx); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// WriteFeeTokenPricesMetrics writes the fee token prices to telemetry metrics
+func (k Keeper) WriteFeeTokenPricesMetrics(ctx context.Context) error {
+	// Get the fee token prices
+	feeTokenPrices, err := k.FeeTokens.Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Iterate over the fee token prices and set the gauge metrics
+	for _, price := range feeTokenPrices.Items {
+		// Set a module metric for each token
+		telemetry.ModuleSetGauge(
+			types.ModuleName,
+			float32(price.Price.MustFloat64()),
+			"fee_token_price",
+			price.Denom,
+		)
+	}
+
+	return nil
 }
