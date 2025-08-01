@@ -76,6 +76,14 @@ func (k Keeper) calculatePriceTokens(
 		// Missing TWAP, fallback to zero
 		tokenPrice := twapPriceMap[token.OracleDenom]
 
+		// If the token price is zero, we disable the token for safety
+		if tokenPrice.IsZero() {
+			token.Enabled = false
+			token.Price = math.LegacyZeroDec()
+			updateTokens = append(updateTokens, token)
+			continue
+		}
+
 		// Calculate the price of the token in terms of the base token
 		price, err := types.CalculateTokenPrice(baseTokenPrice, tokenPrice)
 		if err != nil {
@@ -84,11 +92,6 @@ func (k Keeper) calculatePriceTokens(
 
 		// Apply clamping
 		price = types.ClampPrice(token.Price, price, clampFactor)
-
-		// If the price is zero, we disable the token
-		if price.IsZero() {
-			token.Enabled = false
-		}
 
 		// Update the token price
 		token.Price = price
