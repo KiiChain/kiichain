@@ -68,6 +68,21 @@ func (ms MsgServer) UpdateFeeTokens(ctx context.Context, msg *types.MsgUpdateFee
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid message: %s", err)
 	}
 
+	// Check if all the oracle denoms are registered on the oracle module
+	voteTargets, err := ms.oracleKeeper.GetVoteTargets(sdk.UnwrapSDKContext(ctx))
+	if err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to get oracle vote targets: %s", err)
+	}
+	voteTargetMap := make(map[string]struct{}, len(voteTargets))
+	for _, denom := range voteTargets {
+		voteTargetMap[denom] = struct{}{}
+	}
+	for _, feeToken := range msg.FeeTokens.Items {
+		if _, ok := voteTargetMap[feeToken.OracleDenom]; !ok {
+			return nil, sdkerrors.ErrInvalidRequest.Wrapf("fee token denom %s is not registered on the oracle module", feeToken.OracleDenom)
+		}
+	}
+
 	// Update the fee tokens
 	if err := ms.FeeTokens.Set(ctx, msg.FeeTokens); err != nil {
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to update fee tokens: %s", err)

@@ -3,8 +3,11 @@ package keeper_test
 import (
 	"cosmossdk.io/math"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
+	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
 
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 )
@@ -83,13 +86,15 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 // TestUpdateFeeTokens tests the UpdateFeeTokens method
 func (s *KeeperTestSuite) TestUpdateFeeTokens() {
 	defaultFeeTokens := types.NewFeeTokenMetadataCollection(
-		types.NewFeeTokenMetadata("coin", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
-	)
+		types.NewFeeTokenMetadata("one", "oracleone", 6, math.LegacyMustNewDecFromStr("0.01")),
+		types.NewFeeTokenMetadata("two", "oracletwo", 6, math.LegacyMustNewDecFromStr("0.01")),
+		types.NewFeeTokenMetadata("three", "oraclethree", 6, math.LegacyMustNewDecFromStr("0.01")))
 
 	// Prepare all the test cases
 	testCases := []struct {
 		name        string
 		msg         *types.MsgUpdateFeeTokens
+		malleate    func(ctx sdk.Context)
 		errContains string
 	}{
 		{
@@ -98,6 +103,29 @@ func (s *KeeperTestSuite) TestUpdateFeeTokens() {
 				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 				*defaultFeeTokens,
 			),
+			malleate: func(ctx sdk.Context) {
+				// Iterate all the tokens
+				for _, feeToken := range defaultFeeTokens.Items {
+					// Register the token as a vote target on the oracle module
+					err := s.app.OracleKeeper.VoteTarget.Set(ctx, feeToken.OracleDenom, oracletypes.Denom{Name: feeToken.OracleDenom})
+					s.Require().NoError(err)
+				}
+			},
+		},
+		{
+			name: "invalid - one token not registered on oracle",
+			msg: types.NewMessageUpdateFeeTokens(
+				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				*defaultFeeTokens,
+			),
+			malleate: func(ctx sdk.Context) {
+				// Register only two tokens as vote targets on the oracle module
+				err := s.app.OracleKeeper.VoteTarget.Set(ctx, "one", oracletypes.Denom{Name: "one"})
+				s.Require().NoError(err)
+				err = s.app.OracleKeeper.VoteTarget.Set(ctx, "two", oracletypes.Denom{Name: "two"})
+				s.Require().NoError(err)
+			},
+			errContains: "fee token denom oracleone is not registered on the oracle module",
 		},
 		{
 			name: "invalid - invalid authority",
@@ -130,8 +158,16 @@ func (s *KeeperTestSuite) TestUpdateFeeTokens() {
 	// Iterate through the test cases
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
+			// Set a cached context
+			cachedCtx, _ := s.ctx.CacheContext()
+
+			// Malleate if exists
+			if tc.malleate != nil {
+				tc.malleate(cachedCtx)
+			}
+
 			// Call the UpdateFeeTokens method
-			_, err := s.msgServer.UpdateFeeTokens(s.ctx, tc.msg)
+			_, err := s.msgServer.UpdateFeeTokens(cachedCtx, tc.msg)
 
 			// Check for errors
 			if tc.errContains != "" {
@@ -141,7 +177,7 @@ func (s *KeeperTestSuite) TestUpdateFeeTokens() {
 				s.Require().NoError(err)
 
 				// Verify the fee tokens were updated
-				tokens, err := s.keeper.FeeTokens.Get(s.ctx)
+				tokens, err := s.keeper.FeeTokens.Get(cachedCtx)
 				s.Require().NoError(err)
 				s.Require().Equal(tc.msg.FeeTokens, tokens)
 			}

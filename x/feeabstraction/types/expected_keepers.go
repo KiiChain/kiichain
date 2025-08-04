@@ -39,4 +39,5 @@ type BankKeeper interface {
 type OracleKeeper interface {
 	CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (oracletypes.OracleTwaps, error)
 	ValidateLookBackSeconds(ctx sdk.Context, lookBackSeconds uint64) error
+	GetVoteTargets(ctx sdk.Context) ([]string, error)
 }
