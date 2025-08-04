@@ -362,7 +362,7 @@ func intToMinimalDenomInt(amount int, decimals int) math.Int {
 	dec := math.LegacyNewDec(int64(amount)).Mul(math.LegacyNewDec(10).Power(uint64(decimals)))
 
 	// Return truncated
-	return dec.TruncateInt()
+	return dec.RoundInt()
 }
 
 // fundAccount is a helper function to fund an account with a specific amount of coins
