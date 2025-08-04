@@ -40,7 +40,7 @@ message FeeTokenMetadata {
   uint32 decimals = 3;
   // Price is the price of the token in the native denom
   // This price is paired against the native denom
-  // So, this is equals to the token per akii
+  // So, this equals to the token/native denom
   string price = 4 [
     (gogoproto.moretags) = "yaml:\"price\"",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",

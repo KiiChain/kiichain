@@ -112,7 +112,7 @@ type FeeTokenMetadata struct {
 	Decimals uint32 `protobuf:"varint,3,opt,name=decimals,proto3" json:"decimals,omitempty"`
 	// Price is the price of the token in the native denom
 	// This price is paired against the native denom
-	// So, this is equals to the token per akii
+	// So, this equals to the token/native denom
 	Price cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price" yaml:"price"`
 	// Enabled indicates if the token is enabled for fee abstraction
 	Enabled bool `protobuf:"varint,6,opt,name=enabled,proto3" json:"enabled,omitempty"`

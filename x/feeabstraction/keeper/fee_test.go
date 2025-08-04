@@ -112,12 +112,12 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 				s.Require().NoError(err)
 
 				// Fund the user with sufficient native balance
-				s.fundAccount(ctx, feePayer, sdk.NewCoins(sdk.NewCoin("uatom", intToMinimalDenomInt(1, 18))))
+				s.fundAccount(ctx, feePayer, sdk.NewCoins(sdk.NewCoin("uatom", convertToMinimalDenomination(1, 18))))
 				return ctx
 			},
-			fees: sdk.NewCoins(sdk.NewCoin("akii", intToMinimalDenomInt(1, 18))), // 1 Kii
+			fees: sdk.NewCoins(sdk.NewCoin("akii", convertToMinimalDenomination(1, 18))), // 1 Kii
 			// Since 1 Kii is 1 Atom, and we are asking for 1 kii fee, we expect 1 Atom in return
-			expected: sdk.NewCoins(sdk.NewCoin("uatom", intToMinimalDenomInt(1, 6))), // 1 Atom
+			expected: sdk.NewCoins(sdk.NewCoin("uatom", convertToMinimalDenomination(1, 6))), // 1 Atom
 		},
 		{
 			name: "success - user has insufficient balance, multiple fee tokens, pay with the middle token",
@@ -131,11 +131,11 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 				s.Require().NoError(err)
 
 				// Fund the user with insufficient native balance
-				s.fundAccount(ctx, feePayer, sdk.NewCoins(sdk.NewCoin("usol", intToMinimalDenomInt(1, 18))))
+				s.fundAccount(ctx, feePayer, sdk.NewCoins(sdk.NewCoin("usol", convertToMinimalDenomination(1, 18))))
 				return ctx
 			},
-			fees:     sdk.NewCoins(sdk.NewCoin("akii", intToMinimalDenomInt(1, 17))),  // 0.1 Kii
-			expected: sdk.NewCoins(sdk.NewCoin("usol", intToMinimalDenomInt(125, 5))), // 0.125 USOL
+			fees:     sdk.NewCoins(sdk.NewCoin("akii", convertToMinimalDenomination(1, 17))),  // 0.1 Kii
+			expected: sdk.NewCoins(sdk.NewCoin("usol", convertToMinimalDenomination(125, 5))), // 0.125 USOL
 		},
 		{
 			name: "success - user has insufficient balance, multiple fee tokens, pay with the first available token",
@@ -149,12 +149,12 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 				s.Require().NoError(err)
 
 				// Fund the user with insufficient native balance
-				s.fundAccount(ctx, feePayer, sdk.NewCoins(sdk.NewCoin("usol", intToMinimalDenomInt(1, 18))))
-				s.fundAccount(ctx, feePayer, sdk.NewCoins(sdk.NewCoin("mbtc", intToMinimalDenomInt(1, 18))))
+				s.fundAccount(ctx, feePayer, sdk.NewCoins(sdk.NewCoin("usol", convertToMinimalDenomination(1, 18))))
+				s.fundAccount(ctx, feePayer, sdk.NewCoins(sdk.NewCoin("mbtc", convertToMinimalDenomination(1, 18))))
 				return ctx
 			},
-			fees:     sdk.NewCoins(sdk.NewCoin("akii", intToMinimalDenomInt(1, 17))),  // 0.1 Kii
-			expected: sdk.NewCoins(sdk.NewCoin("usol", intToMinimalDenomInt(125, 5))), // 0.123 usol
+			fees:     sdk.NewCoins(sdk.NewCoin("akii", convertToMinimalDenomination(1, 17))),  // 0.1 Kii
+			expected: sdk.NewCoins(sdk.NewCoin("usol", convertToMinimalDenomination(125, 5))), // 0.123 usol
 		},
 		{
 			name: "fail - token with price as zero",
@@ -166,10 +166,10 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 				s.Require().NoError(err)
 
 				// Fund the user with more than enough tokens to pay the fee
-				s.fundAccount(ctx, feePayer, sdk.NewCoins(sdk.NewCoin("uatom", intToMinimalDenomInt(1, 18))))
+				s.fundAccount(ctx, feePayer, sdk.NewCoins(sdk.NewCoin("uatom", convertToMinimalDenomination(1, 18))))
 				return ctx
 			},
-			fees:        sdk.NewCoins(sdk.NewCoin("akii", intToMinimalDenomInt(1, 18))), // 1 Kii
+			fees:        sdk.NewCoins(sdk.NewCoin("akii", convertToMinimalDenomination(1, 18))), // 1 Kii
 			errContains: "insufficient funds for fee",
 		},
 		{
@@ -207,7 +207,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 
 				return ctx
 			},
-			fees:     sdk.NewCoins(sdk.NewCoin("akii", intToMinimalDenomInt(2, 16))),            // 0.02 Kii
+			fees:     sdk.NewCoins(sdk.NewCoin("akii", convertToMinimalDenomination(2, 16))),    // 0.02 Kii
 			expected: sdk.NewCoins(sdk.NewCoin("erc20/"+DefaultFirstERC20, math.NewInt(20000))), // 20000 of the erc20 token
 			postCheck: func(ctx sdk.Context, convertedFees sdk.Coins) {
 				// The user now should have the balance as native token available for fees
@@ -263,7 +263,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 
 				return ctx
 			},
-			fees:        sdk.NewCoins(sdk.NewCoin("akii", intToMinimalDenomInt(2, 16))), // 0.02 Kii
+			fees:        sdk.NewCoins(sdk.NewCoin("akii", convertToMinimalDenomination(2, 16))), // 0.02 Kii
 			errContains: "insufficient funds for fee",
 		},
 		{
@@ -301,7 +301,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 
 				return ctx
 			},
-			fees:     sdk.NewCoins(sdk.NewCoin("akii", intToMinimalDenomInt(2, 16))),            // 0.02 Kii
+			fees:     sdk.NewCoins(sdk.NewCoin("akii", convertToMinimalDenomination(2, 16))),    // 0.02 Kii
 			expected: sdk.NewCoins(sdk.NewCoin("erc20/"+DefaultFirstERC20, math.NewInt(20000))), // 20000 of the erc20 token
 			postCheck: func(ctx sdk.Context, convertedFees sdk.Coins) {
 				// The user now should have the balance as native token available for fees
@@ -356,8 +356,8 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 	}
 }
 
-// uint64ToMinimalDenomInt converts a uint64 to a base denom given a decimals
-func intToMinimalDenomInt(amount int, decimals int) math.Int {
+// convertToMinimalDenomination converts a int to a base denom given a decimals
+func convertToMinimalDenomination(amount int, decimals int) math.Int {
 	// Convert it to LegacyDec
 	dec := math.LegacyNewDec(int64(amount)).Mul(math.LegacyNewDec(10).Power(uint64(decimals)))
 

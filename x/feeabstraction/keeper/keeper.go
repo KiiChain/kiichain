@@ -13,7 +13,7 @@ import (
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 )
 
-// This is a mocked keeper for the fee abstraction module
+// Keeper defines the fee abstraction module keeper
 type Keeper struct {
 	// The chain codecs
 	cdc codec.BinaryCodec

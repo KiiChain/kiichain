@@ -23,7 +23,7 @@ func (s *KeeperTestSuite) TestBeginBlocker() {
 	// Call the BeginBlocker
 	s.Require().NoError(s.keeper.BeginBlocker(s.ctx))
 
-	// No change is toke to the fee token (the token is still enabled)
+	// No change is taken to the fee token (the token is still enabled)
 	feeTokens, err := s.app.FeeAbstractionKeeper.FeeTokens.Get(s.ctx)
 	s.Require().NoError(err)
 	s.Require().Len(feeTokens.Items, 1)

@@ -22,6 +22,8 @@ func (k Keeper) CalculateFeeTokenPrices(ctx sdk.Context) error {
 	// Get the twaps for the tokens
 	twaps, err := k.oracleKeeper.CalculateTwaps(ctx, params.TwapLookbackWindow)
 	if err != nil {
+		// Log or emit telemetry for monitoring
+		ctx.Logger().Error("failed to calculate TWAPs", "error", err)
 		// If we have an error we can set that the twp is zero
 		twaps = oracletypes.OracleTwaps{}
 	}
