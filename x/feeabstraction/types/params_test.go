@@ -135,11 +135,11 @@ func TestValidateParams(t *testing.T) {
 				"coin",
 				"oraclecoin",
 				types.DefaultClampFactor,
-				types.DefaultFallbackNativePrice.Neg(), // Negative value
+				types.DefaultFallbackNativePrice, // Negative value
 				0,
 				true,
 			),
-			errContains: "fallback native price must be greater than 0",
+			errContains: "twap lookback window must be greater than 0",
 		},
 	}
 
