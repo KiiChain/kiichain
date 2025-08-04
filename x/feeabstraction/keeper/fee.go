@@ -102,23 +102,27 @@ func (k Keeper) convertERC20ForFees(ctx sdk.Context, account sdk.AccAddress, fee
 		}
 		// Truncate the decimals
 		amountEquivalentInt := amountEquivalent.TruncateInt()
+		// If the amount is zero, we skip this fee token
+		if amountEquivalentInt.IsZero() {
+			continue
+		}
 
 		// Prepare the user balance for fees
-		ok, err := k.convertERC20ToNative(ctx, account, fee.Denom, amountEquivalentInt)
+		ok, err := k.convertERC20ToNative(ctx, account, feePrice.Denom, amountEquivalentInt)
 		if err != nil {
 			return sdk.Coins{}, err
 		}
 
 		// If all went well we return the selected fee
 		if ok {
-			return sdk.Coins{sdk.NewCoin(fee.Denom, amountEquivalentInt)}, nil
+			return sdk.Coins{sdk.NewCoin(feePrice.Denom, amountEquivalentInt)}, nil
 		}
 	}
 
 	// If no suitable pair was found we return an error
 	return sdk.Coins{}, errorsmod.Wrapf(
 		errortypes.ErrInsufficientFunds,
-		"insufficient funds for fee, no suitable pair found for amount %s",
+		"insufficient funds for fee or no suitable pair found for amount %s",
 		fee.String(),
 	)
 }
