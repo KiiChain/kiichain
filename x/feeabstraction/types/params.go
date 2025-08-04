@@ -11,7 +11,7 @@ import (
 
 var (
 	// Default values for the fee abstraction parameters
-	DefaultClampFactor         = math.LegacyMustNewDecFromStr("0.10") // 0.10%
+	DefaultClampFactor         = math.LegacyMustNewDecFromStr("0.10") // 10%
 	DefaultFallbackNativePrice = math.LegacyMustNewDecFromStr("0.01") // 0.01 USD
 	DefaultTwapLookbackWindow  = uint64(120)                          // 120 seconds (2 minutes)
 )
