@@ -3,14 +3,18 @@ package keeper_test
 import (
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	"github.com/cosmos/evm/contracts"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
-	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/kiichain/kiichain/v3/app/apptesting"
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 )
@@ -315,7 +319,6 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 
 				// The balance should be zero
 				s.Require().EqualValues(30000, erc20Balance.Int64())
-
 			},
 		},
 	}
@@ -351,7 +354,6 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 			}
 		})
 	}
-
 }
 
 // uint64ToMinimalDenomInt converts a uint64 to a base denom given a decimals

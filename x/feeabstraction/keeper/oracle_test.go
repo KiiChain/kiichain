@@ -4,12 +4,12 @@ import (
 	"time"
 
 	math "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
 )
-
-var ()
 
 // TestCalculateFeeTokenPrices tests the CalculateFeeTokenPrices function
 func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
@@ -30,9 +30,10 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 				ctx = s.createTwaps(ctx, math.LegacyMustNewDecFromStr("0.5"), 100, "atom")
 
 				// Set the fee token prices in the keeper
-				s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyMustNewDecFromStr("50")),
 				))
+				s.Require().NoError(err)
 
 				return ctx
 			},
@@ -64,10 +65,11 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 			name: "all tokens are disabled due to no twap",
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Set the fee token prices in the keeper without twaps
-				s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata("usol", "sol", 18, math.LegacyOneDec()),
 					types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyOneDec()),
 				))
+				s.Require().NoError(err)
 
 				return ctx
 			},
@@ -87,10 +89,11 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 				ctx = s.createTwaps(ctx, math.LegacyMustNewDecFromStr("0.5"), 100, "atom")
 
 				// Set the fee token prices in the keeper
-				s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata("usol", "sol", 18, math.LegacyOneDec()),
 					types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyOneDec()),
 				))
+				s.Require().NoError(err)
 
 				return ctx
 			},
@@ -114,9 +117,10 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 				ctx = s.createTwaps(ctx, math.LegacyMustNewDecFromStr("0.5"), 100, "atom")
 
 				// Set the fee token prices in the keeper with zero price
-				s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyZeroDec()),
 				))
+				s.Require().NoError(err)
 
 				return ctx
 			},
@@ -137,7 +141,7 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 				ctx = s.createTwaps(ctx, math.LegacyMustNewDecFromStr("0.5"), 100, "sol")
 
 				// Set the fee token prices in the keeper
-				s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.FeeTokenMetadata{
 						Denom:       "uatom",
 						OracleDenom: "atom",
@@ -147,6 +151,7 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 					},
 					types.NewFeeTokenMetadata("usol", "sol", 18, math.LegacyOneDec()),
 				))
+				s.Require().NoError(err)
 
 				return ctx
 			},
@@ -198,7 +203,7 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 func (s *KeeperTestSuite) createTwaps(
 	ctx sdk.Context,
 	startRate math.LegacyDec,
-	steps int,
+	steps int, //nolint:unparam
 	denom string,
 ) sdk.Context {
 	s.T().Helper()
@@ -225,7 +230,8 @@ func (s *KeeperTestSuite) createTwaps(
 		)
 
 		// Set the snapshot in the keeper
-		s.app.OracleKeeper.PriceSnapshot.Set(ctx, snapshot.SnapshotTimestamp, snapshot)
+		err := s.app.OracleKeeper.PriceSnapshot.Set(ctx, snapshot.SnapshotTimestamp, snapshot)
+		s.Require().NoError(err)
 
 		// Vary the price slightly for each step by 0.1%
 		startRate = startRate.Mul(math.LegacyMustNewDecFromStr("1.001"))
@@ -235,7 +241,8 @@ func (s *KeeperTestSuite) createTwaps(
 	}
 
 	// Set the token as a vote target
-	s.app.OracleKeeper.VoteTarget.Set(ctx, denom, oracletypes.Denom{Name: denom})
+	err := s.app.OracleKeeper.VoteTarget.Set(ctx, denom, oracletypes.Denom{Name: denom})
+	s.Require().NoError(err)
 
 	return ctx
 }

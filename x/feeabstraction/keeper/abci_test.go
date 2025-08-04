@@ -2,15 +2,17 @@ package keeper_test
 
 import (
 	"cosmossdk.io/math"
+
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 )
 
 // TestBeginBlocker tests the BeginBlocker of the fee abstraction module
 func (s *KeeperTestSuite) TestBeginBlocker() {
 	// Set the fee token prices in the keeper
-	s.app.FeeAbstractionKeeper.FeeTokens.Set(s.ctx, *types.NewFeeTokenMetadataCollection(
+	err := s.app.FeeAbstractionKeeper.FeeTokens.Set(s.ctx, *types.NewFeeTokenMetadataCollection(
 		types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyMustNewDecFromStr("50")),
 	))
+	s.Require().NoError(err)
 
 	// Get the params for the module and disable
 	params, err := s.keeper.Params.Get(s.ctx)

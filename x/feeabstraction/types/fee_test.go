@@ -3,9 +3,11 @@ package types_test
 import (
 	"testing"
 
-	"cosmossdk.io/math"
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 	"github.com/stretchr/testify/require"
+
+	"cosmossdk.io/math"
+
+	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 )
 
 // TestCalculateTokenPrice tests the CalculateTokenPrice function
@@ -105,7 +107,7 @@ func TestCalculateTokenAmountWithDecimals(t *testing.T) {
 			// The result should be 1230*10^6
 			name:          "different decimals, (Kii 18, USD 6)",
 			price:         math.LegacyMustNewDecFromStr("10"),
-			amount:        math.Int(math.LegacyNewDec(123).Mul(math.LegacyNewDec(1e18)).TruncateInt()),
+			amount:        math.LegacyNewDec(123).Mul(math.LegacyNewDec(1e18)).TruncateInt(),
 			decimalsBase:  18,
 			decimalsOther: 6,
 			expected:      math.LegacyMustNewDecFromStr("1230000000"),

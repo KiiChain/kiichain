@@ -2,8 +2,6 @@ package keeper
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/kiichain/kiichain/v3/app/params"
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -13,6 +11,9 @@ import (
 
 	"github.com/cosmos/evm/contracts"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
+
+	"github.com/kiichain/kiichain/v3/app/params"
+	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 )
 
 // ConvertNativeFee prepares the user balance for fees though the registered pairs
@@ -49,10 +50,7 @@ func (k Keeper) ConvertNativeFee(ctx sdk.Context, account sdk.AccAddress, fees s
 	}
 
 	// Check for the native fees
-	ok, err := k.hasSufficientNativeBalance(ctx, account, fee)
-	if err != nil {
-		return sdk.Coins{}, err
-	}
+	ok := k.hasSufficientNativeBalance(ctx, account, fee)
 	if ok {
 		return fees, nil
 	}
@@ -62,15 +60,10 @@ func (k Keeper) ConvertNativeFee(ctx sdk.Context, account sdk.AccAddress, fees s
 }
 
 // hasSufficientNativeBalance checks if the user has enough balance to pay using the native coin
-func (k Keeper) hasSufficientNativeBalance(ctx sdk.Context, account sdk.AccAddress, fee sdk.Coin) (bool, error) {
+func (k Keeper) hasSufficientNativeBalance(ctx sdk.Context, account sdk.AccAddress, fee sdk.Coin) bool {
 	// Then we check if the user has enough balance for the fee
 	balance := k.bankKeeper.GetBalance(ctx, account, fee.Denom)
-	if balance.Amount.GTE(fee.Amount) {
-		return true, nil
-	}
-
-	// If we reach here, the coin is good for conversion but the user does not have enough balance
-	return false, nil
+	return balance.Amount.GTE(fee.Amount)
 }
 
 // convertERC20ForFees prepares the user balance for fees by converting the native coin to the fee token

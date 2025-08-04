@@ -6,11 +6,12 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	erc20types "github.com/cosmos/evm/x/erc20/types"
+
+	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
 )
 
 // Erc20Keeper defines the expected interface for the Erc20 keeper

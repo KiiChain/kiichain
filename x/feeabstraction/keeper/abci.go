@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 )
 
@@ -31,11 +32,7 @@ func (k Keeper) BeginBlocker(ctx context.Context) error {
 	}
 
 	// Write the fee token prices to telemetry metrics
-	if err := k.WriteFeeTokenPricesMetrics(sdkCtx); err != nil {
-		return err
-	}
-
-	return nil
+	return k.WriteFeeTokenPricesMetrics(sdkCtx)
 }
 
 // WriteFeeTokenPricesMetrics writes the fee token prices to telemetry metrics
