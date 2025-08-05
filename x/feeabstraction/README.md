@@ -15,7 +15,7 @@ The functionality of the module allows:
 
 ## Core functionality
 
-In its code, the module changes the fee-paying ante handlers to allow payment of fees with tokens different from the native gast token.
+In its code, the module changes the fee-paying ante handlers to allow payment of fees with tokens different from the native gas token.
 
 - This is done through both EVM and cosmos SDK ante handlers.
 - The pricing of tokens is done with the following logic:
