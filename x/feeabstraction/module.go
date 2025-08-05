@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"cosmossdk.io/core/appmodule"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
@@ -21,10 +22,11 @@ import (
 
 // Interface inference
 var (
-	_ module.AppModuleBasic   = AppModuleBasic{}
-	_ module.HasGenesisBasics = AppModuleBasic{}
-	_ module.AppModule        = AppModule{}
-	_ module.HasGenesis       = AppModule{}
+	_ module.AppModuleBasic     = AppModuleBasic{}
+	_ module.HasGenesisBasics   = AppModuleBasic{}
+	_ appmodule.HasBeginBlocker = AppModule{}
+	_ module.AppModule          = AppModule{}
+	_ module.HasGenesis         = AppModule{}
 )
 
 // ConsensusVersion defines the current x/feeabstraction module consensus version
