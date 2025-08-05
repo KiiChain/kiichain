@@ -39,6 +39,14 @@
       }
     },
     {
+      "url": "./tmp-swagger-gen/kiichain/feeabstraction/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "FeeAbstractionParams"
+        }
+      }
+    },
+    {
       "url": "./tmp-swagger-gen/cosmos/bank/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {

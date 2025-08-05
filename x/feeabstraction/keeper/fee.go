@@ -11,127 +11,135 @@ import (
 
 	"github.com/cosmos/evm/contracts"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
+
+	"github.com/kiichain/kiichain/v3/app/params"
+	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 )
 
 // ConvertNativeFee prepares the user balance for fees though the registered pairs
 // this function considers that the amount passed is the staking denom
 func (k Keeper) ConvertNativeFee(ctx sdk.Context, account sdk.AccAddress, fees sdk.Coins) (sdk.Coins, error) {
-	// First we check if the amount is zero, if zero we return the zero coin
-	if fees.IsZero() {
-		return fees, nil
-	}
-
-	// We only support a single asset coin for now
-	// This is ensure on both Cosmos and EVM side
-	// On Cosmos, when the TX goes though the fee market fee ante handler, it returns the only supported asset as the staking coin
-	// On EVM we always use the staking coin as the fee coin
-	if len(fees) != 1 {
-		return sdk.Coins{}, nil
-	}
-
-	// Check for the native fees
-	ok, err := k.checkNativeFees(ctx, account, fees)
+	// Get the module params
+	params, err := k.Params.Get(ctx)
 	if err != nil {
 		return sdk.Coins{}, err
 	}
+
+	// Check if the module is enabled
+	if !params.Enabled {
+		return fees, nil // If the module is disabled, we return the fees as is
+	}
+
+	// Validate the input fees
+	// We only support a single asset coin for now
+	// This is ensured on both Cosmos and EVM sides:
+	// - On Cosmos, when the TX goes though the fee market fee ante handler, it returns the only supported asset as the staking coin
+	// - On EVM we always use the staking coin as the fee coin
+	if fees.IsZero() {
+		return fees, nil
+	}
+	if len(fees) != 1 {
+		// We don't support multi tokens
+		return fees, nil
+	}
+	fee := fees[0]
+
+	// Check if the fee is under the native denom
+	if fee.Denom != params.NativeDenom {
+		return fees, nil
+	}
+
+	// Check for the native fees
+	ok := k.hasSufficientNativeBalance(ctx, account, fee)
 	if ok {
 		return fees, nil
 	}
 
-	// Here we know that we have a single token token non zero
-	fee := fees[0]
+	// convert ERC20 tokens to fees
+	return k.convertERC20ForFees(ctx, account, fee)
+}
 
+// hasSufficientNativeBalance checks if the user has enough balance to pay using the native coin
+func (k Keeper) hasSufficientNativeBalance(ctx sdk.Context, account sdk.AccAddress, fee sdk.Coin) bool {
+	// Then we check if the user has enough balance for the fee
+	balance := k.bankKeeper.GetBalance(ctx, account, fee.Denom)
+	return balance.Amount.GTE(fee.Amount)
+}
+
+// convertERC20ForFees prepares the user balance for fees by converting the native coin to the fee token
+// It checks if the user has enough balance in the native token, if not it tries to
+// convert the ERC20 token to the native token
+func (k Keeper) convertERC20ForFees(ctx sdk.Context, account sdk.AccAddress, fee sdk.Coin) (sdk.Coins, error) {
 	// Get the fee prices
-	feePrices, err := k.GetFeePrices(ctx)
+	feePrices, err := k.FeeTokens.Get(ctx)
 	if err != nil {
 		return sdk.Coins{}, err
 	}
 
 	// Iterate over the fee prices and try to convert the native fee
-	for _, feePrice := range feePrices {
-		pairID := k.erc20Keeper.GetTokenPairID(ctx, feePrice.Denom)
-		pair, found := k.erc20Keeper.GetTokenPair(ctx, pairID)
-		if !found {
-			continue // Skip if the pair is not found
+	for _, feePrice := range feePrices.Items {
+		// Check if the token is enabled
+		if !feePrice.Enabled {
+			continue
 		}
-		// Take the kii amount
-		amount := fee.Amount
 
-		// Calculate the amount the coin is worth in the native token
-		amountEquivalent := math.LegacyNewDecFromInt(amount).Mul(feePrice.Price)
-		amount = amountEquivalent.TruncateInt()
+		// Convert the amount using the price
+		amountEquivalent, err := types.CalculateTokenAmountWithDecimals(
+			feePrice.Price,
+			fee.Amount,
+			params.BaseDenomUnit,
+			uint64(feePrice.Decimals),
+		)
+		if err != nil {
+			return sdk.Coins{}, err
+		}
+		// Truncate the decimals
+		amountEquivalentInt := amountEquivalent.RoundInt()
+		// If the amount is zero, we skip this fee token
+		if amountEquivalentInt.IsZero() {
+			continue
+		}
 
 		// Prepare the user balance for fees
-		ok, err := k.PrepareUserBalanceForFees(ctx, account, pair, amount)
+		ok, err := k.convertERC20ToNative(ctx, account, feePrice.Denom, amountEquivalentInt)
 		if err != nil {
 			return sdk.Coins{}, err
 		}
 
 		// If all went well we return the selected fee
 		if ok {
-			return sdk.Coins{sdk.NewCoin(pair.Denom, amount)}, nil
+			return sdk.Coins{sdk.NewCoin(feePrice.Denom, amountEquivalentInt)}, nil
 		}
 	}
 
 	// If no suitable pair was found we return an error
 	return sdk.Coins{}, errorsmod.Wrapf(
 		errortypes.ErrInsufficientFunds,
-		"insufficient funds for fee, no suitable pair found for amount %s",
-		fees.String(),
+		"insufficient funds for fee or no suitable pair found for amount %s",
+		fee.String(),
 	)
 }
 
-// checkNativeFees checks if the user has enough native fees
-func (k Keeper) checkNativeFees(ctx sdk.Context, account sdk.AccAddress, fees sdk.Coins) (bool, error) {
-	// First we check if the we have a single asset coin
-	if len(fees) != 1 {
-		return false, errorsmod.Wrapf(
-			errortypes.ErrInvalidCoins,
-			"expected a single asset coin, got %d assets",
-			len(fees),
-		)
-	}
-	fee := fees[0]
-
-	// Get the params
-	params, err := k.Params.Get(ctx)
-	if err != nil {
-		return false, err
-	}
-
-	// Then we check if the coin is the native coin
-	if fee.Denom != params.NativeDenom {
-		return false, errorsmod.Wrapf(
-			errortypes.ErrInvalidCoins,
-			"expected the native coin %s, got %s",
-			params.NativeDenom,
-			fee.Denom,
-		)
-	}
-
-	// Then we check if the user has enough balance for the fee
-	balance := k.bankKeeper.GetBalance(ctx, account, fee.Denom)
-	if balance.Amount.GTE(fee.Amount) {
-		return true, nil
-	}
-
-	// If we reach here, the coin is good for conversion but the user does not have enough balance
-	return false, nil
-}
-
-// PrepareUserBalanceForFees prepare the user balance for fees
-// this checks if the user has enough native balance for the fee
-// if not tries to pay for the fee using the erc20 token
-func (k Keeper) PrepareUserBalanceForFees(ctx sdk.Context, account sdk.AccAddress, pair erc20types.TokenPair, amount math.Int) (bool, error) {
-	// Take the ABI
-	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
-
+// convertERC20ToNative converts the ERC20 token to the native token
+// It checks if the user has enough balance in the native token, if not it tries to
+// convert the ERC20 token to the native token
+func (k Keeper) convertERC20ToNative(ctx sdk.Context, account sdk.AccAddress, denom string, amount math.Int) (bool, error) {
 	// Get the balance for the pair native token on cosmos
 	// and check if the user has enough balance, if so we return true
-	balance := k.bankKeeper.GetBalance(ctx, account, pair.Denom)
+	balance := k.bankKeeper.GetBalance(ctx, account, denom)
 	if balance.Amount.GTE(amount) {
 		return true, nil
 	}
+
+	// Get the pair ID and check if it exists
+	pairID := k.erc20Keeper.GetTokenPairID(ctx, denom)
+	pair, found := k.erc20Keeper.GetTokenPair(ctx, pairID)
+	if !found {
+		return false, nil
+	}
+
+	// Take the ABI
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	// Get the balance for the erc20 token
 	erc20Balance := k.erc20Keeper.BalanceOf(ctx, erc20, pair.GetERC20Contract(), common.BytesToAddress(account.Bytes()))

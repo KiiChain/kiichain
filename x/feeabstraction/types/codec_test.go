@@ -24,5 +24,8 @@ func TestRegisterInterfaces(t *testing.T) {
 	interfaces := registry.ListImplementations(sdk.MsgInterfaceProtoName)
 
 	// Check the response
-	require.ElementsMatch(t, interfaces, []string{"/kiichain.feeabstraction.v1beta1.MsgUpdateParams"})
+	require.ElementsMatch(t, interfaces, []string{
+		"/kiichain.feeabstraction.v1beta1.MsgUpdateParams",
+		"/kiichain.feeabstraction.v1beta1.MsgUpdateFeeTokens",
+	})
 }

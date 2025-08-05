@@ -31,9 +31,17 @@ func (ms MsgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams
 		return nil, err
 	}
 
-	// Validate the new params
-	if err := msg.Params.ValidateBasic(); err != nil {
-		return nil, err
+	// Validate the message
+	if msg == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("msg cannot be nil")
+	}
+	if err := msg.Validate(); err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid message: %s", err)
+	}
+
+	// Validate the twap lookback window
+	if err := ms.Keeper.oracleKeeper.ValidateLookBackSeconds(sdk.UnwrapSDKContext(ctx), msg.Params.TwapLookbackWindow); err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid twap lookback window: %s", err)
 	}
 
 	// Set the params
@@ -43,6 +51,45 @@ func (ms MsgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams
 
 	// Return the response
 	return &types.MsgUpdateParamsResponse{}, nil
+}
+
+// UpdateFeeTokens updates the fee tokens through a proposal
+func (ms MsgServer) UpdateFeeTokens(ctx context.Context, msg *types.MsgUpdateFeeTokens) (*types.MsgUpdateFeeTokensResponse, error) {
+	// Check the authority
+	if err := ms.validateAuthority(msg.Authority); err != nil {
+		return nil, err
+	}
+
+	// Validate the message
+	if msg == nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrap("msg cannot be nil")
+	}
+	if err := msg.Validate(); err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid message: %s", err)
+	}
+
+	// Check if all the oracle denoms are registered on the oracle module
+	voteTargets, err := ms.oracleKeeper.GetVoteTargets(sdk.UnwrapSDKContext(ctx))
+	if err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to get oracle vote targets: %s", err)
+	}
+	voteTargetMap := make(map[string]struct{}, len(voteTargets))
+	for _, denom := range voteTargets {
+		voteTargetMap[denom] = struct{}{}
+	}
+	for _, feeToken := range msg.FeeTokens.Items {
+		if _, ok := voteTargetMap[feeToken.OracleDenom]; !ok {
+			return nil, sdkerrors.ErrInvalidRequest.Wrapf("fee token denom %s is not registered on the oracle module", feeToken.OracleDenom)
+		}
+	}
+
+	// Update the fee tokens
+	if err := ms.FeeTokens.Set(ctx, msg.FeeTokens); err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to update fee tokens: %s", err)
+	}
+
+	// Return the response
+	return &types.MsgUpdateFeeTokensResponse{}, nil
 }
 
 // validateAuthority checks if address authority is valid and same as expected

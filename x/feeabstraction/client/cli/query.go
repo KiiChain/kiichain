@@ -25,6 +25,7 @@ func GetQueryCmd() *cobra.Command {
 	// Add all the commands and return the CMD
 	cmd.AddCommand(
 		GetCmdQueryParams(),
+		GetCmdQueryFeeTokens(),
 	)
 	return cmd
 }
@@ -53,6 +54,37 @@ func GetCmdQueryParams() *cobra.Command {
 
 			// Print the response
 			return clientCtx.PrintProto(&res.Params)
+		},
+	}
+	// Add query flags to the command
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetCmdQueryFeeTokens implements the fee tokens query command.
+func GetCmdQueryFeeTokens() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "fee-tokens",
+		Short: "Query the current fee tokens",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			// Initialize the client
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			// Create a new query client
+			queryClient := types.NewQueryClient(clientCtx)
+
+			// Call the FeeTokens query
+			res, err := queryClient.FeeTokens(cmd.Context(), &types.QueryFeeTokensRequest{})
+			if err != nil {
+				return err
+			}
+
+			// Print the response
+			return clientCtx.PrintProto(res.FeeTokens)
 		},
 	}
 	// Add query flags to the command

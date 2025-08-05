@@ -8,7 +8,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"cosmossdk.io/api/tendermint/abci"
+	"cosmossdk.io/core/appmodule"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -23,10 +23,11 @@ import (
 
 // Interface inference
 var (
-	_ module.AppModuleBasic   = AppModuleBasic{}
-	_ module.HasGenesisBasics = AppModuleBasic{}
-	_ module.AppModule        = AppModule{}
-	_ module.HasGenesis       = AppModule{}
+	_ module.AppModuleBasic     = AppModuleBasic{}
+	_ module.HasGenesisBasics   = AppModuleBasic{}
+	_ appmodule.HasBeginBlocker = AppModule{}
+	_ module.AppModule          = AppModule{}
+	_ module.HasGenesis         = AppModule{}
 )
 
 // ConsensusVersion defines the current x/feeabstraction module consensus version
@@ -162,7 +163,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 // ConsensusVersion returns the module consensus version
 func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
-// EndBlock returns the end blocker for the module
-func (am AppModule) EndBlock(ctx context.Context) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+// BeginBlock returns the begin blocker for the module
+func (am AppModule) BeginBlock(ctx context.Context) error {
+	return am.keeper.BeginBlocker(ctx)
 }

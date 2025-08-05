@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	MsgUpdateParamsName = "feeabstraction/update-params"
+	MsgUpdateParamsName    = "feeabstraction/update-params"
+	MsgUpdateFeeTokensName = "feeabstraction/update-fee-tokens"
 )
 
 // RegisterInterfaces register all the proto interfaces into the app
@@ -17,6 +18,7 @@ func RegisterInterfaces(r codectypes.InterfaceRegistry) {
 	r.RegisterImplementations(
 		(*sdk.Msg)(nil),
 		&MsgUpdateParams{},
+		&MsgUpdateFeeTokens{},
 	)
 
 	// Register on the message service
@@ -27,4 +29,5 @@ func RegisterInterfaces(r codectypes.InterfaceRegistry) {
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	// Register all the concrete types
 	cdc.RegisterConcrete(&MsgUpdateParams{}, MsgUpdateParamsName, nil)
+	cdc.RegisterConcrete(&MsgUpdateFeeTokens{}, MsgUpdateFeeTokensName, nil)
 }

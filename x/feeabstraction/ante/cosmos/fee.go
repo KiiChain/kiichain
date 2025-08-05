@@ -130,17 +130,18 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 	}
 
 	// Deduct the fees
+	var convertedFee sdk.Coins
 	if !fee.IsZero() {
 		// Apply the fee conversion from the fee abstraction module
 		// This is the only change from the original implementation
 		var err error
-		fee, err = dfd.feeAbstractionKeeper.ConvertNativeFee(ctx, deductFeesFromAcc.GetAddress(), fee)
+		convertedFee, err := dfd.feeAbstractionKeeper.ConvertNativeFee(ctx, deductFeesFromAcc.GetAddress(), fee)
 		if err != nil {
 			return err
 		}
 
 		// Deduct the fees from the fee payer account
-		err = ante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
+		err = ante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, convertedFee)
 		if err != nil {
 			return err
 		}
@@ -150,7 +151,7 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 	events := sdk.Events{
 		sdk.NewEvent(
 			sdk.EventTypeTx,
-			sdk.NewAttribute(sdk.AttributeKeyFee, fee.String()),
+			sdk.NewAttribute(sdk.AttributeKeyFee, convertedFee.String()),
 			sdk.NewAttribute(sdk.AttributeKeyFeePayer, sdk.AccAddress(deductFeesFrom).String()),
 		),
 	}

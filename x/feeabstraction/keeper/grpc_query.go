@@ -30,3 +30,15 @@ func (q Querier) Params(ctx context.Context, _ *types.QueryParamsRequest) (*type
 	// Return the response with the params
 	return &types.QueryParamsResponse{Params: params}, nil
 }
+
+// FeeTokens queries the fee tokens of the module
+func (q Querier) FeeTokens(ctx context.Context, _ *types.QueryFeeTokensRequest) (*types.QueryFeeTokensResponse, error) {
+	// Get the fee tokens from the keeper
+	feeTokens, err := q.Keeper.FeeTokens.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the response with the fee tokens
+	return &types.QueryFeeTokensResponse{FeeTokens: &feeTokens}, nil
+}
