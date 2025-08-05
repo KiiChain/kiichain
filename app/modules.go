@@ -281,6 +281,7 @@ func orderInitBlockers() []string {
 		banktypes.ModuleName,
 		distrtypes.ModuleName,
 		govtypes.ModuleName,
+		feeabstractiontypes.ModuleName, // Must be initialized before staking to set the genesis params
 		stakingtypes.ModuleName,
 		slashingtypes.ModuleName,
 
@@ -309,7 +310,6 @@ func orderInitBlockers() []string {
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		oracletypes.ModuleName,
-		feeabstractiontypes.ModuleName,
 		rewardstypes.ModuleName,
 		// crisis needs to be last so that the genesis state is consistent
 		// when it checks invariants
