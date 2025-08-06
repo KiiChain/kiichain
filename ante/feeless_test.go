@@ -12,7 +12,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authate "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	evmtypes "github.com/cosmos/evm/x/vm/types"
@@ -20,7 +19,6 @@ import (
 	"github.com/kiichain/kiichain/v3/ante"
 	"github.com/kiichain/kiichain/v3/app/apptesting"
 	"github.com/kiichain/kiichain/v3/app/helpers"
-	kiiparams "github.com/kiichain/kiichain/v3/app/params"
 	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
 )
 
@@ -189,7 +187,7 @@ func TestFeelessDecorator(t *testing.T) {
 			}
 
 			// Build a tx from the messages
-			tx, err := buildTxFromMsgs(funder, tc.msgs...)
+			tx, err := helpers.BuildTxFromMsgs(funder, nil, sdk.NewCoins(feeCoin), 1000000, tc.msgs...)
 			require.NoError(t, err)
 
 			// Take a sample of the user address
@@ -212,26 +210,4 @@ func TestFeelessDecorator(t *testing.T) {
 			require.Equal(t, tc.balanceDiff.Int64(), balanceDiff.Int64(), "Balance difference should match expected value")
 		})
 	}
-}
-
-// buildTxFromMsgs builds a tx from a set of messages
-func buildTxFromMsgs(feePayer sdk.AccAddress, msgs ...sdk.Msg) (xauthsigning.Tx, error) {
-	// Start the tx builder
-	encodingConfig := kiiparams.MakeEncodingConfig()
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-	// Set the messages
-	err := txBuilder.SetMsgs(msgs...)
-	if err != nil {
-		return nil, err
-	}
-
-	// Set the fee payer
-	txBuilder.SetFeePayer(feePayer) // Replace with actual address
-
-	// Set gas limit and fee amount
-	txBuilder.SetGasLimit(1000000)
-	txBuilder.SetFeeAmount(sdk.NewCoins(feeCoin))
-
-	return txBuilder.GetTx(), nil
 }

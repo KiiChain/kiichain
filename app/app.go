@@ -66,7 +66,7 @@ import (
 	kiiante "github.com/kiichain/kiichain/v3/ante"
 	"github.com/kiichain/kiichain/v3/app/keepers"
 	"github.com/kiichain/kiichain/v3/app/upgrades"
-	v3_0 "github.com/kiichain/kiichain/v3/app/upgrades/v3_0"
+	v4_0 "github.com/kiichain/kiichain/v3/app/upgrades/v4_0"
 	"github.com/kiichain/kiichain/v3/client/docs"
 )
 
@@ -76,7 +76,7 @@ var (
 
 	// Upgrades is a list of all the upgrades that are available for the application.
 	Upgrades = []upgrades.Upgrade{
-		v3_0.Upgrade,
+		v4_0.Upgrade,
 	}
 )
 
@@ -324,6 +324,7 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 		BankKeeper:             app.BankKeeper,
 		ExtensionOptionChecker: cosmosevmtypes.HasDynamicFeeExtensionOption,
 		EvmKeeper:              app.EVMKeeper,
+		FeeAbstractionKeeper:   app.FeeAbstractionKeeper,
 		FeegrantKeeper:         app.FeeGrantKeeper,
 		IBCKeeper:              app.IBCKeeper,
 		FeeMarketKeeper:        app.FeeMarketKeeper,

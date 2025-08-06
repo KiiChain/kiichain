@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## UNRELEASED
+
+### Added
+
+- Add the fee abstraction module to the chain
+
 ## v3.0.0 — 2025-07-01
 
 No changes were made since the release candidate.

@@ -14,7 +14,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/cosmos/evm/contracts"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 
 	app "github.com/kiichain/kiichain/v3/app"
@@ -102,7 +101,8 @@ func TestQueryERC20Information(t *testing.T) {
 	require.NotEmpty(t, reflect)
 
 	// Deploy the counter contract
-	contractAddr := deployERC20(t, ctx, app)
+	contractAddr, err := apptesting.DeployERC20(ctx, app)
+	require.NoError(t, err)
 	require.NotEmpty(t, contractAddr)
 
 	// Perform the ERC20Information query
@@ -112,7 +112,7 @@ func TestQueryERC20Information(t *testing.T) {
 		},
 	}
 	resp := evmbindingtypes.ERC20InformationResponse{}
-	err := queryCustom(t, ctx, app, reflect, query, &resp)
+	err = queryCustom(t, ctx, app, reflect, query, &resp)
 	require.NoError(t, err)
 
 	// Check the expected value (0 if freshly deployed)
@@ -130,7 +130,8 @@ func TestQueryERC20Balance(t *testing.T) {
 	require.NotEmpty(t, reflect)
 
 	// Deploy the counter contract
-	contractAddr := deployERC20(t, ctx, app)
+	contractAddr, err := apptesting.DeployERC20(ctx, app)
+	require.NoError(t, err)
 	require.NotEmpty(t, contractAddr)
 
 	// Create a new account
@@ -139,7 +140,8 @@ func TestQueryERC20Balance(t *testing.T) {
 
 	// Mint some tokens to the account
 	mintAmount := big.NewInt(1000)
-	mintERC20(t, ctx, app, contractAddr, account, mintAmount)
+	err = apptesting.MintERC20(ctx, app, contractAddr, account, mintAmount)
+	require.NoError(t, err)
 
 	// Perform the ERC20Balance query
 	query := evmbindingtypes.Query{
@@ -149,7 +151,7 @@ func TestQueryERC20Balance(t *testing.T) {
 		},
 	}
 	resp := evmbindingtypes.ERC20BalanceResponse{}
-	err := queryCustom(t, ctx, app, reflect, query, &resp)
+	err = queryCustom(t, ctx, app, reflect, query, &resp)
 	require.NoError(t, err)
 
 	// Check the expected value
@@ -165,7 +167,8 @@ func TestQueryERC20Allowance(t *testing.T) {
 	require.NotEmpty(t, reflect)
 
 	// Deploy the counter contract
-	contractAddr := deployERC20(t, ctx, app)
+	contractAddr, err := apptesting.DeployERC20(ctx, app)
+	require.NoError(t, err)
 	require.NotEmpty(t, contractAddr)
 
 	// Create a new account
@@ -174,11 +177,13 @@ func TestQueryERC20Allowance(t *testing.T) {
 
 	// Mint some tokens to the account
 	mintAmount := big.NewInt(1000)
-	mintERC20(t, ctx, app, contractAddr, account, mintAmount)
+	err = apptesting.MintERC20(ctx, app, contractAddr, account, mintAmount)
+	require.NoError(t, err)
 
 	// Create an allowance for the actor
 	spender := common.BytesToAddress(actor.Bytes())
-	createERC20Allowance(t, ctx, app, contractAddr, account, spender, mintAmount)
+	err = apptesting.CreateERC20Allowance(ctx, app, contractAddr, account, spender, mintAmount)
+	require.NoError(t, err)
 
 	// Perform the ERC20Allowance query
 	query := evmbindingtypes.Query{
@@ -189,7 +194,7 @@ func TestQueryERC20Allowance(t *testing.T) {
 		},
 	}
 	resp := evmbindingtypes.ERC20AllowanceResponse{}
-	err := queryCustom(t, ctx, app, reflect, query, &resp)
+	err = queryCustom(t, ctx, app, reflect, query, &resp)
 	require.NoError(t, err)
 
 	// Check the expected value
@@ -234,60 +239,6 @@ func incrementCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contr
 
 	// Send transaction to call increment
 	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true)
-	require.NoError(t, err)
-	require.NotNil(t, res)
-}
-
-// deployERC20 deploys an ERC20 contract
-func deployERC20(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.Address {
-	t.Helper()
-	// Select the from as the erc20 module address
-	from := common.BytesToAddress(authtypes.NewModuleAddress(erc20types.ModuleName).Bytes())
-
-	// Set the data
-	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
-	ctorArgs, err := erc20ABI.Pack("", "Test", "TEST", uint8(18))
-	require.NoError(t, err)
-	deployData := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
-
-	// Deploy the contract
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, nil, deployData, true)
-	require.NoError(t, err)
-	require.NotNil(t, res.Ret)
-
-	// Derive the deployed contract address
-	nonce := app.EVMKeeper.GetNonce(ctx, from)
-	contractAddr := crypto.CreateAddress(from, nonce-1)
-	return contractAddr
-}
-
-// mintERC20 mints an ERC20 token
-func mintERC20(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contractAddr common.Address, to common.Address, amount *big.Int) {
-	t.Helper()
-	// Sender must be an account with ETH balance and nonce tracking
-	from := common.BytesToAddress(authtypes.NewModuleAddress(erc20types.ModuleName).Bytes())
-
-	// Load the ABI and pack the mint() call
-	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
-	inputData, err := erc20ABI.Pack("mint", to, amount)
-	require.NoError(t, err)
-
-	// Send transaction to call mint
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true)
-	require.NoError(t, err)
-	require.NotNil(t, res)
-}
-
-// createERC20Allowance creates an ERC20 allowance
-func createERC20Allowance(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contractAddr common.Address, owner common.Address, spender common.Address, amount *big.Int) {
-	t.Helper()
-	// Load the ABI and pack the mint() call
-	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
-	inputData, err := erc20ABI.Pack("approve", spender, amount)
-	require.NoError(t, err)
-
-	// Send transaction to call mint
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, owner, &contractAddr, inputData, true)
 	require.NoError(t, err)
 	require.NotNil(t, res)
 }

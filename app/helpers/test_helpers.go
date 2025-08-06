@@ -26,6 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -223,4 +224,44 @@ func genesisStateWithValSet(t *testing.T,
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	return genesisState
+}
+
+// SetupWithContext initializes a new test input for the app and returns the app instance and context
+func SetupWithContext(t *testing.T) (*kiichain.KiichainApp, sdk.Context) {
+	t.Helper()
+	chain := Setup(t)
+	ctx := chain.BaseApp.NewUncachedContext(true, tmproto.Header{Height: 1, ChainID: "testing_1010-1", Time: time.Now().UTC()})
+	allVal, err := chain.StakingKeeper.GetAllValidators(ctx)
+	require.NoError(t, err)
+
+	// Validator consensus address
+	valConsAddr, err := allVal[0].GetConsAddr()
+	require.NoError(t, err)
+
+	// Set a final context with the proposer address for the EVM module
+	ctx = chain.BaseApp.NewUncachedContext(true, tmproto.Header{Height: 1, ChainID: "testing_1010-1", Time: time.Now().UTC(), ProposerAddress: valConsAddr})
+	return chain, sdk.UnwrapSDKContext(ctx)
+}
+
+// BuildTxFromMsgs builds a tx from a set of messages
+func BuildTxFromMsgs(feePayer sdk.AccAddress, feeGranter sdk.AccAddress, fee sdk.Coins, gasLimit uint64, msgs ...sdk.Msg) (xauthsigning.Tx, error) {
+	// Start the tx builder
+	encodingConfig := params.MakeEncodingConfig()
+	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+	// Set the messages
+	err := txBuilder.SetMsgs(msgs...)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set the fee payer
+	txBuilder.SetFeePayer(feePayer)
+	txBuilder.SetFeeGranter(feeGranter)
+
+	// Set gas limit and fee amount
+	txBuilder.SetGasLimit(gasLimit)
+	txBuilder.SetFeeAmount(fee)
+
+	return txBuilder.GetTx(), nil
 }

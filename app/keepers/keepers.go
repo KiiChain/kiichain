@@ -86,6 +86,8 @@ import (
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/kiichain/kiichain/v3/wasmbinding"
+	feeabstractionkeeper "github.com/kiichain/kiichain/v3/x/feeabstraction/keeper"
+	feeabstractiontypes "github.com/kiichain/kiichain/v3/x/feeabstraction/types"
 	oraclekeeper "github.com/kiichain/kiichain/v3/x/oracle/keeper"
 	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
 	rewardskeeper "github.com/kiichain/kiichain/v3/x/rewards/keeper"
@@ -124,6 +126,7 @@ type AppKeepers struct {
 	AuthzKeeper           authzkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
+	FeeAbstractionKeeper  feeabstractionkeeper.Keeper
 
 	PFMRouterKeeper *pfmrouterkeeper.Keeper
 	RatelimitKeeper ratelimitkeeper.Keeper
@@ -511,6 +514,16 @@ func NewAppKeeper(
 		)...,
 	)
 
+	// FeeAbstractionKeeper must be created after EVMKeeper and Erc20Keeper
+	appKeepers.FeeAbstractionKeeper = feeabstractionkeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[feeabstractiontypes.StoreKey]),
+		appKeepers.Erc20Keeper,
+		appKeepers.BankKeeper,
+		appKeepers.OracleKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	// Must be called on PFMRouter AFTER TransferKeeper initialized
 	appKeepers.PFMRouterKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
 
@@ -647,6 +660,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(rewardstypes.ModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
+	paramsKeeper.Subspace(feeabstractiontypes.ModuleName)
 
 	// Cosmos EVM modules
 	paramsKeeper.Subspace(evmtypes.ModuleName)

@@ -19,6 +19,7 @@ import (
 
 	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
 
+	antetypes "github.com/kiichain/kiichain/v3/ante/types"
 	oraclekeeper "github.com/kiichain/kiichain/v3/x/oracle/keeper"
 )
 
@@ -31,6 +32,7 @@ type HandlerOptions struct {
 	IBCKeeper              *ibckeeper.Keeper
 	FeeMarketKeeper        anteinterfaces.FeeMarketKeeper
 	EvmKeeper              anteinterfaces.EVMKeeper
+	FeeAbstractionKeeper   antetypes.FeeAbstractionKeeper
 	FeegrantKeeper         ante.FeegrantKeeper
 	ExtensionOptionChecker ante.ExtensionOptionChecker
 	SignModeHandler        *txsigning.HandlerMap
@@ -64,6 +66,9 @@ func (options HandlerOptions) Validate() error {
 	}
 	if options.EvmKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "evm keeper is required for AnteHandler")
+	}
+	if options.FeeAbstractionKeeper == nil {
+		return errorsmod.Wrap(errortypes.ErrLogic, "fee abstraction keeper is required for AnteHandler")
 	}
 	if options.SigGasConsumer == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "signature gas consumer is required for AnteHandler")

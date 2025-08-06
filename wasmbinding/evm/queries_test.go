@@ -111,7 +111,8 @@ func TestHandleERC20Information(t *testing.T) {
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	// Deploy a erc20 contract
-	contractAddr := deployERC20(t, ctx, app)
+	contractAddr, err := apptesting.DeployERC20(ctx, app)
+	require.NoError(t, err)
 
 	// Set all the test cases
 	testCases := []struct {
@@ -182,8 +183,10 @@ func TestHandleERC20Balance(t *testing.T) {
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	// Deploy a erc20 contract
-	contractAddr := deployERC20(t, ctx, app)
-	mintERC20(t, ctx, app, contractAddr, common.Address(actor.Bytes()), big.NewInt(100))
+	contractAddr, err := apptesting.DeployERC20(ctx, app)
+	require.NoError(t, err)
+	err = apptesting.MintERC20(ctx, app, contractAddr, common.Address(actor.Bytes()), big.NewInt(100))
+	require.NoError(t, err)
 
 	// Set all the test cases
 	testCases := []struct {
@@ -245,9 +248,12 @@ func TestHandleERC20Allowance(t *testing.T) {
 	actor2 := createAccountAndRegister(t, ctx, app)
 
 	// Deploy a erc20 contract
-	contractAddr := deployERC20(t, ctx, app)
-	mintERC20(t, ctx, app, contractAddr, common.Address(actor.Bytes()), big.NewInt(200))
-	createERC20Allowance(t, ctx, app, contractAddr, actor, actor2, big.NewInt(100))
+	contractAddr, err := apptesting.DeployERC20(ctx, app)
+	require.NoError(t, err)
+	err = apptesting.MintERC20(ctx, app, contractAddr, common.Address(actor.Bytes()), big.NewInt(200))
+	require.NoError(t, err)
+	err = apptesting.CreateERC20Allowance(ctx, app, contractAddr, actor, actor2, big.NewInt(100))
+	require.NoError(t, err)
 
 	// Set all the test cases
 	testCases := []struct {
