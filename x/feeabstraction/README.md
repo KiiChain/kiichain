@@ -282,3 +282,33 @@ The following was required to be changed:
 - Account creation was moved up to allow accounts to exist before the fee deduction
 - At the end of the ante handler, the fee is registered on the context
   - This allows fee refunds to be processed correctly
+
+## Limitation
+
+A limitation happens with **fresh wallets** (wallets that have never executed a transaction):
+
+- **Scenario 1: Fresh wallet with ERC20 (wrapped) fee tokens**
+
+  - If the first transaction attempted is a **Cosmos SDK transaction** using only ERC20 fee tokens:
+
+    - The transaction will **fail with an “account doesn’t exist” error**.
+    - This is because the Cosmos SDK requires an on-chain account to exist prior to executing any Cosmos transaction, and ERC20 balances alone do not create the account record.
+
+- **Scenario 2: Fresh wallet with native (unwrapped) fee tokens**
+
+  - If the first transaction attempted is a **Cosmos SDK transaction** using native fee tokens:
+
+    - The transaction will **succeed**, as the presence of the native asset allows account creation during the transaction flow, and the fee abstraction module can process the fees normally.
+
+- **Scenario 3: Fresh wallet with either ERC20 or native fee tokens, performing EVM transactions**
+
+  - If the first transaction attempted is an **EVM transaction**:
+
+    - The transaction will **succeed**, regardless of whether the wallet holds ERC20 or native tokens, as the EVM module internally handles account creation differently.
+
+### Implication
+
+Users must perform **one of the following actions** before attempting a Cosmos SDK transaction using ERC20 fee tokens:
+
+- Fund the wallet with **any amount of the native (unwrapped) token** and execute a small Cosmos transaction to create the account.
+- Or perform an **EVM transaction first** which also creates the account record.
