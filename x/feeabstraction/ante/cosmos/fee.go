@@ -135,7 +135,7 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		// Apply the fee conversion from the fee abstraction module
 		// This is the only change from the original implementation
 		var err error
-		convertedFee, err := dfd.feeAbstractionKeeper.ConvertNativeFee(ctx, deductFeesFromAcc.GetAddress(), fee)
+		convertedFee, err = dfd.feeAbstractionKeeper.ConvertNativeFee(ctx, deductFeesFromAcc.GetAddress(), fee)
 		if err != nil {
 			return err
 		}

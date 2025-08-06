@@ -20,31 +20,49 @@ func TestCalculateTokenPrice(t *testing.T) {
 		errContains string
 	}{
 		{
-			base:     math.LegacyNewDec(100),
-			other:    math.LegacyNewDec(200),
-			expected: math.LegacyNewDec(2),
+			// Situation where both KII and TokenB have the same USD price
+			// 1 KII = 1 USD and 1 TokenB = 1 USD
+			// This means 1 KII = 1 TokenB
+			base:     math.LegacyMustNewDecFromStr("1"),
+			other:    math.LegacyMustNewDecFromStr("1"),
+			expected: math.LegacyMustNewDecFromStr("1"),
+		},
+		{
+			// Situation where KII is more expensive than TokenB
+			// 1 KII = 20 USD and 1 TokenB = 5 USD
+			// This means 1 KII = 4 TokenB
+			base:     math.LegacyMustNewDecFromStr("20"),
+			other:    math.LegacyMustNewDecFromStr("5"),
+			expected: math.LegacyMustNewDecFromStr("4"),
+		},
+		{
+			// Simple situation where kii is worth 0.01 USD and the asset B is worth 1 USD
+			// This would mean that 1 KII = 0.01 TokenB
+			base:     math.LegacyMustNewDecFromStr("0.01"),
+			other:    math.LegacyMustNewDecFromStr("1"),
+			expected: math.LegacyMustNewDecFromStr("0.01"),
 		},
 		{
 			// Simulate a real situation, where kii is worth 0.1 USD and the asset B is worth 15 USD
-			// This would mean that 1 KII = 150 TokenB
+			// This would mean that 1 KII = 0.0066 TokenB
 			base:     math.LegacyMustNewDecFromStr("0.1"),
 			other:    math.LegacyMustNewDecFromStr("15"),
-			expected: math.LegacyMustNewDecFromStr("150"),
+			expected: math.LegacyMustNewDecFromStr("0.006666666666666667"),
 		},
 		{
-			base:        math.LegacyNewDec(0),
-			other:       math.LegacyNewDec(100),
+			base:        math.LegacyMustNewDecFromStr("0"),
+			other:       math.LegacyMustNewDecFromStr("100"),
 			errContains: "invalid input: base or other is zero",
 		},
 		{
-			base:        math.LegacyNewDec(100),
-			other:       math.LegacyNewDec(0),
+			base:        math.LegacyMustNewDecFromStr("100"),
+			other:       math.LegacyMustNewDecFromStr("0"),
 			expected:    math.LegacyDec{},
 			errContains: "invalid input: base or other is zero",
 		},
 		{
-			base:        math.LegacyNewDec(0),
-			other:       math.LegacyNewDec(0),
+			base:        math.LegacyMustNewDecFromStr("0"),
+			other:       math.LegacyMustNewDecFromStr("0"),
 			expected:    math.LegacyDec{},
 			errContains: "invalid input: base or other is zero",
 		},

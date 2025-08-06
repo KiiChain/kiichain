@@ -17,7 +17,7 @@ func CalculateTokenPrice(
 	}
 
 	// Get the quotient between the two tokens
-	price := other.Quo(base)
+	price := base.Quo(other)
 
 	// Return the calculated price
 	return price, nil
