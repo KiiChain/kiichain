@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
-	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
+	"github.com/kiichain/kiichain/v4/x/feeabstraction/types"
+	oracletypes "github.com/kiichain/kiichain/v4/x/oracle/types"
 )
 
 // CalculateFeeTokenPrices returns the price of the fee token in terms of the base token

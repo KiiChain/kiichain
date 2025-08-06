@@ -18,9 +18,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/client/cli"
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/keeper"
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v4/x/feeabstraction/client/cli"
+	"github.com/kiichain/kiichain/v4/x/feeabstraction/keeper"
+	"github.com/kiichain/kiichain/v4/x/feeabstraction/types"
 )
 
 // Interface inference

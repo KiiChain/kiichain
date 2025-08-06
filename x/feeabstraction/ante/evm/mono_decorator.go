@@ -28,7 +28,7 @@ import (
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	antetypes "github.com/kiichain/kiichain/v3/ante/types"
+	antetypes "github.com/kiichain/kiichain/v4/ante/types"
 )
 
 // MonoDecorator is a single decorator that handles all the prechecks for

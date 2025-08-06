@@ -14,7 +14,7 @@ import (
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/testutil"
 
-	ibcprecompile "github.com/kiichain/kiichain/v3/precompiles/ibc"
+	ibcprecompile "github.com/kiichain/kiichain/v4/precompiles/ibc"
 )
 
 // TestPrecompileTransferWithDefaultTimeout calls IBC precompile transfer with default timeout

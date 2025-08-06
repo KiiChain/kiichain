@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	tokenfactorytypes "github.com/kiichain/kiichain/v3/x/tokenfactory/types"
+	tokenfactorytypes "github.com/kiichain/kiichain/v4/x/tokenfactory/types"
 )
 
 func (s *IntegrationTestSuite) testTokenFactory() {

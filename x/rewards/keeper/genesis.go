@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v3/x/rewards/types"
+	"github.com/kiichain/kiichain/v4/x/rewards/types"
 )
 
 // InitGenesis sets rewards information from genesis

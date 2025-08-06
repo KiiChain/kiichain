@@ -15,7 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	antetypes "github.com/kiichain/kiichain/v3/ante/types"
+	antetypes "github.com/kiichain/kiichain/v4/ante/types"
 )
 
 // DeductFeeDecorator deducts fees from the fee payer. The fee payer is the fee granter (if specified) or first signer of the tx.

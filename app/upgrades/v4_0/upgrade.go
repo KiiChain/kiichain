@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/kiichain/kiichain/v3/app/keepers"
+	"github.com/kiichain/kiichain/v4/app/keepers"
 )
 
 // CreateUpgradeHandler creates the upgrade handler for the v4.0.0 upgrade

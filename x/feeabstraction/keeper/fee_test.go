@@ -15,8 +15,8 @@ import (
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	"github.com/kiichain/kiichain/v3/app/apptesting"
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v4/app/apptesting"
+	"github.com/kiichain/kiichain/v4/x/feeabstraction/types"
 )
 
 // TestConvertNativeFee tests the ConvertNativeFee function

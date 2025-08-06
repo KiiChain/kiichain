@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v4/x/feeabstraction/types"
 )
 
 // Interface assertion for the querier

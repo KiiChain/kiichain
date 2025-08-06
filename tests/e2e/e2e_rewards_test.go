@@ -13,7 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	rewardstypes "github.com/kiichain/kiichain/v3/x/rewards/types"
+	rewardstypes "github.com/kiichain/kiichain/v4/x/rewards/types"
 )
 
 // testRewardUpdate Tests a change to the reward schedule

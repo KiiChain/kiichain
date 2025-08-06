@@ -11,9 +11,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/kiichain/kiichain/v3/app/apptesting"
-	"github.com/kiichain/kiichain/v3/x/rewards/keeper"
-	"github.com/kiichain/kiichain/v3/x/rewards/types"
+	"github.com/kiichain/kiichain/v4/app/apptesting"
+	"github.com/kiichain/kiichain/v4/x/rewards/keeper"
+	"github.com/kiichain/kiichain/v4/x/rewards/types"
 )
 
 type KeeperTestSuite struct {

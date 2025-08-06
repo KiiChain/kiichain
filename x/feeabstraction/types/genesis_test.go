@@ -7,7 +7,7 @@ import (
 
 	"cosmossdk.io/math"
 
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v4/x/feeabstraction/types"
 )
 
 // TestGenesisStateValidate tests the Validate method of GenesisState

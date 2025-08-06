@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v4/x/feeabstraction/types"
 )
 
 // GetQueryCmd returns the cli query commands

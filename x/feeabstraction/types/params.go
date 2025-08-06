@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v3/app/params"
+	"github.com/kiichain/kiichain/v4/app/params"
 )
 
 var (

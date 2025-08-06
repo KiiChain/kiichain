@@ -2,6 +2,8 @@
 
 ## UNRELEASED
 
+## v4.0.0 — 2025-08-06
+
 ### Added
 
 - Add the fee abstraction module to the chain

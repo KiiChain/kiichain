@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	kiichain "github.com/kiichain/kiichain/v3/app"
+	kiichain "github.com/kiichain/kiichain/v4/app"
 )
 
 // SimulationOperations retrieves the simulation params from the provided file path

@@ -16,12 +16,12 @@ import (
 
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 
-	app "github.com/kiichain/kiichain/v3/app"
-	"github.com/kiichain/kiichain/v3/app/apptesting"
-	mock "github.com/kiichain/kiichain/v3/tests/e2e/mock"
-	"github.com/kiichain/kiichain/v3/wasmbinding"
-	evmbindingtypes "github.com/kiichain/kiichain/v3/wasmbinding/evm/types"
-	"github.com/kiichain/kiichain/v3/wasmbinding/helpers"
+	app "github.com/kiichain/kiichain/v4/app"
+	"github.com/kiichain/kiichain/v4/app/apptesting"
+	mock "github.com/kiichain/kiichain/v4/tests/e2e/mock"
+	"github.com/kiichain/kiichain/v4/wasmbinding"
+	evmbindingtypes "github.com/kiichain/kiichain/v4/wasmbinding/evm/types"
+	"github.com/kiichain/kiichain/v4/wasmbinding/helpers"
 )
 
 // TestQueryEthCall test the EthCall query

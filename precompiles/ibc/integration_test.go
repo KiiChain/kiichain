@@ -13,9 +13,9 @@ import (
 	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
 	"github.com/cosmos/evm/x/vm/statedb"
 
-	kiichainApp "github.com/kiichain/kiichain/v3/app"
-	ibcprecompile "github.com/kiichain/kiichain/v3/precompiles/ibc"
-	"github.com/kiichain/kiichain/v3/x/tokenfactory/types"
+	kiichainApp "github.com/kiichain/kiichain/v4/app"
+	ibcprecompile "github.com/kiichain/kiichain/v4/precompiles/ibc"
+	"github.com/kiichain/kiichain/v4/x/tokenfactory/types"
 )
 
 type IBCPrecompileTestSuite struct {

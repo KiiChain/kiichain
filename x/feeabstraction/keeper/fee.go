@@ -12,8 +12,8 @@ import (
 	"github.com/cosmos/evm/contracts"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 
-	"github.com/kiichain/kiichain/v3/app/params"
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v4/app/params"
+	"github.com/kiichain/kiichain/v4/x/feeabstraction/types"
 )
 
 // ConvertNativeFee prepares the user balance for fees though the registered pairs
