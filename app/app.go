@@ -320,7 +320,7 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 
 	options := kiiante.HandlerOptions{
 		Cdc:                    app.appCodec,
-		AccountKeeper:          app.AccountKeeper,
+		AccountKeeper:          &app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
 		ExtensionOptionChecker: cosmosevmtypes.HasDynamicFeeExtensionOption,
 		EvmKeeper:              app.EVMKeeper,
