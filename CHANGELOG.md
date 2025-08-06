@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [Unreleased]
+
+### Added
+- Added simple DApp example in `app/simple-dapp/`
+
 ## v3.0.0 — 2025-07-01
 
 No changes were made since the release candidate.
