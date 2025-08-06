@@ -35,7 +35,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
-	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -49,7 +48,6 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -98,8 +96,6 @@ type KiichainApp struct { //nolint: revive
 	txConfig          client.TxConfig
 	interfaceRegistry types.InterfaceRegistry
 
-	invCheckPeriod uint
-
 	// the module manager
 	mm           *module.Manager
 	ModuleBasics module.BasicManager
@@ -138,10 +134,6 @@ func NewKiichainApp(
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 	txConfig := encodingConfig.TxConfig
 
-	// App Opts
-	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
-	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
-
 	bApp := baseapp.NewBaseApp(
 		appName,
 		logger,
@@ -165,7 +157,6 @@ func NewKiichainApp(
 		txConfig:          txConfig,
 		appCodec:          appCodec,
 		interfaceRegistry: interfaceRegistry,
-		invCheckPeriod:    invCheckPeriod,
 	}
 
 	moduleAccountAddresses := app.ModuleAccountAddrs()
@@ -180,7 +171,6 @@ func NewKiichainApp(
 		app.BlockedModuleAccountAddrs(moduleAccountAddresses),
 		skipUpgradeHeights,
 		homePath,
-		invCheckPeriod,
 		logger,
 		appOpts,
 		wasmOpts,
@@ -188,7 +178,7 @@ func NewKiichainApp(
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
-	app.mm = module.NewManager(appModules(app, appCodec, txConfig, skipGenesisInvariants)...)
+	app.mm = module.NewManager(appModules(app, appCodec, txConfig)...)
 	app.ModuleBasics = newBasicManagerFromManager(app)
 
 	enabledSignModes := append([]sigtypes.SignMode(nil), authtx.DefaultSignModes...)
@@ -233,7 +223,6 @@ func NewKiichainApp(
 	// Uncomment if you want to set a custom migration order here.
 	// app.mm.SetOrderMigrations(custom order)
 
-	app.mm.RegisterInvariants(app.CrisisKeeper)
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
 	err = app.mm.RegisterServices(app.configurator)
 	if err != nil {
@@ -255,7 +244,7 @@ func NewKiichainApp(
 	//
 	// NOTE: this is not required apps that don't use the simulator for fuzz testing
 	// transactions
-	app.sm = module.NewSimulationManager(simulationModules(app, appCodec, skipGenesisInvariants)...)
+	app.sm = module.NewSimulationManager(simulationModules(app, appCodec)...)
 
 	app.sm.RegisterStoreDecoders()
 

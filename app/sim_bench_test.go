@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/server"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	simulation2 "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
@@ -38,7 +37,6 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 	}()
 
 	appOptions := make(simtestutil.AppOptionsMap, 0)
-	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
 
 	app := kiichain.NewKiichainApp(
 		logger,

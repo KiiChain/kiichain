@@ -54,8 +54,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
-	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
-	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -108,9 +106,8 @@ type AppKeepers struct {
 	SlashingKeeper     slashingkeeper.Keeper
 	DistrKeeper        distrkeeper.Keeper
 	GovKeeper          *govkeeper.Keeper
-	CrisisKeeper       *crisiskeeper.Keeper
 	UpgradeKeeper      *upgradekeeper.Keeper
-	ParamsKeeper       paramskeeper.Keeper
+	ParamsKeeper       paramskeeper.Keeper //nolint:staticcheck
 	WasmKeeper         wasmkeeper.Keeper
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 	RewardsKeeper      rewardskeeper.Keeper
@@ -163,7 +160,6 @@ func NewAppKeeper(
 	blockedAddress map[string]bool,
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
-	invCheckPeriod uint,
 	logger log.Logger,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
@@ -235,16 +231,6 @@ func NewAppKeeper(
 		blockedAddress,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		logger,
-	)
-
-	appKeepers.CrisisKeeper = crisiskeeper.NewKeeper(
-		appCodec,
-		runtime.NewKVStoreService(appKeepers.keys[crisistypes.StoreKey]),
-		invCheckPeriod,
-		appKeepers.BankKeeper,
-		authtypes.FeeCollectorName,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		appKeepers.AccountKeeper.AddressCodec(),
 	)
 
 	appKeepers.AuthzKeeper = authzkeeper.NewKeeper(
@@ -625,7 +611,7 @@ func (appKeepers *AppKeepers) GetSubspace(moduleName string) paramstypes.Subspac
 
 // initParamsKeeper init params keeper and its subspaces
 func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey storetypes.StoreKey) paramskeeper.Keeper {
-	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
+	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey) //nolint:staticcheck
 
 	// register the key tables for legacy param subspaces
 	keyTable := ibcclienttypes.ParamKeyTable()
@@ -636,7 +622,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(distrtypes.ModuleName).WithKeyTable(distrtypes.ParamKeyTable())       //nolint: staticcheck // SA1019
 	paramsKeeper.Subspace(slashingtypes.ModuleName).WithKeyTable(slashingtypes.ParamKeyTable()) //nolint: staticcheck // SA1019
 	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govv1.ParamKeyTable())              //nolint: staticcheck // SA1019
-	paramsKeeper.Subspace(crisistypes.ModuleName).WithKeyTable(crisistypes.ParamKeyTable())     //nolint: staticcheck // SA1019
 	paramsKeeper.Subspace(ibcexported.ModuleName).WithKeyTable(keyTable)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName).WithKeyTable(ibctransfertypes.ParamKeyTable())
 	paramsKeeper.Subspace(icacontrollertypes.SubModuleName).WithKeyTable(icacontrollertypes.ParamKeyTable())

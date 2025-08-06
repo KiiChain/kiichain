@@ -339,7 +339,7 @@ start-localnet-ci: build
 	./build/kiichaind genesis gentx val 1000000000000000000000akii --home ~/.kiichaind-liveness --chain-id localchain_1010-1 --keyring-backend test
 	./build/kiichaind genesis collect-gentxs --home ~/.kiichaind-liveness
 	sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0akii"/' ~/.kiichaind-liveness/config/app.toml
-	./build/kiichaind start --home ~/.kiichaind-liveness --x-crisis-skip-assert-invariants
+	./build/kiichaind start --home ~/.kiichaind-liveness
 
 .PHONY: start-localnet-ci
 

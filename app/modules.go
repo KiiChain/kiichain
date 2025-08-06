@@ -34,8 +34,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/consensus"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
-	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -94,7 +92,6 @@ func appModules(
 	app *KiichainApp,
 	appCodec codec.Codec,
 	txConfig client.TxEncodingConfig,
-	skipGenesisInvariants bool,
 ) []module.AppModule {
 	return []module.AppModule{
 		genutil.NewAppModule(
@@ -107,7 +104,6 @@ func appModules(
 		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper, app.GetSubspace(banktypes.ModuleName)),
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper, false),
-		crisis.NewAppModule(app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(govtypes.ModuleName)),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(slashingtypes.ModuleName), app.interfaceRegistry),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(distrtypes.ModuleName)),
@@ -121,7 +117,7 @@ func appModules(
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
 		rewards.NewAppModule(app.RewardsKeeper, app.BankKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
-		sdkparams.NewAppModule(app.ParamsKeeper),
+		sdkparams.NewAppModule(app.ParamsKeeper), //nolint:staticcheck
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
@@ -160,7 +156,6 @@ func newBasicManagerFromManager(app *KiichainApp) module.BasicManager {
 func simulationModules(
 	app *KiichainApp,
 	appCodec codec.Codec,
-	_ bool,
 ) []module.AppModuleSimulation {
 	return []module.AppModuleSimulation{
 		auth.NewAppModule(appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
@@ -171,7 +166,6 @@ func simulationModules(
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName)),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(distrtypes.ModuleName)),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(slashingtypes.ModuleName), app.interfaceRegistry),
-		sdkparams.NewAppModule(app.ParamsKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		wasm.NewAppModule(appCodec, &app.AppKeepers.WasmKeeper, app.AppKeepers.StakingKeeper, app.AppKeepers.AccountKeeper, app.AppKeepers.BankKeeper, app.MsgServiceRouter(), app.GetSubspace(wasmtypes.ModuleName)),
@@ -198,7 +192,6 @@ func orderBeginBlockers() []string {
 		authtypes.ModuleName,
 		banktypes.ModuleName,
 		govtypes.ModuleName,
-		crisistypes.ModuleName,
 		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
 
@@ -225,7 +218,6 @@ func orderBeginBlockers() []string {
 
 func orderEndBlockers() []string {
 	return []string{
-		crisistypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		ibcexported.ModuleName,
@@ -304,8 +296,5 @@ func orderInitBlockers() []string {
 		tokenfactorytypes.ModuleName,
 		oracletypes.ModuleName,
 		rewardstypes.ModuleName,
-		// crisis needs to be last so that the genesis state is consistent
-		// when it checks invariants
-		crisistypes.ModuleName,
 	}
 }
