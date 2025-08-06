@@ -1,0 +1,171 @@
+---
+version: 2
+project_name: kiichain
+
+env:
+  - GO111MODULE=on
+  - CGO_ENABLED=1
+
+builds:
+  - id: "kiichaind-darwin-arm64"
+    main: ./cmd/kiichaind
+    binary: kiichaind
+    goos:
+      - darwin
+    goarch:
+      - arm64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    hooks:
+      pre:
+        - wget https://github.com/CosmWasm/wasmvm/releases/download/{{ .Env.COSMWASM_VERSION }}/libwasmvmstatic_darwin.a -O /lib/libwasmvmstatic_darwin.a
+    env:
+      - CC=oa64-clang
+      - CGO_LDFLAGS=-L/lib
+    tags:
+      - netgo
+      - ledger
+      - static_wasm
+    flags:
+      - -trimpath
+      - -mod=readonly
+
+    ldflags:
+      # .Env.TM_VERSION is provided in the workflow runner environment -> see .github/workflows/release.yml
+      - -s -w
+      - -linkmode=external
+      - -X main.commit={{.Commit}}
+      - -X main.date={{ .CommitDate }}
+      - -X github.com/cosmos/cosmos-sdk/version.Name=kiichain
+      - -X github.com/cosmos/cosmos-sdk/version.AppName=kiichaind
+      - -X github.com/cosmos/cosmos-sdk/version.Version=v{{ .Version }}
+      - -X github.com/cosmos/cosmos-sdk/version.Commit={{ .Commit }}
+      - -X github.com/cosmos/cosmos-sdk/version.BuildTags=netgo,ledger,static_wasm
+      - -X github.com/cometbft/cometbft/version.TMCoreSemVer={{ .Env.TM_VERSION }}
+
+  - id: "kiichaind-darwin-amd64"
+    main: ./cmd/kiichaind
+    binary: kiichaind
+    goos:
+      - darwin
+    goarch:
+      - amd64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    hooks:
+      pre:
+        - wget https://github.com/CosmWasm/wasmvm/releases/download/{{ .Env.COSMWASM_VERSION }}/libwasmvmstatic_darwin.a -O /lib/libwasmvmstatic_darwin.a
+    env:
+      - CC=oa64-clang
+      - CGO_LDFLAGS=-L/lib
+    tags:
+      - netgo
+      - ledger
+      - static_wasm
+    flags:
+      - -trimpath
+      - -mod=readonly
+
+    ldflags:
+      - -s -w
+      - -linkmode=external
+      - -X main.commit={{.Commit}}
+      - -X main.date={{ .CommitDate }}
+      - -X github.com/cosmos/cosmos-sdk/version.Name=kiichain
+      - -X github.com/cosmos/cosmos-sdk/version.AppName=kiichaind
+      - -X github.com/cosmos/cosmos-sdk/version.Version=v{{ .Version }}
+      - -X github.com/cosmos/cosmos-sdk/version.Commit={{ .Commit }}
+      - -X github.com/cosmos/cosmos-sdk/version.BuildTags=netgo,ledger,static_wasm
+      - -X github.com/cometbft/cometbft/version.TMCoreSemVer={{ .Env.TM_VERSION }}
+  - id: kiichaind-linux-amd64
+    main: ./cmd/kiichaind
+    binary: kiichaind
+    builder: go
+    gobinary: "go"
+    env:
+      - CGO_ENABLED=1
+      - CC=/opt/musl-cross/bin/x86_64-linux-musl-gcc
+      - LD=/opt/musl-cross/bin/x86_64-linux-musl-ld
+      - CGO_LDFLAGS=-L/lib
+    goos:
+      - linux
+    goarch:
+      - amd64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    tags:
+      - muslc
+      - ledger
+    hooks:
+      pre:
+        - wget -O /lib/libwasmvm_muslc.x86_64.a https://github.com/CosmWasm/wasmvm/releases/download/{{ .Env.COSMWASM_VERSION }}/libwasmvm_muslc.x86_64.a
+        - echo "a4a3d09b36fabb65b119d5ba23442c23694401fcbee4451fe6b7e22e325a4bac /lib/libwasmvm_muslc.x86_64.a" | sha256sum -c
+        - cp /lib/libwasmvm_muslc.x86_64.a /lib/libwasmvm_muslc.a
+        - curl -LO https://musl.cc/x86_64-linux-musl-cross.tgz
+        - tar xf x86_64-linux-musl-cross.tgz
+        - mv x86_64-linux-musl-cross /opt/musl-cross
+    ldflags:
+      - -s -w
+      - -linkmode=external
+      - -extldflags "-Wl,-z,muldefs -static"
+      - -X main.commit={{.Commit}}
+      - -X main.date={{ .CommitDate }}
+      - -X github.com/cosmos/cosmos-sdk/version.Name=kiichain
+      - -X github.com/cosmos/cosmos-sdk/version.AppName=kiichaind
+      - -X github.com/cosmos/cosmos-sdk/version.Version=v{{ .Version }}
+      - -X github.com/cosmos/cosmos-sdk/version.Commit={{ .Commit }}
+      - -X github.com/cosmos/cosmos-sdk/version.BuildTags=muslc,ledger
+      - -X github.com/cometbft/cometbft/version.TMCoreSemVer={{ .Env.TM_VERSION }}
+
+universal_binaries:
+  - id: kiichaind-darwin-universal
+    ids:
+      - kiichaind-darwin-arm64
+      - kiichaind-darwin-amd64
+    replace: false
+  - id: kiichaind-linux-universal
+    ids:
+      - kiichaind-linux-amd64
+    replace: false
+
+archives:
+  # disables archiving; to enable use commented lines below
+  # - format: tar.gz
+  #   wrap_in_directory: "true"
+  #   format_overrides:
+  #     - goos: windows
+  #       format: zip
+  #   name_template: "{{ .Binary }}-v{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+  #   files:
+  #     - LICENSE
+  #     - README.md
+  #   rlcp: true
+
+  - format: binary
+    name_template: "{{ .Binary }}-v{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    builds:
+      - kiichaind-darwin-arm64
+      - kiichaind-darwin-amd64
+      - kiichaind-linux-amd64
+    wrap_in_directory: false
+    files:
+      - none*
+
+release:
+  prerelease: true
+  name_template: "v{{.Version}}"
+
+checksum:
+  name_template: SHA256SUMS-v{{.Version}}.txt
+  algorithm: sha256
+
+snapshot:
+  name_template: SNAPSHOT-{{ .Commit }}
+
+changelog:
+  disable: false
+
+git:
+  # What should be used to sort tags when gathering the current and previous
+  # tags if there are more than one tag in the same commit.
+  #
+  # source: https://goreleaser.com/customization/git/
+  tag_sort: -version:refname
+  prerelease_suffix: "-rc"

@@ -1,0 +1,23 @@
+
+
+[{
+  "base": "akii",
+  "denom_units": [
+    {
+      "aliases": [
+        "attokii"
+      ],
+      "denom": "akii",
+      "exponent": 0
+    },
+    {
+      "aliases": [],
+      "denom": "kii",
+      "exponent": 18
+    }
+  ],
+  "description": "The token from Kiichain",
+  "display": "kii",
+  "name": "asdf",
+  "symbol": "asdf"
+}]

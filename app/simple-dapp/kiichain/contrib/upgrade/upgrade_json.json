@@ -1,0 +1,20 @@
+{
+  "messages": [
+    {
+      "@type": "/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade",
+      "authority": "kii10d07y265gmmuvt4z0w9aw880jnsr700jrff0qv",
+      "plan": {
+        "name": "v2.0.0",
+        "time": "0001-01-01T00:00:00Z",
+        "height": "25",
+        "info": "",
+        "upgraded_client_state": null
+      }
+    }
+  ],
+  "metadata": "ipfs://CID",
+  "deposit": "10000000000000000000akii",
+  "title": "Upgrade",
+  "summary": "Upgrade",
+  "expedited": false
+}

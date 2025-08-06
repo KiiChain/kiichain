@@ -1,0 +1,14 @@
+name: 'Close stale PRs'
+on:
+  schedule:
+    - cron: '30 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-issue-stale: -1
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

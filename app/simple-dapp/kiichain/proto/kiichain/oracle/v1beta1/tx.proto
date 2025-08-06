@@ -1,0 +1,76 @@
+syntax = "proto3";
+package kiichain.oracle.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "kiichain/oracle/v1beta1/params.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/msg/v1/msg.proto";
+import "amino/amino.proto";
+
+option go_package = "github.com/kiichain/kiichain/x/oracle/types";
+
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  // AggregateExchangeRateVote defines the method for submitting an 
+  // aggregate exchange rate vote
+  rpc AggregateExchangeRateVote(MsgAggregateExchangeRateVote) returns (MsgAggregateExchangeRateVoteResponse);
+  
+  // DelegateFeedConsent defines the method for delegating the privileged voting 
+  rpc DelegateFeedConsent(MsgDelegateFeedConsent) returns (MsgDelegateFeedConsentResponse);
+
+  // UpdateParams defines a governance operation for updating the x/oracle module
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+}
+
+// MsgAggregateExchangeRateVote represent the message to submit
+// an aggregate exchange rate vote
+message MsgAggregateExchangeRateVote{
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  option (cosmos.msg.v1.signer) = "feeder";
+  option (amino.name) = "oracle/aggregate-exchange-rate-vote";
+
+  string exchange_rates = 1 [(gogoproto.moretags) = "yaml:\"exchange_rates\""];
+  string feeder = 2 [(gogoproto.moretags) = "yaml:\"feeder\""];
+  string validator = 3 [(gogoproto.moretags) = "yaml:\"validator\""];
+}
+
+// MsgAggregateExchangeRateVoteResponse defines the MsgAggregateExchangeRateVote response
+message MsgAggregateExchangeRateVoteResponse {}
+
+
+// MsgDelegateFeedConsent represents a message to delegate oracle voting 
+// rights to another address
+message MsgDelegateFeedConsent{
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  option (cosmos.msg.v1.signer) = "validator_owner";
+  option (amino.name) = "oracle/delegate-feed-consent";
+
+  string validator_owner = 1 [(gogoproto.moretags) = "yaml:\"validator_owner\""];
+  string delegate = 2 [(gogoproto.moretags) = "yaml:\"delegate\""];
+}
+
+
+// MsgDelegateFeedConsent defines the Msg MsgDelegateFeedConsent response type
+message MsgDelegateFeedConsentResponse {}
+
+// MsgUpdateParams is the Msg/UpdateParams request type
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address that controls the module (defaults to x/gov)
+  string authority    = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  option (amino.name) = "oracle/MsgUpdateParams";
+
+  // params defines the x/oracle parameters to update
+  //
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a MsgUpdateParams
+message MsgUpdateParamsResponse {}

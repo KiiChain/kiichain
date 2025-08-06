@@ -1,0 +1,142 @@
+name: Test
+on:
+  workflow_call:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}-tests
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          check-latest: true
+          cache: true
+          cache-dependency-path: go.sum
+      - uses: technote-space/get-diff-action@v6.1.2
+        id: git_diff
+        with:
+          PATTERNS: |
+            **/*.go
+            go.mod
+            go.sum
+            **/go.mod
+            **/go.sum
+            **/Makefile
+            Makefile
+      - uses: actions/cache@v4.2.0
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: test & coverage report creation
+        if: env.GIT_DIFF
+        run: |
+          go test -v -coverprofile=profile.txt -covermode=atomic -coverpkg=./... $(go list ./... | grep -v -e '/tests/e2e' | grep -v -e '/tests/interchain')
+      - uses: actions/upload-artifact@v4
+        if: env.GIT_DIFF
+        with:
+          name: "${{ github.sha }}-coverage"
+          path: ./profile.txt
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: env.GIT_DIFF
+        with:
+          files: ./profile.txt
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  repo-analysis:
+    runs-on: ubuntu-latest
+    needs: [tests]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: technote-space/get-diff-action@v6.1.2
+        id: git_diff
+        with:
+          PATTERNS: |
+            **/*.go
+            go.mod
+            go.sum
+            **/go.mod
+            **/go.sum
+      - uses: actions/download-artifact@v4
+        if: env.GIT_DIFF
+        with:
+          name: "${{ github.sha }}-coverage"
+      - name: sonarcloud
+        if: ${{ env.SONAR_TOKEN != null && env.GIT_DIFF && !github.event.pull_request.draft }}
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # upgrade-test:
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 30
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #     - uses: technote-space/get-diff-action@v6.1.2
+  #       id: git_diff
+  #       with:
+  #         PATTERNS: |
+  #           **/*.go
+  #           go.mod
+  #           go.sum
+  #           **/go.mod
+  #           **/go.sum
+  #           **/Makefile
+  #           Makefile
+  #     - uses: actions/setup-go@v5
+  #       with:
+  #         go-version: 1.22.x
+  #     # the old kiichaind binary version is hardcoded, need to be updated each major release.
+  #     - name: Install Old Kiichaind
+  #       run: |
+  #         curl -LO <old version link>
+  #         chmod a+x kiichaind-v21.0.0-linux-amd64
+  #         mkdir build
+  #         mv ./kiichaind-v21.0.0-linux-amd64 ./build/kiichaindold
+  #       if: env.GIT_DIFF
+  #     - name: Install New kiichaind
+  #       run: |
+  #         curl -LO https://github.com/CosmWasm/wasmvm/releases/download/v2.1.5/libwasmvm.x86_64.so
+  #         curl -LO https://github.com/CosmWasm/wasmvm/releases/download/v2.1.5/libwasmvm.aarch64.so
+  #         uname -m
+  #         sudo cp "./libwasmvm.$(uname -m).so" /usr/lib/
+  #         make build
+  #         cp ./build/kiichaind ./build/kiichaindnew
+  #         go clean -modcache
+  #       if: env.GIT_DIFF
+  #     - name: Install Cosmovisor
+  #       run: |
+  #         go install github.com/cosmos/cosmos-sdk/cosmovisor/cmd/cosmovisor@latest
+  #       if: env.GIT_DIFF
+  #     - name: Start Old Kiichaind Binary
+  #       run: |
+  #         go env GOPATH
+  #         ./contrib/scripts/upgrade_test_scripts/run_kiichain.sh
+  #       if: env.GIT_DIFF
+  #     - name: Submit Upgrade Commands
+  #       run: |
+  #         ./contrib/scripts/upgrade_test_scripts/run_upgrade_commands.sh 15
+  #       if: env.GIT_DIFF
+  #     - name: Check for successful upgrade
+  #       run: |
+  #         ./contrib/scripts/upgrade_test_scripts/test_upgrade.sh 20 5 16 localhost
+  #       if: env.GIT_DIFF
