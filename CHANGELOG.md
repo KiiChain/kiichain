@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## UNRELEASED
+
+## DEPENDENCIES
+- Bump [cosmos-sdk](https://github.com/cosmos/cosmos-sdk) to [v0.53.4](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.53.4)
+- Removed crisis module 
+
 ## v3.0.0 — 2025-07-01
 
 No changes were made since the release candidate.
