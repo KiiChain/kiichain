@@ -28,14 +28,8 @@ func CalculateReward(blockTime time.Time, schedule ReleaseSchedule) (sdk.Coin, e
 	totalDurationStamp := schedule.EndTime.Sub(schedule.LastReleaseTime) // Remaining release period
 
 	// Convert to big int, using truncated seconds
-	timeElapsed, err := math.NewDecFromInt64(int64(timeElapsedStamp.Seconds())).BigInt()
-	if err != nil {
-		return sdk.Coin{}, err
-	}
-	totalDuration, err := math.NewDecFromInt64(int64(totalDurationStamp.Seconds())).BigInt()
-	if err != nil {
-		return sdk.Coin{}, err
-	}
+	timeElapsed := math.NewInt(int64(timeElapsedStamp.Seconds())).BigInt()
+	totalDuration := math.NewInt(int64(totalDurationStamp.Seconds())).BigInt()
 
 	// Calculate linear release proportion between 0 and 1
 	releaseProportion := math.LegacyNewDecFromBigInt(timeElapsed).Quo(math.LegacyNewDecFromBigInt(totalDuration))
