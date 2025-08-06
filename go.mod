@@ -293,9 +293,6 @@ require (
 )
 
 replace (
-	// EVM replaces
-	cosmossdk.io/store => github.com/cosmos/cosmos-sdk/store v1.1.2-0.20250319183239-53dea340efc7
-
 	// Use cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	github.com/CosmWasm/wasmd => github.com/kiichain/kii-wasmd v0.53.2-evm
