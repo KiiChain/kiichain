@@ -85,6 +85,9 @@ func (k Keeper) calculatePriceTokens(
 
 		// If the token price is zero, we disable the token for safety
 		if tokenPrice.IsZero() {
+			// Log or emit telemetry for monitoring
+			k.Logger(ctx).Warn("token price is zero, disabling token", "denom", token.Denom)
+			// Disable the token
 			token.Enabled = false
 			token.Price = math.LegacyZeroDec()
 			updateTokens = append(updateTokens, token)

@@ -154,7 +154,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 				return ctx
 			},
 			fees:     sdk.NewCoins(sdk.NewCoin("akii", convertToMinimalDenomination(1, 17))),  // 0.1 Kii
-			expected: sdk.NewCoins(sdk.NewCoin("usol", convertToMinimalDenomination(125, 5))), // 0.123 usol
+			expected: sdk.NewCoins(sdk.NewCoin("usol", convertToMinimalDenomination(125, 5))), // 0.00125 usol
 		},
 		{
 			name: "fail - token with price as zero",

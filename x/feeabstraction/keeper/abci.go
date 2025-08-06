@@ -46,12 +46,14 @@ func (k Keeper) WriteFeeTokenPricesMetrics(ctx context.Context) error {
 	// Iterate over the fee token prices and set the gauge metrics
 	for _, price := range feeTokenPrices.Items {
 		// Set a module metric for each token
-		telemetry.ModuleSetGauge(
-			types.ModuleName,
-			float32(price.Price.MustFloat64()),
-			"fee_token_price",
-			price.Denom,
-		)
+		if floatPrice, err := price.Price.Float64(); err == nil {
+			telemetry.ModuleSetGauge(
+				types.ModuleName,
+				float32(floatPrice),
+				"fee_token_price",
+				price.Denom,
+			)
+		}
 	}
 
 	return nil
