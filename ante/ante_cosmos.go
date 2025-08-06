@@ -13,7 +13,7 @@ import (
 	evmante "github.com/cosmos/evm/ante/evm"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	cosmosante "github.com/kiichain/kiichain/v3/x/feeabstraction/ante/cosmos"
+	cosmosante "github.com/kiichain/kiichain/v4/x/feeabstraction/ante/cosmos"
 )
 
 // UseFeeMarketDecorator to make the integration testing easier: we can switch off its ante and post decorators with this flag

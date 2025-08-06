@@ -14,7 +14,7 @@ import (
 	"github.com/cosmos/evm/contracts"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 
-	app "github.com/kiichain/kiichain/v3/app"
+	app "github.com/kiichain/kiichain/v4/app"
 )
 
 // DeployERC20 deploys an ERC20 contract

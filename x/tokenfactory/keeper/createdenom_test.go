@@ -8,8 +8,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/kiichain/kiichain/v3/app/params"
-	"github.com/kiichain/kiichain/v3/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v4/app/params"
+	"github.com/kiichain/kiichain/v4/x/tokenfactory/types"
 )
 
 func (suite *KeeperTestSuite) TestMsgCreateDenom() {

@@ -61,14 +61,14 @@ import (
 	"github.com/cosmos/evm/x/vm"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	"github.com/kiichain/kiichain/v3/x/feeabstraction"
-	feeabstractiontypes "github.com/kiichain/kiichain/v3/x/feeabstraction/types"
-	"github.com/kiichain/kiichain/v3/x/oracle"
-	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
-	"github.com/kiichain/kiichain/v3/x/rewards"
-	rewardstypes "github.com/kiichain/kiichain/v3/x/rewards/types"
-	"github.com/kiichain/kiichain/v3/x/tokenfactory"
-	tokenfactorytypes "github.com/kiichain/kiichain/v3/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v4/x/feeabstraction"
+	feeabstractiontypes "github.com/kiichain/kiichain/v4/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v4/x/oracle"
+	oracletypes "github.com/kiichain/kiichain/v4/x/oracle/types"
+	"github.com/kiichain/kiichain/v4/x/rewards"
+	rewardstypes "github.com/kiichain/kiichain/v4/x/rewards/types"
+	"github.com/kiichain/kiichain/v4/x/tokenfactory"
+	tokenfactorytypes "github.com/kiichain/kiichain/v4/x/tokenfactory/types"
 )
 
 var maccPerms = map[string][]string{

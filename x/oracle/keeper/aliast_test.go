@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kiichain/kiichain/v3/x/oracle/types"
+	"github.com/kiichain/kiichain/v4/x/oracle/types"
 )
 
 func TestGetOracleAccount(t *testing.T) {

@@ -11,7 +11,7 @@ import (
 
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 
-	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
+	oracletypes "github.com/kiichain/kiichain/v4/x/oracle/types"
 )
 
 // Erc20Keeper defines the expected interface for the Erc20 keeper

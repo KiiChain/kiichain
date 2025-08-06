@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"cosmossdk.io/math"
 
-	"github.com/kiichain/kiichain/v3/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v4/x/feeabstraction/types"
 )
 
 // TestQuerierParams tests the Params querier

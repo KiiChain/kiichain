@@ -7,11 +7,11 @@ import (
 
 	"cosmossdk.io/math"
 
-	"github.com/kiichain/kiichain/v3/app/apptesting"
-	"github.com/kiichain/kiichain/v3/wasmbinding/helpers"
-	"github.com/kiichain/kiichain/v3/wasmbinding/oracle"
-	oraclebindingtypes "github.com/kiichain/kiichain/v3/wasmbinding/oracle/types"
-	"github.com/kiichain/kiichain/v3/x/oracle/types"
+	"github.com/kiichain/kiichain/v4/app/apptesting"
+	"github.com/kiichain/kiichain/v4/wasmbinding/helpers"
+	"github.com/kiichain/kiichain/v4/wasmbinding/oracle"
+	oraclebindingtypes "github.com/kiichain/kiichain/v4/wasmbinding/oracle/types"
+	"github.com/kiichain/kiichain/v4/x/oracle/types"
 )
 
 // TestHandleOracleQuery tests the HandleOracleQuery function of the oracle module

@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kiichain/kiichain/v3/wasmbinding/bech32"
-	bech32bindingtypes "github.com/kiichain/kiichain/v3/wasmbinding/bech32/types"
+	"github.com/kiichain/kiichain/v4/wasmbinding/bech32"
+	bech32bindingtypes "github.com/kiichain/kiichain/v4/wasmbinding/bech32/types"
 )
 
 // TestHexToBech32 tests the HexToBech32 function of the bech32 module

@@ -31,10 +31,10 @@ import (
 	stakinghelper "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	app "github.com/kiichain/kiichain/v3/app"
-	helpers "github.com/kiichain/kiichain/v3/app/helpers"
-	appparams "github.com/kiichain/kiichain/v3/app/params"
-	tokenfactorytypes "github.com/kiichain/kiichain/v3/x/tokenfactory/types"
+	app "github.com/kiichain/kiichain/v4/app"
+	helpers "github.com/kiichain/kiichain/v4/app/helpers"
+	appparams "github.com/kiichain/kiichain/v4/app/params"
+	tokenfactorytypes "github.com/kiichain/kiichain/v4/x/tokenfactory/types"
 )
 
 type KeeperTestHelper struct {

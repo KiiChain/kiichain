@@ -3,7 +3,7 @@ package ante
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	kiievmante "github.com/kiichain/kiichain/v3/x/feeabstraction/ante/evm"
+	kiievmante "github.com/kiichain/kiichain/v4/x/feeabstraction/ante/evm"
 )
 
 // newMonoEVMAnteHandler creates the sdk.AnteHandler implementation for the EVM transactions

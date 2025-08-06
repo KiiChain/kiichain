@@ -1,6 +1,6 @@
 package keeper_test
 
-import "github.com/kiichain/kiichain/v3/x/feeabstraction/types"
+import "github.com/kiichain/kiichain/v4/x/feeabstraction/types"
 
 // TestGenesisInitExport tests the InitGenesis and ExportGenesis
 func (s *KeeperTestSuite) TestGenesisInitExport() {

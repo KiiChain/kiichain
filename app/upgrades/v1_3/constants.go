@@ -1,7 +1,7 @@
 package v130
 
 import (
-	"github.com/kiichain/kiichain/v3/app/upgrades"
+	"github.com/kiichain/kiichain/v4/app/upgrades"
 )
 
 const (

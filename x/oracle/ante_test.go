@@ -12,10 +12,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/kiichain/kiichain/v3/x/oracle"
-	"github.com/kiichain/kiichain/v3/x/oracle/keeper"
-	"github.com/kiichain/kiichain/v3/x/oracle/types"
-	"github.com/kiichain/kiichain/v3/x/oracle/utils"
+	"github.com/kiichain/kiichain/v4/x/oracle"
+	"github.com/kiichain/kiichain/v4/x/oracle/keeper"
+	"github.com/kiichain/kiichain/v4/x/oracle/types"
+	"github.com/kiichain/kiichain/v4/x/oracle/utils"
 )
 
 func TestVoteAloneHandle(t *testing.T) {
