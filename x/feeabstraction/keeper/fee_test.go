@@ -317,7 +317,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 					common.BytesToAddress(feePayer.Bytes()),
 				)
 
-				// The balance should be zero
+				// The balance should be 30000 (50000 minted - 20000 converted)
 				s.Require().EqualValues(30000, erc20Balance.Int64())
 			},
 		},
