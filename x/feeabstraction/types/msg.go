@@ -8,6 +8,13 @@ import (
 var (
 	_ sdk.Msg = (*MsgUpdateParams)(nil)
 	_ sdk.Msg = (*MsgUpdateFeeTokens)(nil)
+
+	// Define the types for the events
+	TypeEventConvertFees           = "convert_fees"
+	TypeAttributeFeePayer          = "fee_payer"
+	TypeAttributeOriginalFeeAmount = "original_fee"
+	TypeAttributeConvertedFee      = "converted_fee"
+	TypeAttributePrice             = "price"
 )
 
 // NewMessageUpdateParams creates a new MsgUpdateParams instance
