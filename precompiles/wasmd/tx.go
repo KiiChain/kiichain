@@ -5,12 +5,11 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	wasmdkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-
-	"github.com/cosmos/evm/x/vm/core/vm"
 )
 
 const (
