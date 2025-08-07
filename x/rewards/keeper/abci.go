@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/kiichain/kiichain/v4/x/rewards/types"
@@ -8,6 +9,9 @@ import (
 
 // BeginBlocker calculates reward amt and sends it to the distribution pool
 func (k Keeper) BeginBlocker(ctx sdk.Context) error {
+	// Apply telemetry metrics
+	defer telemetry.ModuleMeasureSince(types.ModuleName, telemetry.Now(), telemetry.MetricKeyBeginBlocker)
+
 	// Get release schedule
 	schedule, err := k.ReleaseSchedule.Get(ctx)
 	if err != nil {
