@@ -55,8 +55,24 @@ func (k Keeper) ConvertNativeFee(ctx sdk.Context, account sdk.AccAddress, fees s
 		return fees, nil
 	}
 
-	// convert ERC20 tokens to fees
-	return k.convertERC20ForFees(ctx, account, fee)
+	// Convert ERC20 tokens to fees
+	newFee, price, err := k.convertERC20ForFees(ctx, account, fee)
+	if err != nil {
+		return sdk.Coins{}, err
+	}
+
+	// Emit an event for the fee conversion
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.TypeEventConvertFees,
+			sdk.NewAttribute(types.TypeAttributeFeePayer, account.String()),
+			sdk.NewAttribute(types.TypeAttributeOriginalFeeAmount, fee.String()),
+			sdk.NewAttribute(types.TypeAttributeConvertedFee, newFee.String()),
+			sdk.NewAttribute(types.TypeAttributePrice, price.String()),
+		),
+	)
+
+	return newFee, nil
 }
 
 // hasSufficientNativeBalance checks if the user has enough balance to pay using the native coin
@@ -69,11 +85,11 @@ func (k Keeper) hasSufficientNativeBalance(ctx sdk.Context, account sdk.AccAddre
 // convertERC20ForFees prepares the user balance for fees by converting the native coin to the fee token
 // It checks if the user has enough balance in the native token, if not it tries to
 // convert the ERC20 token to the native token
-func (k Keeper) convertERC20ForFees(ctx sdk.Context, account sdk.AccAddress, fee sdk.Coin) (sdk.Coins, error) {
+func (k Keeper) convertERC20ForFees(ctx sdk.Context, account sdk.AccAddress, fee sdk.Coin) (sdk.Coins, math.LegacyDec, error) {
 	// Get the fee prices
 	feePrices, err := k.FeeTokens.Get(ctx)
 	if err != nil {
-		return sdk.Coins{}, err
+		return sdk.Coins{}, math.LegacyDec{}, err
 	}
 
 	// Iterate over the fee prices and try to convert the native fee
@@ -91,7 +107,7 @@ func (k Keeper) convertERC20ForFees(ctx sdk.Context, account sdk.AccAddress, fee
 			uint64(feePrice.Decimals),
 		)
 		if err != nil {
-			return sdk.Coins{}, err
+			return sdk.Coins{}, math.LegacyDec{}, err
 		}
 		// Truncate the decimals
 		amountEquivalentInt := amountEquivalent.RoundInt()
@@ -103,17 +119,17 @@ func (k Keeper) convertERC20ForFees(ctx sdk.Context, account sdk.AccAddress, fee
 		// Prepare the user balance for fees
 		ok, err := k.convertERC20ToNative(ctx, account, feePrice.Denom, amountEquivalentInt)
 		if err != nil {
-			return sdk.Coins{}, err
+			return sdk.Coins{}, math.LegacyDec{}, err
 		}
 
 		// If all went well we return the selected fee
 		if ok {
-			return sdk.Coins{sdk.NewCoin(feePrice.Denom, amountEquivalentInt)}, nil
+			return sdk.Coins{sdk.NewCoin(feePrice.Denom, amountEquivalentInt)}, feePrice.Price, nil
 		}
 	}
 
 	// If no suitable pair was found we return an error
-	return sdk.Coins{}, errorsmod.Wrapf(
+	return sdk.Coins{}, math.LegacyDec{}, errorsmod.Wrapf(
 		errortypes.ErrInsufficientFunds,
 		"insufficient funds for fee or no suitable pair found for amount %s",
 		fee.String(),
