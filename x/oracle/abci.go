@@ -3,6 +3,7 @@ package oracle
 import (
 	"sort"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/kiichain/kiichain/v4/x/oracle/keeper"
@@ -13,6 +14,9 @@ import (
 // EndBlocker get the votes from the validators, calculate the exchange rate using
 // weighted median logic when the vote period is almost finished
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
+	// Apply telemetry metrics
+	defer telemetry.ModuleMeasureSince(types.ModuleName, telemetry.Now(), telemetry.MetricKeyEndBlocker)
+
 	// Get the params
 	params, err := k.Params.Get(ctx)
 	if err != nil {
@@ -199,6 +203,9 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 
 // BeginBlocker is the function that slashes the validators and resets the miss counters
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
+	// Apply telemetry metrics
+	defer telemetry.ModuleMeasureSince(types.ModuleName, telemetry.Now(), telemetry.MetricKeyBeginBlocker)
+
 	// Get the params
 	params, err := k.Params.Get(ctx)
 	if err != nil {
