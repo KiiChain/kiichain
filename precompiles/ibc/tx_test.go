@@ -194,7 +194,7 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 			chainAstateDB := s.GetStateDB(s.chainA)
 
 			// Create the contract from the precompile contract
-			_, ctx := testutil.NewPrecompileContract(s.T(), s.chainA.GetContext(), sender.Addr, s.Precompile, 200000)
+			_, ctx := testutil.NewPrecompileContract(s.T(), s.chainA.GetContext(), sender.Addr, s.Precompile.Address(), 200000)
 
 			// Execute the contract using the precompile
 			res, err := s.Precompile.TransferWithDefaultTimeout(ctx, &method, chainAstateDB, args, sender.Addr)
@@ -328,7 +328,7 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransfer() {
 			chainAstateDB := s.GetStateDB(s.chainA)
 
 			// Create precompile
-			_, ctx := testutil.NewPrecompileContract(s.T(), s.chainA.GetContext(), sender.Addr, s.Precompile, 200000)
+			_, ctx := testutil.NewPrecompileContract(s.T(), s.chainA.GetContext(), sender.Addr, s.Precompile.Address(), 200000)
 
 			// Call transfer
 			res, err := s.Precompile.Transfer(ctx, &method, chainAstateDB, args, sender.Addr)
