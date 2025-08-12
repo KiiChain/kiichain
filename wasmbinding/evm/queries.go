@@ -95,7 +95,7 @@ func (qp *QueryPlugin) HandleEVMQuery(ctx sdk.Context, evmQuery evmbindingtypes.
 // HandleEthCall handles the EthCall query
 func (qp *QueryPlugin) HandleEthCall(ctx sdk.Context, call *evmbindingtypes.EthCallRequest) (*evmbindingtypes.EthCallResponse, error) {
 	// Prepare the request data
-	chainID := qp.evmKeeper.GetParams(ctx).ChainConfig.ChainId
+	chainID := evmtypes.GetEthChainConfig().ChainID
 	proposer := ctx.BlockHeader().ProposerAddress
 	to := common.HexToAddress(call.Contract)
 
@@ -300,7 +300,7 @@ func handleRevertError(vmError string, ret []byte) error {
 }
 
 // buildEthCallRequest builds the EVM query call
-func buildEthCallRequest(to common.Address, data hexutil.Bytes, chainID uint64, proposer []byte) (*evmtypes.EthCallRequest, error) {
+func buildEthCallRequest(to common.Address, data hexutil.Bytes, chainID *big.Int, proposer []byte) (*evmtypes.EthCallRequest, error) {
 	// Build the arguments
 	args := evmtypes.TransactionArgs{
 		To:   &to,
@@ -317,7 +317,7 @@ func buildEthCallRequest(to common.Address, data hexutil.Bytes, chainID uint64, 
 	return &evmtypes.EthCallRequest{
 		Args:            bz,
 		GasCap:          emvconfig.DefaultGasCap,
-		ChainId:         int64(chainID),
+		ChainId:         chainID.Int64(),
 		ProposerAddress: sdk.ConsAddress(proposer),
 	}, nil
 }
