@@ -61,6 +61,7 @@ func NewAvailableStaticPrecompiles(
 	evidenceKeeper evidencekeeper.Keeper,
 	wasmdKeeper wasmkeeper.Keeper,
 	oracleKeeper oraclekeeper.Keeper,
+	codec codec.Codec,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -108,7 +109,7 @@ func NewAvailableStaticPrecompiles(
 	}
 
 	// Prepare the gov precompile
-	govPrecompile, err := govprecompile.NewPrecompile(govKeeper, authzKeeper)
+	govPrecompile, err := govprecompile.NewPrecompile(govKeeper, codec)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
 	}
