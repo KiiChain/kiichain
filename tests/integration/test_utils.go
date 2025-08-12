@@ -55,6 +55,7 @@ func KiichainAppIniterTempDir() (ibctesting.TestingApp, map[string]json.RawMessa
 		map[int64]bool{},
 		tmpDir,
 		kiichain.EmptyAppOptions{},
+		params.LocalChainID,
 		kiichain.EmptyWasmOptions,
 		kiichain.EVMAppOptions,
 		baseAppOptions,
@@ -75,6 +76,7 @@ func KiichainAppIniter() (ibctesting.TestingApp, map[string]json.RawMessage) {
 		map[int64]bool{},
 		kiichain.DefaultNodeHome,
 		kiichain.EmptyAppOptions{},
+		params.LocalChainID,
 		kiichain.EmptyWasmOptions,
 		kiichain.NoOpEVMOptions)
 

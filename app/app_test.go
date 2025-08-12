@@ -16,6 +16,7 @@ import (
 
 	kiichain "github.com/kiichain/kiichain/v3/app"
 	kiihelpers "github.com/kiichain/kiichain/v3/app/helpers"
+	"github.com/kiichain/kiichain/v3/app/params"
 )
 
 type EmptyAppOptions struct{}
@@ -35,6 +36,7 @@ func TestKiichainApp_BlockedModuleAccountAddrs(t *testing.T) {
 		map[int64]bool{},
 		kiichain.DefaultNodeHome,
 		EmptyAppOptions{},
+		params.LocalChainID,
 		emptyWasmOption,
 		kiichain.NoOpEVMOptions,
 	)

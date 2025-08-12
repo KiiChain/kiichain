@@ -62,6 +62,7 @@ import (
 	srvflags "github.com/cosmos/evm/server/flags"
 
 	kiichain "github.com/kiichain/kiichain/v3/app"
+	"github.com/kiichain/kiichain/v3/app/params"
 )
 
 // CustomAppConfig generates a new custom config
@@ -92,6 +93,7 @@ func NewRootCmd() *cobra.Command {
 		map[int64]bool{},
 		tempDir,
 		initAppOptions,
+		params.TestnetChainID, // Turn into actual chain ID
 		kiichain.EmptyWasmOptions,
 		kiichain.NoOpEVMOptions,
 	)
@@ -413,6 +415,7 @@ func (a appCreator) newApp(
 		skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		appOpts,
+		params.TestnetChainID, // Turn into actual chain ID
 		wasmOpts,
 		kiichain.EVMAppOptions,
 		baseappOptions...,
@@ -465,6 +468,7 @@ func (a appCreator) appExport(
 		map[int64]bool{},
 		homePath,
 		appOpts,
+		params.TestnetChainID, // Turn into actual chain ID
 		emptyWasmOpts,
 		kiichain.EVMAppOptions,
 		baseapp.SetChainID(chainID),

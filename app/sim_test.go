@@ -26,6 +26,7 @@ import (
 
 	"github.com/kiichain/kiichain/v3/ante"
 	kiichain "github.com/kiichain/kiichain/v3/app"
+	"github.com/kiichain/kiichain/v3/app/params"
 	"github.com/kiichain/kiichain/v3/app/sim"
 )
 
@@ -95,6 +96,7 @@ func TestAppStateDeterminism(t *testing.T) {
 				map[int64]bool{},
 				dir,
 				appOptions,
+				params.LocalChainID,
 				emptyWasmOption,
 				kiichain.NoOpEVMOptions,
 				interBlockCacheOpt(),

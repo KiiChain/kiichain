@@ -13,6 +13,7 @@ import (
 	simcli "github.com/cosmos/cosmos-sdk/x/simulation/client/cli"
 
 	kiichain "github.com/kiichain/kiichain/v3/app"
+	"github.com/kiichain/kiichain/v3/app/params"
 	"github.com/kiichain/kiichain/v3/app/sim"
 )
 
@@ -46,6 +47,7 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 		map[int64]bool{},
 		kiichain.DefaultNodeHome,
 		appOptions,
+		params.LocalChainID,
 		emptyWasmOption,
 		kiichain.NoOpEVMOptions,
 		interBlockCacheOpt(),

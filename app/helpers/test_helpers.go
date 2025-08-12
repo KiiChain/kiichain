@@ -154,6 +154,7 @@ func setup() (*kiichain.KiichainApp, kiichain.GenesisState) {
 		map[int64]bool{},
 		dir,
 		appOptions,
+		params.LocalChainID,
 		emptyWasmOpts,
 		kiichain.EVMAppOptions,
 		baseAppOptions,
