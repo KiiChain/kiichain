@@ -450,7 +450,6 @@ func NewAppKeeper(
 		appKeepers.BankKeeper,
 		appKeepers.EVMKeeper,
 		appKeepers.StakingKeeper,
-		appKeepers.AuthzKeeper,
 		&appKeepers.TransferKeeper,
 	)
 
@@ -581,7 +580,6 @@ func NewAppKeeper(
 		appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.Erc20Keeper,
-		appKeepers.AuthzKeeper,
 		appKeepers.TransferKeeper,
 		appKeepers.IBCKeeper.ClientKeeper,
 		appKeepers.IBCKeeper.ConnectionKeeper,

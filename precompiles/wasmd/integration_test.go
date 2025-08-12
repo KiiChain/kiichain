@@ -78,7 +78,7 @@ func (s *WasmdPrecompileTestSuite) SetupSuite() {
 	s.CounterCodeID = res.CodeID
 
 	// Start the precompile
-	pc, err := wasmdprecompile.NewPrecompile(s.App.WasmKeeper, s.App.AuthzKeeper)
+	pc, err := wasmdprecompile.NewPrecompile(s.App.WasmKeeper)
 	s.Require().NoError(err)
 	s.Precompile = pc
 }

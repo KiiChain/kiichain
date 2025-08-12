@@ -13,7 +13,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 
 	wasmdkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
@@ -47,7 +46,6 @@ func LoadABI() (abi.ABI, error) {
 // NewPrecompile starts a new wasmd precompile
 func NewPrecompile(
 	wasmdKeeper wasmdkeeper.Keeper,
-	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
 	// Load the abi
 	abi, err := LoadABI()

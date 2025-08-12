@@ -13,7 +13,7 @@ import (
 
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	"github.com/cosmos/cosmos-sdk/codec"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -51,7 +51,6 @@ func NewAvailableStaticPrecompiles(
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20Keeper.Keeper,
-	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
@@ -76,7 +75,7 @@ func NewAvailableStaticPrecompiles(
 	}
 
 	// Prepare the staking precompile
-	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper)
+	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate staking precompile: %w", err))
 	}
@@ -85,7 +84,6 @@ func NewAvailableStaticPrecompiles(
 	distributionPrecompile, err := distprecompile.NewPrecompile(
 		distributionKeeper,
 		stakingKeeper,
-		authzKeeper,
 		evmKeeper,
 	)
 	if err != nil {
@@ -97,7 +95,6 @@ func NewAvailableStaticPrecompiles(
 		stakingKeeper,
 		transferKeeper,
 		channelKeeper,
-		authzKeeper,
 		evmKeeper,
 	)
 	if err != nil {
@@ -117,31 +114,31 @@ func NewAvailableStaticPrecompiles(
 	}
 
 	// Prepare the slashing precompile
-	slashingPrecompile, err := slashingprecompile.NewPrecompile(slashingKeeper, authzKeeper)
+	slashingPrecompile, err := slashingprecompile.NewPrecompile(slashingKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate slashing precompile: %w", err))
 	}
 
 	// Prepare the evidence precompile
-	evidencePrecompile, err := evidenceprecompile.NewPrecompile(evidenceKeeper, authzKeeper)
+	evidencePrecompile, err := evidenceprecompile.NewPrecompile(evidenceKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate evidence precompile: %w", err))
 	}
 
 	// Prepare the wasmd precompile
-	wasmdPrecompile, err := wasmd.NewPrecompile(wasmdKeeper, authzKeeper)
+	wasmdPrecompile, err := wasmd.NewPrecompile(wasmdKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate wasmd precompile: %w", err))
 	}
 
 	// Prepare the ibc precompile
-	ibcPrecompile, err := ibc.NewPrecompile(transferKeeper, clientKeeper, connectionKeeper, channelKeeper, authzKeeper)
+	ibcPrecompile, err := ibc.NewPrecompile(transferKeeper, clientKeeper, connectionKeeper, channelKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate ibc precompile: %w", err))
 	}
 
 	// Prepare the oracle precompile
-	oraclePrecompile, err := oracle.NewPrecompile(oracleKeeper, authzKeeper)
+	oraclePrecompile, err := oracle.NewPrecompile(oracleKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate oracle precompile: %w", err))
 	}

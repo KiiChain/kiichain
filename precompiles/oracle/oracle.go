@@ -13,7 +13,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 
@@ -47,7 +46,6 @@ func LoadABI() (abi.ABI, error) {
 // NewPrecompile creates a new oracle precompile instance
 func NewPrecompile(
 	oracleKeeper oraclekeeper.Keeper,
-	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
 	// Load the ABI
 	abi, err := LoadABI()
