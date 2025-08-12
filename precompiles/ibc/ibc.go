@@ -6,6 +6,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	clientkeeper "github.com/cosmos/ibc-go/v8/modules/core/02-client/keeper"
@@ -66,10 +67,8 @@ func NewPrecompile(
 	p := &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  abi,
-			AuthzKeeper:          authzKeeper,
 			KvGasConfig:          storetypes.KVGasConfig(),
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
-			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 		},
 		transferKeeper:   transferKeeper,
 		clientKeeper:     clientKeeper,
@@ -108,7 +107,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 // Run executes the ibc precompile
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
 	// Initialize the context, db and chain data
-	ctx, stateDB, snapshot, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
+	ctx, stateDB, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
 		return nil, err
 	}
@@ -131,13 +130,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	}
 	// Check the gas cost
 	cost := ctx.GasMeter().GasConsumed() - initialGas
-	if !contract.UseGas(cost) {
+	if !contract.UseGas(cost, nil, tracing.GasChangeCallPrecompiledContract) {
 		return nil, vm.ErrOutOfGas
-	}
-
-	// Add the new journal entries to the stateDB
-	if err := p.AddJournalEntries(stateDB, snapshot); err != nil {
-		return nil, err
 	}
 
 	return bz, nil
