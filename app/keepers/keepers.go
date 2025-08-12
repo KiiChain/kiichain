@@ -424,7 +424,6 @@ func NewAppKeeper(
 		appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
 		appKeepers.keys[feemarkettypes.StoreKey],
 		appKeepers.tkeys[feemarkettypes.TransientKey],
-		appKeepers.GetSubspace(feemarkettypes.ModuleName),
 	)
 
 	// Set up EVM keeper
@@ -432,14 +431,15 @@ func NewAppKeeper(
 
 	appKeepers.EVMKeeper = evmkeeper.NewKeeper(
 		// TODO: check why this is not adjusted to use the runtime module methods like SDK native keepers
-		appCodec, appKeepers.keys[evmtypes.StoreKey], appKeepers.tkeys[evmtypes.TransientKey],
+		appCodec, appKeepers.keys[evmtypes.StoreKey], appKeepers.tkeys[evmtypes.TransientKey], appKeepers.keys,
 		authtypes.NewModuleAddress(govtypes.ModuleName),
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.StakingKeeper,
 		appKeepers.FeeMarketKeeper,
+		&appKeepers.ConsensusParamsKeeper,
 		&appKeepers.Erc20Keeper,
-		tracer, appKeepers.GetSubspace(evmtypes.ModuleName),
+		tracer,
 	)
 
 	appKeepers.Erc20Keeper = erc20keeper.NewKeeper(
