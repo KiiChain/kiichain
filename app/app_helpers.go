@@ -2,8 +2,8 @@ package kiichain
 
 import (
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
-	ibctestingtypes "github.com/cosmos/ibc-go/v8/testing/types"
+	ibckeeper "github.com/cosmos/ibc-go/v10/modules/core/keeper"
+	ibctestingtypes "github.com/cosmos/ibc-go/v10/testing/types"
 )
 
 // GetStakingKeeper implements the TestingApp interface. Needed for ICS.
