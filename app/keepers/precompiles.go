@@ -54,7 +54,7 @@ func NewAvailableStaticPrecompiles(
 	transferKeeper transferkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
-	channelKeeper channelkeeper.Keeper,
+	channelKeeper *channelkeeper.Keeper,
 	evmKeeper *evmkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
 	slashingKeeper slashingkeeper.Keeper,
@@ -133,7 +133,7 @@ func NewAvailableStaticPrecompiles(
 	}
 
 	// Prepare the ibc precompile
-	ibcPrecompile, err := ibc.NewPrecompile(transferKeeper, clientKeeper, connectionKeeper, channelKeeper)
+	ibcPrecompile, err := ibc.NewPrecompile(transferKeeper, clientKeeper, connectionKeeper, *channelKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate ibc precompile: %w", err))
 	}

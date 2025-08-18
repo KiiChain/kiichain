@@ -6,7 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
-	ibctesting "github.com/cosmos/ibc-go/v8/testing"
+	ibctesting "github.com/cosmos/ibc-go/v10/testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -68,8 +68,8 @@ func (s *IBCPrecompileTestSuite) SetupTest() {
 
 	// Setup ibc precompile on chain A
 	pc, err := ibcprecompile.NewPrecompile(
-		chain.App.(*kiichainApp.KiichainApp).TransferKeeper, chain.App.GetIBCKeeper().ClientKeeper,
-		chain.App.GetIBCKeeper().ConnectionKeeper, chain.App.GetIBCKeeper().ChannelKeeper,
+		chain.App.(*kiichainApp.KiichainApp).TransferKeeper, *chain.App.GetIBCKeeper().ClientKeeper,
+		*chain.App.GetIBCKeeper().ConnectionKeeper, *chain.App.GetIBCKeeper().ChannelKeeper,
 	)
 	s.Require().NoError(err)
 	s.Precompile = pc
