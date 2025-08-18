@@ -147,8 +147,7 @@ kiichaind init $NODE_MONIKER --chain-id $CHAIN_ID --home $NODE_HOME
 sed -i.bak "s/^persistent_peers = \"\"/persistent_peers = \"$PERSISTENT_PEERS\"/" $NODE_HOME/config/config.toml
 
 # Set minimum gas prices
-sed -i -e "/minimum-gas-prices =/ s^= .*^= \"$MINIMUM_GAS_PRICES\"^" $NODE_HOME/config/app.toml
-
+sed -i.bak -e "/minimum-gas-prices =/ s^= .*^= \"$MINIMUM_GAS_PRICES\"^" $NODE_HOME/config/app.toml
 # Download official genesis file
 curl -L $GENESIS_URL -o genesis.json
 mv genesis.json $NODE_HOME/config/genesis.json
@@ -262,8 +261,7 @@ kiichaind version                   # Should show version like v3.0.0-5-g239012d
 
 ```bash
 export PATH="$HOME/go/bin:$PATH"                                                                              # Fix PATH issues (current session)
-sed -i -e "/minimum-gas-prices =/ s^= .*^= \"1000000000akii\"^" ~/.kiichain/config/app.toml              # Fix gas price error
-# On macOS, use curl instead of wget: curl -L <URL> -o filename
+sed -i.bak -e "/minimum-gas-prices =/ s^= .*^= \"1000000000akii\"^" ~/.kiichain/config/app.toml # On macOS, use curl instead of wget: curl -L <URL> -o filename
 ```
 
 ## Contributing
