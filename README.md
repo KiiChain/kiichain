@@ -187,45 +187,54 @@ kiichaind genesis collect-gentxs
 # Validate genesis file
 kiichaind genesis validate-genesis
 ```
-## Quick-Start Guide for Developers
-
-Get up and running with KiiChain in minutes! This guide covers the essentials for setting up a development environment.
-
-### Prerequisites
-- **Go**: Version 1.23.6+ ([Install Guide](https://golang.org/dl/))
-- **Git**: For cloning the repository
-- **Optional**: GNU Make for simplified builds
-- Check your setup:
-  ```bash
-  go version  # Should show 1.23.6+
-  git --version
-Setup StepsClone the Repository:bash
-
-git clone https://github.com/KiiChain/kiichain.git
-cd kiichain
-
-Build and Install:bash
-
-make install
-
-Verify Installation:bash
-
-kiichaind version  # Should show version (e.g., v3.0.0)
-
-Add Go to PATH (if kiichaind not found):bash
-
-export PATH="$HOME/go/bin:$PATH"
-echo 'export PATH="$HOME/go/bin:$PATH"' >> ~/.zshrc  # or ~/.bashrc
-source ~/.zshrc
-
-TroubleshootingError: "Minimum Go version 1.23 required": Upgrade Go to 1.23.6+.
-Error: "command not found: kiichaind": Ensure $HOME/go/bin is in your PATH.
-Gas Price Error: Set minimum gas prices in ~/.kiichain/config/app.toml:bash
-
-sed -i -e "/minimum-gas-prices =/ s^=.*^= \"1000000000akii\"^" ~/.kiichain/config/app.toml
-
-
-
++## Quick-Start Guide for Developers
++
++Get up and running with KiiChain in minutes. This guide covers the essentials for a development environment.
++
++### Prerequisites
++- **Go**: Version 1.23.6+ ([Install Guide](https://golang.org/dl/))
++- **Git**: For cloning the repository
++- **Optional**: GNU Make for simplified builds
++
++Check your setup:
++```bash
++go version  # Should show 1.23.6+
++git --version
++```
++
++### Setup Steps
++
++1) Clone the repository
++```bash
++git clone https://github.com/KiiChain/kiichain.git
++cd kiichain
++```
++
++2) Build and install
++```bash
++make install
++```
++
++3) Verify installation
++```bash
++kiichaind version  # e.g., v3.0.0
++```
++
++4) Add Go to PATH (if kiichaind is not found)
++```bash
++export PATH="$HOME/go/bin:$PATH"
++# Persist for future shells:
++echo 'export PATH="$HOME/go/bin:$PATH"' >> ~/.zshrc  # or ~/.bashrc
++source ~/.zshrc  # or source ~/.bashrc
++```
++
++### Troubleshooting (quick)
++- "Minimum Go version 1.23 required" → Upgrade to Go 1.23.6+
++- "command not found: kiichaind" → Ensure $HOME/go/bin is in PATH (see above)
++- Gas price error → Set minimum gas prices in app.toml:
++```bash
++sed -i.bak -e '/minimum-gas-prices =/ s^=.*^= "1000000000akii"^' ~/.kiichain/config/app.toml
++```
 For detailed setup instructions, visit our [documentation](https://docs.kiiglobal.io/docs).
 
 ### Troubleshooting
