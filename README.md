@@ -193,8 +193,7 @@ kiichaind genesis validate-genesis
 +### Prerequisites
 +- **Go**: Version 1.23.6+ ([Install Guide](https://golang.org/dl/))
 +- **Git**: For cloning the repository
-+- **Optional**: GNU Make for simplified builds
-+
++ - **GNU Make**: Recommended (required for the `make install` path below)
 +Check your setup:
 +```bash
 +go version  # Should show 1.23.6+
@@ -209,10 +208,18 @@ kiichaind genesis validate-genesis
 +cd kiichain
 +```
 +
-+2) Build and install
-+```bash
-+make install
-+```
++1) Build and Install
+
+Using GNU Make (recommended, requires GNU Make installed):
+
+```bash
+make build    # Builds the kiichaind binary
+make install  # (Note: Currently, the Makefile lacks an 'install' target; use the No-Make alternative below or see Makefile updates)
+```
+# Or without GNU Make:
+```bash
+go build -o "$HOME/go/bin/kiichaind" ./cmd/kiichaind
+```
 +
 +3) Verify installation
 +```bash
