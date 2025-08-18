@@ -188,7 +188,7 @@ kiichaind genesis validate-genesis
 ```
 +## Quick-Start Guide for Developers
 +
-+Get up and running with KiiChain in minutes. This guide covers the essentials for a development environment.
++Get up and running with KiiChain in minutes. This guide covers the essentials for setting up a development environment.
 +
 +### Prerequisites
 +- **Go**: Version 1.23.6+ ([Install Guide](https://golang.org/dl/))
@@ -232,8 +232,10 @@ kiichaind genesis validate-genesis
 +- "command not found: kiichaind" → Ensure $HOME/go/bin is in PATH (see above)
 +- Gas price error → Set minimum gas prices in app.toml:
 +```bash
-+sed -i.bak -e '/minimum-gas-prices =/ s^=.*^= "1000000000akii"^' ~/.kiichain/config/app.toml
++sed -i.bak -e '/minimum-gas-prices =/ s^= .*^= "1000000000akii"^' ~/.kiichain/config/app.toml
 +```
++- macOS `curl` alternative: If `wget` is unavailable, use `curl -L <URL> -o filename` to download files.
+
 For detailed setup instructions, visit our [documentation](https://docs.kiiglobal.io/docs).
 
 ### Troubleshooting
@@ -261,7 +263,7 @@ kiichaind version                   # Should show version like v3.0.0-5-g239012d
 
 ```bash
 export PATH="$HOME/go/bin:$PATH"                                                                              # Fix PATH issues (current session)
-sed -i.bak -e "/minimum-gas-prices =/ s^= .*^= \"1000000000akii\"^" ~/.kiichain/config/app.toml # On macOS, use curl instead of wget: curl -L <URL> -o filename
+sed -i.bak -e "/minimum-gas-prices =/ s^= .*^= \"1000000000akii\"^" ~/.kiichain/config/app.toml
 ```
 
 ## Contributing
