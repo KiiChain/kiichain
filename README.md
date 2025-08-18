@@ -220,8 +220,7 @@ kiichaind version  # Should print the binary version
 ```
 4) Persist PATH to your shell profile
 ```bash
--export PATH="$HOME/go/bin:$PATH"
--# Persist for future shells:
+# Persist for future shells:
 echo 'export PATH="$HOME/go/bin:$PATH"' >> ~/.zshrc  # or ~/.bashrc
 source ~/.zshrc  # or source ~/.bashrc
 ```
