@@ -566,6 +566,17 @@ func NewAppKeeper(
 	wasmStack = wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper, appKeepers.IBCFeeKeeper)
 	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, appKeepers.IBCFeeKeeper)
 
+	var ibcv2TransferStack ibcapi.IBCModule
+	ibcv2TransferStack = transferv2.NewIBCModule(appKeepers.TransferKeeper)
+	ibcv2TransferStack = ibccallbacksv2.NewIBCMiddleware(
+		transferv2.NewIBCModule(appKeepers.TransferKeeper),
+		appKeepers.IBCKeeper.ChannelKeeperV2,
+		wasmStackIBCHandler,
+		appKeepers.IBCKeeper.ChannelKeeperV2,
+		maxCallbackGas,
+	)
+	ibcv2TransferStack = ratelimitv2.NewIBCMiddleware(appKeepers.RatelimitKeeper, ibcv2TransferStack)
+
 	// Create IBC Router & seal
 	ibcRouter := porttypes.NewRouter().
 		AddRoute(icahosttypes.SubModuleName, icaHostStack).
@@ -574,6 +585,11 @@ func NewAppKeeper(
 		AddRoute(wasmtypes.ModuleName, wasmStack)
 
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
+
+	// Create IBCv2 Router & seal
+	ibcv2Router := ibcapi.NewRouter().
+		AddRoute(ibctransfertypes.PortID, ibcv2TransferStack)
+	appKeepers.IBCKeeper.SetRouterV2(ibcv2Router)
 
 	// Configure EVM precompiles
 	corePrecompiles := NewAvailableStaticPrecompiles(
