@@ -113,20 +113,6 @@ source ~/.zshrc  # or restart terminal
 
 ## Getting Started
 
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/KiiChain/kiichain.git
-cd kiichain
-
-# Build and install
-make install
-
-# Verify installation
-kiichaind version
-```
-
 ### Running a Node
 
 Follow the official [Step-by-Step Guide](https://docs.kiiglobal.io/docs/validate-the-network/run-a-validator-full-node/step-by-step-guide) for joining Testnet Oro:
@@ -208,22 +194,23 @@ kiichaind genesis validate-genesis
 +cd kiichain
 +```
 +
-+1) Build and Install
++2) Build and Install
 
 Using GNU Make (recommended, requires GNU Make installed):
 
 ```bash
 make build    # Builds the kiichaind binary
-make install  # (Note: Currently, the Makefile lacks an 'install' target; use the No-Make alternative below or see Makefile updates)
+# Note: If your Makefile includes an 'install' target, you may also run: make install
 ```
-# Or without GNU Make:
+# Or without GNU Make(Go-only):
 ```bash
 go build -o "$HOME/go/bin/kiichaind" ./cmd/kiichaind
 ```
 +
 +3) Verify installation
-+```bash
-+kiichaind version  # e.g., v3.0.0
+Ensure $HOME/go/bin is in your PATH:
++```export PATH=$PATH:$HOME/go/bin
+which kiichaind    # Should show a path if the binary is built and $HOME/go/bin is in PATH
 +```
 +
 +4) Add Go to PATH (if kiichaind is not found)
