@@ -133,7 +133,7 @@ kiichaind init $NODE_MONIKER --chain-id $CHAIN_ID --home $NODE_HOME
 sed -i.bak "s/^persistent_peers = \"\"/persistent_peers = \"$PERSISTENT_PEERS\"/" $NODE_HOME/config/config.toml
 
 # Set minimum gas prices
-sed -i.bak -e "/minimum-gas-prices =/ s^= .*^= \"$MINIMUM_GAS_PRICES\"^" $NODE_HOME/config/app.toml
+sed -i.bak -e "/minimum-gas-prices =/ s^= .*^= \"$MINIMUM_GAS_PRICES\"^" "$NODE_HOME/config/app.toml"
 # Download official genesis file
 curl -L $GENESIS_URL -o genesis.json
 mv genesis.json $NODE_HOME/config/genesis.json
@@ -200,23 +200,27 @@ Using GNU Make (recommended, requires GNU Make):
 
 ```bash
 make build    # Builds the kiichaind binary
-# Note: If your Makefile includes an 'install' target, you may also run: make install
 ```
-- Or without GNU Make(Go-only):
+If your Makefile includes an 'install' target:
+```bash
+make install  # Installs kiichaind into your GOPATH/bin (or as defined by the Makefile)
+```
+- Or without GNU Make (Go-only):
 ```bash
 go build -o "$HOME/go/bin/kiichaind" ./cmd/kiichaind
 ```
 
 3) Verify installation
-Ensure $HOME/go/bin is in your PATH:
-```bash
-export PATH="$HOME/go/bin:$PATH"
-which kiichaind  # Should print a path if the binary is in PATH
+Add Go bin to PATH (temporary) and verify
+ ```bash
+ export PATH="$HOME/go/bin:$PATH"
+ which kiichaind  # Should print a path if the binary is in PATH
++kiichaind version  # Should print the binary version
 ```
-4) Add Go to PATH (if kiichaind is not found)
+4) Persist PATH to your shell profile
 ```bash
-export PATH="$HOME/go/bin:$PATH"
-# Persist for future shells:
+-export PATH="$HOME/go/bin:$PATH"
+-# Persist for future shells:
 echo 'export PATH="$HOME/go/bin:$PATH"' >> ~/.zshrc  # or ~/.bashrc
 source ~/.zshrc  # or source ~/.bashrc
 ```
