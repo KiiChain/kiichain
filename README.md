@@ -199,7 +199,7 @@ cd kiichain
 Using GNU Make (recommended, requires GNU Make):
 
 ```bash
-make build    # Builds the kiichaind binary
+make build    # Builds the kiichaind binary (often at ./build/kiichaind)
 ```
 If your Makefile includes an 'install' target:
 ```bash
@@ -207,15 +207,16 @@ make install  # Installs kiichaind into your GOPATH/bin (or as defined by the Ma
 ```
 - Or without GNU Make (Go-only):
 ```bash
-go build -o "$HOME/go/bin/kiichaind" ./cmd/kiichaind
+# Respect GOBIN if set; otherwise fall back to GOPATH/bin
+go build -o "${GOBIN:-$(go env GOPATH)/bin}/kiichaind" ./cmd/kiichaind
 ```
 
 3) Verify installation
 Add Go bin to PATH (temporary) and verify
  ```bash
- export PATH="$HOME/go/bin:$PATH"
- which kiichaind  # Should print a path if the binary is in PATH
-+kiichaind version  # Should print the binary version
+export PATH="$HOME/go/bin:$PATH"
+which kiichaind  # Should print a path if the binary is in PATH
+kiichaind version  # Should print the binary version
 ```
 4) Persist PATH to your shell profile
 ```bash
