@@ -1,0 +1,16 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "KiiChain",
+    "Tendermint",
+    "EVM",
+    "kiichaind",
+    "Cosmos"
+  ],
+  "ignorePaths": [
+    "node_modules/**",
+    "go.mod",
+    "go.sum"
+  ]
+}
