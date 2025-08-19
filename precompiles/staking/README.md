@@ -16,6 +16,7 @@ To use in a Solidity contract:
 pragma solidity ^0.8.0;
 interface IStaking {
     function delegate(address validator, uint256 amount) external;
+	function undelegate(address validator, uint256 amount) external;
     function getDelegatedAmount(address delegator, address validator) external view returns (uint256);
 }
 contract MyContract {
@@ -23,14 +24,21 @@ contract MyContract {
     function delegateTokens(address validator, uint256 amount) external {
         staking.delegate(validator, amount);
     }
+	function undelegateTokens(address validator, uint256 amount) external {
+		staking.undelegate(validator, amount);
+	}
+	function myDelegationTo(address validator) external view returns (uint256) {
+		return staking.getDelegatedAmount(msg.sender, validator);
+	 }
 }
 ```
-NotesEnsure the contract address matches KiiChain’s staking precompile address (check chain documentation).
-Requires sufficient token balance for delegation.
-See KiiChain Docs(https://docs.kiiglobal.io/) for chain-specific details.
+### Notes
+- Ensure the contract address matches KiiChain’s staking precompile address (check chain documentation).
+- Requires sufficient token balance for delegation.
+- See the KiiChain documentation for chain-specific details: [docs.kiiglobal.io](https://docs.kiiglobal.io/)
 
 
-This README:
+### This README:
 - Describes the staking precompile’s purpose and key functions.
 - Provides a Solidity example for usability.
 - References kiichain-docs for further details, aligning with the issue’s requirements.
