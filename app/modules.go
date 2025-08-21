@@ -87,6 +87,7 @@ func appModules(
 	app *KiichainApp,
 	appCodec codec.Codec,
 	txConfig client.TxEncodingConfig,
+	tmLightClientModule ibctm.LightClientModule,
 ) []module.AppModule {
 	return []module.AppModule{
 		genutil.NewAppModule(
