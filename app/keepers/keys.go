@@ -3,7 +3,6 @@ package keepers
 import (
 	routertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward/types"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v10/types"
-	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	icacontrollertypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/controller/types"
 	icahosttypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
@@ -54,7 +53,6 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		ibctransfertypes.StoreKey,
 		icahosttypes.StoreKey,
 		icacontrollertypes.StoreKey,
-		capabilitytypes.StoreKey,
 		feegrant.StoreKey,
 		authzkeeper.StoreKey,
 		routertypes.StoreKey,
@@ -78,9 +76,6 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		evmtypes.TransientKey,
 		feemarkettypes.TransientKey,
 	)
-
-	// MemKeys are for information that is stored only in RAM.
-	appKeepers.memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 }
 
 func (appKeepers *AppKeepers) GetKVStoreKey() map[string]*storetypes.KVStoreKey {
