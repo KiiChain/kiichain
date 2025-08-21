@@ -2,11 +2,11 @@ package kiichain
 
 import (
 	ibckeeper "github.com/cosmos/ibc-go/v10/modules/core/keeper"
-	ibctestingtypes "github.com/cosmos/ibc-go/v10/testing/types"
+	icstest "github.com/cosmos/interchain-security/v7/testutil/integration"
 )
 
 // GetStakingKeeper implements the TestingApp interface. Needed for ICS.
-func (app *KiichainApp) GetStakingKeeper() ibctestingtypes.StakingKeeper { //nolint:nolintlint
+func (app *KiichainApp) GetStakingKeeper() icstest.TestStakingKeeper { //nolint:nolintlint
 	return app.StakingKeeper
 }
 
