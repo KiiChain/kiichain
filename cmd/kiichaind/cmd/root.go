@@ -75,7 +75,7 @@ type CustomAppConfig struct {
 	TLS     evmserverconfig.TLSConfig
 
 	// wasm config
-	Wasm wasmtypes.WasmConfig `mapstructure:"wasm"`
+	Wasm wasmtypes.NodeConfig `mapstructure:"wasm"`
 }
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -209,7 +209,7 @@ func initAppConfig() (string, interface{}) {
 		EVM:     *evmserverconfig.DefaultEVMConfig(),
 		JSONRPC: *evmserverconfig.DefaultJSONRPCConfig(),
 		TLS:     *evmserverconfig.DefaultTLSConfig(),
-		Wasm:    wasmtypes.DefaultWasmConfig(),
+		Wasm:    wasmtypes.DefaultNodeConfig(),
 	}
 
 	// Default template

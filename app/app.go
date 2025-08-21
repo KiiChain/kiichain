@@ -310,7 +310,7 @@ func NewKiichainApp(
 
 // setAnteHandler sets the antehandler on the app
 func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64, appOpts servertypes.AppOptions) {
-	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
+	wasmConfig, err := wasm.ReadNodeConfig(appOpts)
 	if err != nil {
 		panic("error while reading wasm config: " + err.Error())
 	}

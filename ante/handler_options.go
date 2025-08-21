@@ -41,7 +41,7 @@ type HandlerOptions struct {
 
 	StakingKeeper         *stakingkeeper.Keeper
 	TXCounterStoreService corestoretypes.KVStoreService
-	WasmConfig            *wasmtypes.WasmConfig
+	WasmConfig            *wasmtypes.NodeConfig
 
 	OracleKeeper *oraclekeeper.Keeper
 }
