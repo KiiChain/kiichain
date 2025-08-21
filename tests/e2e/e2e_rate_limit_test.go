@@ -188,7 +188,7 @@ func (s *IntegrationTestSuite) testAddRateLimits() {
 			rateLimits, err := queryAllRateLimits(chainEndpoint)
 			s.Require().NoError(err)
 			s.Require().Len(rateLimits, 1)
-			s.Require().Equal(transferChannel, rateLimits[0].Path.ChannelId)
+			s.Require().Equal(transferChannel, rateLimits[0].Path.ChannelOrClientId)
 			s.Require().Equal(akiiDenom, rateLimits[0].Path.Denom)
 			s.Require().Equal(uint64(24), rateLimits[0].Quota.DurationHours)
 			s.Require().Equal(sdkmath.NewInt(1), rateLimits[0].Quota.MaxPercentRecv)
@@ -230,7 +230,7 @@ func (s *IntegrationTestSuite) testAddRateLimits() {
 			s.Require().NoError(err)
 			s.Require().Len(rateLimits, 2)
 			// Note: the rate limits are ordered lexicographically by denom
-			s.Require().Equal(transferChannel, rateLimits[1].Path.ChannelId)
+			s.Require().Equal(transferChannel, rateLimits[1].Path.ChannelOrClientId)
 			s.Require().Equal(stakeDenom, rateLimits[1].Path.Denom)
 			s.Require().Equal(uint64(6), rateLimits[1].Quota.DurationHours)
 			s.Require().Equal(sdkmath.NewInt(5), rateLimits[1].Quota.MaxPercentRecv)
