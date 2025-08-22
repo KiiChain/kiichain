@@ -128,7 +128,10 @@ func (qp QueryPlugin) GetTokenfactoryDenomAdmin(ctx context.Context, denom strin
 
 // GetTokenfactoryDenomsByCreator is a query to get denoms by creator
 func (qp QueryPlugin) GetTokenfactoryDenomsByCreator(ctx context.Context, creator string) (*tfbindingtypes.DenomsByCreatorResponse, error) {
-	// TODO: validate creator address
+	// Validate creator address
+	if _, err := sdk.AccAddressFromBech32(creator); err != nil {
+		return nil, fmt.Errorf("invalid creator address: %w", err)
+	}
 	denoms := qp.tokenFactoryKeeper.GetDenomsFromCreator(sdk.UnwrapSDKContext(ctx), creator)
 	return &tfbindingtypes.DenomsByCreatorResponse{Denoms: denoms}, nil
 }

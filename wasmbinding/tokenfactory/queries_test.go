@@ -119,3 +119,76 @@ func TestDenomAdmin(t *testing.T) {
 		})
 	}
 }
+
+// TestGetTokenfactoryDenomsByCreator tests the GetTokenfactoryDenomsByCreator function with address validation
+func TestGetTokenfactoryDenomsByCreator(t *testing.T) {
+	actor := apptesting.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, actor)
+	queryPlugin := wasmbinding.NewQueryPlugin(
+		app.BankKeeper,
+		&app.TokenFactoryKeeper,
+	)
+
+	// set token creation fee to zero to make testing easier
+	tfParams := app.TokenFactoryKeeper.GetParams(ctx)
+	tfParams.DenomCreationFee = sdk.NewCoins()
+	if err := app.TokenFactoryKeeper.SetParams(ctx, tfParams); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create some denoms for testing
+	_, err := app.TokenFactoryKeeper.CreateDenom(ctx, actor.String(), "token1")
+	require.NoError(t, err)
+	_, err = app.TokenFactoryKeeper.CreateDenom(ctx, actor.String(), "token2")
+	require.NoError(t, err)
+
+	testCases := []struct {
+		name          string
+		creator       string
+		expectErr     bool
+		expectedCount int
+	}{
+		{
+			name:          "valid creator address with denoms",
+			creator:       actor.String(),
+			expectErr:     false,
+			expectedCount: 2,
+		},
+		{
+			name:          "valid creator address with no denoms",
+			creator:       apptesting.RandomAccountAddress().String(),
+			expectErr:     false,
+			expectedCount: 0,
+		},
+		{
+			name:      "invalid creator address",
+			creator:   "invalid_address",
+			expectErr: true,
+		},
+		{
+			name:      "empty creator address",
+			creator:   "",
+			expectErr: true,
+		},
+		{
+			name:      "malformed bech32 address",
+			creator:   "kii1invalid!!!",
+			expectErr: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			resp, err := queryPlugin.GetTokenfactoryDenomsByCreator(ctx, tc.creator)
+			if tc.expectErr {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "invalid creator address")
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, resp)
+				require.Len(t, resp.Denoms, tc.expectedCount)
+			}
+		})
+	}
+}
