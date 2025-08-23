@@ -175,6 +175,11 @@ func TestGetTokenfactoryDenomsByCreator(t *testing.T) {
 			creator:   "kii1invalid!!!",
 			expectErr: true,
 		},
+		{
+			name:      "valid bech32 but wrong chain prefix",
+			creator:   "cosmos1qypqxpq9qcrsszg2pvxq6rs0zqg3yyc5lzv7xu",
+			expectErr: true,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -188,6 +193,14 @@ func TestGetTokenfactoryDenomsByCreator(t *testing.T) {
 				require.NoError(t, err)
 				require.NotNil(t, resp)
 				require.Len(t, resp.Denoms, tc.expectedCount)
+				// Verify actual denoms content for creator with denoms
+				if tc.expectedCount > 0 && tc.creator == actor.String() {
+					expectedDenoms := []string{
+						fmt.Sprintf("factory/%s/token1", actor.String()),
+						fmt.Sprintf("factory/%s/token2", actor.String()),
+					}
+					require.ElementsMatch(t, expectedDenoms, resp.Denoms)
+				}
 			}
 		})
 	}
