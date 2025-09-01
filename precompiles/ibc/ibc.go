@@ -19,7 +19,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v10/modules/apps/transfer/keeper"
+	ibctransferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 )
 
 const (

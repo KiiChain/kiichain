@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cast"
 
+	ibctransferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 	pfmrouter "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward"
 	pfmrouterkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward/keeper"
 	pfmroutertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward/types"
@@ -23,7 +24,6 @@ import (
 	ibccallbacks "github.com/cosmos/ibc-go/v10/modules/apps/callbacks"
 	ibccallbacksv2 "github.com/cosmos/ibc-go/v10/modules/apps/callbacks/v2"
 	"github.com/cosmos/ibc-go/v10/modules/apps/transfer"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v10/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
 	transferv2 "github.com/cosmos/ibc-go/v10/modules/apps/transfer/v2"
 	ibcclienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types"
@@ -410,7 +410,7 @@ func NewAppKeeper(
 		appKeepers.BankKeeper,
 		appKeepers.EVMKeeper,
 		appKeepers.StakingKeeper,
-		appKeepers.TransferKeeper,
+		&appKeepers.TransferKeeper,
 	)
 
 	appKeepers.TransferKeeper = ibctransferkeeper.NewKeeper(
@@ -422,6 +422,7 @@ func NewAppKeeper(
 		bApp.MsgServiceRouter(),
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
+		appKeepers.Erc20Keeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -486,7 +487,7 @@ func NewAppKeeper(
 
 	// Middleware Stacks
 	appKeepers.ICAModule = ica.NewAppModule(&appKeepers.ICAControllerKeeper, &appKeepers.ICAHostKeeper)
-	appKeepers.TransferModule = transfer.NewAppModule(appKeepers.TransferKeeper)
+	appKeepers.TransferModule = transfer.NewAppModule(*appKeepers.TransferKeeper.Keeper)
 	appKeepers.PFMRouterModule = pfmrouter.NewAppModule(appKeepers.PFMRouterKeeper, appKeepers.GetSubspace(pfmroutertypes.ModuleName))
 	appKeepers.RateLimitModule = ratelimit.NewAppModule(appCodec, appKeepers.RatelimitKeeper)
 
@@ -507,7 +508,7 @@ func NewAppKeeper(
 	// * SendPacket -> Transfer -> Provider -> PFM -> RateLimit -> Fee -> IBC core (ICS4Wrapper)
 
 	var transferStack porttypes.IBCModule
-	transferStack = transfer.NewIBCModule(appKeepers.TransferKeeper)
+	transferStack = transfer.NewIBCModule(*appKeepers.TransferKeeper.Keeper)
 	// callbacks wraps the transfer stack as its base app, and uses PacketForwardKeeper as the ICS4Wrapper
 	// i.e. packet-forward-middleware is higher on the stack and sits between callbacks and the ibc channel keeper
 	// Since this is the lowest level middleware of the transfer stack, it should be the first entrypoint for transfer keeper's
@@ -535,9 +536,9 @@ func NewAppKeeper(
 	appKeepers.ICAControllerKeeper.WithICS4Wrapper(icaICS4Wrapper)
 
 	var ibcv2TransferStack ibcapi.IBCModule
-	ibcv2TransferStack = transferv2.NewIBCModule(appKeepers.TransferKeeper)
+	ibcv2TransferStack = transferv2.NewIBCModule(*appKeepers.TransferKeeper.Keeper)
 	ibcv2TransferStack = ibccallbacksv2.NewIBCMiddleware(
-		transferv2.NewIBCModule(appKeepers.TransferKeeper),
+		transferv2.NewIBCModule(*appKeepers.TransferKeeper.Keeper),
 		appKeepers.IBCKeeper.ChannelKeeperV2,
 		wasmStackIBCHandler,
 		appKeepers.IBCKeeper.ChannelKeeperV2,
