@@ -57,10 +57,12 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	// EVM
+	"github.com/cosmos/evm/ante"
 	cosmosevmante "github.com/cosmos/evm/ante/evm"
 	evmencoding "github.com/cosmos/evm/encoding"
 	srvflags "github.com/cosmos/evm/server/flags"
 	cosmosevmtypes "github.com/cosmos/evm/types"
+	geth "github.com/ethereum/go-ethereum/common"
 
 	kiiante "github.com/kiichain/kiichain/v3/ante"
 	"github.com/kiichain/kiichain/v3/app/keepers"
@@ -96,6 +98,9 @@ type KiichainApp struct { //nolint: revive
 	appCodec          codec.Codec
 	txConfig          client.TxConfig
 	interfaceRegistry types.InterfaceRegistry
+	// EVM v0.4.1
+	clientCtx          client.Context
+	pendingTxListeners []ante.PendingTxListener // from "github.com/cosmos/evm/ante"
 
 	// the module manager
 	mm           *module.Manager
@@ -570,4 +575,14 @@ var EmptyWasmOptions []wasmkeeper.Option
 // Get implements AppOptions
 func (ao EmptyAppOptions) Get(_ string) interface{} {
 	return nil
+}
+
+// SetClientCtx sets the client ctx
+func (app *KiichainApp) SetClientCtx(clientCtx client.Context) {
+	app.clientCtx = clientCtx
+}
+
+// RegisterPendingTxListener is used by json-rpc server to listen to pending transactions callback.
+func (app *KiichainApp) RegisterPendingTxListener(listener func(geth.Hash)) {
+	app.pendingTxListeners = append(app.pendingTxListeners, listener)
 }
