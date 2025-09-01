@@ -232,13 +232,16 @@ func initRootCmd(rootCmd *cobra.Command,
 
 	ac := appCreator{}
 
+	sdkAppCreatorWrapper := func(l log.Logger, d dbm.DB, w io.Writer, ao servertypes.AppOptions) servertypes.Application {
+		return ac.newApp(l, d, w, ao)
+	}
 	rootCmd.AddCommand(
 		initCmd(basicManager, kiichain.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
-		pruning.Cmd(ac.newApp, kiichain.DefaultNodeHome),
-		snapshot.Cmd(ac.newApp),
+		pruning.Cmd(sdkAppCreatorWrapper, kiichain.DefaultNodeHome),
+		snapshot.Cmd(sdkAppCreatorWrapper),
 	)
 
 	// EVM add commands
@@ -349,7 +352,7 @@ func (a appCreator) newApp(
 	db dbm.DB,
 	traceStore io.Writer,
 	appOpts servertypes.AppOptions,
-) servertypes.Application {
+) evmserver.Application {
 	var cache storetypes.MultiStorePersistentCache
 
 	if cast.ToBool(appOpts.Get(server.FlagInterBlockCache)) {
