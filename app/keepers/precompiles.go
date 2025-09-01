@@ -25,7 +25,6 @@ import (
 	bankprecompile "github.com/cosmos/evm/precompiles/bank"
 	"github.com/cosmos/evm/precompiles/bech32"
 	distprecompile "github.com/cosmos/evm/precompiles/distribution"
-	evidenceprecompile "github.com/cosmos/evm/precompiles/evidence"
 	govprecompile "github.com/cosmos/evm/precompiles/gov"
 	ics20precompile "github.com/cosmos/evm/precompiles/ics20"
 	"github.com/cosmos/evm/precompiles/p256"
@@ -120,12 +119,6 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate slashing precompile: %w", err))
 	}
 
-	// Prepare the evidence precompile
-	evidencePrecompile, err := evidenceprecompile.NewPrecompile(evidenceKeeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate evidence precompile: %w", err))
-	}
-
 	// Prepare the wasmd precompile
 	wasmdPrecompile, err := wasmd.NewPrecompile(wasmdKeeper)
 	if err != nil {
@@ -155,7 +148,6 @@ func NewAvailableStaticPrecompiles(
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
 	precompiles[slashingPrecompile.Address()] = slashingPrecompile
-	precompiles[evidencePrecompile.Address()] = evidencePrecompile
 	precompiles[wasmdPrecompile.Address()] = wasmdPrecompile
 	precompiles[ibcPrecompile.Address()] = ibcPrecompile
 	precompiles[oraclePrecompile.Address()] = oraclePrecompile
