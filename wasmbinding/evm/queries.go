@@ -137,7 +137,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res := &evmbindingtypes.ERC20InformationResponse{}
 
 	// Query the decimals
-	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "decimals")
+	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, nil, "decimals")
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res.Decimals = decimals
 
 	// Query the name
-	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "name")
+	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, nil, "name")
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +171,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res.Name = name
 
 	// Query the symbol
-	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "symbol")
+	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, nil, "symbol")
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res.Symbol = symbol
 
 	// Query the total supply
-	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "totalSupply")
+	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, nil, "totalSupply")
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +218,7 @@ func (qp *QueryPlugin) HandleERC20Balance(ctx sdk.Context, call *evmbindingtypes
 	res := &evmbindingtypes.ERC20BalanceResponse{}
 
 	// Query the balance
-	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "balanceOf", address)
+	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, nil, "balanceOf", address)
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +249,7 @@ func (qp *QueryPlugin) HandleERC20Allowance(ctx sdk.Context, call *evmbindingtyp
 	res := &evmbindingtypes.ERC20AllowanceResponse{}
 
 	// Query the allowance
-	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "allowance", owner, spender)
+	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, nil, "allowance", owner, spender)
 	if err != nil {
 		return nil, err
 	}

@@ -210,7 +210,7 @@ func deployCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.A
 	deployData := append(common.FromHex(mock.CounterBin), ctorArgs...)
 
 	// Deploy the contract
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, nil, deployData, true)
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, nil, deployData, true, nil)
 	require.NoError(t, err)
 	require.NotNil(t, res.Ret)
 
@@ -233,7 +233,7 @@ func incrementCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contr
 	require.NoError(t, err)
 
 	// Send transaction to call increment
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true)
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true, nil)
 	require.NoError(t, err)
 	require.NotNil(t, res)
 }
@@ -251,7 +251,7 @@ func deployERC20(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.Add
 	deployData := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 
 	// Deploy the contract
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, nil, deployData, true)
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, nil, deployData, true, nil)
 	require.NoError(t, err)
 	require.NotNil(t, res.Ret)
 
@@ -273,7 +273,7 @@ func mintERC20(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contractAddr
 	require.NoError(t, err)
 
 	// Send transaction to call mint
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true)
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true, nil)
 	require.NoError(t, err)
 	require.NotNil(t, res)
 }
@@ -287,7 +287,7 @@ func createERC20Allowance(t *testing.T, ctx sdk.Context, app *app.KiichainApp, c
 	require.NoError(t, err)
 
 	// Send transaction to call mint
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, owner, &contractAddr, inputData, true)
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, owner, &contractAddr, inputData, true, nil)
 	require.NoError(t, err)
 	require.NotNil(t, res)
 }
