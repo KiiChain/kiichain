@@ -29,7 +29,7 @@ func KiichainAppIniterTempDir() (ibctesting.TestingApp, map[string]json.RawMessa
 
 	// Set the base options
 	baseAppOptions := bam.SetChainID(
-		fmt.Sprintf("%s-1", params.LocalChainID),
+		fmt.Sprintf("%d", params.LocalChainID),
 	)
 
 	// Disable the fee market

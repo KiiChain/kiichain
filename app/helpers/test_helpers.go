@@ -142,7 +142,7 @@ func setup() (*kiichain.KiichainApp, kiichain.GenesisState) {
 
 	// Set the base options
 	baseAppOptions := baseapp.SetChainID(
-		fmt.Sprintf("%s-1", params.LocalChainID),
+		fmt.Sprintf("%d", params.LocalChainID),
 	)
 
 	// initialize the kiichain app
