@@ -10,7 +10,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	testkeyring "github.com/cosmos/evm/testutil/keyring"
 
 	app "github.com/kiichain/kiichain/v3/app"
 	"github.com/kiichain/kiichain/v3/app/helpers"

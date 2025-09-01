@@ -16,7 +16,7 @@ import (
 	wasmdkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	testkeyring "github.com/cosmos/evm/testutil/keyring"
 	"github.com/cosmos/evm/x/vm/statedb"
 
 	app "github.com/kiichain/kiichain/v3/app"
