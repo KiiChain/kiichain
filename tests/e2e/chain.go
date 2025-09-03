@@ -97,7 +97,7 @@ func newChain() (*chain, error) {
 	}
 
 	return &chain{
-		id:      fmt.Sprintf("%s-%d", kiiparams.LocalChainID, tmrand.Int()),
+		id:      fmt.Sprintf("%d-%d", kiiparams.LocalChainID, tmrand.Int()),
 		dataDir: tmpDir,
 	}, nil
 }
