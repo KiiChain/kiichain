@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -15,6 +16,12 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+// Default increment values
+const (
+	DefaultBlockIncrement = 100
+	DefaultTimeIncrement  = 10 * time.Minute
 )
 
 // TransferEvent represents the solidity event that is logged
@@ -125,8 +132,6 @@ func (p Precompile) NewMsgTransferDefaultTimeout(
 		return nil, err
 	}
 
-	// TODO: check if consensus and timestamp need added values
-	// They had a default param before, might need something raw now like 100 blocks or 10 min
 	latestConsensusHeight := p.getConsensusLatestHeight(ctx, *connection)
 
 	timeoutTimestamp, err := p.GetAdjustedTimestamp(ctx, connection.ClientId, latestConsensusHeight)
@@ -134,13 +139,19 @@ func (p Precompile) NewMsgTransferDefaultTimeout(
 		return nil, err
 	}
 
+	// Adjust timeout height by adding timeout height
+	incrementedHeight := clienttypes.NewHeight(
+		latestConsensusHeight.GetRevisionNumber(),
+		latestConsensusHeight.GetRevisionHeight()+DefaultBlockIncrement,
+	)
+
 	msg := types.MsgTransfer{
 		SourcePort:       validatedArgs.port,
 		SourceChannel:    validatedArgs.channelID,
 		Token:            coin,
 		Sender:           validatedArgs.senderKiiAddr.String(),
 		Receiver:         validatedArgs.receiverAddressString,
-		TimeoutHeight:    latestConsensusHeight,
+		TimeoutHeight:    incrementedHeight,
 		TimeoutTimestamp: timeoutTimestamp,
 	}
 
@@ -171,7 +182,16 @@ func (p Precompile) getConsensusLatestHeight(ctx sdk.Context, connection connect
 
 // GetAdjustedTimestamp creates default timestamp from height and unix
 func (p Precompile) GetAdjustedTimestamp(ctx sdk.Context, clientID string, height clienttypes.Height) (uint64, error) {
-	return p.clientKeeper.GetClientTimestampAtHeight(ctx, clientID, height)
+	// Get adjusted timestamp
+	timeoutTimestamp, err := p.clientKeeper.GetClientTimestampAtHeight(ctx, clientID, height)
+	if err != nil {
+		return 0, err
+	}
+
+	// Increment timestamp by default amt
+	adjustedTime := time.Unix(0, int64(timeoutTimestamp))
+	incrementedTimestamp := uint64(adjustedTime.Add(DefaultTimeIncrement).UnixNano())
+	return incrementedTimestamp, nil
 }
 
 // ValidatedArgs stores common args that have been validated
