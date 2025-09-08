@@ -1,12 +1,21 @@
 package kiichain
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/spf13/viper"
 
+	clienthelpers "cosmossdk.io/client/v2/helpers"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/kiichain/kiichain/v3/app/params"
@@ -54,7 +63,7 @@ func EVMAppOptions(chainID uint64) error {
 	coinInfo, found := ChainsCoinInfo[chainID]
 	if !found {
 		// If not found, set as default
-		log.Println("Chain ID not found in ChainsCoinInfo, using default")
+		log.Printf("Chain ID %d not found in ChainsCoinInfo, using default", chainID)
 		coinInfo = ChainsCoinInfo[params.TestnetChainID]
 	}
 
@@ -88,4 +97,101 @@ func setBaseDenom(ci evmtypes.EvmCoinInfo) error {
 	// sdk.RegisterDenom will automatically overwrite the base denom when the
 	// new setBaseDenom() are lower than the current base denom's units.
 	return sdk.RegisterDenom(ci.Denom, math.LegacyNewDecWithPrec(1, int64(ci.Decimals)))
+}
+
+var (
+	KiichainID uint64 = 262144 // default Chain ID
+)
+
+// init initializes the KiichainID variable by reading the chain ID from the
+// genesis file or app.toml file in the node's home directory.
+// If the genesis file exists, it reads the Cosmos chain ID from there and parses it
+// using the Evmos-style chain ID format; otherwise, it checks the app.toml file for the EVM chain ID.
+// If neither file exists or the chain ID is not found, it defaults to the Kiichain Chain ID (262144).
+func init() {
+	nodeHome, err := clienthelpers.GetNodeHomeDirectory(".kiichain")
+	if err != nil {
+		panic(err)
+	}
+
+	// check if the genesis file exists and read the chain ID from it
+	genesisFilePath := filepath.Join(nodeHome, "config", "genesis.json")
+	if _, err = os.Stat(genesisFilePath); err == nil {
+		// File exists, read the genesis file to get the chain ID
+		reader, err := os.Open(genesisFilePath)
+		if err == nil {
+			defer reader.Close()
+
+			chainID, err := genutiltypes.ParseChainIDFromGenesis(reader)
+			if err == nil && chainID != "" {
+				// Parse using Evmos-style chain ID format
+				evmChainID, err := ParseChainID(chainID)
+				if err == nil {
+					KiichainID = evmChainID
+					return
+				}
+				// If parsing fails, continue to check app.toml
+			}
+		}
+	}
+	if err != nil && !os.IsNotExist(err) {
+		panic(err)
+	}
+
+	// If genesis file does not exist or chain ID is not found, check app.toml
+	// to get the EVM chain ID
+	appTomlPath := filepath.Join(nodeHome, "config", "app.toml")
+	if _, err = os.Stat(appTomlPath); err == nil {
+		// File exists
+		v := viper.New()
+		v.SetConfigFile(appTomlPath)
+		v.SetConfigType("toml")
+
+		if err = v.ReadInConfig(); err == nil {
+			evmChainIDKey := "evm.evm-chain-id"
+			if v.IsSet(evmChainIDKey) {
+				evmChainID := v.GetUint64(evmChainIDKey)
+				KiichainID = evmChainID
+			}
+		}
+	}
+	if err != nil && !os.IsNotExist(err) {
+		panic(err)
+	}
+}
+
+var (
+	regexChainID         = `[a-z]{1,}`
+	regexEIP155Separator = `_{1}`
+	regexEIP155          = `[1-9][0-9]*`
+	regexEpochSeparator  = `-{1}`
+	regexEpoch           = `[1-9][0-9]*`
+	evmosChainID         = regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)%s(%s)$`,
+		regexChainID,
+		regexEIP155Separator,
+		regexEIP155,
+		regexEpochSeparator,
+		regexEpoch))
+)
+
+// ParseChainID parses a string chain identifier's EIP155 number to an Ethereum-compatible
+// chain-id in uint64 format. The function returns an error if the chain-id has an invalid format
+func ParseChainID(chainID string) (uint64, error) {
+	chainID = strings.TrimSpace(chainID)
+	if len(chainID) > 48 {
+		return 0, fmt.Errorf("chain-id '%s' cannot exceed 48 chars", chainID)
+	}
+
+	matches := evmosChainID.FindStringSubmatch(chainID)
+	if matches == nil || len(matches) != 4 || matches[1] == "" {
+		return 0, fmt.Errorf("chain-id '%s' does not match Evmos format: %s_%s-%s", chainID, regexChainID, regexEIP155, regexEpoch)
+	}
+
+	// verify that the EIP155 part (matches[2]) is a base 10 integer
+	chainIDInt, err := strconv.ParseUint(matches[2], 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("EIP155 identifier '%s' must be base-10 integer format", matches[2])
+	}
+
+	return chainIDInt, nil
 }

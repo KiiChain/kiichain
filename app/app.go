@@ -129,13 +129,12 @@ func NewKiichainApp(
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
 	appOpts servertypes.AppOptions,
-	evmChainID uint64,
 	wasmOpts []wasmkeeper.Option,
 	evmAppOptions EVMOptionsFn,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *KiichainApp {
 	// Use the EVM encoding config
-	encodingConfig := evmencoding.MakeConfig(evmChainID)
+	encodingConfig := evmencoding.MakeConfig(KiichainID)
 	appCodec := encodingConfig.Codec
 	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -154,7 +153,7 @@ func NewKiichainApp(
 	bApp.SetTxEncoder(txConfig.TxEncoder())
 
 	// initialize the Cosmos EVM application configuration
-	if err := evmAppOptions(evmChainID); err != nil {
+	if err := evmAppOptions(KiichainID); err != nil {
 		panic(err)
 	}
 

@@ -93,9 +93,8 @@ func NewRootCmd() *cobra.Command {
 		map[int64]bool{},
 		tempDir,
 		initAppOptions,
-		params.TestnetChainID, // Turn into actual chain ID
 		kiichain.EmptyWasmOptions,
-		kiichain.NoOpEVMOptions,
+		kiichain.EVMAppOptions,
 	)
 	defer func() {
 		if err := tempApplication.Close(); err != nil {
@@ -159,7 +158,7 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
-			customAppTemplate, customAppConfig := initAppConfig()
+			customAppTemplate, customAppConfig := initAppConfig(params.TestnetChainID)
 			customCometConfig := initCometConfig()
 
 			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customCometConfig)
@@ -198,15 +197,19 @@ func initCometConfig() *tmcfg.Config {
 	return cfg
 }
 
-func initAppConfig() (string, interface{}) {
+func initAppConfig(evmChainID uint64) (string, interface{}) {
 	// Can optionally overwrite the SDK's default server config.
 	srvCfg := serverconfig.DefaultConfig()
 	srvCfg.StateSync.SnapshotInterval = 1000
 	srvCfg.StateSync.SnapshotKeepRecent = 10
 
+	// Setup evm chain ID
+	evmCfg := evmserverconfig.DefaultEVMConfig()
+	evmCfg.EVMChainID = evmChainID
+
 	customAppConfig := CustomAppConfig{
 		Config:  *srvCfg,
-		EVM:     *evmserverconfig.DefaultEVMConfig(),
+		EVM:     *evmCfg,
 		JSONRPC: *evmserverconfig.DefaultJSONRPCConfig(),
 		TLS:     *evmserverconfig.DefaultTLSConfig(),
 		Wasm:    wasmtypes.DefaultNodeConfig(),
@@ -418,7 +421,6 @@ func (a appCreator) newApp(
 		skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		appOpts,
-		params.TestnetChainID, // Turn into actual chain ID
 		wasmOpts,
 		kiichain.EVMAppOptions,
 		baseappOptions...,
@@ -471,7 +473,6 @@ func (a appCreator) appExport(
 		map[int64]bool{},
 		homePath,
 		appOpts,
-		params.TestnetChainID, // Turn into actual chain ID
 		emptyWasmOpts,
 		kiichain.EVMAppOptions,
 		baseapp.SetChainID(chainID),
