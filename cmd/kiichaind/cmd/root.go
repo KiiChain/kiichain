@@ -62,7 +62,6 @@ import (
 	srvflags "github.com/cosmos/evm/server/flags"
 
 	kiichain "github.com/kiichain/kiichain/v3/app"
-	"github.com/kiichain/kiichain/v3/app/params"
 )
 
 // CustomAppConfig generates a new custom config
@@ -158,7 +157,7 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
-			customAppTemplate, customAppConfig := initAppConfig(params.TestnetChainID)
+			customAppTemplate, customAppConfig := initAppConfig(kiichain.KiichainID)
 			customCometConfig := initCometConfig()
 
 			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customCometConfig)
