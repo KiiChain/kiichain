@@ -766,6 +766,7 @@ func (s *IntegrationTestSuite) setupEVMAccountOnChain(c *chain, valIdx int, amou
 
 	// 3. Send via evm
 	client, err := ethclient.Dial(jsonRPC)
+	s.Require().NoError(err)
 	receipt, err := sendEVM(client, key, evmAddress, aliceEvmAddress, amount)
 	s.Require().NoError(err)
 	s.Require().False(receipt.Status == geth.ReceiptStatusFailed)
