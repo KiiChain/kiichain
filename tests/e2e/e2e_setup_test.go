@@ -44,6 +44,8 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	evmconfig "github.com/cosmos/evm/server/config"
+	kiichain "github.com/kiichain/kiichain/v3/app"
 
 	"github.com/kiichain/kiichain/v3/app/params"
 )
@@ -545,8 +547,14 @@ func (s *IntegrationTestSuite) initValidatorConfigs(c *chain) {
 		appConfig.MinGasPrices = fmt.Sprintf("%s%s", minGasPrice, akiiDenom)
 		appConfig.GRPC.Address = "0.0.0.0:9090"
 
-		srvconfig.SetConfigTemplate(srvconfig.DefaultConfigTemplate)
-		srvconfig.WriteConfigFile(appCfgPath, appConfig)
+		// Setup EVM related
+		evmConfig := evmconfig.DefaultConfig()
+		evmConfig.EVM.EVMChainID = kiichain.KiichainID
+		evmConfig.Config = *appConfig
+
+		configTemplate := srvconfig.DefaultConfigTemplate + evmconfig.DefaultEVMConfigTemplate
+		srvconfig.SetConfigTemplate(configTemplate)
+		srvconfig.WriteConfigFile(appCfgPath, evmConfig)
 	}
 }
 
