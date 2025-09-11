@@ -44,7 +44,13 @@ var ChainsCoinInfo = map[uint64]evmtypes.EvmCoinInfo{
 		DisplayDenom:  params.DisplayDenom,
 		Decimals:      params.BaseDenomUnit,
 	},
-	0: {
+	params.LocalChainID: {
+		Denom:         params.BaseDenom,
+		ExtendedDenom: params.BaseDenom,
+		DisplayDenom:  params.DisplayDenom,
+		Decimals:      params.BaseDenomUnit,
+	},
+	262144: {
 		Denom:         params.BaseDenom,
 		ExtendedDenom: params.BaseDenom,
 		DisplayDenom:  params.DisplayDenom,
@@ -64,7 +70,7 @@ func EVMAppOptions(chainID uint64) error {
 	if !found {
 		// If not found, set as default
 		log.Printf("Chain ID %d not found in ChainsCoinInfo, using default", chainID)
-		coinInfo = ChainsCoinInfo[params.TestnetChainID]
+		coinInfo = ChainsCoinInfo[params.LocalChainID]
 	}
 
 	// set the denom info for the chain
