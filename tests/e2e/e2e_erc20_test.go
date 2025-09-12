@@ -142,7 +142,7 @@ func (s *IntegrationTestSuite) writeERC20RegisterProposal(c *chain, erc20Address
 		"messages": [
 		 {
 		  "@type": "/cosmos.evm.erc20.v1.MsgRegisterERC20",
-		  "authority": "kii10d07y265gmmuvt4z0w9aw880jnsr700jrff0qv",
+		  "signer": "%s",
 		  "erc20addresses": [
 		    "%s"
 		  ]
@@ -154,7 +154,7 @@ func (s *IntegrationTestSuite) writeERC20RegisterProposal(c *chain, erc20Address
 		"summary": "test"
 	   }`
 
-	propMsgBody := fmt.Sprintf(body, erc20Address.String())
+	propMsgBody := fmt.Sprintf(body, govAuthority, erc20Address.String())
 
 	err := writeFile(filepath.Join(c.validators[0].configDir(), "config", proposalRegisterERC20), []byte(propMsgBody))
 	s.Require().NoError(err)
