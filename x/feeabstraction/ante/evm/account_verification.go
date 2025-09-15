@@ -8,6 +8,7 @@ package evm
 
 import (
 	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
@@ -17,7 +18,6 @@ import (
 
 	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
 	"github.com/cosmos/evm/x/vm/statedb"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // VerifyIfAccountExists checks if the account exists in the store and creates it if it doesn't
