@@ -485,12 +485,6 @@ func NewAppKeeper(
 		wasmOpts...,
 	)
 
-	// Middleware Stacks
-	appKeepers.ICAModule = ica.NewAppModule(&appKeepers.ICAControllerKeeper, &appKeepers.ICAHostKeeper)
-	appKeepers.TransferModule = transfer.NewAppModule(*appKeepers.TransferKeeper.Keeper)
-	appKeepers.PFMRouterModule = pfmrouter.NewAppModule(appKeepers.PFMRouterKeeper, appKeepers.GetSubspace(pfmroutertypes.ModuleName))
-	appKeepers.RateLimitModule = ratelimit.NewAppModule(appCodec, appKeepers.RatelimitKeeper)
-
 	// wasmStackIBCHandler is injected into both ICA and transfer stacks
 	wasmStackIBCHandler := wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.TransferKeeper, appKeepers.IBCKeeper.ChannelKeeper)
@@ -556,6 +550,12 @@ func NewAppKeeper(
 	ibcv2Router := ibcapi.NewRouter().
 		AddRoute(ibctransfertypes.PortID, ibcv2TransferStack)
 	appKeepers.IBCKeeper.SetRouterV2(ibcv2Router)
+
+	// Middleware Stacks
+	appKeepers.ICAModule = ica.NewAppModule(&appKeepers.ICAControllerKeeper, &appKeepers.ICAHostKeeper)
+	appKeepers.TransferModule = transfer.NewAppModule(*appKeepers.TransferKeeper.Keeper)
+	appKeepers.PFMRouterModule = pfmrouter.NewAppModule(appKeepers.PFMRouterKeeper, appKeepers.GetSubspace(pfmroutertypes.ModuleName))
+	appKeepers.RateLimitModule = ratelimit.NewAppModule(appCodec, appKeepers.RatelimitKeeper)
 
 	// Configure EVM precompiles
 	corePrecompiles := NewAvailableStaticPrecompiles(
