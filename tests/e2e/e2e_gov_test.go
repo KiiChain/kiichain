@@ -10,7 +10,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	govtypesv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 /*
@@ -140,11 +139,11 @@ func (s *IntegrationTestSuite) GovCommunityPoolSpend() {
 func (s *IntegrationTestSuite) submitGovProposal(chainAAPIEndpoint, sender string, proposalID int, proposalType string, submitFlags []string, depositFlags []string, voteFlags []string, voteCommand string) {
 	s.T().Logf("Submitting Gov Proposal: %s", proposalType)
 	sflags := submitFlags
-	s.submitGovCommand(chainAAPIEndpoint, sender, proposalID, "submit-proposal", sflags, govtypesv1beta1.StatusDepositPeriod)
+	s.submitGovCommand(chainAAPIEndpoint, sender, proposalID, "submit-proposal", sflags, govtypesv1.StatusDepositPeriod)
 	s.T().Logf("Depositing Gov Proposal: %s", proposalType)
-	s.submitGovCommand(chainAAPIEndpoint, sender, proposalID, "deposit", depositFlags, govtypesv1beta1.StatusVotingPeriod)
+	s.submitGovCommand(chainAAPIEndpoint, sender, proposalID, "deposit", depositFlags, govtypesv1.StatusVotingPeriod)
 	s.T().Logf("Voting Gov Proposal: %s", proposalType)
-	s.submitGovCommand(chainAAPIEndpoint, sender, proposalID, voteCommand, voteFlags, govtypesv1beta1.StatusPassed)
+	s.submitGovCommand(chainAAPIEndpoint, sender, proposalID, voteCommand, voteFlags, govtypesv1.StatusPassed)
 }
 
 func (s *IntegrationTestSuite) verifyChainHaltedAtUpgradeHeight(c *chain, valIdx, upgradeHeight int) {
@@ -188,15 +187,20 @@ func (s *IntegrationTestSuite) waitUntilPassedHeight(c *chain, valIdx, height in
 	)
 }
 
-func (s *IntegrationTestSuite) submitGovCommand(chainAAPIEndpoint, sender string, proposalID int, govCommand string, proposalFlags []string, expectedSuccessStatus govtypesv1beta1.ProposalStatus) {
+func (s *IntegrationTestSuite) submitGovCommand(chainAAPIEndpoint, sender string, proposalID int, govCommand string, proposalFlags []string, expectedSuccessStatus govtypesv1.ProposalStatus) {
 	s.Run(fmt.Sprintf("Running tx gov %s", govCommand), func() {
 		s.runGovExec(s.chainA, 0, sender, govCommand, proposalFlags, standardFees.String(), nil)
 
 		s.Require().Eventually(
 			func() bool {
-				proposal, err := queryGovProposal(chainAAPIEndpoint, proposalID)
+				proposal, err := queryGovProposalV1(chainAAPIEndpoint, proposalID)
 				s.Require().NoError(err)
-				return proposal.GetProposal().Status == expectedSuccessStatus
+				if proposal.GetProposal().Status != expectedSuccessStatus {
+					s.T().Logf("Proposal failed with: %s", proposal.GetProposal().FailedReason)
+					return false
+				} else {
+					return true
+				}
 			},
 			15*time.Second,
 			5*time.Second,
@@ -219,7 +223,7 @@ func (s *IntegrationTestSuite) GovSoftwareUpgradeExpedited() {
 	voteGovFlags := []string{strconv.Itoa(proposalCounter), "yes=0.1,no=0.8,abstain=0.05,no_with_veto=0.05"}
 
 	s.Run(fmt.Sprintf("Running expedited tx gov %s", "submit-proposal"), func() {
-		s.submitGovCommand(chainAAPIEndpoint, sender, proposalCounter, "submit-proposal", submitGovFlags, govtypesv1beta1.StatusDepositPeriod)
+		s.submitGovCommand(chainAAPIEndpoint, sender, proposalCounter, "submit-proposal", submitGovFlags, govtypesv1.StatusDepositPeriod)
 
 		s.Require().Eventually(
 			func() bool {
@@ -230,8 +234,8 @@ func (s *IntegrationTestSuite) GovSoftwareUpgradeExpedited() {
 			15*time.Second,
 			5*time.Second,
 		)
-		s.submitGovCommand(chainAAPIEndpoint, sender, proposalCounter, "deposit", depositGovFlags, govtypesv1beta1.StatusVotingPeriod)
-		s.submitGovCommand(chainAAPIEndpoint, sender, proposalCounter, "weighted-vote", voteGovFlags, govtypesv1beta1.StatusRejected) // voting no on prop
+		s.submitGovCommand(chainAAPIEndpoint, sender, proposalCounter, "deposit", depositGovFlags, govtypesv1.StatusVotingPeriod)
+		s.submitGovCommand(chainAAPIEndpoint, sender, proposalCounter, "weighted-vote", voteGovFlags, govtypesv1.StatusRejected) // voting no on prop
 
 		// confirm that the proposal was moved from expedited
 		s.Require().Eventually(
