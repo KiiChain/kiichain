@@ -163,12 +163,6 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 7. can transfer
 		coreMsg := ethMsg.AsMessage(decUtils.BaseFee)
-		if err != nil {
-			return ctx, errorsmod.Wrapf(
-				err,
-				"failed to create an ethereum core.Message from signer %T", decUtils.Signer,
-			)
-		}
 
 		// This checks if the user has enough balance to transfer the value (not the fees)
 		if err := evmante.CanTransfer(
