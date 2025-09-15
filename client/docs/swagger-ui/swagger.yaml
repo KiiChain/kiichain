@@ -4511,6 +4511,147 @@ paths:
                       format: byte
       tags:
         - Query
+  /kiichain/feeabstraction/v1beta1/fee_tokens:
+    get:
+      summary: FeeTokens defines a gRPC query method that returns the fee tokens
+      operationId: FeeTokens
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              fee_tokens:
+                description: fee_tokens defines the fee tokens registered in the module.
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                          title: Denom is the token denom
+                        oracle_denom:
+                          type: string
+                          title: Identifier on the oracle module
+                        decimals:
+                          type: integer
+                          format: int64
+                          title: Decimals is the number of decimals for the token
+                        price:
+                          type: string
+                          title: |-
+                            Price is the price of the token in the native denom
+                            This price is paired against the native denom
+                            So, this equals to the token/native denom
+                        enabled:
+                          type: boolean
+                          title: >-
+                            Enabled indicates if the token is enabled for fee
+                            abstraction
+                      title: FeeTokenMetadata defines the metadata for a fee token
+                    title: Items is a repeated field of FeeTokenMetadata
+                title: Defines a collection of fee token metadata
+            title: >-
+              QueryFeeTokensResponse is the response type for the
+              Query/FeeTokens RPC
+
+              method
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /kiichain/feeabstraction/v1beta1/params:
+    get:
+      summary: >-
+        Params defines a gRPC query method that returns the fee abstraction
+        params
+      operationId: FeeAbstractionParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params defines the parameters of the module.
+                type: object
+                properties:
+                  native_denom:
+                    type: string
+                    title: Native denom
+                  native_oracle_denom:
+                    type: string
+                    title: Oracle module identifier
+                  enabled:
+                    type: boolean
+                    title: Enabled indicates if the fee abstraction module is enabled
+                  clamp_factor:
+                    type: string
+                    title: ClampFactor is the factor to clamp the price deviation
+                  twap_lookback_window:
+                    type: string
+                    format: uint64
+                    title: >-
+                      TwapLookbackWindow is the lookback window for calculating
+                      TWAPs
+                  fallback_native_price:
+                    type: string
+                    title: >-
+                      FallbackNativePrice is the fallback price for the native
+                      token if the
+
+                      oracle price is not available (in USD)
+                title: Params defines the parameters for the fee abstraction module
+            description: >-
+              QueryParamsResponse is the response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
   /cosmos/bank/v1beta1/balances/{address}:
     get:
       summary: AllBalances queries the balance of all coins for a single account.
@@ -57001,6 +57142,155 @@ definitions:
             NOTE: The amount field is an Dec which implements the custom method
             signatures required by gogoproto.
     description: RewardPool is the global fee pool for distribution.
+  kiichain.feeabstraction.v1beta1.FeeTokenMetadata:
+    type: object
+    properties:
+      denom:
+        type: string
+        title: Denom is the token denom
+      oracle_denom:
+        type: string
+        title: Identifier on the oracle module
+      decimals:
+        type: integer
+        format: int64
+        title: Decimals is the number of decimals for the token
+      price:
+        type: string
+        title: |-
+          Price is the price of the token in the native denom
+          This price is paired against the native denom
+          So, this equals to the token/native denom
+      enabled:
+        type: boolean
+        title: Enabled indicates if the token is enabled for fee abstraction
+    title: FeeTokenMetadata defines the metadata for a fee token
+  kiichain.feeabstraction.v1beta1.FeeTokenMetadataCollection:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+              title: Denom is the token denom
+            oracle_denom:
+              type: string
+              title: Identifier on the oracle module
+            decimals:
+              type: integer
+              format: int64
+              title: Decimals is the number of decimals for the token
+            price:
+              type: string
+              title: |-
+                Price is the price of the token in the native denom
+                This price is paired against the native denom
+                So, this equals to the token/native denom
+            enabled:
+              type: boolean
+              title: Enabled indicates if the token is enabled for fee abstraction
+          title: FeeTokenMetadata defines the metadata for a fee token
+        title: Items is a repeated field of FeeTokenMetadata
+    title: Defines a collection of fee token metadata
+  kiichain.feeabstraction.v1beta1.Params:
+    type: object
+    properties:
+      native_denom:
+        type: string
+        title: Native denom
+      native_oracle_denom:
+        type: string
+        title: Oracle module identifier
+      enabled:
+        type: boolean
+        title: Enabled indicates if the fee abstraction module is enabled
+      clamp_factor:
+        type: string
+        title: ClampFactor is the factor to clamp the price deviation
+      twap_lookback_window:
+        type: string
+        format: uint64
+        title: TwapLookbackWindow is the lookback window for calculating TWAPs
+      fallback_native_price:
+        type: string
+        title: |-
+          FallbackNativePrice is the fallback price for the native token if the
+          oracle price is not available (in USD)
+    title: Params defines the parameters for the fee abstraction module
+  kiichain.feeabstraction.v1beta1.QueryFeeTokensResponse:
+    type: object
+    properties:
+      fee_tokens:
+        description: fee_tokens defines the fee tokens registered in the module.
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                  title: Denom is the token denom
+                oracle_denom:
+                  type: string
+                  title: Identifier on the oracle module
+                decimals:
+                  type: integer
+                  format: int64
+                  title: Decimals is the number of decimals for the token
+                price:
+                  type: string
+                  title: |-
+                    Price is the price of the token in the native denom
+                    This price is paired against the native denom
+                    So, this equals to the token/native denom
+                enabled:
+                  type: boolean
+                  title: >-
+                    Enabled indicates if the token is enabled for fee
+                    abstraction
+              title: FeeTokenMetadata defines the metadata for a fee token
+            title: Items is a repeated field of FeeTokenMetadata
+        title: Defines a collection of fee token metadata
+    title: |-
+      QueryFeeTokensResponse is the response type for the Query/FeeTokens RPC
+      method
+  kiichain.feeabstraction.v1beta1.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params defines the parameters of the module.
+        type: object
+        properties:
+          native_denom:
+            type: string
+            title: Native denom
+          native_oracle_denom:
+            type: string
+            title: Oracle module identifier
+          enabled:
+            type: boolean
+            title: Enabled indicates if the fee abstraction module is enabled
+          clamp_factor:
+            type: string
+            title: ClampFactor is the factor to clamp the price deviation
+          twap_lookback_window:
+            type: string
+            format: uint64
+            title: TwapLookbackWindow is the lookback window for calculating TWAPs
+          fallback_native_price:
+            type: string
+            title: >-
+              FallbackNativePrice is the fallback price for the native token if
+              the
+
+              oracle price is not available (in USD)
+        title: Params defines the parameters for the fee abstraction module
+    description: QueryParamsResponse is the response type for the Query/Params RPC method.
   cosmos.bank.v1beta1.DenomOwner:
     type: object
     properties:

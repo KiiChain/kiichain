@@ -55,12 +55,14 @@ import (
 	"github.com/cosmos/evm/x/vm"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	"github.com/kiichain/kiichain/v3/x/oracle"
-	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
-	"github.com/kiichain/kiichain/v3/x/rewards"
-	rewardstypes "github.com/kiichain/kiichain/v3/x/rewards/types"
-	"github.com/kiichain/kiichain/v3/x/tokenfactory"
-	tokenfactorytypes "github.com/kiichain/kiichain/v3/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v4/x/feeabstraction"
+	feeabstractiontypes "github.com/kiichain/kiichain/v4/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v4/x/oracle"
+	oracletypes "github.com/kiichain/kiichain/v4/x/oracle/types"
+	"github.com/kiichain/kiichain/v4/x/rewards"
+	rewardstypes "github.com/kiichain/kiichain/v4/x/rewards/types"
+	"github.com/kiichain/kiichain/v4/x/tokenfactory"
+	tokenfactorytypes "github.com/kiichain/kiichain/v4/x/tokenfactory/types"
 )
 
 var maccPerms = map[string][]string{
@@ -78,9 +80,10 @@ var maccPerms = map[string][]string{
 	feemarkettypes.ModuleName: nil,                                  // Fee market doesn't need permissions
 	erc20types.ModuleName:     {authtypes.Minter, authtypes.Burner}, // Allows erc20 module to mint/burn for token pairs
 	// Custom modules
-	tokenfactorytypes.ModuleName: {authtypes.Minter, authtypes.Burner},
-	rewardstypes.ModuleName:      nil,
-	oracletypes.ModuleName:       nil,
+	tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
+	rewardstypes.ModuleName:        nil,
+	oracletypes.ModuleName:         nil,
+	feeabstractiontypes.ModuleName: nil,
 }
 
 func appModules(
@@ -123,6 +126,7 @@ func appModules(
 		vm.NewAppModule(app.EVMKeeper, app.AccountKeeper, app.AccountKeeper.AddressCodec()),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
+		feeabstraction.NewAppModule(app.FeeAbstractionKeeper),
 	}
 }
 
@@ -204,6 +208,7 @@ func orderBeginBlockers() []string {
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		oracletypes.ModuleName,
+		feeabstractiontypes.ModuleName,
 	}
 }
 
@@ -238,6 +243,7 @@ func orderEndBlockers() []string {
 		wasmtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		oracletypes.ModuleName,
+		feeabstractiontypes.ModuleName,
 	}
 }
 
@@ -255,6 +261,7 @@ func orderInitBlockers() []string {
 		banktypes.ModuleName,
 		distrtypes.ModuleName,
 		govtypes.ModuleName,
+		feeabstractiontypes.ModuleName, // Must be initialized before staking to set the genesis params
 		stakingtypes.ModuleName,
 		slashingtypes.ModuleName,
 

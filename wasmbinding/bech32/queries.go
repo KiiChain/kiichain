@@ -10,7 +10,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bech32bindingtypes "github.com/kiichain/kiichain/v3/wasmbinding/bech32/types"
+	bech32bindingtypes "github.com/kiichain/kiichain/v4/wasmbinding/bech32/types"
 )
 
 // QueryPlugin is the query plugin object for the bech32 queries

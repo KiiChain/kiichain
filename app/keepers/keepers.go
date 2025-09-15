@@ -83,14 +83,16 @@ import (
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	kiiparams "github.com/kiichain/kiichain/v3/app/params"
-	"github.com/kiichain/kiichain/v3/wasmbinding"
-	oraclekeeper "github.com/kiichain/kiichain/v3/x/oracle/keeper"
-	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
-	rewardskeeper "github.com/kiichain/kiichain/v3/x/rewards/keeper"
-	rewardstypes "github.com/kiichain/kiichain/v3/x/rewards/types"
-	tokenfactorykeeper "github.com/kiichain/kiichain/v3/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/kiichain/kiichain/v3/x/tokenfactory/types"
+	kiiparams "github.com/kiichain/kiichain/v4/app/params"
+	"github.com/kiichain/kiichain/v4/wasmbinding"
+	feeabstractionkeeper "github.com/kiichain/kiichain/v4/x/feeabstraction/keeper"
+	feeabstractiontypes "github.com/kiichain/kiichain/v4/x/feeabstraction/types"
+	oraclekeeper "github.com/kiichain/kiichain/v4/x/oracle/keeper"
+	oracletypes "github.com/kiichain/kiichain/v4/x/oracle/types"
+	rewardskeeper "github.com/kiichain/kiichain/v4/x/rewards/keeper"
+	rewardstypes "github.com/kiichain/kiichain/v4/x/rewards/types"
+	tokenfactorykeeper "github.com/kiichain/kiichain/v4/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/kiichain/kiichain/v4/x/tokenfactory/types"
 )
 
 type AppKeepers struct {
@@ -121,6 +123,7 @@ type AppKeepers struct {
 	AuthzKeeper           authzkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
+	FeeAbstractionKeeper  feeabstractionkeeper.Keeper
 
 	PFMRouterKeeper *pfmrouterkeeper.Keeper
 	RatelimitKeeper ratelimitkeeper.Keeper
@@ -455,6 +458,16 @@ func NewAppKeeper(
 		)...,
 	)
 
+	// FeeAbstractionKeeper must be created after EVMKeeper and Erc20Keeper
+	appKeepers.FeeAbstractionKeeper = feeabstractionkeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[feeabstractiontypes.StoreKey]),
+		appKeepers.Erc20Keeper,
+		appKeepers.BankKeeper,
+		appKeepers.OracleKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	// Must be called on PFMRouter AFTER TransferKeeper initialized
 	appKeepers.PFMRouterKeeper.SetTransferKeeper(appKeepers.TransferKeeper)
 
@@ -613,6 +626,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
 	paramsKeeper.Subspace(rewardstypes.ModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
+	paramsKeeper.Subspace(feeabstractiontypes.ModuleName)
 
 	// Cosmos EVM modules
 	paramsKeeper.Subspace(evmtypes.ModuleName)

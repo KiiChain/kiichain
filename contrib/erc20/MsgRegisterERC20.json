@@ -1,0 +1,16 @@
+{
+    "messages": [
+        {
+            "@type": "/cosmos.evm.erc20.v1.MsgRegisterERC20",
+            "authority": "kii10d07y265gmmuvt4z0w9aw880jnsr700jrff0qv",
+            "erc20addresses": [
+                "0x28B081E92CEf14492Ba90fdBCeCbe0693F9a1f8d"
+            ]
+        }
+    ],
+    "metadata": "ipfs://CID",
+    "deposit": "10000000000000000000akii",
+    "title": "Register ERC20",
+    "summary": "Register ERC20",
+    "expedited": false
+}

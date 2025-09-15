@@ -31,9 +31,10 @@ import (
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	// Kiichain
-	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
-	rewardstypes "github.com/kiichain/kiichain/v3/x/rewards/types"
-	tokenfactorytypes "github.com/kiichain/kiichain/v3/x/tokenfactory/types"
+	feeabstractiontypes "github.com/kiichain/kiichain/v4/x/feeabstraction/types"
+	oracletypes "github.com/kiichain/kiichain/v4/x/oracle/types"
+	rewardstypes "github.com/kiichain/kiichain/v4/x/rewards/types"
+	tokenfactorytypes "github.com/kiichain/kiichain/v4/x/tokenfactory/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -67,6 +68,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		tokenfactorytypes.StoreKey,
 		rewardstypes.StoreKey,
 		oracletypes.StoreKey,
+		feeabstractiontypes.StoreKey,
 	)
 
 	// Define transient store keys

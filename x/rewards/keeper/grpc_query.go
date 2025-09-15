@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"github.com/kiichain/kiichain/v3/x/rewards/types"
+	"github.com/kiichain/kiichain/v4/x/rewards/types"
 )
 
 var _ types.QueryServer = Querier{}

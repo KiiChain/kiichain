@@ -14,12 +14,12 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	app "github.com/kiichain/kiichain/v3/app"
-	"github.com/kiichain/kiichain/v3/app/apptesting"
-	"github.com/kiichain/kiichain/v3/wasmbinding"
-	"github.com/kiichain/kiichain/v3/wasmbinding/helpers"
-	bindingtypes "github.com/kiichain/kiichain/v3/wasmbinding/tokenfactory/types"
-	"github.com/kiichain/kiichain/v3/x/tokenfactory/types"
+	app "github.com/kiichain/kiichain/v4/app"
+	"github.com/kiichain/kiichain/v4/app/apptesting"
+	"github.com/kiichain/kiichain/v4/wasmbinding"
+	"github.com/kiichain/kiichain/v4/wasmbinding/helpers"
+	bindingtypes "github.com/kiichain/kiichain/v4/wasmbinding/tokenfactory/types"
+	"github.com/kiichain/kiichain/v4/x/tokenfactory/types"
 )
 
 // TestQueryFullDenom tests the query for full denom with a reflect contract

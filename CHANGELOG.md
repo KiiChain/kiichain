@@ -6,6 +6,12 @@
 - Bump [cosmos-sdk](https://github.com/cosmos/cosmos-sdk) to [v0.53.4](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.53.4)
 - Removed crisis module 
 
+## v4.0.0 — 2025-08-06
+
+### Added
+
+- Add the fee abstraction module to the chain
+
 ## v3.0.0 — 2025-07-01
 
 No changes were made since the release candidate.

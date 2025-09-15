@@ -21,7 +21,7 @@ import (
 	"github.com/cosmos/evm/encoding"
 	"github.com/cosmos/evm/server/config"
 
-	"github.com/kiichain/kiichain/v3/ante"
+	"github.com/kiichain/kiichain/v4/ante"
 )
 
 func TestConsumeSignatureVerificationGas(t *testing.T) {

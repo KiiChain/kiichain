@@ -1,4 +1,4 @@
-module github.com/kiichain/kiichain/v3
+module github.com/kiichain/kiichain/v4
 
 go 1.23.8
 
@@ -297,7 +297,6 @@ require (
 replace (
 	// Use cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	// github.com/CosmWasm/wasmd => github.com/kiichain/kii-wasmd v0.53.2-evm
 
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2

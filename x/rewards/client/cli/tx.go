@@ -10,14 +10,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v3/x/rewards/types"
+	"github.com/kiichain/kiichain/v4/x/rewards/types"
 )
 
 // GetTxCmd returns the transaction commands for this module
 func GetTxCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Rewards transaction subcommands",
+		Short:                      fmt.Sprintf("Transaction commands for the %s module", types.ModuleName),
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,

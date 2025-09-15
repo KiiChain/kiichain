@@ -3,8 +3,8 @@ package v300
 import (
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/kiichain/kiichain/v3/app/upgrades"
-	oracletypes "github.com/kiichain/kiichain/v3/x/oracle/types"
+	"github.com/kiichain/kiichain/v4/app/upgrades"
+	oracletypes "github.com/kiichain/kiichain/v4/x/oracle/types"
 )
 
 const (

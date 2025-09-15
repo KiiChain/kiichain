@@ -1,9 +1,15 @@
 #!/bin/bash
 
 # Set the env vars
-INITIAL_VERSION=v1.3.0
-UPGRADE_TAG=v2.0.0-rewards
-UPGRADE_NAME=v2.0.0
+# Initial version defines the version on which we start the upgrade
+# This tag should be available on the kiichain repo
+INITIAL_VERSION=v3.0.0
+# Upgrade tag defines the version to which we upgrade
+# This tag should be available on the kiichain repo
+UPGRADE_TAG=v4.0.0-feeabstraction
+# Upgrade name is the name of the upgrade proposal
+# This name should be on the code as the expected upgrade name
+UPGRADE_NAME=v4.0.0
 PROJECT_DIR=$(pwd)
 
 # wait_for_height waits for a specific height to be reached

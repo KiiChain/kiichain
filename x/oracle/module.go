@@ -17,9 +17,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/kiichain/kiichain/v3/x/oracle/client/cli"
-	"github.com/kiichain/kiichain/v3/x/oracle/keeper"
-	"github.com/kiichain/kiichain/v3/x/oracle/types"
+	"github.com/kiichain/kiichain/v4/x/oracle/client/cli"
+	"github.com/kiichain/kiichain/v4/x/oracle/keeper"
+	"github.com/kiichain/kiichain/v4/x/oracle/types"
 )
 
 var (
