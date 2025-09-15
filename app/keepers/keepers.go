@@ -527,7 +527,6 @@ func NewAppKeeper(
 	appKeepers.ICAControllerKeeper.WithICS4Wrapper(icaICS4Wrapper)
 
 	var ibcv2TransferStack ibcapi.IBCModule
-	ibcv2TransferStack = transferv2.NewIBCModule(*appKeepers.TransferKeeper.Keeper)
 	ibcv2TransferStack = ibccallbacksv2.NewIBCMiddleware(
 		transferv2.NewIBCModule(*appKeepers.TransferKeeper.Keeper),
 		appKeepers.IBCKeeper.ChannelKeeperV2,
