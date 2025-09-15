@@ -6,6 +6,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/holiman/uint256"
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/math"
@@ -17,7 +18,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/cosmos/evm/contracts"
-	"github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/keyring"
 	"github.com/cosmos/evm/testutil/tx"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	"github.com/cosmos/evm/x/vm/statedb"
@@ -279,7 +280,7 @@ func TestMonoDecorator(t *testing.T) {
 
 				// Set the token pair on the erc20 keeper
 				_, err = app.Erc20Keeper.RegisterERC20(ctx, &erc20types.MsgRegisterERC20{
-					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+					Signer: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 					Erc20Addresses: []string{
 						erc20Address.Hex(),
 					},
@@ -374,7 +375,7 @@ func TestMonoDecorator(t *testing.T) {
 				// To define as a contract we need to set the code hash
 				err = app.EVMKeeper.SetAccount(ctx, fromAddr, statedb.Account{
 					Nonce:    0,
-					Balance:  big.NewInt(1000000),
+					Balance:  uint256.NewInt(1000000),
 					CodeHash: []byte("contract code"),
 				})
 				require.NoError(t, err)
@@ -463,7 +464,7 @@ func createAndSignTx(key keyring.Key, gasLimit uint64, gasPrice *big.Int, amount
 
 	signer := gethtypes.LatestSignerForChainID(ethChainID)
 
-	msgEthereumTx.From = common.BytesToAddress(key.Priv.PubKey().Address().Bytes()).String()
+	msgEthereumTx.From = key.Priv.PubKey().Address().Bytes()
 
 	err := msgEthereumTx.Sign(signer, tx.NewSigner(key.Priv))
 	if err != nil {

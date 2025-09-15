@@ -186,7 +186,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 
 				// Set the token pair on the erc20 keeper
 				_, err = s.app.Erc20Keeper.RegisterERC20(ctx, &erc20types.MsgRegisterERC20{
-					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+					Signer: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 					Erc20Addresses: []string{
 						erc20Address.Hex(),
 					},
@@ -242,7 +242,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 
 				// Set the token pair on the erc20 keeper
 				_, err = s.app.Erc20Keeper.RegisterERC20(ctx, &erc20types.MsgRegisterERC20{
-					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+					Signer: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 					Erc20Addresses: []string{
 						erc20Address.Hex(),
 					},
@@ -280,7 +280,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 
 				// Set the token pair on the erc20 keeper
 				_, err = s.app.Erc20Keeper.RegisterERC20(ctx, &erc20types.MsgRegisterERC20{
-					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+					Signer: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 					Erc20Addresses: []string{
 						erc20Address.Hex(),
 					},

@@ -17,7 +17,7 @@ import (
 
 	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
 	"github.com/cosmos/evm/x/vm/statedb"
-	evmtypes "github.com/cosmos/evm/x/vm/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // VerifyIfAccountExists checks if the account exists in the store and creates it if it doesn't
@@ -53,11 +53,11 @@ func VerifyAccountBalance(
 	ctx sdk.Context,
 	accountKeeper anteinterfaces.AccountKeeper,
 	account *statedb.Account,
-	txData evmtypes.TxData,
+	ethTx *ethtypes.Transaction,
 ) error {
 	// Check the sender balance against the TX data
 	// This checks if the sender has enough funds to pay for the transaction value
-	if err := checkSenderBalance(sdkmath.NewIntFromBigInt(account.Balance), txData); err != nil {
+	if err := checkSenderBalance(sdkmath.NewIntFromBigInt(account.Balance.ToBig()), ethTx); err != nil {
 		return errorsmod.Wrap(err, "failed to check sender balance")
 	}
 
@@ -68,10 +68,10 @@ func VerifyAccountBalance(
 // sender has enough funds to pay for the fees and value of the transaction.
 func checkSenderBalance(
 	balance sdkmath.Int,
-	txData evmtypes.TxData,
+	ethTx *ethtypes.Transaction,
 ) error {
 	// Get the value, this is only the value of the transaction, not the fees
-	value := txData.GetValue()
+	value := ethTx.Value()
 
 	// Check if the value is valid
 	if value.Sign() < 0 {
