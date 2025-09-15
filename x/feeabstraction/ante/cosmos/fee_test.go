@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+	gomock "go.uber.org/mock/gomock"
 
 	"cosmossdk.io/math"
 	"cosmossdk.io/x/feegrant"
@@ -199,7 +199,7 @@ func TestDeductFeeDecorator(t *testing.T) {
 
 				// Set the token pair on the erc20 keeper
 				_, err = app.Erc20Keeper.RegisterERC20(ctx, &erc20types.MsgRegisterERC20{
-					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+					Signer: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 					Erc20Addresses: []string{
 						erc20Address.Hex(),
 					},

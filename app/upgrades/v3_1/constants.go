@@ -5,7 +5,7 @@ import (
 
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 
-	"github.com/kiichain/kiichain/v3/app/upgrades"
+	"github.com/kiichain/kiichain/v4/app/upgrades"
 )
 
 const (
