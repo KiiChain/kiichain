@@ -4,6 +4,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+
 	"github.com/kiichain/kiichain/v3/app/upgrades"
 )
 

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	geth "github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cast"
 
@@ -62,7 +63,6 @@ import (
 	evmencoding "github.com/cosmos/evm/encoding"
 	srvflags "github.com/cosmos/evm/server/flags"
 	cosmosevmtypes "github.com/cosmos/evm/types"
-	geth "github.com/ethereum/go-ethereum/common"
 
 	kiiante "github.com/kiichain/kiichain/v3/ante"
 	"github.com/kiichain/kiichain/v3/app/keepers"

@@ -44,9 +44,10 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	evmconfig "github.com/cosmos/evm/server/config"
-	kiichain "github.com/kiichain/kiichain/v3/app"
 
+	evmconfig "github.com/cosmos/evm/server/config"
+
+	kiichain "github.com/kiichain/kiichain/v3/app"
 	"github.com/kiichain/kiichain/v3/app/params"
 )
 

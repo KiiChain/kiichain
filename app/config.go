@@ -9,13 +9,14 @@ import (
 	"strconv"
 	"strings"
 
-	"cosmossdk.io/math"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/viper"
 
 	clienthelpers "cosmossdk.io/client/v2/helpers"
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/kiichain/kiichain/v3/app/params"
@@ -105,9 +106,7 @@ func setBaseDenom(ci evmtypes.EvmCoinInfo) error {
 	return sdk.RegisterDenom(ci.Denom, math.LegacyNewDecWithPrec(1, int64(ci.Decimals)))
 }
 
-var (
-	KiichainID uint64 = 262144 // default Chain ID
-)
+var KiichainID uint64 = 262144 // default Chain ID
 
 // init initializes the KiichainID variable by reading the chain ID from the
 // genesis file or app.toml file in the node's home directory.

@@ -13,9 +13,9 @@ import (
 
 	"cosmossdk.io/core/address"
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
-	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
