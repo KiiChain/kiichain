@@ -19,7 +19,15 @@ func ParseGetExchangeRateArgs(args []interface{}) (*oracletypes.QueryExchangeRat
 	// Parse the first arg, the denom
 	denom, ok := args[0].(string)
 	if !ok || denom == "" {
-		return nil, fmt.Errorf("invalid denom")
+		return nil, fmt.Errorf("invalid denom: empty or not a string")
+	}
+
+	// Regex validation: [a-z][a-z0-9/]{2,64}
+	// Only allow denom starting with a-z, followed by 2-64 chars a-z, 0-9, or /
+	import "regexp"
+	var denomRegex = regexp.MustCompile(`^[a-z][a-z0-9/]{2,64}$`)
+	if !denomRegex.MatchString(denom) {
+		return nil, fmt.Errorf("invalid denom format: must match [a-z][a-z0-9/]{2,64}")
 	}
 
 	// Create the QueryExchangeRateRequest and return

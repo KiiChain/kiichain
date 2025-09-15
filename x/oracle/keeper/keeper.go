@@ -141,9 +141,9 @@ func (k Keeper) SetBaseExchangeRateWithEvent(ctx sdk.Context, denom string, exch
 func (k Keeper) GetFeederDelegationOrDefault(ctx sdk.Context, valAddr sdk.ValAddress) (sdk.AccAddress, error) {
 	// Get the account address
 	accAddressString, err := k.FeederDelegation.Get(ctx, valAddr)
-	// If the not found, return the val Address
+	// If not found, return error
 	if errors.Is(err, collections.ErrNotFound) {
-		return sdk.AccAddress(valAddr), nil
+		return nil, fmt.Errorf("feeder delegation not found for validator %s", valAddr.String())
 	}
 
 	// Handle any other error
