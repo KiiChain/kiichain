@@ -497,15 +497,14 @@ func NewAppKeeper(
 
 	// Create Transfer Stack (from bottom to top of stack)
 	// - core IBC
-	// - ibcfee
 	// - ratelimit
 	// - pfm
-	// - provider
+	// - callbacks
 	// - transfer
 	//
 	// This is how transfer stack will work in the end:
-	// * RecvPacket -> IBC core -> Fee -> RateLimit -> PFM -> Provider -> Transfer (AddRoute)
-	// * SendPacket -> Transfer -> Provider -> PFM -> RateLimit -> Fee -> IBC core (ICS4Wrapper)
+	// * RecvPacket -> IBC core -> RateLimit -> PFM -> Callbacks -> Transfer (AddRoute)
+	// * SendPacket -> Transfer -> Callbacks -> PFM -> RateLimit -> IBC core (ICS4Wrapper)
 
 	var transferStack porttypes.IBCModule
 	transferStack = transfer.NewIBCModule(*appKeepers.TransferKeeper.Keeper)
@@ -514,8 +513,6 @@ func NewAppKeeper(
 	// Since this is the lowest level middleware of the transfer stack, it should be the first entrypoint for transfer keeper's
 	// WriteAcknowledgement.
 	cbStack := ibccallbacks.NewIBCMiddleware(transferStack, appKeepers.PFMRouterKeeper, wasmStackIBCHandler, kiiparams.MaxIBCCallbackGas)
-	// TODO: check if we want icsprovider
-	// transferStack = icsprovider.NewIBCMiddleware(cbStack, appKeepers.ProviderKeeper)
 	transferStack = pfmrouter.NewIBCMiddleware(
 		cbStack,
 		appKeepers.PFMRouterKeeper,
