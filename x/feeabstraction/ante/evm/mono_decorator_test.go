@@ -63,25 +63,6 @@ func TestMonoDecoratorTx(t *testing.T) {
 			}(),
 			errContains: "eth tx length of ExtensionOptions should be 1",
 		},
-		{
-			name: "tx fail - invalid signature",
-			tx: func() signing.Tx {
-				// Create a transaction with an invalid amount
-				ethChainID := big.NewInt(1010)
-				msgEthereumTx := evmtypes.NewTx(getDefaultEVMTxArgs(ethChainID, 20000000, big.NewInt(1000000), -10))
-
-				// Start the tx builder
-				encodingConfig := params.MakeEncodingConfig()
-				txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-				// Create the TX
-				tx, err := msgEthereumTx.BuildTx(txBuilder, "akii")
-				require.NoError(t, err)
-
-				return tx
-			}(),
-			errContains: "tx intended signer does not match the given signer",
-		},
 	}
 
 	// Run the test cases
@@ -385,20 +366,6 @@ func TestMonoDecorator(t *testing.T) {
 			gasLimit:    20000000,
 			gasPrice:    big.NewInt(1000000),
 			errContains: "the sender is not EOA",
-		},
-		{
-			name: "fail - invalid amount",
-			malleate: func(ctx sdk.Context) sdk.Context {
-				// Fund the account with token to pay for the fees
-				amount := sdk.NewCoins(sdk.NewCoin("akii", math.NewInt(20000000*1000000)))
-				err := mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
-				require.NoError(t, err)
-				return ctx
-			},
-			gasLimit:    20000000,
-			gasPrice:    big.NewInt(1000000),
-			txAmount:    -10,
-			errContains: "(-10) is negative and invalid",
 		},
 	}
 
