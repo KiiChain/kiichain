@@ -12,10 +12,32 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Transfer does a IBC transfer with custom timeout options
+// Transfer does a IBC transfer with improved timeout handling
 func (p Precompile) Transfer(ctx sdk.Context, method *abi.Method, stateDB vm.StateDB, args []interface{}, caller common.Address) ([]byte, error) {
 	// Build and validate msg
 	msg, err := NewMsgTransfer(ctx, method, caller, args)
+	// If timeout is zero, fallback to chain-derived default (same as TransferWithDefaultTimeout)
+	if err == nil && (msg.TimeoutHeight.RevisionHeight == 0 || msg.TimeoutTimestamp == 0) {
+		// Get connection and consensus height
+		connection, cerr := p.getChannelConnection(ctx, msg.SourcePort, msg.SourceChannel)
+		if cerr != nil {
+			return nil, cerr
+		}
+		latestConsensusHeight, cerr := p.getConsensusLatestHeight(ctx, *connection)
+		if cerr != nil {
+			return nil, cerr
+		}
+		height, cerr := GetAdjustedHeight(*latestConsensusHeight)
+		if cerr != nil {
+			return nil, cerr
+		}
+		timeoutTimestamp, cerr := p.GetAdjustedTimestamp(ctx, connection.ClientId, *latestConsensusHeight)
+		if cerr != nil {
+			return nil, cerr
+		}
+		msg.TimeoutHeight = height
+		msg.TimeoutTimestamp = timeoutTimestamp
+	}
 	if err != nil {
 		return nil, err
 	}
