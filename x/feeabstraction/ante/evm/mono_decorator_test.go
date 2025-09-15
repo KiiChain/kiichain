@@ -35,7 +35,7 @@ import (
 var (
 	MockErc20Address = "0x816644F8bc4633D268842628EB10ffC0AdcB6099"
 	// The mock ERC20 denom
-	MockErc20Denom = "erc20/" + MockErc20Address
+	MockErc20Denom = "erc20:" + MockErc20Address
 	// The mock ERC20 price
 	MockErc20Price = math.LegacyNewDecFromInt(math.NewInt(10)) // 10 uatom = 1 kii
 )
@@ -269,7 +269,7 @@ func TestMonoDecorator(t *testing.T) {
 				require.NoError(t, err)
 
 				// Set the pair on the fee abstraction keeper
-				erc20NativeAddress := "erc20/" + erc20Address.Hex()
+				erc20NativeAddress := "erc20:" + erc20Address.Hex()
 				err = app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata(
 						erc20NativeAddress,
@@ -301,7 +301,7 @@ func TestMonoDecorator(t *testing.T) {
 				require.EqualValues(t, 0, erc20Balance.Int64())
 
 				// Check the value on the FeeCollector
-				feeCollectorBalance := app.BankKeeper.GetBalance(ctx, authtypes.NewModuleAddress(authtypes.FeeCollectorName), "erc20/"+erc20Address.Hex())
+				feeCollectorBalance := app.BankKeeper.GetBalance(ctx, authtypes.NewModuleAddress(authtypes.FeeCollectorName), "erc20:"+erc20Address.Hex())
 				require.EqualValues(t, 20000000*1000000*2, feeCollectorBalance.Amount.Int64())
 			},
 		},
