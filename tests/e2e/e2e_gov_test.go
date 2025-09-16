@@ -198,9 +198,8 @@ func (s *IntegrationTestSuite) submitGovCommand(chainAAPIEndpoint, sender string
 				if proposal.GetProposal().Status != expectedSuccessStatus {
 					s.T().Logf("Proposal failed with: %s", proposal.GetProposal().FailedReason)
 					return false
-				} else {
-					return true
 				}
+				return true
 			},
 			15*time.Second,
 			5*time.Second,

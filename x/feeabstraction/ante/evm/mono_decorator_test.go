@@ -170,15 +170,16 @@ func TestMonoDecorator(t *testing.T) {
 			name: "success - fee charged with fee abstraction native token",
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Set up the token pair on the erc20 module
-				app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
+				err := app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
 					Erc20Address:  MockErc20Address,
 					Denom:         MockErc20Denom,
 					Enabled:       true,
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
+				require.NoError(t, err)
 
 				// Set the pair on the fee abstraction keeper
-				err := app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+				err = app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata(
 						MockErc20Denom,
 						MockErc20Denom,
@@ -206,15 +207,16 @@ func TestMonoDecorator(t *testing.T) {
 			name: "success - fee with fee abstraction and transaction value native token",
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Set up the token pair on the erc20 module
-				app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
+				err := app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
 					Erc20Address:  MockErc20Address,
 					Denom:         MockErc20Denom,
 					Enabled:       true,
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
+				require.NoError(t, err)
 
 				// Set the pair on the fee abstraction keeper
-				err := app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+				err = app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata(
 						MockErc20Denom,
 						MockErc20Denom,
@@ -328,16 +330,17 @@ func TestMonoDecorator(t *testing.T) {
 			name: "fail - fee charged with fee abstraction native token but no funds for tx payment",
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Set up the token pair on the erc20 module
-				app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
+				err := app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
 					Erc20Address:  MockErc20Address,
 					Denom:         MockErc20Denom,
 					Enabled:       true,
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
+				require.NoError(t, err)
 
 				// Mint the tokens for the fee payer
 				amount := sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, 20000000*1000000*10))
-				err := mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
+				err = mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
 				require.NoError(t, err)
 				return ctx
 			},

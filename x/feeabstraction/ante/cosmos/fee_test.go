@@ -154,15 +154,16 @@ func TestDeductFeeDecorator(t *testing.T) {
 			name: "fee abstraction - fee conversion, native token",
 			malleate: func(ctx sdk.Context) {
 				// Set the token pair on the erc20 keeper
-				app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
+				err := app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
 					Erc20Address:  MockErc20Address,
 					Denom:         MockErc20Denom,
 					Enabled:       true,
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
+				require.NoError(t, err)
 
 				// Set the pair on the fee abstraction keeper
-				err := app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+				err = app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata(
 						MockErc20Denom,
 						MockErc20Denom,
