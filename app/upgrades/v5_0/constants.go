@@ -1,4 +1,4 @@
-package v310
+package v500
 
 import (
 	storetypes "cosmossdk.io/store/types"
@@ -10,7 +10,7 @@ import (
 
 const (
 	// UpgradeName is the name of the upgrade
-	UpgradeName = "v3.1.0"
+	UpgradeName = "v5.0.0"
 )
 
 // Upgrade defines the upgrade

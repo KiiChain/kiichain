@@ -1,4 +1,4 @@
-package v310
+package v500
 
 import (
 	"context"
@@ -29,7 +29,7 @@ func CreateUpgradeHandler(
 		}
 
 		// Log the upgrade completion
-		ctx.Logger().Info("Upgrade v3.1.0 complete")
+		ctx.Logger().Info("Upgrade v5.0.0 complete")
 		return vm, nil
 	}
 }
