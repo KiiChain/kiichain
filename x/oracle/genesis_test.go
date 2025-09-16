@@ -7,10 +7,10 @@ import (
 
 	"cosmossdk.io/math"
 
-	"github.com/kiichain/kiichain/v4/x/oracle"
-	"github.com/kiichain/kiichain/v4/x/oracle/keeper"
-	"github.com/kiichain/kiichain/v4/x/oracle/types"
-	"github.com/kiichain/kiichain/v4/x/oracle/utils"
+	"github.com/kiichain/kiichain/v5/x/oracle"
+	"github.com/kiichain/kiichain/v5/x/oracle/keeper"
+	"github.com/kiichain/kiichain/v5/x/oracle/types"
+	"github.com/kiichain/kiichain/v5/x/oracle/utils"
 )
 
 func TestExportInitGenesis(t *testing.T) {

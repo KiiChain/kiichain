@@ -47,8 +47,8 @@ import (
 
 	evmconfig "github.com/cosmos/evm/server/config"
 
-	kiichain "github.com/kiichain/kiichain/v4/app"
-	"github.com/kiichain/kiichain/v4/app/params"
+	kiichain "github.com/kiichain/kiichain/v5/app"
+	"github.com/kiichain/kiichain/v5/app/params"
 )
 
 const (

@@ -1,6 +1,6 @@
 package bindings
 
-import "github.com/kiichain/kiichain/v4/x/oracle/types"
+import "github.com/kiichain/kiichain/v5/x/oracle/types"
 
 // KiiOracleQuery represents the querier with the query functions
 type KiiOracleQuery struct {

@@ -24,12 +24,12 @@ import (
 	"github.com/cosmos/evm/x/vm/statedb"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	kiichain "github.com/kiichain/kiichain/v4/app"
-	"github.com/kiichain/kiichain/v4/app/apptesting"
-	"github.com/kiichain/kiichain/v4/app/helpers"
-	"github.com/kiichain/kiichain/v4/app/params"
-	kiievmante "github.com/kiichain/kiichain/v4/x/feeabstraction/ante/evm"
-	"github.com/kiichain/kiichain/v4/x/feeabstraction/types"
+	kiichain "github.com/kiichain/kiichain/v5/app"
+	"github.com/kiichain/kiichain/v5/app/apptesting"
+	"github.com/kiichain/kiichain/v5/app/helpers"
+	"github.com/kiichain/kiichain/v5/app/params"
+	kiievmante "github.com/kiichain/kiichain/v5/x/feeabstraction/ante/evm"
+	"github.com/kiichain/kiichain/v5/x/feeabstraction/types"
 )
 
 var (

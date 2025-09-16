@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	oracletypes "github.com/kiichain/kiichain/v4/x/oracle/types"
+	oracletypes "github.com/kiichain/kiichain/v5/x/oracle/types"
 )
 
 const (

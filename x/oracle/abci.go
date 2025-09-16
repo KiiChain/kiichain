@@ -6,9 +6,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v4/x/oracle/keeper"
-	"github.com/kiichain/kiichain/v4/x/oracle/types"
-	"github.com/kiichain/kiichain/v4/x/oracle/utils"
+	"github.com/kiichain/kiichain/v5/x/oracle/keeper"
+	"github.com/kiichain/kiichain/v5/x/oracle/types"
+	"github.com/kiichain/kiichain/v5/x/oracle/utils"
 )
 
 // EndBlocker get the votes from the validators, calculate the exchange rate using

@@ -9,9 +9,9 @@ import (
 
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
-	"github.com/kiichain/kiichain/v4/app/helpers"
-	utils "github.com/kiichain/kiichain/v4/app/upgrades/utils"
-	"github.com/kiichain/kiichain/v4/precompiles/oracle"
+	"github.com/kiichain/kiichain/v5/app/helpers"
+	utils "github.com/kiichain/kiichain/v5/app/upgrades/utils"
+	"github.com/kiichain/kiichain/v5/precompiles/oracle"
 )
 
 // TestUpgrade tests the upgrade handler for v3.0.0

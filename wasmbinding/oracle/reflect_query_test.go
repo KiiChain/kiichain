@@ -11,12 +11,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	app "github.com/kiichain/kiichain/v4/app"
-	"github.com/kiichain/kiichain/v4/app/apptesting"
-	"github.com/kiichain/kiichain/v4/wasmbinding"
-	"github.com/kiichain/kiichain/v4/wasmbinding/helpers"
-	oraclebindingtypes "github.com/kiichain/kiichain/v4/wasmbinding/oracle/types"
-	oracletypes "github.com/kiichain/kiichain/v4/x/oracle/types"
+	app "github.com/kiichain/kiichain/v5/app"
+	"github.com/kiichain/kiichain/v5/app/apptesting"
+	"github.com/kiichain/kiichain/v5/wasmbinding"
+	"github.com/kiichain/kiichain/v5/wasmbinding/helpers"
+	oraclebindingtypes "github.com/kiichain/kiichain/v5/wasmbinding/oracle/types"
+	oracletypes "github.com/kiichain/kiichain/v5/x/oracle/types"
 )
 
 // TestOracleQueries test the Oracle query
