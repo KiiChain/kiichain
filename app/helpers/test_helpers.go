@@ -230,7 +230,7 @@ func genesisStateWithValSet(t *testing.T,
 func SetupWithContext(t *testing.T) (*kiichain.KiichainApp, sdk.Context) {
 	t.Helper()
 	chain := Setup(t)
-	ctx := chain.BaseApp.NewUncachedContext(true, tmproto.Header{Height: 1, ChainID: "testing_1010-1", Time: time.Now().UTC()})
+	ctx := chain.BaseApp.NewUncachedContext(true, tmproto.Header{Height: 1, ChainID: "testing_262144-1", Time: time.Now().UTC()})
 	allVal, err := chain.StakingKeeper.GetAllValidators(ctx)
 	require.NoError(t, err)
 
@@ -239,7 +239,7 @@ func SetupWithContext(t *testing.T) (*kiichain.KiichainApp, sdk.Context) {
 	require.NoError(t, err)
 
 	// Set a final context with the proposer address for the EVM module
-	ctx = chain.BaseApp.NewUncachedContext(true, tmproto.Header{Height: 1, ChainID: "testing_1010-1", Time: time.Now().UTC(), ProposerAddress: valConsAddr})
+	ctx = chain.BaseApp.NewUncachedContext(true, tmproto.Header{Height: 1, ChainID: "testing_262144-1", Time: time.Now().UTC(), ProposerAddress: valConsAddr})
 	return chain, sdk.UnwrapSDKContext(ctx)
 }
 
