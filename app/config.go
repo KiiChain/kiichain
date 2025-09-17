@@ -51,7 +51,7 @@ var ChainsCoinInfo = map[uint64]evmtypes.EvmCoinInfo{
 		DisplayDenom:  params.DisplayDenom,
 		Decimals:      params.BaseDenomUnit,
 	},
-	262144: {
+	params.DefaultChainID: {
 		Denom:         params.BaseDenom,
 		ExtendedDenom: params.BaseDenom,
 		DisplayDenom:  params.DisplayDenom,
@@ -106,7 +106,7 @@ func setBaseDenom(ci evmtypes.EvmCoinInfo) error {
 	return sdk.RegisterDenom(ci.Denom, math.LegacyNewDecWithPrec(1, int64(ci.Decimals)))
 }
 
-var KiichainID uint64 = 262144 // default Chain ID
+var KiichainID uint64 = params.DefaultChainID // default Chain ID
 
 // init initializes the KiichainID variable by reading the chain ID from the
 // genesis file or app.toml file in the node's home directory.
