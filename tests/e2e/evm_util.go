@@ -15,6 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	geth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
+
 	kiichain "github.com/kiichain/kiichain/v4/app"
 )
 
