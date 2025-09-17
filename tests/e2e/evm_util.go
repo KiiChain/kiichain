@@ -15,6 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	geth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
+	kiichain "github.com/kiichain/kiichain/v4/app"
 )
 
 // EVMAccount stores an address and a key used for EVM interaction
@@ -174,7 +175,7 @@ func extractRevertReason(err error) string {
 
 // setupDefaultAuth creates an auth with a given evm key and client
 func setupDefaultAuth(client *ethclient.Client, key *ecdsa.PrivateKey) *bind.TransactOpts {
-	auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1010))
+	auth, err := bind.NewKeyedTransactorWithChainID(key, big.NewInt(int64(kiichain.KiichainID)))
 	if err != nil {
 		log.Fatal(err)
 	}
