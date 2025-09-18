@@ -136,9 +136,6 @@ func (am AppModule) RegisterServices(c module.Configurator) {
 	types.RegisterQueryServer(c.QueryServer(), keeper.NewQuerier(am.keeper))
 }
 
-// RegisterInvariants register the module invariants
-func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {} //nolint:staticcheck
-
 // InitGenesis performs the module genesis initialization
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) []abci.ValidatorUpdate {
 	// Unmarshal the genesis state

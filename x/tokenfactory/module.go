@@ -153,9 +153,6 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
-// RegisterInvariants registers the x/tokenfactory module's invariants.
-func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {} //nolint:staticcheck
-
 // InitGenesis performs the x/tokenfactory module's genesis initialization. It
 // returns no validator updates.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) []abci.ValidatorUpdate {
