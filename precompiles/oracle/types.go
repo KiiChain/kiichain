@@ -3,6 +3,7 @@ package oracle
 import (
 	"fmt"
 	"math/big"
+	"regexp" // <-- pindahin ke sini
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 
@@ -24,7 +25,6 @@ func ParseGetExchangeRateArgs(args []interface{}) (*oracletypes.QueryExchangeRat
 
 	// Regex validation: [a-z][a-z0-9/]{2,64}
 	// Only allow denom starting with a-z, followed by 2-64 chars a-z, 0-9, or /
-	import "regexp"
 	var denomRegex = regexp.MustCompile(`^[a-z][a-z0-9/]{2,64}$`)
 	if !denomRegex.MatchString(denom) {
 		return nil, fmt.Errorf("invalid denom format: must match [a-z][a-z0-9/]{2,64}")
