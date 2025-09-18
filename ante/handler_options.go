@@ -12,7 +12,6 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
@@ -28,7 +27,7 @@ import (
 // AnteHandler decorators.
 type HandlerOptions struct {
 	Cdc                    codec.BinaryCodec
-	AccountKeeper          *authkeeper.AccountKeeper
+	AccountKeeper          anteinterfaces.AccountKeeper
 	BankKeeper             anteinterfaces.BankKeeper
 	IBCKeeper              *ibckeeper.Keeper
 	FeeMarketKeeper        anteinterfaces.FeeMarketKeeper
