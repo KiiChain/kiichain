@@ -22,6 +22,21 @@ import (
 	"github.com/kiichain/kiichain/v4/app/params"
 )
 
+// Setup for regex of chain ID
+var (
+	regexChainID         = `[a-z]{1,}`
+	regexEIP155Separator = `_{1}`
+	regexEIP155          = `[1-9][0-9]*`
+	regexEpochSeparator  = `-{1}`
+	regexEpoch           = `[1-9][0-9]*`
+	fullChainID          = regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)%s(%s)$`,
+		regexChainID,
+		regexEIP155Separator,
+		regexEIP155,
+		regexEpochSeparator,
+		regexEpoch))
+)
+
 // EVMOptionsFn defines a function type for setting app options specifically for
 // the Cosmos EVM app. The function should receive the chainID and return an error if
 // any.
@@ -164,20 +179,6 @@ func init() {
 		panic(err)
 	}
 }
-
-var (
-	regexChainID         = `[a-z]{1,}`
-	regexEIP155Separator = `_{1}`
-	regexEIP155          = `[1-9][0-9]*`
-	regexEpochSeparator  = `-{1}`
-	regexEpoch           = `[1-9][0-9]*`
-	evmosChainID         = regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)%s(%s)$`,
-		regexChainID,
-		regexEIP155Separator,
-		regexEIP155,
-		regexEpochSeparator,
-		regexEpoch))
-)
 
 // ParseChainID parses a string chain identifier's EIP155 number to an Ethereum-compatible
 // chain-id in uint64 format. The function returns an error if the chain-id has an invalid format
