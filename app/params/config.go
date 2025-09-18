@@ -35,8 +35,7 @@ const (
 
 	// Testnet chain id
 	TestnetChainID = 1336
-	LocalChainID   = 1010
-	DefaultChainID = 262144
+	DefaultChainID = 1010
 )
 
 // SetBech32Prefixes sets the global prefixes to be used when serializing addresses and public keys to Bech32 strings.

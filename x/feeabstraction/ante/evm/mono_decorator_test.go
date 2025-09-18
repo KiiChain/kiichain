@@ -429,7 +429,7 @@ func mintCoins(app *kiichain.KiichainApp, ctx sdk.Context, addr sdk.AccAddress, 
 
 // createAndSignTx creates and signs a transaction with the given key
 func createAndSignTx(key keyring.Key, gasLimit uint64, gasPrice *big.Int, amount int64) (signing.Tx, error) {
-	ethChainID := big.NewInt(params.DefaultChainID)
+	ethChainID := big.NewInt(int64(kiichain.KiichainID))
 	msgEthereumTx := evmtypes.NewTx(getDefaultEVMTxArgs(ethChainID, gasLimit, gasPrice, amount))
 
 	signer := gethtypes.LatestSignerForChainID(ethChainID)

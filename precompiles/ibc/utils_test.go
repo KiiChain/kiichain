@@ -14,7 +14,6 @@ import (
 
 	"github.com/kiichain/kiichain/v4/ante"
 	kiichain "github.com/kiichain/kiichain/v4/app"
-	"github.com/kiichain/kiichain/v4/app/params"
 )
 
 var app *kiichain.KiichainApp
@@ -29,7 +28,7 @@ func KiichainAppIniterTempDir() (ibctesting.TestingApp, map[string]json.RawMessa
 
 	// Set the base options
 	baseAppOptions := bam.SetChainID(
-		fmt.Sprintf("%d", params.LocalChainID),
+		fmt.Sprintf("%d", kiichain.KiichainID),
 	)
 
 	// Disable the fee market

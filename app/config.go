@@ -60,12 +60,6 @@ var ChainsCoinInfo = map[uint64]evmtypes.EvmCoinInfo{
 		DisplayDenom:  params.DisplayDenom,
 		Decimals:      params.BaseDenomUnit,
 	},
-	params.LocalChainID: {
-		Denom:         params.BaseDenom,
-		ExtendedDenom: params.BaseDenom,
-		DisplayDenom:  params.DisplayDenom,
-		Decimals:      params.BaseDenomUnit,
-	},
 	params.DefaultChainID: {
 		Denom:         params.BaseDenom,
 		ExtendedDenom: params.BaseDenom,
@@ -86,7 +80,7 @@ func EVMAppOptions(chainID uint64) error {
 	if !found {
 		// If not found, set as default
 		log.Printf("Chain ID %d not found in ChainsCoinInfo, using default", chainID)
-		coinInfo = ChainsCoinInfo[params.LocalChainID]
+		coinInfo = ChainsCoinInfo[params.DefaultChainID]
 	}
 
 	// set the denom info for the chain
@@ -127,7 +121,7 @@ var KiichainID uint64 = params.DefaultChainID // default Chain ID
 // genesis file or app.toml file in the node's home directory.
 // If the genesis file exists, it reads the Cosmos chain ID from there and parses it
 // using the Evmos-style chain ID format; otherwise, it checks the app.toml file for the EVM chain ID.
-// If neither file exists or the chain ID is not found, it defaults to the Kiichain Chain ID (262144).
+// If neither file exists or the chain ID is not found, it defaults to the Kiichain Chain ID (1010).
 func init() {
 	nodeHome, err := clienthelpers.GetNodeHomeDirectory(".kiichain")
 	if err != nil {
