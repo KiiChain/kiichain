@@ -1,6 +1,10 @@
 # CHANGELOG
 
-## UNRELEASED
+## UNRELEASED 
+
+### Fixed
+- Moved `regexp` import to top-level in oracle precompile
+- Added denom validation regex in oracle precompile
 
 ## v4.0.0 — 2025-08-06
 
