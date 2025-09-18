@@ -52,6 +52,7 @@ type Optionals struct {
 	ConsensusAddrCodec address.Codec // used by slashing
 }
 
+// defaultOptionals returns the default coded optionals
 func defaultOptionals() Optionals {
 	return Optionals{
 		AddressCodec:       addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
@@ -60,20 +61,24 @@ func defaultOptionals() Optionals {
 	}
 }
 
+// Option returns a funcion for the corresponding needed coded
 type Option func(opts *Optionals)
 
+// WithAddressCodec returns the function to access the with address codec
 func WithAddressCodec(codec address.Codec) Option {
 	return func(opts *Optionals) {
 		opts.AddressCodec = codec
 	}
 }
 
+// WithValidatorAddrCodec returns the function to access the with validator address codec
 func WithValidatorAddrCodec(codec address.Codec) Option {
 	return func(opts *Optionals) {
 		opts.ValidatorAddrCodec = codec
 	}
 }
 
+// WithConsensusAddrCodec returns the function to access the with consensus address codec
 func WithConsensusAddrCodec(codec address.Codec) Option {
 	return func(opts *Optionals) {
 		opts.ConsensusAddrCodec = codec
