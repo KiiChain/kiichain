@@ -119,7 +119,7 @@ var KiichainID uint64 = params.DefaultChainID // default Chain ID
 // init initializes the KiichainID variable by reading the chain ID from the
 // genesis file or app.toml file in the node's home directory.
 // If the genesis file exists, it reads the Cosmos chain ID from there and parses it
-// using the Evmos-style chain ID format; otherwise, it checks the app.toml file for the EVM chain ID.
+// using the full name style chain ID format; otherwise, it checks the app.toml file for the EVM chain ID.
 // If neither file exists or the chain ID is not found, it defaults to the Kiichain Chain ID (1010).
 func init() {
 	nodeHome, err := clienthelpers.GetNodeHomeDirectory(".kiichain")
@@ -137,7 +137,7 @@ func init() {
 
 			chainID, err := genutiltypes.ParseChainIDFromGenesis(reader)
 			if err == nil && chainID != "" {
-				// Parse using Evmos-style chain ID format
+				// Parse the full chain ID format
 				evmChainID, err := ParseChainID(chainID)
 				if err == nil {
 					KiichainID = evmChainID
