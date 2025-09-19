@@ -12,8 +12,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 	simcli "github.com/cosmos/cosmos-sdk/x/simulation/client/cli"
 
-	kiichain "github.com/kiichain/kiichain/v4/app"
-	"github.com/kiichain/kiichain/v4/app/sim"
+	kiichain "github.com/kiichain/kiichain/v5/app"
+	"github.com/kiichain/kiichain/v5/app/sim"
 )
 
 func BenchmarkFullAppSimulation(b *testing.B) {

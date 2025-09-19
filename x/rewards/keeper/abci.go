@@ -4,7 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v4/x/rewards/types"
+	"github.com/kiichain/kiichain/v5/x/rewards/types"
 )
 
 // BeginBlocker calculates reward amt and sends it to the distribution pool

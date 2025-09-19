@@ -16,7 +16,7 @@ import (
 	geth "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	kiichain "github.com/kiichain/kiichain/v4/app"
+	kiichain "github.com/kiichain/kiichain/v5/app"
 )
 
 // EVMAccount stores an address and a key used for EVM interaction

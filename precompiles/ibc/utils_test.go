@@ -12,8 +12,8 @@ import (
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 
-	"github.com/kiichain/kiichain/v4/ante"
-	kiichain "github.com/kiichain/kiichain/v4/app"
+	"github.com/kiichain/kiichain/v5/ante"
+	kiichain "github.com/kiichain/kiichain/v5/app"
 )
 
 var app *kiichain.KiichainApp

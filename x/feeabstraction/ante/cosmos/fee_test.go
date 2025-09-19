@@ -22,10 +22,10 @@ import (
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	"github.com/kiichain/kiichain/v4/app/apptesting"
-	"github.com/kiichain/kiichain/v4/app/helpers"
-	"github.com/kiichain/kiichain/v4/x/feeabstraction/ante/cosmos"
-	"github.com/kiichain/kiichain/v4/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v5/app/apptesting"
+	"github.com/kiichain/kiichain/v5/app/helpers"
+	"github.com/kiichain/kiichain/v5/x/feeabstraction/ante/cosmos"
+	"github.com/kiichain/kiichain/v5/x/feeabstraction/types"
 )
 
 var (

@@ -7,7 +7,7 @@ import (
 
 	"cosmossdk.io/math"
 
-	"github.com/kiichain/kiichain/v4/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v5/x/feeabstraction/types"
 )
 
 // TestValidateParams tests the Validate method of Params

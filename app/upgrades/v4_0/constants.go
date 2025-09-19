@@ -3,8 +3,8 @@ package v400
 import (
 	storetypes "cosmossdk.io/store/types"
 
-	"github.com/kiichain/kiichain/v4/app/upgrades"
-	feeabstractiontypes "github.com/kiichain/kiichain/v4/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v5/app/upgrades"
+	feeabstractiontypes "github.com/kiichain/kiichain/v5/x/feeabstraction/types"
 )
 
 const (
