@@ -10,10 +10,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/ethereum/go-ethereum/common"
 
+	clientkeeper "github.com/cosmos/ibc-go/v10/modules/core/02-client/keeper"
 	"github.com/kiichain/kiichain/v5/app/keepers"
 )
 
-// CreateUpgradeHandler creates the upgrade handler for the v4.0.0 upgrade
+// CreateUpgradeHandler creates the upgrade handler for the v5.0.0 upgrade
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
@@ -32,6 +33,12 @@ func CreateUpgradeHandler(
 
 		// Run ERC20 migration
 		MigrateERC20(ctx, keepers)
+
+		// Remove localhost from client states IBC
+		err = clientkeeper.NewMigrator(keepers.IBCKeeper.ClientKeeper).MigrateToStatelessLocalhost(ctx)
+		if err != nil {
+			return vm, err
+		}
 
 		// Log the upgrade completion
 		ctx.Logger().Info("Upgrade v5.0.0 complete")
