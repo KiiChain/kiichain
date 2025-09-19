@@ -6,7 +6,7 @@
 INITIAL_VERSION=v4.0.0
 # Upgrade tag defines the version to which we upgrade
 # This tag should be available on the kiichain repo
-UPGRADE_TAG=v5.0.0-dependencies-bump
+UPGRADE_TAG=v5.0.0-test
 # Upgrade name is the name of the upgrade proposal
 # This name should be on the code as the expected upgrade name
 UPGRADE_NAME=v5.0.0
@@ -54,7 +54,7 @@ sleep 5
 
 # Vote for the proposal
 kiichaind tx gov vote 1 yes --keyring-backend test --from mykey --fees 1000000000000000000akii -y
-wait_for_height 25
+wait_for_height 15
 sleep 5
 
 # Kill the node
