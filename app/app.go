@@ -67,7 +67,7 @@ import (
 	kiiante "github.com/kiichain/kiichain/v5/ante"
 	"github.com/kiichain/kiichain/v5/app/keepers"
 	"github.com/kiichain/kiichain/v5/app/upgrades"
-	v5_0 "github.com/kiichain/kiichain/v5/app/upgrades/v4_0"
+	v5_0 "github.com/kiichain/kiichain/v5/app/upgrades/v5_0"
 	"github.com/kiichain/kiichain/v5/client/docs"
 )
 
