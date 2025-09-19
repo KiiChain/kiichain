@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/ethereum/go-ethereum/common"
 
-	clientkeeper "github.com/cosmos/ibc-go/v10/modules/core/02-client/keeper"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/kiichain/kiichain/v5/app/keepers"
 )
 
@@ -34,9 +34,12 @@ func CreateUpgradeHandler(
 		// Run ERC20 migration
 		MigrateERC20(ctx, keepers)
 
-		// Remove localhost from client states IBC
-		err = clientkeeper.NewMigrator(keepers.IBCKeeper.ClientKeeper).MigrateToStatelessLocalhost(ctx)
-		if err != nil {
+		// set the evm/vm params
+		evmParams := evmtypes.DefaultParams()
+		evmParams.EvmDenom = evmtypes.GetEVMCoinDenom()
+		// enable AllowUnprotectedTxs see adr-006
+		evmParams.AllowUnprotectedTxs = true
+		if err := keepers.EVMKeeper.SetParams(ctx, evmParams); err != nil {
 			return vm, err
 		}
 
