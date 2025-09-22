@@ -135,9 +135,5 @@ func MigrateEVMParams(
 	evmParams.EVMChannels = oldParams.EVMChannels
 	evmParams.AllowUnprotectedTxs = oldParams.AllowUnprotectedTxs
 
-	if err := keepers.EVMKeeper.SetParams(ctx, evmParams); err != nil {
-		return err
-	}
-
-	return store.Delete(evmtypes.ParamStoreKeyChainConfig)
+	return keepers.EVMKeeper.SetParams(ctx, evmParams)
 }
