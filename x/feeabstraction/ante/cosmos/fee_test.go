@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+	gomock "go.uber.org/mock/gomock"
 
 	"cosmossdk.io/math"
 	"cosmossdk.io/x/feegrant"
@@ -30,12 +30,12 @@ import (
 
 var (
 	DefaultFirstERC20      = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd"
-	DefaultFirstERC20Denom = "erc20/" + DefaultFirstERC20
+	DefaultFirstERC20Denom = "erc20:" + DefaultFirstERC20
 	DefaultMinFeeValue     = int64(875000000000000)
 
 	MockErc20Address = "0x816644F8bc4633D268842628EB10ffC0AdcB6099"
 	// The mock ERC20 denom
-	MockErc20Denom = "erc20/" + MockErc20Address
+	MockErc20Denom = "erc20:" + MockErc20Address
 	// The mock ERC20 price
 	MockErc20Price = math.LegacyNewDecFromInt(math.NewInt(10)) // 10 uatom = 1 kii
 )
@@ -154,15 +154,16 @@ func TestDeductFeeDecorator(t *testing.T) {
 			name: "fee abstraction - fee conversion, native token",
 			malleate: func(ctx sdk.Context) {
 				// Set the token pair on the erc20 keeper
-				app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
+				err := app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
 					Erc20Address:  MockErc20Address,
 					Denom:         MockErc20Denom,
 					Enabled:       true,
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
+				require.NoError(t, err)
 
 				// Set the pair on the fee abstraction keeper
-				err := app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+				err = app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata(
 						MockErc20Denom,
 						MockErc20Denom,
@@ -199,7 +200,7 @@ func TestDeductFeeDecorator(t *testing.T) {
 
 				// Set the token pair on the erc20 keeper
 				_, err = app.Erc20Keeper.RegisterERC20(ctx, &erc20types.MsgRegisterERC20{
-					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+					Signer: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 					Erc20Addresses: []string{
 						erc20Address.Hex(),
 					},
@@ -207,7 +208,7 @@ func TestDeductFeeDecorator(t *testing.T) {
 				require.NoError(t, err)
 
 				// Set the pair on the fee abstraction keeper
-				erc20NativeAddress := "erc20/" + erc20Address.Hex()
+				erc20NativeAddress := "erc20:" + erc20Address.Hex()
 				err = app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata(
 						erc20NativeAddress,

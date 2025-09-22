@@ -16,7 +16,7 @@ import (
 	wasmdkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	testkeyring "github.com/cosmos/evm/testutil/keyring"
 	"github.com/cosmos/evm/x/vm/statedb"
 
 	app "github.com/kiichain/kiichain/v4/app"
@@ -78,7 +78,7 @@ func (s *WasmdPrecompileTestSuite) SetupSuite() {
 	s.CounterCodeID = res.CodeID
 
 	// Start the precompile
-	pc, err := wasmdprecompile.NewPrecompile(s.App.WasmKeeper, s.App.AuthzKeeper)
+	pc, err := wasmdprecompile.NewPrecompile(s.App.WasmKeeper)
 	s.Require().NoError(err)
 	s.Precompile = pc
 }

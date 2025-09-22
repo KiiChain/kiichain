@@ -45,6 +45,9 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	evmconfig "github.com/cosmos/evm/server/config"
+
+	kiichain "github.com/kiichain/kiichain/v4/app"
 	"github.com/kiichain/kiichain/v4/app/params"
 )
 
@@ -545,8 +548,14 @@ func (s *IntegrationTestSuite) initValidatorConfigs(c *chain) {
 		appConfig.MinGasPrices = fmt.Sprintf("%s%s", minGasPrice, akiiDenom)
 		appConfig.GRPC.Address = "0.0.0.0:9090"
 
-		srvconfig.SetConfigTemplate(srvconfig.DefaultConfigTemplate)
-		srvconfig.WriteConfigFile(appCfgPath, appConfig)
+		// Setup EVM related
+		evmConfig := evmconfig.DefaultConfig()
+		evmConfig.EVM.EVMChainID = kiichain.KiichainID
+		evmConfig.Config = *appConfig
+
+		configTemplate := srvconfig.DefaultConfigTemplate + evmconfig.DefaultEVMConfigTemplate
+		srvconfig.SetConfigTemplate(configTemplate)
+		srvconfig.WriteConfigFile(appCfgPath, evmConfig)
 	}
 }
 
@@ -766,6 +775,7 @@ func (s *IntegrationTestSuite) setupEVMAccountOnChain(c *chain, valIdx int, amou
 
 	// 3. Send via evm
 	client, err := ethclient.Dial(jsonRPC)
+	s.Require().NoError(err)
 	receipt, err := sendEVM(client, key, evmAddress, aliceEvmAddress, amount)
 	s.Require().NoError(err)
 	s.Require().False(receipt.Status == geth.ReceiptStatusFailed)

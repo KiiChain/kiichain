@@ -4,17 +4,24 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
+	"github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v10/modules/core/03-connection/types"
 
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+// Default increment values
+const (
+	DefaultBlockIncrement = 100
+	DefaultTimeIncrement  = 10 * time.Minute
 )
 
 // TransferEvent represents the solidity event that is logged
@@ -125,20 +132,18 @@ func (p Precompile) NewMsgTransferDefaultTimeout(
 		return nil, err
 	}
 
-	latestConsensusHeight, err := p.getConsensusLatestHeight(ctx, *connection)
+	latestConsensusHeight := p.getConsensusLatestHeight(ctx, *connection)
+
+	timeoutTimestamp, err := p.GetAdjustedTimestamp(ctx, connection.ClientId, latestConsensusHeight)
 	if err != nil {
 		return nil, err
 	}
 
-	height, err := GetAdjustedHeight(*latestConsensusHeight)
-	if err != nil {
-		return nil, err
-	}
-
-	timeoutTimestamp, err := p.GetAdjustedTimestamp(ctx, connection.ClientId, *latestConsensusHeight)
-	if err != nil {
-		return nil, err
-	}
+	// Adjust timeout height by adding timeout height
+	incrementedHeight := clienttypes.NewHeight(
+		latestConsensusHeight.GetRevisionNumber(),
+		latestConsensusHeight.GetRevisionHeight()+DefaultBlockIncrement,
+	)
 
 	msg := types.MsgTransfer{
 		SourcePort:       validatedArgs.port,
@@ -146,7 +151,7 @@ func (p Precompile) NewMsgTransferDefaultTimeout(
 		Token:            coin,
 		Sender:           validatedArgs.senderKiiAddr.String(),
 		Receiver:         validatedArgs.receiverAddressString,
-		TimeoutHeight:    height,
+		TimeoutHeight:    incrementedHeight,
 		TimeoutTimestamp: timeoutTimestamp,
 	}
 
@@ -171,51 +176,22 @@ func (p Precompile) getChannelConnection(ctx sdk.Context, port string, channelID
 }
 
 // getConsensusLatestHeight obtains the consensus latest height
-func (p Precompile) getConsensusLatestHeight(ctx sdk.Context, connection connectiontypes.ConnectionEnd) (*clienttypes.Height, error) {
-	clientState, found := p.clientKeeper.GetClientState(ctx, connection.ClientId)
-
-	if !found {
-		return nil, errors.New("could not get the client state")
-	}
-
-	latestHeight := clientState.GetLatestHeight()
-	return &clienttypes.Height{
-		RevisionNumber: latestHeight.GetRevisionNumber(),
-		RevisionHeight: latestHeight.GetRevisionHeight(),
-	}, nil
-}
-
-// GetAdjustedHeight calculates the default timeout height
-func GetAdjustedHeight(latestConsensusHeight clienttypes.Height) (clienttypes.Height, error) {
-	defaultTimeoutHeight, err := clienttypes.ParseHeight(types.DefaultRelativePacketTimeoutHeight)
-	if err != nil {
-		return clienttypes.Height{}, err
-	}
-
-	absoluteHeight := latestConsensusHeight
-	absoluteHeight.RevisionNumber += defaultTimeoutHeight.RevisionNumber
-	absoluteHeight.RevisionHeight += defaultTimeoutHeight.RevisionHeight
-	return absoluteHeight, nil
+func (p Precompile) getConsensusLatestHeight(ctx sdk.Context, connection connectiontypes.ConnectionEnd) clienttypes.Height {
+	return p.clientKeeper.GetClientLatestHeight(ctx, connection.ClientId)
 }
 
 // GetAdjustedTimestamp creates default timestamp from height and unix
 func (p Precompile) GetAdjustedTimestamp(ctx sdk.Context, clientID string, height clienttypes.Height) (uint64, error) {
-	consensusState, found := p.clientKeeper.GetClientConsensusState(ctx, clientID, height)
-	var consensusStateTimestamp uint64
-	if found {
-		consensusStateTimestamp = consensusState.GetTimestamp()
+	// Get adjusted timestamp
+	timeoutTimestamp, err := p.clientKeeper.GetClientTimestampAtHeight(ctx, clientID, height)
+	if err != nil {
+		return 0, err
 	}
 
-	defaultRelativePacketTimeoutTimestamp := types.DefaultRelativePacketTimeoutTimestamp
-	blockTime := ctx.BlockTime().UnixNano()
-	if blockTime > 0 {
-		now := uint64(blockTime)
-		if now > consensusStateTimestamp {
-			return now + defaultRelativePacketTimeoutTimestamp, nil
-		}
-		return consensusStateTimestamp + defaultRelativePacketTimeoutTimestamp, nil
-	}
-	return 0, errors.New("block time is not greater than Jan 1st, 1970 12:00 AM")
+	// Increment timestamp by default amt
+	adjustedTime := time.Unix(0, int64(timeoutTimestamp))
+	incrementedTimestamp := uint64(adjustedTime.Add(DefaultTimeIncrement).UnixNano())
+	return incrementedTimestamp, nil
 }
 
 // ValidatedArgs stores common args that have been validated

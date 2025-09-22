@@ -25,7 +25,7 @@ func (s *IntegrationTestSuite) writeAddRateLimitAtomProposal(c *chain) {
 		  "@type": "/ratelimit.v1.MsgAddRateLimit",
 		  "authority": "%s",
 		  "denom": "%s",
-		  "channel_id": "%s",
+		  "channel_or_client_id": "%s",
 		  "max_percent_send": "%s",
 		  "max_percent_recv": "%s",
 		  "duration_hours": "%d"
@@ -57,7 +57,7 @@ func (s *IntegrationTestSuite) writeAddRateLimitStakeProposal(c *chain) {
 		  "@type": "/ratelimit.v1.MsgAddRateLimit",
 		  "authority": "%s",
 		  "denom": "%s",
-		  "channel_id": "%s",
+		  "channel_or_client_id": "%s",
 		  "max_percent_send": "%s",
 		  "max_percent_recv": "%s",
 		  "duration_hours": "%d"
@@ -89,7 +89,7 @@ func (s *IntegrationTestSuite) writeUpdateRateLimitAtomProposal(c *chain) {
 		  "@type": "/ratelimit.v1.MsgUpdateRateLimit",
 		  "authority": "%s",
 		  "denom": "%s",
-		  "channel_id": "%s",
+		  "channel_or_client_id": "%s",
 		  "max_percent_send": "%s",
 		  "max_percent_recv": "%s",
 		  "duration_hours": "%d"
@@ -121,7 +121,7 @@ func (s *IntegrationTestSuite) writeResetRateLimitAtomProposal(c *chain) {
 		  "@type": "/ratelimit.v1.MsgResetRateLimit",
 		  "authority": "%s",
 		  "denom": "%s",
-		  "channel_id": "%s"
+		  "channel_or_client_id": "%s"
 		 }
 		],
 		"metadata": "ipfs://CID",
@@ -147,7 +147,7 @@ func (s *IntegrationTestSuite) writeRemoveRateLimitAtomProposal(c *chain) {
 		  "@type": "/ratelimit.v1.MsgRemoveRateLimit",
 		  "authority": "%s",
 		  "denom": "%s",
-		  "channel_id": "%s"
+		  "channel_or_client_id": "%s"
 		 }
 		],
 		"metadata": "ipfs://CID",
@@ -188,7 +188,7 @@ func (s *IntegrationTestSuite) testAddRateLimits() {
 			rateLimits, err := queryAllRateLimits(chainEndpoint)
 			s.Require().NoError(err)
 			s.Require().Len(rateLimits, 1)
-			s.Require().Equal(transferChannel, rateLimits[0].Path.ChannelId)
+			s.Require().Equal(transferChannel, rateLimits[0].Path.ChannelOrClientId)
 			s.Require().Equal(akiiDenom, rateLimits[0].Path.Denom)
 			s.Require().Equal(uint64(24), rateLimits[0].Quota.DurationHours)
 			s.Require().Equal(sdkmath.NewInt(1), rateLimits[0].Quota.MaxPercentRecv)
@@ -230,7 +230,7 @@ func (s *IntegrationTestSuite) testAddRateLimits() {
 			s.Require().NoError(err)
 			s.Require().Len(rateLimits, 2)
 			// Note: the rate limits are ordered lexicographically by denom
-			s.Require().Equal(transferChannel, rateLimits[1].Path.ChannelId)
+			s.Require().Equal(transferChannel, rateLimits[1].Path.ChannelOrClientId)
 			s.Require().Equal(stakeDenom, rateLimits[1].Path.Denom)
 			s.Require().Equal(uint64(6), rateLimits[1].Quota.DurationHours)
 			s.Require().Equal(sdkmath.NewInt(5), rateLimits[1].Quota.MaxPercentRecv)

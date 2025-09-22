@@ -19,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 
+	kiichain "github.com/kiichain/kiichain/v4/app"
 	"github.com/kiichain/kiichain/v4/tests/e2e/mock"
 )
 
@@ -43,7 +44,9 @@ func (s *IntegrationTestSuite) testEVMQueries(jsonRPC string) {
 
 		chainID, err := parseResultAsHex(res)
 		s.Require().NoError(err)
-		s.Require().Equal(chainID, "0x3f2")
+		// Convert chain ID to hex
+		hexChainID := fmt.Sprintf("0x%x", kiichain.KiichainID)
+		s.Require().Equal(chainID, hexChainID)
 	})
 
 	s.Run("eth_getBalance on zero address", func() {

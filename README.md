@@ -78,7 +78,7 @@
 
 ### Dependencies
 
-> **Prerequisite:** Go 1.23.6+ required (project uses Go 1.23.6 with toolchain 1.23.8)
+> **Prerequisite:** Go 1.23.8+ required
 
 **Install/Upgrade Go:**
 
@@ -90,7 +90,7 @@
 **Verify Go version:**
 
 ```bash
-go version  # Should show 1.23.6 or higher
+go version  # Should show 1.23.8 or higher
 ```
 
 **Configure Go PATH (important!):**

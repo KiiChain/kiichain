@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
-	icacontrollertypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/types"
+	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v10/types"
+	icacontrollertypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/controller/types"
 
 	evidencetypes "cosmossdk.io/x/evidence/types"
 
@@ -18,7 +18,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	disttypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	govtypesv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -129,22 +128,6 @@ func queryDelegatorWithdrawalAddress(endpoint string, delegatorAddr string) (dis
 		return res, err
 	}
 	return res, nil
-}
-
-func queryGovProposal(endpoint string, proposalID int) (govtypesv1beta1.QueryProposalResponse, error) {
-	var govProposalResp govtypesv1beta1.QueryProposalResponse
-
-	path := fmt.Sprintf("%s/cosmos/gov/v1beta1/proposals/%d", endpoint, proposalID)
-
-	body, err := httpGet(path)
-	if err != nil {
-		return govProposalResp, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-	if err := cdc.UnmarshalJSON(body, &govProposalResp); err != nil {
-		return govProposalResp, err
-	}
-
-	return govProposalResp, nil
 }
 
 func queryGovProposalV1(endpoint string, proposalID int) (govtypesv1.QueryProposalResponse, error) {

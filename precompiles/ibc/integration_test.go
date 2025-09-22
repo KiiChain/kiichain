@@ -6,11 +6,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
-	ibctesting "github.com/cosmos/ibc-go/v8/testing"
+	ibctesting "github.com/cosmos/ibc-go/v10/testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	testkeyring "github.com/cosmos/evm/testutil/keyring"
 	"github.com/cosmos/evm/x/vm/statedb"
 
 	kiichainApp "github.com/kiichain/kiichain/v4/app"
@@ -68,9 +68,9 @@ func (s *IBCPrecompileTestSuite) SetupTest() {
 
 	// Setup ibc precompile on chain A
 	pc, err := ibcprecompile.NewPrecompile(
-		chain.App.(*kiichainApp.KiichainApp).TransferKeeper, chain.App.GetIBCKeeper().ClientKeeper,
-		chain.App.GetIBCKeeper().ConnectionKeeper, chain.App.GetIBCKeeper().ChannelKeeper,
-		chain.App.(*kiichainApp.KiichainApp).AuthzKeeper)
+		chain.App.(*kiichainApp.KiichainApp).TransferKeeper, *chain.App.GetIBCKeeper().ClientKeeper,
+		*chain.App.GetIBCKeeper().ConnectionKeeper, *chain.App.GetIBCKeeper().ChannelKeeper,
+	)
 	s.Require().NoError(err)
 	s.Precompile = pc
 

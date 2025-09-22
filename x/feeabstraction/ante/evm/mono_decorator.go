@@ -77,7 +77,6 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 	}
 
-	ethCfg := evmtypes.GetEthChainConfig()
 	evmDenom := evmtypes.GetEVMCoinDenom()
 
 	// 1. setup ctx
@@ -95,13 +94,13 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	// NOTE: the protocol does not support multiple EVM messages currently so
 	// this loop will complete after the first message.
 	for i, msg := range tx.GetMsgs() {
-		ethMsg, txData, err := evmtypes.UnpackEthMsg(msg)
+		ethMsg, ethTx, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
 			return ctx, err
 		}
 
-		feeAmt := txData.Fee()
-		gas := txData.GetGas()
+		feeAmt := ethMsg.GetFee()
+		gas := ethTx.Gas()
 		fee := sdkmath.LegacyNewDecFromBigInt(feeAmt)
 		gasLimit := sdkmath.LegacyNewDecFromBigInt(new(big.Int).SetUint64(gas))
 
@@ -116,13 +115,13 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			}
 		}
 
-		if txData.TxType() == ethtypes.DynamicFeeTxType && decUtils.BaseFee != nil {
+		if ethTx.Type() == ethtypes.DynamicFeeTxType && decUtils.BaseFee != nil {
 			// If the base fee is not empty, we compute the effective gas price
 			// according to current base fee price. The gas limit is specified
 			// by the user, while the price is given by the minimum between the
 			// max price paid for the entire tx, and the sum between the price
 			// for the tip and the base fee.
-			feeAmt = txData.EffectiveFee(decUtils.BaseFee)
+			feeAmt = ethMsg.GetEffectiveFee(decUtils.BaseFee)
 			fee = sdkmath.LegacyNewDecFromBigInt(feeAmt)
 		}
 
@@ -134,8 +133,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		// 4. validate msg contents
 		if err := evmante.ValidateMsg(
 			decUtils.EvmParams,
-			txData,
-			ethMsg.GetFrom(),
+			ethTx,
 		); err != nil {
 			return ctx, err
 		}
@@ -164,21 +162,14 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		// 7. can transfer
-		coreMsg, err := ethMsg.AsMessage(decUtils.Signer, decUtils.BaseFee)
-		if err != nil {
-			return ctx, errorsmod.Wrapf(
-				err,
-				"failed to create an ethereum core.Message from signer %T", decUtils.Signer,
-			)
-		}
+		coreMsg := ethMsg.AsMessage(decUtils.BaseFee)
 
 		// This checks if the user has enough balance to transfer the value (not the fees)
 		if err := evmante.CanTransfer(
 			ctx,
 			md.evmKeeper,
-			coreMsg,
+			*coreMsg,
 			decUtils.BaseFee,
-			ethCfg,
 			decUtils.EvmParams,
 			decUtils.Rules.IsLondon,
 		); err != nil {
@@ -187,11 +178,12 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 8. gas consumption
 		msgFees, err := evmkeeper.VerifyFee(
-			txData,
+			ethTx,
 			evmDenom,
 			decUtils.BaseFee,
 			decUtils.Rules.IsHomestead,
 			decUtils.Rules.IsIstanbul,
+			decUtils.Rules.IsShanghai,
 			ctx.IsCheckTx(),
 		)
 		if err != nil {
@@ -226,7 +218,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			ctx,
 			md.accountKeeper,
 			account,
-			txData,
+			ethTx,
 		); err != nil {
 			return ctx, err
 		}
@@ -240,7 +232,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		decUtils.GasWanted = gasWanted
 
 		minPriority := evmante.GetMsgPriority(
-			txData,
+			ethTx,
 			decUtils.MinPriority,
 			decUtils.BaseFee,
 		)
@@ -248,7 +240,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// Update the fee to be paid for the tx adding the fee specified for the
 		// current message.
-		decUtils.TxFee.Add(decUtils.TxFee, txData.Fee())
+		decUtils.TxFee.Add(decUtils.TxFee, ethMsg.GetFee())
 
 		// Update the transaction gas limit adding the gas specified in the
 		// current message.
@@ -265,7 +257,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			)
 		}
 
-		if err := evmante.IncrementNonce(ctx, md.accountKeeper, acc, txData.GetNonce()); err != nil {
+		if err := evmante.IncrementNonce(ctx, md.accountKeeper, acc, ethTx.Nonce()); err != nil {
 			return ctx, err
 		}
 
@@ -287,7 +279,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			"fee", decUtils.TxFee,
 			"min_priority", decUtils.MinPriority,
 			"base_fee", decUtils.BaseFee,
-			"tx_type", txData.TxType(),
+			"tx_type", ethTx.Type(),
 			"paid_fees", convertedMsgFees,
 		)
 

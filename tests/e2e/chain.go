@@ -7,7 +7,7 @@ import (
 	tmrand "github.com/cometbft/cometbft/libs/rand"
 
 	dbm "github.com/cosmos/cosmos-db"
-	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
+	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v10/types"
 
 	"cosmossdk.io/log"
 	evidencetypes "cosmossdk.io/x/evidence/types"
@@ -97,7 +97,7 @@ func newChain() (*chain, error) {
 	}
 
 	return &chain{
-		id:      fmt.Sprintf("%s-%d", kiiparams.LocalChainID, tmrand.Int()),
+		id:      fmt.Sprintf("localchain_%d-%d", kiichain.KiichainID, tmrand.Int()),
 		dataDir: tmpDir,
 	}, nil
 }
@@ -121,7 +121,7 @@ func (c *chain) createAndInitValidators(count int) error {
 		tmpDir,
 		kiichain.EmptyAppOptions{},
 		kiichain.EmptyWasmOptions,
-		kiichain.NoOpEVMOptions,
+		kiichain.EVMAppOptions,
 	)
 	defer func() {
 		if err := tempApplication.Close(); err != nil {
@@ -166,7 +166,7 @@ func (c *chain) createAndInitValidatorsWithMnemonics(count int, mnemonics []stri
 		kiichain.DefaultNodeHome,
 		kiichain.EmptyAppOptions{},
 		kiichain.EmptyWasmOptions,
-		kiichain.NoOpEVMOptions,
+		kiichain.EVMAppOptions,
 	)
 	defer func() {
 		if err := tempApplication.Close(); err != nil {

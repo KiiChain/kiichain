@@ -147,7 +147,7 @@ distclean: clean
 
 GO_VERSION := $(shell cat go.mod | grep -E 'go [0-9].[0-9]+' | cut -d ' ' -f 2)
 GORELEASER_IMAGE := ghcr.io/goreleaser/goreleaser-cross:v$(REQUIRE_GO_VERSION)
-COSMWASM_VERSION := $(shell go list -m github.com/CosmWasm/wasmvm/v2 | sed 's/.* //')
+COSMWASM_VERSION := $(shell go list -m github.com/CosmWasm/wasmvm/v3 | sed 's/.* //')
 
 # create tag and run goreleaser without publishing
 # errors are possible while running goreleaser - the process can run for >30 min
@@ -343,7 +343,7 @@ start-localnet-ci: build
 	./build/kiichaind genesis gentx val 1000000000000000000000akii --home ~/.kiichaind-liveness --chain-id localchain_1010-1 --keyring-backend test
 	./build/kiichaind genesis collect-gentxs --home ~/.kiichaind-liveness
 	sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0akii"/' ~/.kiichaind-liveness/config/app.toml
-	./build/kiichaind start --home ~/.kiichaind-liveness --x-crisis-skip-assert-invariants
+	./build/kiichaind start --home ~/.kiichaind-liveness
 
 .PHONY: start-localnet-ci
 

@@ -138,14 +138,14 @@ func TestHandleERC20Information(t *testing.T) {
 			query: evmbindingtypes.ERC20InformationRequest{
 				Contract: "not-an-address",
 			},
-			errContains: "abi: attempting to unmarshall",
+			errContains: "abi: attempting to unmarshal an empty string while arguments are expected",
 		},
 		{
 			name: "invalid - Empty contract address",
 			query: evmbindingtypes.ERC20InformationRequest{
 				Contract: "",
 			},
-			errContains: "abi: attempting to unmarshall an empty string",
+			errContains: "abi: attempting to unmarshal an empty string while arguments are expected",
 		},
 		{
 			name: "invalid - Non-ERC20 contract address",
@@ -208,7 +208,7 @@ func TestHandleERC20Balance(t *testing.T) {
 		{
 			name:        "invalid - Empty contract address",
 			query:       evmbindingtypes.ERC20BalanceRequest{},
-			errContains: "abi: attempting to unmarshall an empty string",
+			errContains: "abi: attempting to unmarshal an empty string while arguments are expected",
 		},
 		{
 			name: "invalid - Non-ERC20 contract address",
@@ -276,7 +276,7 @@ func TestHandleERC20Allowance(t *testing.T) {
 		{
 			name:        "invalid - Empty contract address",
 			query:       evmbindingtypes.ERC20AllowanceRequest{},
-			errContains: "abi: attempting to unmarshall an empty string",
+			errContains: "abi: attempting to unmarshal an empty string while arguments are expected",
 		},
 		{
 			name: "invalid - Non-ERC20 contract address",

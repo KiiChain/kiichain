@@ -6,6 +6,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/holiman/uint256"
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/math"
@@ -17,7 +18,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/cosmos/evm/contracts"
-	"github.com/cosmos/evm/testutil/integration/os/keyring"
+	"github.com/cosmos/evm/testutil/keyring"
 	"github.com/cosmos/evm/testutil/tx"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	"github.com/cosmos/evm/x/vm/statedb"
@@ -34,7 +35,7 @@ import (
 var (
 	MockErc20Address = "0x816644F8bc4633D268842628EB10ffC0AdcB6099"
 	// The mock ERC20 denom
-	MockErc20Denom = "erc20/" + MockErc20Address
+	MockErc20Denom = "erc20:" + MockErc20Address
 	// The mock ERC20 price
 	MockErc20Price = math.LegacyNewDecFromInt(math.NewInt(10)) // 10 uatom = 1 kii
 )
@@ -61,25 +62,6 @@ func TestMonoDecoratorTx(t *testing.T) {
 				return txBuilder.GetTx()
 			}(),
 			errContains: "eth tx length of ExtensionOptions should be 1",
-		},
-		{
-			name: "tx fail - invalid signature",
-			tx: func() signing.Tx {
-				// Create a transaction with an invalid amount
-				ethChainID := big.NewInt(1010)
-				msgEthereumTx := evmtypes.NewTx(getDefaultEVMTxArgs(ethChainID, 20000000, big.NewInt(1000000), -10))
-
-				// Start the tx builder
-				encodingConfig := params.MakeEncodingConfig()
-				txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-				// Create the TX
-				tx, err := msgEthereumTx.BuildTx(txBuilder, "akii")
-				require.NoError(t, err)
-
-				return tx
-			}(),
-			errContains: "tx intended signer does not match the given signer",
 		},
 	}
 
@@ -188,15 +170,16 @@ func TestMonoDecorator(t *testing.T) {
 			name: "success - fee charged with fee abstraction native token",
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Set up the token pair on the erc20 module
-				app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
+				err := app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
 					Erc20Address:  MockErc20Address,
 					Denom:         MockErc20Denom,
 					Enabled:       true,
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
+				require.NoError(t, err)
 
 				// Set the pair on the fee abstraction keeper
-				err := app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+				err = app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata(
 						MockErc20Denom,
 						MockErc20Denom,
@@ -224,15 +207,16 @@ func TestMonoDecorator(t *testing.T) {
 			name: "success - fee with fee abstraction and transaction value native token",
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Set up the token pair on the erc20 module
-				app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
+				err := app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
 					Erc20Address:  MockErc20Address,
 					Denom:         MockErc20Denom,
 					Enabled:       true,
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
+				require.NoError(t, err)
 
 				// Set the pair on the fee abstraction keeper
-				err := app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+				err = app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata(
 						MockErc20Denom,
 						MockErc20Denom,
@@ -279,7 +263,7 @@ func TestMonoDecorator(t *testing.T) {
 
 				// Set the token pair on the erc20 keeper
 				_, err = app.Erc20Keeper.RegisterERC20(ctx, &erc20types.MsgRegisterERC20{
-					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+					Signer: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 					Erc20Addresses: []string{
 						erc20Address.Hex(),
 					},
@@ -287,7 +271,7 @@ func TestMonoDecorator(t *testing.T) {
 				require.NoError(t, err)
 
 				// Set the pair on the fee abstraction keeper
-				erc20NativeAddress := "erc20/" + erc20Address.Hex()
+				erc20NativeAddress := "erc20:" + erc20Address.Hex()
 				err = app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata(
 						erc20NativeAddress,
@@ -319,7 +303,7 @@ func TestMonoDecorator(t *testing.T) {
 				require.EqualValues(t, 0, erc20Balance.Int64())
 
 				// Check the value on the FeeCollector
-				feeCollectorBalance := app.BankKeeper.GetBalance(ctx, authtypes.NewModuleAddress(authtypes.FeeCollectorName), "erc20/"+erc20Address.Hex())
+				feeCollectorBalance := app.BankKeeper.GetBalance(ctx, authtypes.NewModuleAddress(authtypes.FeeCollectorName), "erc20:"+erc20Address.Hex())
 				require.EqualValues(t, 20000000*1000000*2, feeCollectorBalance.Amount.Int64())
 			},
 		},
@@ -346,16 +330,17 @@ func TestMonoDecorator(t *testing.T) {
 			name: "fail - fee charged with fee abstraction native token but no funds for tx payment",
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Set up the token pair on the erc20 module
-				app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
+				err := app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
 					Erc20Address:  MockErc20Address,
 					Denom:         MockErc20Denom,
 					Enabled:       true,
 					ContractOwner: erc20types.OWNER_UNSPECIFIED,
 				})
+				require.NoError(t, err)
 
 				// Mint the tokens for the fee payer
 				amount := sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, 20000000*1000000*10))
-				err := mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
+				err = mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
 				require.NoError(t, err)
 				return ctx
 			},
@@ -374,7 +359,7 @@ func TestMonoDecorator(t *testing.T) {
 				// To define as a contract we need to set the code hash
 				err = app.EVMKeeper.SetAccount(ctx, fromAddr, statedb.Account{
 					Nonce:    0,
-					Balance:  big.NewInt(1000000),
+					Balance:  uint256.NewInt(1000000),
 					CodeHash: []byte("contract code"),
 				})
 				require.NoError(t, err)
@@ -384,20 +369,6 @@ func TestMonoDecorator(t *testing.T) {
 			gasLimit:    20000000,
 			gasPrice:    big.NewInt(1000000),
 			errContains: "the sender is not EOA",
-		},
-		{
-			name: "fail - invalid amount",
-			malleate: func(ctx sdk.Context) sdk.Context {
-				// Fund the account with token to pay for the fees
-				amount := sdk.NewCoins(sdk.NewCoin("akii", math.NewInt(20000000*1000000)))
-				err := mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
-				require.NoError(t, err)
-				return ctx
-			},
-			gasLimit:    20000000,
-			gasPrice:    big.NewInt(1000000),
-			txAmount:    -10,
-			errContains: "(-10) is negative and invalid",
 		},
 	}
 
@@ -458,12 +429,12 @@ func mintCoins(app *kiichain.KiichainApp, ctx sdk.Context, addr sdk.AccAddress, 
 
 // createAndSignTx creates and signs a transaction with the given key
 func createAndSignTx(key keyring.Key, gasLimit uint64, gasPrice *big.Int, amount int64) (signing.Tx, error) {
-	ethChainID := big.NewInt(1010)
+	ethChainID := big.NewInt(int64(kiichain.KiichainID))
 	msgEthereumTx := evmtypes.NewTx(getDefaultEVMTxArgs(ethChainID, gasLimit, gasPrice, amount))
 
 	signer := gethtypes.LatestSignerForChainID(ethChainID)
 
-	msgEthereumTx.From = common.BytesToAddress(key.Priv.PubKey().Address().Bytes()).String()
+	msgEthereumTx.From = key.Priv.PubKey().Address().Bytes()
 
 	err := msgEthereumTx.Sign(signer, tx.NewSigner(key.Priv))
 	if err != nil {

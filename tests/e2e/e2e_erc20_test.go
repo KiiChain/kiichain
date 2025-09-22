@@ -103,12 +103,11 @@ func (s *IntegrationTestSuite) testERC20(jsonRPC string) {
 		s.convertERC20(c, valIdx, contractAddress, alice.String(), amount)
 
 		// Get specific erc20 native balance
-		denom := fmt.Sprintf("erc20/%s", contractAddress)
-		erc20Balance, err := getSpecificBalance(chainAAPIEndpoint, alice.String(), denom)
+		denom := fmt.Sprintf("erc20:%s", contractAddress)
+		erc20Balance, err := queryKiichainAllBalances(chainAAPIEndpoint, alice.String())
 		s.Require().NoError(err)
-		s.T().Logf("ERC20 Balance: %s", erc20Balance)
 		// converting to string since one is big int and the other is math int
-		s.Require().Equal(amount.String(), erc20Balance.Amount.String())
+		s.Require().Equal(amount.String(), erc20Balance.AmountOf(denom).String())
 	})
 }
 
@@ -142,7 +141,7 @@ func (s *IntegrationTestSuite) writeERC20RegisterProposal(c *chain, erc20Address
 		"messages": [
 		 {
 		  "@type": "/cosmos.evm.erc20.v1.MsgRegisterERC20",
-		  "authority": "kii10d07y265gmmuvt4z0w9aw880jnsr700jrff0qv",
+		  "signer": "%s",
 		  "erc20addresses": [
 		    "%s"
 		  ]
@@ -154,7 +153,7 @@ func (s *IntegrationTestSuite) writeERC20RegisterProposal(c *chain, erc20Address
 		"summary": "test"
 	   }`
 
-	propMsgBody := fmt.Sprintf(body, erc20Address.String())
+	propMsgBody := fmt.Sprintf(body, govAuthority, erc20Address.String())
 
 	err := writeFile(filepath.Join(c.validators[0].configDir(), "config", proposalRegisterERC20), []byte(propMsgBody))
 	s.Require().NoError(err)

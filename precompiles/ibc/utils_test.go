@@ -6,7 +6,7 @@ import (
 	"os"
 
 	dbm "github.com/cosmos/cosmos-db"
-	ibctesting "github.com/cosmos/ibc-go/v8/testing"
+	ibctesting "github.com/cosmos/ibc-go/v10/testing"
 
 	"cosmossdk.io/log"
 
@@ -14,7 +14,6 @@ import (
 
 	"github.com/kiichain/kiichain/v4/ante"
 	kiichain "github.com/kiichain/kiichain/v4/app"
-	"github.com/kiichain/kiichain/v4/app/params"
 )
 
 var app *kiichain.KiichainApp
@@ -29,7 +28,7 @@ func KiichainAppIniterTempDir() (ibctesting.TestingApp, map[string]json.RawMessa
 
 	// Set the base options
 	baseAppOptions := bam.SetChainID(
-		fmt.Sprintf("%s-1", params.LocalChainID),
+		fmt.Sprintf("%d", kiichain.KiichainID),
 	)
 
 	// Disable the fee market
@@ -65,7 +64,7 @@ func KiichainAppIniter() (ibctesting.TestingApp, map[string]json.RawMessage) {
 		kiichain.DefaultNodeHome,
 		kiichain.EmptyAppOptions{},
 		kiichain.EmptyWasmOptions,
-		kiichain.NoOpEVMOptions)
+		kiichain.EVMAppOptions)
 
 	testApp := ibctesting.TestingApp(app)
 

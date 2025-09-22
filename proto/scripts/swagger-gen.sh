@@ -10,9 +10,9 @@ mkdir -p tmp_deps
 
 # Define the dependencies for the proto files generation
 deps="github.com/cosmos/cosmos-sdk \
-github.com/cosmos/ibc-go/v8 \
+github.com/cosmos/ibc-go/v10 \
 github.com/CosmWasm/wasmd \
-github.com/cosmos/ibc-apps/modules/rate-limiting/v8 \
+github.com/cosmos/ibc-apps/modules/rate-limiting/v10 \
 github.com/cosmos/evm"
 
 # Copy the dependencies to the temporary directory

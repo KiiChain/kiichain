@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"math/big"
 
-	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
+	wasmvmtypes "github.com/CosmWasm/wasmvm/v3/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -95,7 +95,7 @@ func (qp *QueryPlugin) HandleEVMQuery(ctx sdk.Context, evmQuery evmbindingtypes.
 // HandleEthCall handles the EthCall query
 func (qp *QueryPlugin) HandleEthCall(ctx sdk.Context, call *evmbindingtypes.EthCallRequest) (*evmbindingtypes.EthCallResponse, error) {
 	// Prepare the request data
-	chainID := qp.evmKeeper.GetParams(ctx).ChainConfig.ChainId
+	chainID := evmtypes.GetEthChainConfig().ChainID
 	proposer := ctx.BlockHeader().ProposerAddress
 	to := common.HexToAddress(call.Contract)
 
@@ -137,7 +137,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res := &evmbindingtypes.ERC20InformationResponse{}
 
 	// Query the decimals
-	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "decimals")
+	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, nil, "decimals")
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res.Decimals = decimals
 
 	// Query the name
-	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "name")
+	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, nil, "name")
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +171,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res.Name = name
 
 	// Query the symbol
-	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "symbol")
+	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, nil, "symbol")
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res.Symbol = symbol
 
 	// Query the total supply
-	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "totalSupply")
+	callRes, err = qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, nil, "totalSupply")
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +218,7 @@ func (qp *QueryPlugin) HandleERC20Balance(ctx sdk.Context, call *evmbindingtypes
 	res := &evmbindingtypes.ERC20BalanceResponse{}
 
 	// Query the balance
-	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "balanceOf", address)
+	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, nil, "balanceOf", address)
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +249,7 @@ func (qp *QueryPlugin) HandleERC20Allowance(ctx sdk.Context, call *evmbindingtyp
 	res := &evmbindingtypes.ERC20AllowanceResponse{}
 
 	// Query the allowance
-	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, "allowance", owner, spender)
+	callRes, err := qp.evmKeeper.CallEVM(ctx, erc20ABI, erc20types.ModuleAddress, to, false, nil, "allowance", owner, spender)
 	if err != nil {
 		return nil, err
 	}
@@ -300,7 +300,7 @@ func handleRevertError(vmError string, ret []byte) error {
 }
 
 // buildEthCallRequest builds the EVM query call
-func buildEthCallRequest(to common.Address, data hexutil.Bytes, chainID uint64, proposer []byte) (*evmtypes.EthCallRequest, error) {
+func buildEthCallRequest(to common.Address, data hexutil.Bytes, chainID *big.Int, proposer []byte) (*evmtypes.EthCallRequest, error) {
 	// Build the arguments
 	args := evmtypes.TransactionArgs{
 		To:   &to,
@@ -317,7 +317,7 @@ func buildEthCallRequest(to common.Address, data hexutil.Bytes, chainID uint64, 
 	return &evmtypes.EthCallRequest{
 		Args:            bz,
 		GasCap:          emvconfig.DefaultGasCap,
-		ChainId:         int64(chainID),
+		ChainId:         chainID.Int64(),
 		ProposerAddress: sdk.ConsAddress(proposer),
 	}, nil
 }

@@ -5,14 +5,18 @@ import (
 	"maps"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 
-	clientkeeper "github.com/cosmos/ibc-go/v8/modules/core/02-client/keeper"
-	connectionkeeper "github.com/cosmos/ibc-go/v8/modules/core/03-connection/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
+	clientkeeper "github.com/cosmos/ibc-go/v10/modules/core/02-client/keeper"
+	connectionkeeper "github.com/cosmos/ibc-go/v10/modules/core/03-connection/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v10/modules/core/04-channel/keeper"
 
+	"cosmossdk.io/core/address"
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	"github.com/cosmos/cosmos-sdk/codec"
+	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -24,7 +28,6 @@ import (
 	bankprecompile "github.com/cosmos/evm/precompiles/bank"
 	"github.com/cosmos/evm/precompiles/bech32"
 	distprecompile "github.com/cosmos/evm/precompiles/distribution"
-	evidenceprecompile "github.com/cosmos/evm/precompiles/evidence"
 	govprecompile "github.com/cosmos/evm/precompiles/gov"
 	ics20precompile "github.com/cosmos/evm/precompiles/ics20"
 	"github.com/cosmos/evm/precompiles/p256"
@@ -32,7 +35,6 @@ import (
 	stakingprecompile "github.com/cosmos/evm/precompiles/staking"
 	erc20Keeper "github.com/cosmos/evm/x/erc20/keeper"
 	transferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
-	"github.com/cosmos/evm/x/vm/core/vm"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 
 	"github.com/kiichain/kiichain/v4/precompiles/ibc"
@@ -40,6 +42,48 @@ import (
 	"github.com/kiichain/kiichain/v4/precompiles/wasmd"
 	oraclekeeper "github.com/kiichain/kiichain/v4/x/oracle/keeper"
 )
+
+// Optionals define some optional params that can be applied to _some_ precompiles.
+// Extend this struct, add a sane default to defaultOptionals, and an Option function to provide users with a non-breaking
+// way to provide custom args to certain precompiles.
+type Optionals struct {
+	AddressCodec       address.Codec // used by gov/staking
+	ValidatorAddrCodec address.Codec // used by slashing
+	ConsensusAddrCodec address.Codec // used by slashing
+}
+
+// defaultOptionals returns the default coded optionals
+func defaultOptionals() Optionals {
+	return Optionals{
+		AddressCodec:       addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
+		ValidatorAddrCodec: addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
+		ConsensusAddrCodec: addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
+	}
+}
+
+// Option returns a funcion for the corresponding needed coded
+type Option func(opts *Optionals)
+
+// WithAddressCodec returns the function to access the with address codec
+func WithAddressCodec(codec address.Codec) Option {
+	return func(opts *Optionals) {
+		opts.AddressCodec = codec
+	}
+}
+
+// WithValidatorAddrCodec returns the function to access the with validator address codec
+func WithValidatorAddrCodec(codec address.Codec) Option {
+	return func(opts *Optionals) {
+		opts.ValidatorAddrCodec = codec
+	}
+}
+
+// WithConsensusAddrCodec returns the function to access the with consensus address codec
+func WithConsensusAddrCodec(codec address.Codec) Option {
+	return func(opts *Optionals) {
+		opts.ConsensusAddrCodec = codec
+	}
+}
 
 const bech32PrecompileBaseGas = 6_000
 
@@ -51,18 +95,25 @@ func NewAvailableStaticPrecompiles(
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20Keeper.Keeper,
-	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
-	channelKeeper channelkeeper.Keeper,
+	channelKeeper *channelkeeper.Keeper,
 	evmKeeper *evmkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
 	slashingKeeper slashingkeeper.Keeper,
 	evidenceKeeper evidencekeeper.Keeper,
 	wasmdKeeper wasmkeeper.Keeper,
 	oracleKeeper oraclekeeper.Keeper,
+	codec codec.Codec,
+	opts ...Option,
 ) map[common.Address]vm.PrecompiledContract {
+	// Set options
+	options := defaultOptionals()
+	for _, opt := range opts {
+		opt(&options)
+	}
+
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
 
@@ -76,7 +127,7 @@ func NewAvailableStaticPrecompiles(
 	}
 
 	// Prepare the staking precompile
-	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper)
+	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, options.AddressCodec)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate staking precompile: %w", err))
 	}
@@ -85,8 +136,8 @@ func NewAvailableStaticPrecompiles(
 	distributionPrecompile, err := distprecompile.NewPrecompile(
 		distributionKeeper,
 		stakingKeeper,
-		authzKeeper,
 		evmKeeper,
+		options.AddressCodec,
 	)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate distribution precompile: %w", err))
@@ -94,10 +145,10 @@ func NewAvailableStaticPrecompiles(
 
 	// Prepare the ibc precompile
 	ibcTransferPrecompile, err := ics20precompile.NewPrecompile(
+		bankKeeper,
 		stakingKeeper,
 		transferKeeper,
 		channelKeeper,
-		authzKeeper,
 		evmKeeper,
 	)
 	if err != nil {
@@ -111,37 +162,31 @@ func NewAvailableStaticPrecompiles(
 	}
 
 	// Prepare the gov precompile
-	govPrecompile, err := govprecompile.NewPrecompile(govKeeper, authzKeeper)
+	govPrecompile, err := govprecompile.NewPrecompile(govKeeper, codec, options.AddressCodec)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
 	}
 
 	// Prepare the slashing precompile
-	slashingPrecompile, err := slashingprecompile.NewPrecompile(slashingKeeper, authzKeeper)
+	slashingPrecompile, err := slashingprecompile.NewPrecompile(slashingKeeper, options.ValidatorAddrCodec, options.ConsensusAddrCodec)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate slashing precompile: %w", err))
 	}
 
-	// Prepare the evidence precompile
-	evidencePrecompile, err := evidenceprecompile.NewPrecompile(evidenceKeeper, authzKeeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate evidence precompile: %w", err))
-	}
-
 	// Prepare the wasmd precompile
-	wasmdPrecompile, err := wasmd.NewPrecompile(wasmdKeeper, authzKeeper)
+	wasmdPrecompile, err := wasmd.NewPrecompile(wasmdKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate wasmd precompile: %w", err))
 	}
 
 	// Prepare the ibc precompile
-	ibcPrecompile, err := ibc.NewPrecompile(transferKeeper, clientKeeper, connectionKeeper, channelKeeper, authzKeeper)
+	ibcPrecompile, err := ibc.NewPrecompile(transferKeeper, clientKeeper, connectionKeeper, *channelKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate ibc precompile: %w", err))
 	}
 
 	// Prepare the oracle precompile
-	oraclePrecompile, err := oracle.NewPrecompile(oracleKeeper, authzKeeper)
+	oraclePrecompile, err := oracle.NewPrecompile(oracleKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate oracle precompile: %w", err))
 	}
@@ -157,7 +202,6 @@ func NewAvailableStaticPrecompiles(
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
 	precompiles[slashingPrecompile.Address()] = slashingPrecompile
-	precompiles[evidencePrecompile.Address()] = evidencePrecompile
 	precompiles[wasmdPrecompile.Address()] = wasmdPrecompile
 	precompiles[ibcPrecompile.Address()] = ibcPrecompile
 	precompiles[oraclePrecompile.Address()] = oraclePrecompile

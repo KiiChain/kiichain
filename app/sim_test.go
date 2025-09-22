@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -50,8 +51,7 @@ func TestAppStateDeterminism(t *testing.T) {
 	config := sim.NewConfigFromFlags()
 	config.InitialBlockHeight = 1
 	config.ExportParamsPath = ""
-	config.OnOperation = false
-	config.AllInvariants = false
+	config.GenesisTime = time.Now().UTC().Unix()
 	config.ChainID = AppChainID
 
 	numSeeds := 3
@@ -94,7 +94,7 @@ func TestAppStateDeterminism(t *testing.T) {
 				dir,
 				appOptions,
 				emptyWasmOption,
-				kiichain.NoOpEVMOptions,
+				kiichain.EVMAppOptions,
 				interBlockCacheOpt(),
 				baseapp.SetChainID(AppChainID),
 			)

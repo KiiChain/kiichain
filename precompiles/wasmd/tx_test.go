@@ -131,7 +131,7 @@ func (s *WasmdPrecompileTestSuite) TestInstantiate() {
 			stateDB := s.GetStateDB()
 
 			// Create the contract from the precompile contract
-			contract, ctx := testutil.NewPrecompileContract(s.T(), s.Ctx, account.Addr, s.Precompile, 200000)
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.Ctx, account.Addr, s.Precompile.Address(), 200000)
 
 			// Execute the contract using the precompile
 			res, err := s.Precompile.Instantiate(ctx, account.Addr, contract, stateDB, &method, tc.args)
@@ -280,7 +280,7 @@ func (s *WasmdPrecompileTestSuite) TestExecute() {
 			stateDB := s.GetStateDB()
 
 			// Create the contract from the precompile contract
-			contract, ctx := testutil.NewPrecompileContract(s.T(), s.Ctx, account.Addr, s.Precompile, 200000)
+			contract, ctx := testutil.NewPrecompileContract(s.T(), s.Ctx, account.Addr, s.Precompile.Address(), 200000)
 
 			// Execute the contract using the precompile
 			res, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, tc.args)

@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"testing"
 
-	wasmvmtypes "github.com/CosmWasm/wasmvm/v2/types"
+	wasmvmtypes "github.com/CosmWasm/wasmvm/v3/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -215,7 +215,7 @@ func deployCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.A
 	deployData := append(common.FromHex(mock.CounterBin), ctorArgs...)
 
 	// Deploy the contract
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, nil, deployData, true)
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, nil, deployData, true, nil)
 	require.NoError(t, err)
 	require.NotNil(t, res.Ret)
 
@@ -238,7 +238,7 @@ func incrementCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contr
 	require.NoError(t, err)
 
 	// Send transaction to call increment
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true)
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true, nil)
 	require.NoError(t, err)
 	require.NotNil(t, res)
 }

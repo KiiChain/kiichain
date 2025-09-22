@@ -10,7 +10,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	testkeyring "github.com/cosmos/evm/testutil/integration/os/keyring"
+	testkeyring "github.com/cosmos/evm/testutil/keyring"
 
 	app "github.com/kiichain/kiichain/v4/app"
 	"github.com/kiichain/kiichain/v4/app/helpers"
@@ -49,7 +49,7 @@ func (s *OraclePrecompileTestSuite) SetupSuite() {
 	s.keyring = keyring
 
 	// Start the precompile
-	pc, err := oracleprecompile.NewPrecompile(s.App.OracleKeeper, s.App.AuthzKeeper)
+	pc, err := oracleprecompile.NewPrecompile(s.App.OracleKeeper)
 	s.Require().NoError(err)
 	s.Precompile = pc
 }

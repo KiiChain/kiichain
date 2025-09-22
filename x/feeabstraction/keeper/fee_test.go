@@ -186,7 +186,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 
 				// Set the token pair on the erc20 keeper
 				_, err = s.app.Erc20Keeper.RegisterERC20(ctx, &erc20types.MsgRegisterERC20{
-					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+					Signer: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 					Erc20Addresses: []string{
 						erc20Address.Hex(),
 					},
@@ -194,7 +194,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 				s.Require().NoError(err)
 
 				// Register the fee token
-				erc20NativeAddress := "erc20/" + erc20Address.Hex()
+				erc20NativeAddress := "erc20:" + erc20Address.Hex()
 				err = s.keeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata(
 						erc20NativeAddress,
@@ -208,10 +208,10 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 				return ctx
 			},
 			fees:     sdk.NewCoins(sdk.NewCoin("akii", convertToMinimalDenomination(2, 16))),    // 0.02 Kii
-			expected: sdk.NewCoins(sdk.NewCoin("erc20/"+DefaultFirstERC20, math.NewInt(20000))), // 20000 of the erc20 token
+			expected: sdk.NewCoins(sdk.NewCoin("erc20:"+DefaultFirstERC20, math.NewInt(20000))), // 20000 of the erc20 token
 			postCheck: func(ctx sdk.Context, convertedFees sdk.Coins) {
 				// The user now should have the balance as native token available for fees
-				balance := s.app.BankKeeper.GetBalance(ctx, feePayer, "erc20/"+DefaultFirstERC20)
+				balance := s.app.BankKeeper.GetBalance(ctx, feePayer, "erc20:"+DefaultFirstERC20)
 				s.Require().Equal(math.NewInt(20000), balance.Amount)
 
 				// The contract should have zero balance
@@ -242,7 +242,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 
 				// Set the token pair on the erc20 keeper
 				_, err = s.app.Erc20Keeper.RegisterERC20(ctx, &erc20types.MsgRegisterERC20{
-					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+					Signer: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 					Erc20Addresses: []string{
 						erc20Address.Hex(),
 					},
@@ -250,7 +250,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 				s.Require().NoError(err)
 
 				// Register the fee token
-				erc20NativeAddress := "erc20/" + erc20Address.Hex()
+				erc20NativeAddress := "erc20:" + erc20Address.Hex()
 				err = s.keeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata(
 						erc20NativeAddress,
@@ -280,7 +280,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 
 				// Set the token pair on the erc20 keeper
 				_, err = s.app.Erc20Keeper.RegisterERC20(ctx, &erc20types.MsgRegisterERC20{
-					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+					Signer: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 					Erc20Addresses: []string{
 						erc20Address.Hex(),
 					},
@@ -288,7 +288,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 				s.Require().NoError(err)
 
 				// Register the fee token
-				erc20NativeAddress := "erc20/" + erc20Address.Hex()
+				erc20NativeAddress := "erc20:" + erc20Address.Hex()
 				err = s.keeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata(
 						erc20NativeAddress,
@@ -302,10 +302,10 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 				return ctx
 			},
 			fees:     sdk.NewCoins(sdk.NewCoin("akii", convertToMinimalDenomination(2, 16))),    // 0.02 Kii
-			expected: sdk.NewCoins(sdk.NewCoin("erc20/"+DefaultFirstERC20, math.NewInt(20000))), // 20000 of the erc20 token
+			expected: sdk.NewCoins(sdk.NewCoin("erc20:"+DefaultFirstERC20, math.NewInt(20000))), // 20000 of the erc20 token
 			postCheck: func(ctx sdk.Context, convertedFees sdk.Coins) {
 				// The user now should have the balance as native token available for fees
-				balance := s.app.BankKeeper.GetBalance(ctx, feePayer, "erc20/"+DefaultFirstERC20)
+				balance := s.app.BankKeeper.GetBalance(ctx, feePayer, "erc20:"+DefaultFirstERC20)
 				s.Require().Equal(math.NewInt(20000), balance.Amount)
 
 				// The contract should have some balance left

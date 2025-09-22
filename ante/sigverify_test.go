@@ -21,13 +21,14 @@ import (
 	"github.com/cosmos/evm/encoding"
 
 	"github.com/kiichain/kiichain/v4/ante"
+	kiichain "github.com/kiichain/kiichain/v4/app"
 )
 
 func TestConsumeSignatureVerificationGas(t *testing.T) {
 	params := authtypes.DefaultParams()
 	msg := []byte{1, 2, 3, 4}
 
-	encodingConfig := encoding.MakeConfig()
+	encodingConfig := encoding.MakeConfig(kiichain.KiichainID)
 	cdc := encodingConfig.Amino
 
 	p := authtypes.DefaultParams()

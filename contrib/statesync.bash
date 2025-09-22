@@ -60,4 +60,4 @@ KIICHAIND_P2P_SEEDS=$(curl -s https://raw.githubusercontent.com/cosmos/chain-reg
 export KIICHAIND_P2P_SEEDS
 
 # Start chain.
-kiichaind start --x-crisis-skip-assert-invariants --iavl-disable-fastnode false
+kiichaind start --iavl-disable-fastnode false

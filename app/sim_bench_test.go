@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/server"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	simulation2 "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
@@ -23,7 +22,7 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 	config := simcli.NewConfigFromFlags()
 	config.ChainID = AppChainID
 
-	db, dir, logger, skip, err := simtestutil.SetupSimulation(config, "goleveldb-app-sim", "Simulation", simcli.FlagVerboseValue, simcli.FlagEnabledValue)
+	db, dir, logger, skip, err := simtestutil.SetupSimulation(config, "goleveldb-app-sim", "Simulation", simcli.FlagVerboseValue, simcli.FlagEnabledValue) //nolint:staticcheck
 	if err != nil {
 		b.Fatalf("simulation setup failed: %s", err.Error())
 	}
@@ -38,7 +37,6 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 	}()
 
 	appOptions := make(simtestutil.AppOptionsMap, 0)
-	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue
 
 	app := kiichain.NewKiichainApp(
 		logger,
@@ -49,7 +47,7 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 		kiichain.DefaultNodeHome,
 		appOptions,
 		emptyWasmOption,
-		kiichain.NoOpEVMOptions,
+		kiichain.EVMAppOptions,
 		interBlockCacheOpt(),
 		baseapp.SetChainID(AppChainID),
 	)

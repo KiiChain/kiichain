@@ -1,7 +1,7 @@
 package ante
 
 import (
-	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v10/modules/core/keeper"
 
 	corestoretypes "cosmossdk.io/core/store"
 	errorsmod "cosmossdk.io/errors"
@@ -42,7 +42,7 @@ type HandlerOptions struct {
 
 	StakingKeeper         *stakingkeeper.Keeper
 	TXCounterStoreService corestoretypes.KVStoreService
-	WasmConfig            *wasmtypes.WasmConfig
+	WasmConfig            *wasmtypes.NodeConfig
 
 	OracleKeeper *oraclekeeper.Keeper
 }

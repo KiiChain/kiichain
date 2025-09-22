@@ -48,7 +48,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
@@ -75,7 +74,7 @@ type CustomAppConfig struct {
 	TLS     evmserverconfig.TLSConfig
 
 	// wasm config
-	Wasm wasmtypes.WasmConfig `mapstructure:"wasm"`
+	Wasm wasmtypes.NodeConfig `mapstructure:"wasm"`
 }
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -94,7 +93,7 @@ func NewRootCmd() *cobra.Command {
 		tempDir,
 		initAppOptions,
 		kiichain.EmptyWasmOptions,
-		kiichain.NoOpEVMOptions,
+		kiichain.EVMAppOptions,
 	)
 	defer func() {
 		if err := tempApplication.Close(); err != nil {
@@ -158,7 +157,7 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
-			customAppTemplate, customAppConfig := initAppConfig()
+			customAppTemplate, customAppConfig := initAppConfig(kiichain.KiichainID)
 			customCometConfig := initCometConfig()
 
 			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customCometConfig)
@@ -197,18 +196,22 @@ func initCometConfig() *tmcfg.Config {
 	return cfg
 }
 
-func initAppConfig() (string, interface{}) {
+func initAppConfig(evmChainID uint64) (string, interface{}) {
 	// Can optionally overwrite the SDK's default server config.
 	srvCfg := serverconfig.DefaultConfig()
 	srvCfg.StateSync.SnapshotInterval = 1000
 	srvCfg.StateSync.SnapshotKeepRecent = 10
 
+	// Setup evm chain ID
+	evmCfg := evmserverconfig.DefaultEVMConfig()
+	evmCfg.EVMChainID = evmChainID
+
 	customAppConfig := CustomAppConfig{
 		Config:  *srvCfg,
-		EVM:     *evmserverconfig.DefaultEVMConfig(),
+		EVM:     *evmCfg,
 		JSONRPC: *evmserverconfig.DefaultJSONRPCConfig(),
 		TLS:     *evmserverconfig.DefaultTLSConfig(),
-		Wasm:    wasmtypes.DefaultWasmConfig(),
+		Wasm:    wasmtypes.DefaultNodeConfig(),
 	}
 
 	// Default template
@@ -231,13 +234,16 @@ func initRootCmd(rootCmd *cobra.Command,
 
 	ac := appCreator{}
 
+	sdkAppCreatorWrapper := func(l log.Logger, d dbm.DB, w io.Writer, ao servertypes.AppOptions) servertypes.Application {
+		return ac.newApp(l, d, w, ao)
+	}
 	rootCmd.AddCommand(
 		initCmd(basicManager, kiichain.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),
-		pruning.Cmd(ac.newApp, kiichain.DefaultNodeHome),
-		snapshot.Cmd(ac.newApp),
+		pruning.Cmd(sdkAppCreatorWrapper, kiichain.DefaultNodeHome),
+		snapshot.Cmd(sdkAppCreatorWrapper),
 	)
 
 	// EVM add commands
@@ -274,7 +280,6 @@ func initRootCmd(rootCmd *cobra.Command,
 }
 
 func addModuleInitFlags(startCmd *cobra.Command) {
-	crisis.AddModuleInitFlags(startCmd)
 	wasm.AddModuleInitFlags(startCmd)
 }
 
@@ -349,7 +354,7 @@ func (a appCreator) newApp(
 	db dbm.DB,
 	traceStore io.Writer,
 	appOpts servertypes.AppOptions,
-) servertypes.Application {
+) evmserver.Application {
 	var cache storetypes.MultiStorePersistentCache
 
 	if cast.ToBool(appOpts.Get(server.FlagInterBlockCache)) {
