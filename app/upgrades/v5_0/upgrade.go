@@ -75,7 +75,7 @@ func MigrateERC20(
 	}
 
 	// Migrate native precompiles
-	oldData, err = store.Get([]byte("DynamicPrecompiles"))
+	oldData, err = store.Get([]byte("NativePrecompiles"))
 	if err != nil {
 		return err
 	}
