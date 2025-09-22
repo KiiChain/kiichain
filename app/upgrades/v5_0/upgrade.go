@@ -3,15 +3,17 @@ package v500
 import (
 	"context"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	upgradetypes "cosmossdk.io/x/upgrade/types"
-	erc20types "github.com/cosmos/evm/x/erc20/types"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/ethereum/go-ethereum/common"
 
+	erc20types "github.com/cosmos/evm/x/erc20/types"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
+
 	"github.com/kiichain/kiichain/v5/app/keepers"
 )
 
@@ -100,7 +102,6 @@ func MigrateEVMParams(
 	ctx sdk.Context,
 	keepers *keepers.AppKeepers,
 ) error {
-
 	storekeys := keepers.GetKVStoreKey()
 	store := runtime.NewKVStoreService(storekeys[evmtypes.StoreKey]).OpenKVStore(ctx)
 
