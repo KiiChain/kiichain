@@ -69,4 +69,4 @@ kiichaind version
 cd $PROJECT_DIR
 
 # Start the new node with the new version
-# kiichaind start --minimum-gas-prices=0.0001akii
+kiichaind start --minimum-gas-prices=0.0001akii
