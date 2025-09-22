@@ -35,12 +35,14 @@ func CreateUpgradeHandler(
 		}
 
 		// Migrate EVM info
+		ctx.Logger().Info("Migrating EVM params...")
 		err = MigrateEVMParams(ctx, keepers)
 		if err != nil {
 			return vm, err
 		}
 
 		// Run ERC20 migration
+		ctx.Logger().Info("Migrating EVM info...")
 		err = MigrateERC20(ctx, keepers)
 		if err != nil {
 			return vm, err
@@ -63,6 +65,7 @@ func MigrateERC20(
 	const addressLength = 42 // "0x" + 40 hex characters
 
 	// Migrate dynamic precompiles (IBC tokens, token factory)
+	ctx.Logger().Info("Migrating dynamic precompiles...")
 	oldData, err := store.Get([]byte("DynamicPrecompiles"))
 	if err != nil {
 		return err
@@ -80,6 +83,7 @@ func MigrateERC20(
 	}
 
 	// Migrate native precompiles
+	ctx.Logger().Info("Migrating Native precompiles...")
 	oldData, err = store.Get([]byte("NativePrecompiles"))
 	if err != nil {
 		return err
@@ -96,6 +100,7 @@ func MigrateERC20(
 	}
 
 	// Add missing ERC20 param
+	ctx.Logger().Info("Adding permissionless registration...")
 	params := keepers.Erc20Keeper.GetParams(ctx)
 	params.PermissionlessRegistration = true
 	return keepers.Erc20Keeper.SetParams(ctx, params)
