@@ -2,6 +2,10 @@
 
 ## UNRELEASED
 
+### Fixed
+
+- Add missing address validation in `GetTokenfactoryDenomsByCreator` query to prevent potential crashes with malformed addresses
+
 ## v4.0.0 — 2025-08-06
 
 ### Added
