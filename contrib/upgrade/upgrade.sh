@@ -6,7 +6,7 @@
 INITIAL_VERSION=v4.0.0
 # Upgrade tag defines the version to which we upgrade
 # This tag should be available on the kiichain repo
-UPGRADE_TAG=v5.0.0-test
+UPGRADE_TAG=v5.0.0-test12
 # Upgrade name is the name of the upgrade proposal
 # This name should be on the code as the expected upgrade name
 UPGRADE_NAME=v5.0.0
@@ -34,6 +34,7 @@ wait_for_height() {
 
 # Clone the Kiichain
 rm -rf /tmp/kiichain
+rm -rf ~/.kiichain
 git clone git@github.com:KiiChain/kiichain.git /tmp/kiichain
 cd /tmp/kiichain
 git checkout $INITIAL_VERSION
@@ -54,7 +55,7 @@ sleep 5
 
 # Vote for the proposal
 kiichaind tx gov vote 1 yes --keyring-backend test --from mykey --fees 1000000000000000000akii -y
-wait_for_height 15
+wait_for_height 25
 sleep 5
 
 # Kill the node
@@ -68,4 +69,4 @@ kiichaind version
 cd $PROJECT_DIR
 
 # Start the new node with the new version
-kiichaind start --minimum-gas-prices=0.0001akii
+# kiichaind start --minimum-gas-prices=0.0001akii
