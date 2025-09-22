@@ -9,10 +9,10 @@ import (
 
 	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
-	"github.com/kiichain/kiichain/v4/app/helpers"
-	utils "github.com/kiichain/kiichain/v4/app/upgrades/utils"
-	"github.com/kiichain/kiichain/v4/precompiles/ibc"
-	"github.com/kiichain/kiichain/v4/precompiles/wasmd"
+	"github.com/kiichain/kiichain/v5/app/helpers"
+	utils "github.com/kiichain/kiichain/v5/app/upgrades/utils"
+	"github.com/kiichain/kiichain/v5/precompiles/ibc"
+	"github.com/kiichain/kiichain/v5/precompiles/wasmd"
 )
 
 // TestUpgrade tests the upgrade handler for v1.3.0

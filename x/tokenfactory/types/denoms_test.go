@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kiichain/kiichain/v4/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v5/x/tokenfactory/types"
 )
 
 func TestDeconstructDenom(t *testing.T) {

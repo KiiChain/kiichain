@@ -12,7 +12,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v4/tests/e2e/precompiles"
+	"github.com/kiichain/kiichain/v5/tests/e2e/precompiles"
 )
 
 const (

@@ -83,16 +83,16 @@ import (
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	kiiparams "github.com/kiichain/kiichain/v4/app/params"
-	"github.com/kiichain/kiichain/v4/wasmbinding"
-	feeabstractionkeeper "github.com/kiichain/kiichain/v4/x/feeabstraction/keeper"
-	feeabstractiontypes "github.com/kiichain/kiichain/v4/x/feeabstraction/types"
-	oraclekeeper "github.com/kiichain/kiichain/v4/x/oracle/keeper"
-	oracletypes "github.com/kiichain/kiichain/v4/x/oracle/types"
-	rewardskeeper "github.com/kiichain/kiichain/v4/x/rewards/keeper"
-	rewardstypes "github.com/kiichain/kiichain/v4/x/rewards/types"
-	tokenfactorykeeper "github.com/kiichain/kiichain/v4/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/kiichain/kiichain/v4/x/tokenfactory/types"
+	kiiparams "github.com/kiichain/kiichain/v5/app/params"
+	"github.com/kiichain/kiichain/v5/wasmbinding"
+	feeabstractionkeeper "github.com/kiichain/kiichain/v5/x/feeabstraction/keeper"
+	feeabstractiontypes "github.com/kiichain/kiichain/v5/x/feeabstraction/types"
+	oraclekeeper "github.com/kiichain/kiichain/v5/x/oracle/keeper"
+	oracletypes "github.com/kiichain/kiichain/v5/x/oracle/types"
+	rewardskeeper "github.com/kiichain/kiichain/v5/x/rewards/keeper"
+	rewardstypes "github.com/kiichain/kiichain/v5/x/rewards/types"
+	tokenfactorykeeper "github.com/kiichain/kiichain/v5/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/kiichain/kiichain/v5/x/tokenfactory/types"
 )
 
 type AppKeepers struct {

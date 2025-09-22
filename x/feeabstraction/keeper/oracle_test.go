@@ -7,8 +7,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v4/x/feeabstraction/types"
-	oracletypes "github.com/kiichain/kiichain/v4/x/oracle/types"
+	"github.com/kiichain/kiichain/v5/x/feeabstraction/types"
+	oracletypes "github.com/kiichain/kiichain/v5/x/oracle/types"
 )
 
 // TestCalculateFeeTokenPrices tests the CalculateFeeTokenPrices function

@@ -19,8 +19,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 
-	kiichain "github.com/kiichain/kiichain/v4/app"
-	"github.com/kiichain/kiichain/v4/tests/e2e/mock"
+	kiichain "github.com/kiichain/kiichain/v5/app"
+	"github.com/kiichain/kiichain/v5/tests/e2e/mock"
 )
 
 const (
