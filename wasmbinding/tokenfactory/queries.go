@@ -14,9 +14,9 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
-	tfbindingtypes "github.com/kiichain/kiichain/v4/wasmbinding/tokenfactory/types"
-	"github.com/kiichain/kiichain/v4/wasmbinding/utils"
-	tokenfactorykeeper "github.com/kiichain/kiichain/v4/x/tokenfactory/keeper"
+	tfbindingtypes "github.com/kiichain/kiichain/v5/wasmbinding/tokenfactory/types"
+	"github.com/kiichain/kiichain/v5/wasmbinding/utils"
+	tokenfactorykeeper "github.com/kiichain/kiichain/v5/x/tokenfactory/keeper"
 )
 
 // QueryPlugin is a custom query plugin for the wasm module for the token factory

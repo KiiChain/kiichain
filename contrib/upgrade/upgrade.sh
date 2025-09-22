@@ -3,13 +3,13 @@
 # Set the env vars
 # Initial version defines the version on which we start the upgrade
 # This tag should be available on the kiichain repo
-INITIAL_VERSION=v3.0.0
+INITIAL_VERSION=v4.0.0
 # Upgrade tag defines the version to which we upgrade
 # This tag should be available on the kiichain repo
-UPGRADE_TAG=v4.0.0-feeabstraction
+UPGRADE_TAG=v5.0.0-test12
 # Upgrade name is the name of the upgrade proposal
 # This name should be on the code as the expected upgrade name
-UPGRADE_NAME=v4.0.0
+UPGRADE_NAME=v5.0.0
 PROJECT_DIR=$(pwd)
 
 # wait_for_height waits for a specific height to be reached
@@ -32,7 +32,8 @@ wait_for_height() {
     done
 }
 
-# Close the Kiichain
+# Clone the Kiichain
+rm -rf /tmp/kiichain
 git clone git@github.com:KiiChain/kiichain.git /tmp/kiichain
 cd /tmp/kiichain
 git checkout $INITIAL_VERSION
@@ -44,7 +45,7 @@ cd $PROJECT_DIR
 jq --arg new_name "$UPGRADE_NAME" '.messages[0].plan.name = $new_name' contrib/upgrade/upgrade_json.json >tmp.json && mv tmp.json contrib/upgrade/upgrade_json.json
 
 # Start the new node
-nohup ./contrib/local_node.sh -y --no-install >node.log 2>&1 &
+nohup /tmp/kiichain/contrib/local_node.sh -y --no-install >node.log 2>&1 &
 wait_for_height 5
 
 # Apply the upgrade proposal

@@ -7,8 +7,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/kiichain/kiichain/v4/x/feeabstraction/types"
-	oracletypes "github.com/kiichain/kiichain/v4/x/oracle/types"
+	"github.com/kiichain/kiichain/v5/x/feeabstraction/types"
+	oracletypes "github.com/kiichain/kiichain/v5/x/oracle/types"
 )
 
 // TestUpdateParams tests the UpdateParams method

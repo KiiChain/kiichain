@@ -8,7 +8,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v4/x/oracle/types"
+	"github.com/kiichain/kiichain/v5/x/oracle/types"
 )
 
 // QueryServer struct that handlers the rpc request

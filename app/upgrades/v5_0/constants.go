@@ -1,15 +1,14 @@
-package v400
+package v500
 
 import (
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/kiichain/kiichain/v5/app/upgrades"
-	feeabstractiontypes "github.com/kiichain/kiichain/v5/x/feeabstraction/types"
 )
 
 const (
 	// UpgradeName is the name of the upgrade
-	UpgradeName = "v4.0.0"
+	UpgradeName = "v5.0.0"
 )
 
 // Upgrade defines the upgrade
@@ -18,8 +17,10 @@ var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateUpgradeHandler,
 	StoreUpgrades: storetypes.StoreUpgrades{
-		Added: []string{
-			feeabstractiontypes.StoreKey,
+		Deleted: []string{
+			"crisis",
+			"capability",
+			"feeibc",
 		},
 	},
 }

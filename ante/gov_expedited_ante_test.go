@@ -14,8 +14,8 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	"github.com/kiichain/kiichain/v4/ante"
-	"github.com/kiichain/kiichain/v4/app/helpers"
+	"github.com/kiichain/kiichain/v5/ante"
+	"github.com/kiichain/kiichain/v5/app/helpers"
 )
 
 func TestGovExpeditedProposalsDecorator(t *testing.T) {
