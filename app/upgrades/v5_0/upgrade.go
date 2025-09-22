@@ -31,17 +31,14 @@ func CreateUpgradeHandler(
 			return vm, err
 		}
 
-		// Run ERC20 migration
-		MigrateERC20(ctx, keepers)
-
-		// set the evm/vm params
-		evmParams := evmtypes.DefaultParams()
-		evmParams.EvmDenom = evmtypes.GetEVMCoinDenom()
-		// enable AllowUnprotectedTxs see adr-006
-		evmParams.AllowUnprotectedTxs = true
-		if err := keepers.EVMKeeper.SetParams(ctx, evmParams); err != nil {
+		// Migrate EVM info
+		err = MigrateEVMParams(ctx, keepers)
+		if err != nil {
 			return vm, err
 		}
+
+		// Run ERC20 migration
+		MigrateERC20(ctx, keepers)
 
 		// Add missing ERC20 param
 		params := keepers.Erc20Keeper.GetParams(ctx)
@@ -81,4 +78,36 @@ func MigrateERC20(
 		}
 		store.Delete([]byte("NativePrecompiles"))
 	}
+}
+
+// MigrateEVMParams imports relevant old v0.1 params and sets them on new EVM param type
+func MigrateEVMParams(
+	ctx sdk.Context,
+	keepers *keepers.AppKeepers,
+) error {
+
+	storekeys := keepers.EVMKeeper.KVStoreKeys()
+	store := ctx.KVStore(storekeys[evmtypes.StoreKey])
+
+	var oldParams Params
+
+	// // Read EvmDenom
+	if bz := store.Get(evmtypes.KeyPrefixParams); bz != nil {
+		if err := oldParams.Unmarshal(bz); err != nil {
+			return err
+		}
+	}
+
+	// set the evm/vm params
+	evmParams := evmtypes.DefaultParams()
+	evmParams.EvmDenom = evmtypes.GetEVMCoinDenom()
+	evmParams.ActiveStaticPrecompiles = oldParams.ActiveStaticPrecompiles
+	// evmParams.AccessControl = oldParams.AccessControl
+	evmParams.EVMChannels = oldParams.EVMChannels
+	evmParams.AllowUnprotectedTxs = oldParams.AllowUnprotectedTxs
+
+	if err := keepers.EVMKeeper.SetParams(ctx, evmParams); err != nil {
+		return err
+	}
+	return nil
 }
