@@ -98,6 +98,9 @@ func MigrateEVMParams(
 		}
 	}
 
+	store.Delete(evmtypes.ParamStoreKeyChainConfig)
+	store.Delete(evmtypes.ParamStoreKeyExtraEIPs)
+
 	// set the evm/vm params
 	evmParams := evmtypes.DefaultParams()
 	evmParams.EvmDenom = evmtypes.GetEVMCoinDenom()
@@ -109,5 +112,6 @@ func MigrateEVMParams(
 	if err := keepers.EVMKeeper.SetParams(ctx, evmParams); err != nil {
 		return err
 	}
+
 	return nil
 }
