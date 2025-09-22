@@ -44,10 +44,10 @@ func CreateUpgradeHandler(
 			return vm, err
 		}
 
-		// Add missing ERC20 param
-		params := keepers.Erc20Keeper.GetParams(ctx)
-		params.PermissionlessRegistration = false
-		keepers.Erc20Keeper.SetParams(ctx, params)
+		// // Add missing ERC20 param
+		// params := keepers.Erc20Keeper.GetParams(ctx)
+		// params.PermissionlessRegistration = false
+		// keepers.Erc20Keeper.SetParams(ctx, params)
 
 		// Log the upgrade completion
 		ctx.Logger().Info("Upgrade v5.0.0 complete")
