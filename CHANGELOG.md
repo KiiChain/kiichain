@@ -10,7 +10,7 @@
 - Bump [IBC-go](https://github.com/cosmos/ibc-go/) to [v10.3.0](https://github.com/cosmos/ibc-go/releases/tag/v10.3.0)
 - Removed crisis module 
 
-### Fixed
+### Fixes
 
 - Add missing address validation in `GetTokenfactoryDenomsByCreator` query to prevent potential crashes with malformed addresses
 
