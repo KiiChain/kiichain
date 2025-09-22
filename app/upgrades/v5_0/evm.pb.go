@@ -872,22 +872,6 @@ func (m *TraceConfig) GetTracerJsonConfig() string {
 	return ""
 }
 
-func init() {
-	proto.RegisterEnum("cosmos.evm.vm.v1.AccessType", AccessType_name, AccessType_value)
-	proto.RegisterType((*Params)(nil), "cosmos.evm.vm.v1.Params")
-	proto.RegisterType((*AccessControl)(nil), "cosmos.evm.vm.v1.AccessControl")
-	proto.RegisterType((*AccessControlType)(nil), "cosmos.evm.vm.v1.AccessControlType")
-	proto.RegisterType((*ChainConfig)(nil), "cosmos.evm.vm.v1.ChainConfig")
-	proto.RegisterType((*State)(nil), "cosmos.evm.vm.v1.State")
-	proto.RegisterType((*TransactionLogs)(nil), "cosmos.evm.vm.v1.TransactionLogs")
-	proto.RegisterType((*Log)(nil), "cosmos.evm.vm.v1.Log")
-	proto.RegisterType((*TxResult)(nil), "cosmos.evm.vm.v1.TxResult")
-	proto.RegisterType((*AccessTuple)(nil), "cosmos.evm.vm.v1.AccessTuple")
-	proto.RegisterType((*TraceConfig)(nil), "cosmos.evm.vm.v1.TraceConfig")
-}
-
-func init() { proto.RegisterFile("cosmos/evm/vm/v1/evm.proto", fileDescriptor_d1129b8db63d55c7) }
-
 var fileDescriptor_d1129b8db63d55c7 = []byte{
 	// 1953 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x58, 0x4d, 0x6f, 0x1b, 0xc7,
