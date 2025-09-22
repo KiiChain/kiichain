@@ -34,7 +34,6 @@ wait_for_height() {
 
 # Clone the Kiichain
 rm -rf /tmp/kiichain
-rm -rf ~/.kiichain
 git clone git@github.com:KiiChain/kiichain.git /tmp/kiichain
 cd /tmp/kiichain
 git checkout $INITIAL_VERSION
