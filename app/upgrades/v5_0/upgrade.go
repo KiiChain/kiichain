@@ -86,7 +86,7 @@ func MigrateEVMParams(
 	keepers *keepers.AppKeepers,
 ) error {
 
-	storekeys := keepers.EVMKeeper.KVStoreKeys()
+	storekeys := keepers.GetKVStoreKey()
 	store := ctx.KVStore(storekeys[evmtypes.StoreKey])
 
 	var oldParams Params
@@ -97,9 +97,6 @@ func MigrateEVMParams(
 			return err
 		}
 	}
-
-	store.Delete(evmtypes.ParamStoreKeyChainConfig)
-	store.Delete(evmtypes.ParamStoreKeyExtraEIPs)
 
 	// set the evm/vm params
 	evmParams := evmtypes.DefaultParams()
@@ -112,6 +109,8 @@ func MigrateEVMParams(
 	if err := keepers.EVMKeeper.SetParams(ctx, evmParams); err != nil {
 		return err
 	}
+
+	store.Delete(evmtypes.ParamStoreKeyChainConfig)
 
 	return nil
 }
