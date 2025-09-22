@@ -73,7 +73,10 @@ func MigrateERC20(
 			address := common.HexToAddress(string(oldData[i : i+addressLength]))
 			keepers.Erc20Keeper.SetDynamicPrecompile(ctx, address)
 		}
-		store.Delete([]byte("DynamicPrecompiles"))
+		err = store.Delete([]byte("DynamicPrecompiles"))
+		if err != nil {
+			return err
+		}
 	}
 
 	// Migrate native precompiles
@@ -86,15 +89,16 @@ func MigrateERC20(
 			address := common.HexToAddress(string(oldData[i : i+addressLength]))
 			keepers.Erc20Keeper.SetNativePrecompile(ctx, address)
 		}
-		store.Delete([]byte("NativePrecompiles"))
+		err = store.Delete([]byte("NativePrecompiles"))
+		if err != nil {
+			return err
+		}
 	}
 
 	// Add missing ERC20 param
 	params := keepers.Erc20Keeper.GetParams(ctx)
 	params.PermissionlessRegistration = true
-	keepers.Erc20Keeper.SetParams(ctx, params)
-
-	return nil
+	return keepers.Erc20Keeper.SetParams(ctx, params)
 }
 
 // MigrateEVMParams imports relevant old v0.1 params and sets them on new EVM param type
@@ -123,7 +127,6 @@ func MigrateEVMParams(
 	evmParams := evmtypes.DefaultParams()
 	evmParams.EvmDenom = evmtypes.GetEVMCoinDenom()
 	evmParams.ActiveStaticPrecompiles = oldParams.ActiveStaticPrecompiles
-	// evmParams.AccessControl = oldParams.AccessControl
 	evmParams.EVMChannels = oldParams.EVMChannels
 	evmParams.AllowUnprotectedTxs = oldParams.AllowUnprotectedTxs
 
@@ -131,7 +134,5 @@ func MigrateEVMParams(
 		return err
 	}
 
-	store.Delete(evmtypes.ParamStoreKeyChainConfig)
-
-	return nil
+	return store.Delete(evmtypes.ParamStoreKeyChainConfig)
 }
