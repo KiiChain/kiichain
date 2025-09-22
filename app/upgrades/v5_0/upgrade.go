@@ -6,6 +6,7 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 
+	"github.com/cosmos/cosmos-sdk/runtime"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/ethereum/go-ethereum/common"
@@ -38,7 +39,10 @@ func CreateUpgradeHandler(
 		}
 
 		// Run ERC20 migration
-		MigrateERC20(ctx, keepers)
+		err = MigrateERC20(ctx, keepers)
+		if err != nil {
+			return vm, err
+		}
 
 		// Add missing ERC20 param
 		params := keepers.Erc20Keeper.GetParams(ctx)
@@ -55,14 +59,19 @@ func CreateUpgradeHandler(
 func MigrateERC20(
 	ctx sdk.Context,
 	keepers *keepers.AppKeepers,
-) {
+) error {
 	// In your upgrade handler
 	storekeys := keepers.GetKVStoreKey()
-	store := ctx.KVStore(storekeys[erc20types.StoreKey])
+	store := runtime.NewKVStoreService(storekeys[erc20types.StoreKey]).OpenKVStore(ctx)
 	const addressLength = 42 // "0x" + 40 hex characters
 
 	// Migrate dynamic precompiles (IBC tokens, token factory)
-	if oldData := store.Get([]byte("DynamicPrecompiles")); len(oldData) > 0 {
+	oldData, err := store.Get([]byte("DynamicPrecompiles"))
+	if err != nil {
+		return err
+	}
+
+	if len(oldData) > 0 {
 		for i := 0; i < len(oldData); i += addressLength {
 			address := common.HexToAddress(string(oldData[i : i+addressLength]))
 			keepers.Erc20Keeper.SetDynamicPrecompile(ctx, address)
@@ -71,13 +80,18 @@ func MigrateERC20(
 	}
 
 	// Migrate native precompiles
-	if oldData := store.Get([]byte("NativePrecompiles")); len(oldData) > 0 {
+	oldData, err = store.Get([]byte("DynamicPrecompiles"))
+	if err != nil {
+		return err
+	}
+	if len(oldData) > 0 {
 		for i := 0; i < len(oldData); i += addressLength {
 			address := common.HexToAddress(string(oldData[i : i+addressLength]))
 			keepers.Erc20Keeper.SetNativePrecompile(ctx, address)
 		}
 		store.Delete([]byte("NativePrecompiles"))
 	}
+	return nil
 }
 
 // MigrateEVMParams imports relevant old v0.1 params and sets them on new EVM param type
@@ -87,13 +101,18 @@ func MigrateEVMParams(
 ) error {
 
 	storekeys := keepers.GetKVStoreKey()
-	store := ctx.KVStore(storekeys[evmtypes.StoreKey])
+	store := runtime.NewKVStoreService(storekeys[evmtypes.StoreKey]).OpenKVStore(ctx)
 
+	// Fetch byte data of old params
+	oldData, err := store.Get(evmtypes.KeyPrefixParams)
+	if err != nil {
+		return err
+	}
+
+	// Read old params
 	var oldParams Params
-
-	// // Read EvmDenom
-	if bz := store.Get(evmtypes.KeyPrefixParams); bz != nil {
-		if err := oldParams.Unmarshal(bz); err != nil {
+	if oldData != nil {
+		if err := oldParams.Unmarshal(oldData); err != nil {
 			return err
 		}
 	}
