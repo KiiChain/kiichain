@@ -124,6 +124,7 @@ func NewRootCmd() *cobra.Command {
 			cmd.SetOut(cmd.OutOrStdout())
 			cmd.SetErr(cmd.ErrOrStderr())
 
+			// Set the client context on the command
 			initClientCtx = initClientCtx.WithCmdContext(cmd.Context())
 			initClientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 			if err != nil {
@@ -160,7 +161,30 @@ func NewRootCmd() *cobra.Command {
 			customAppTemplate, customAppConfig := initAppConfig(kiichain.KiichainID)
 			customCometConfig := initCometConfig()
 
-			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customCometConfig)
+			// Run the server intercept configs
+			err = server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customCometConfig)
+			if err != nil {
+				return err
+			}
+
+			// Read in the client context from the command line and environment variables
+			evmChainId, err := cmd.Flags().GetUint64(srvflags.EVMChainID)
+			if err != nil {
+				return err
+			}
+
+			// If the chain id is still default, we override it on the CLI
+			if evmChainId == evmserverconfig.DefaultEVMChainID {
+				err := cmd.Flags().Set(srvflags.EVMChainID, fmt.Sprintf("%d", kiichain.KiichainID))
+				if err != nil {
+					return err
+				}
+			}
+
+			return err
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+
 		},
 	}
 
