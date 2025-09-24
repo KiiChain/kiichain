@@ -168,13 +168,13 @@ func NewRootCmd() *cobra.Command {
 			}
 
 			// Read in the client context from the command line and environment variables
-			evmChainId, err := cmd.Flags().GetUint64(srvflags.EVMChainID)
+			evmChainID, err := cmd.Flags().GetUint64(srvflags.EVMChainID)
 			if err != nil {
 				return err
 			}
 
 			// If the chain id is still default, we override it on the CLI
-			if evmChainId == evmserverconfig.DefaultEVMChainID {
+			if evmChainID == evmserverconfig.DefaultEVMChainID {
 				err = cmd.Flags().Set(srvflags.EVMChainID, fmt.Sprintf("%d", kiichain.KiichainID))
 			}
 
