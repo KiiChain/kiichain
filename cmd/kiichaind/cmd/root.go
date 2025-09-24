@@ -162,23 +162,7 @@ func NewRootCmd() *cobra.Command {
 			customCometConfig := initCometConfig()
 
 			// Run the server intercept configs
-			err = server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customCometConfig)
-			if err != nil {
-				return err
-			}
-
-			// Read in the client context from the command line and environment variables
-			evmChainID, err := cmd.Flags().GetUint64(srvflags.EVMChainID)
-			if err != nil {
-				return err
-			}
-
-			// If the chain id is still default, we override it on the CLI
-			if evmChainID == evmserverconfig.DefaultEVMChainID {
-				err = cmd.Flags().Set(srvflags.EVMChainID, fmt.Sprintf("%d", kiichain.KiichainID))
-			}
-
-			return err
+			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customCometConfig)
 		},
 	}
 
@@ -299,6 +283,43 @@ func initRootCmd(rootCmd *cobra.Command,
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	wasm.AddModuleInitFlags(startCmd)
+	overrideEVMChainID(startCmd)
+}
+
+// overrideEVMChainID changes the default evm chain id
+func overrideEVMChainID(cmd *cobra.Command) {
+	// Create precheck function
+	preCheck := func(cmd *cobra.Command, _ []string) error {
+		// Read in the client context from the command line and environment variables
+		evmChainID, err := cmd.Flags().GetUint64(srvflags.EVMChainID)
+		if err != nil {
+			return err
+		}
+		// If the chain id is still default, we override it on the CLI
+		if evmChainID == evmserverconfig.DefaultEVMChainID {
+			err = cmd.Flags().Set(srvflags.EVMChainID, fmt.Sprintf("%d", kiichain.KiichainID))
+		}
+		return err
+	}
+
+	cmd.PreRunE = chainPreRuns(preCheck, cmd.PreRunE)
+}
+
+// preRunFn defines a preRun function
+type preRunFn func(cmd *cobra.Command, args []string) error
+
+// chainPreRuns appends a preRun function to the pre run list
+func chainPreRuns(pfns ...preRunFn) preRunFn {
+	return func(cmd *cobra.Command, args []string) error {
+		for _, pfn := range pfns {
+			if pfn != nil {
+				if err := pfn(cmd, args); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	}
 }
 
 // genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter
