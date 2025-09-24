@@ -13,7 +13,7 @@
 ### Fixes
 
 - Add missing address validation in `GetTokenfactoryDenomsByCreator` query to prevent potential crashes with malformed addresses
-
+- Override EVM chain ID if default
 
 ## v4.0.0 — 2025-08-06
 
