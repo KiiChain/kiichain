@@ -2,7 +2,6 @@ package kiichain
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -53,19 +52,11 @@ var sealed = false
 // ChainsCoinInfo is a map of the chain id and its corresponding EvmCoinInfo
 // that allows initializing the app with different coin info based on the
 // chain id
-var ChainsCoinInfo = map[uint64]evmtypes.EvmCoinInfo{
-	params.TestnetChainID: {
-		Denom:         params.BaseDenom,
-		ExtendedDenom: params.BaseDenom,
-		DisplayDenom:  params.DisplayDenom,
-		Decimals:      params.BaseDenomUnit,
-	},
-	params.DefaultChainID: {
-		Denom:         params.BaseDenom,
-		ExtendedDenom: params.BaseDenom,
-		DisplayDenom:  params.DisplayDenom,
-		Decimals:      params.BaseDenomUnit,
-	},
+var CoinInfo = evmtypes.EvmCoinInfo{
+	Denom:         params.BaseDenom,
+	ExtendedDenom: params.BaseDenom,
+	DisplayDenom:  params.DisplayDenom,
+	Decimals:      params.BaseDenomUnit,
 }
 
 // EVMAppOptions allows to setup the global configuration
@@ -76,15 +67,8 @@ func EVMAppOptions(chainID uint64) error {
 		return nil
 	}
 
-	coinInfo, found := ChainsCoinInfo[chainID]
-	if !found {
-		// If not found, set as default
-		log.Printf("Chain ID %d not found in ChainsCoinInfo, using default", chainID)
-		coinInfo = ChainsCoinInfo[params.DefaultChainID]
-	}
-
 	// set the denom info for the chain
-	if err := setBaseDenom(coinInfo); err != nil {
+	if err := setBaseDenom(CoinInfo); err != nil {
 		return err
 	}
 
@@ -92,7 +76,7 @@ func EVMAppOptions(chainID uint64) error {
 
 	err := evmtypes.NewEVMConfigurator().
 		WithChainConfig(ethCfg).
-		WithEVMCoinInfo(coinInfo).
+		WithEVMCoinInfo(CoinInfo).
 		Configure()
 	if err != nil {
 		return err
