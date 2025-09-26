@@ -60,6 +60,12 @@ var ChainsCoinInfo = map[uint64]evmtypes.EvmCoinInfo{
 		DisplayDenom:  params.DisplayDenom,
 		Decimals:      params.BaseDenomUnit,
 	},
+	params.DevnetChainID: {
+		Denom:         params.BaseDenom,
+		ExtendedDenom: params.BaseDenom,
+		DisplayDenom:  params.DisplayDenom,
+		Decimals:      params.BaseDenomUnit,
+	},
 	params.DefaultChainID: {
 		Denom:         params.BaseDenom,
 		ExtendedDenom: params.BaseDenom,

@@ -35,6 +35,7 @@ const (
 
 	// Testnet chain id
 	TestnetChainID = 1336
+	DevnetChainID  = 404
 	DefaultChainID = 1010
 )
 
