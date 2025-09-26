@@ -33,9 +33,7 @@ const (
 	// BaseDenomUnit defines the precision of the base denomination.
 	BaseDenomUnit = 18
 
-	// Testnet chain id
-	TestnetChainID = 1336
-	DevnetChainID  = 404
+	// Default chain ID definition
 	DefaultChainID = 1010
 )
 
