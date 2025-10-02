@@ -39,7 +39,6 @@ import (
 
 	"github.com/kiichain/kiichain/v5/precompiles/ibc"
 	"github.com/kiichain/kiichain/v5/precompiles/oracle"
-	"github.com/kiichain/kiichain/v5/precompiles/wasmd"
 	oraclekeeper "github.com/kiichain/kiichain/v5/x/oracle/keeper"
 )
 
@@ -173,12 +172,6 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate slashing precompile: %w", err))
 	}
 
-	// Prepare the wasmd precompile
-	wasmdPrecompile, err := wasmd.NewPrecompile(wasmdKeeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate wasmd precompile: %w", err))
-	}
-
 	// Prepare the ibc precompile
 	ibcPrecompile, err := ibc.NewPrecompile(transferKeeper, clientKeeper, connectionKeeper, *channelKeeper)
 	if err != nil {
@@ -202,7 +195,6 @@ func NewAvailableStaticPrecompiles(
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
 	precompiles[slashingPrecompile.Address()] = slashingPrecompile
-	precompiles[wasmdPrecompile.Address()] = wasmdPrecompile
 	precompiles[ibcPrecompile.Address()] = ibcPrecompile
 	precompiles[oraclePrecompile.Address()] = oraclePrecompile
 

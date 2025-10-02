@@ -2,6 +2,10 @@
 
 ## UNRELEASED
 
+### Fixes
+- Removed wasmd precompile due to vulnerabilities it had
+
+## v5.0.0 — 2025-09-28
 
 ## DEPENDENCIES
 - Bump [cosmos-sdk](https://github.com/cosmos/cosmos-sdk) to [v0.53.4](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.53.4)

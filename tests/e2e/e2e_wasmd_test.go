@@ -31,7 +31,7 @@ func (s *IntegrationTestSuite) testWasmdCounter() {
 	workingDirectory, err := os.Getwd()
 	s.Require().NoError(err)
 
-	srcPath := filepath.Join(workingDirectory, "../../precompiles/wasmd/testdata/counter.wasm")
+	srcPath := filepath.Join(workingDirectory, "./mock/counter.wasm")
 	dstPath := filepath.Join(valDockerAsset.configDir(), "config", "counter.wasm")
 	// Copy the file
 	_, err = copyFile(srcPath, dstPath)
