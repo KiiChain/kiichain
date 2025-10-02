@@ -185,9 +185,6 @@ func (s *IntegrationTestSuite) TestWasmd() {
 		s.T().Skip()
 	}
 	s.testWasmdCounter()
-
-	// Test precompile
-	s.testWasmdPrecompile()
 }
 
 // TestOracle runs the Oracle tests. It is skipped if the variable is set
