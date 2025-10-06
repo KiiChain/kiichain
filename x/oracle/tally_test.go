@@ -50,73 +50,73 @@ func TestPickReferenceDenom(t *testing.T) {
 
 	// Create voting targets
 	votingTarget := map[string]types.Denom{
-		utils.MicroAtomDenom: {Name: utils.MicroAtomDenom},
-		utils.MicroEthDenom:  {Name: utils.MicroEthDenom},
-		utils.MicroUsdcDenom: {Name: utils.MicroUsdcDenom},
-		utils.MicroKiiDenom:  {Name: utils.MicroKiiDenom},
+		utils.AtomDenom: {Name: utils.AtomDenom},
+		utils.EthDenom:  {Name: utils.EthDenom},
+		utils.UsdcDenom: {Name: utils.UsdcDenom},
+		utils.KiiDenom:  {Name: utils.KiiDenom},
 	}
 
 	// Create vote map (the voting (ballot) per denom)
-	uatomBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4000), Power: int64(20), Voter: keeper.ValAddrs[0]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4100), Power: int64(10), Voter: keeper.ValAddrs[1]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4200), Power: int64(30), Voter: keeper.ValAddrs[3]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(5000), Power: int64(30), Voter: keeper.ValAddrs[4]},
+	atomBallot := types.ExchangeRateBallot{
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(4000), Power: int64(20), Voter: keeper.ValAddrs[0]},
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(4100), Power: int64(10), Voter: keeper.ValAddrs[1]},
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(4200), Power: int64(30), Voter: keeper.ValAddrs[3]},
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(5000), Power: int64(30), Voter: keeper.ValAddrs[4]},
 	}
 
-	uethBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(10000), Power: int64(20), Voter: keeper.ValAddrs[0]},
-		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(9580), Power: int64(30), Voter: keeper.ValAddrs[3]},
-		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(10300), Power: int64(30), Voter: keeper.ValAddrs[4]},
+	ethBallot := types.ExchangeRateBallot{
+		{Denom: utils.EthDenom, ExchangeRate: math.LegacyNewDec(10000), Power: int64(20), Voter: keeper.ValAddrs[0]},
+		{Denom: utils.EthDenom, ExchangeRate: math.LegacyNewDec(9580), Power: int64(30), Voter: keeper.ValAddrs[3]},
+		{Denom: utils.EthDenom, ExchangeRate: math.LegacyNewDec(10300), Power: int64(30), Voter: keeper.ValAddrs[4]},
 	}
 
-	uusdcBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(20000), Power: int64(20), Voter: keeper.ValAddrs[0]},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(20100), Power: int64(10), Voter: keeper.ValAddrs[1]},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(19580), Power: int64(30), Voter: keeper.ValAddrs[3]},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(20300), Power: int64(30), Voter: keeper.ValAddrs[4]},
+	usdcBallot := types.ExchangeRateBallot{
+		{Denom: utils.UsdcDenom, ExchangeRate: math.LegacyNewDec(20000), Power: int64(20), Voter: keeper.ValAddrs[0]},
+		{Denom: utils.UsdcDenom, ExchangeRate: math.LegacyNewDec(20100), Power: int64(10), Voter: keeper.ValAddrs[1]},
+		{Denom: utils.UsdcDenom, ExchangeRate: math.LegacyNewDec(19580), Power: int64(30), Voter: keeper.ValAddrs[3]},
+		{Denom: utils.UsdcDenom, ExchangeRate: math.LegacyNewDec(20300), Power: int64(30), Voter: keeper.ValAddrs[4]},
 	}
 
-	akiiBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(30000), Power: int64(20), Voter: keeper.ValAddrs[0]},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(30100), Power: int64(10), Voter: keeper.ValAddrs[1]},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(29580), Power: int64(30), Voter: keeper.ValAddrs[3]},
+	kiiBallot := types.ExchangeRateBallot{
+		{Denom: utils.KiiDenom, ExchangeRate: math.LegacyNewDec(30000), Power: int64(20), Voter: keeper.ValAddrs[0]},
+		{Denom: utils.KiiDenom, ExchangeRate: math.LegacyNewDec(30100), Power: int64(10), Voter: keeper.ValAddrs[1]},
+		{Denom: utils.KiiDenom, ExchangeRate: math.LegacyNewDec(29580), Power: int64(30), Voter: keeper.ValAddrs[3]},
 	}
 
 	voteMap := map[string]types.ExchangeRateBallot{
-		utils.MicroAtomDenom: uatomBallot,
-		utils.MicroEthDenom:  uethBallot,
-		utils.MicroUsdcDenom: uusdcBallot,
-		utils.MicroKiiDenom:  akiiBallot,
-		"extraDenom":         uatomBallot, // This denom will be removed because is not on the voting targets
+		utils.AtomDenom: atomBallot,
+		utils.EthDenom:  ethBallot,
+		utils.UsdcDenom: usdcBallot,
+		utils.KiiDenom:  kiiBallot,
+		"extraDenom":    atomBallot, // This denom will be removed because is not on the voting targets
 	}
 
 	// Expected below threshold vote map
 	expectedBelowThreshold := map[string]types.ExchangeRateBallot{
-		utils.MicroKiiDenom: akiiBallot,
+		utils.KiiDenom: kiiBallot,
 	}
 
-	// Must return denom MicroAtomDenom and akiiBallot as below threshold map
+	// Must return denom atomDenom and kiiBallot as below threshold map
 	referenceDenom, belowThresholdVoteMap := pickReferenceDenom(ctx, oracleKeeper, votingTarget, voteMap)
-	require.Equal(t, utils.MicroAtomDenom, referenceDenom)
+	require.Equal(t, utils.AtomDenom, referenceDenom)
 	require.Equal(t, expectedBelowThreshold, belowThresholdVoteMap)
 }
 
 func TestBallotIsPassing(t *testing.T) {
-	uatomBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4000), Power: int64(20), Voter: keeper.ValAddrs[0]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4100), Power: int64(10), Voter: keeper.ValAddrs[1]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4200), Power: int64(30), Voter: keeper.ValAddrs[3]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(5000), Power: int64(30), Voter: keeper.ValAddrs[4]},
+	atomBallot := types.ExchangeRateBallot{
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(4000), Power: int64(20), Voter: keeper.ValAddrs[0]},
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(4100), Power: int64(10), Voter: keeper.ValAddrs[1]},
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(4200), Power: int64(30), Voter: keeper.ValAddrs[3]},
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(5000), Power: int64(30), Voter: keeper.ValAddrs[4]},
 	}
 
 	// must return true because the threshold is lower than the ballot power
-	power, ispassing := ballotIsPassing(uatomBallot, math.NewInt(80))
+	power, ispassing := ballotIsPassing(atomBallot, math.NewInt(80))
 	require.Equal(t, math.NewInt(90), power)
 	require.True(t, ispassing)
 
 	// must return false because the threshold is higher than the ballot power
-	power, ispassing = ballotIsPassing(uatomBallot, math.NewInt(100))
+	power, ispassing = ballotIsPassing(atomBallot, math.NewInt(100))
 	require.Equal(t, math.NewInt(90), power)
 	require.False(t, ispassing)
 }
@@ -167,11 +167,11 @@ func TestTally(t *testing.T) {
 		validatorClaimMap[operator] = claim // Assign the validator on the list to receive
 	}
 
-	uatomBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4160), Power: int64(10), Voter: keeper.ValAddrs[0]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4180), Power: int64(20), Voter: keeper.ValAddrs[1]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(4200), Power: int64(30), Voter: keeper.ValAddrs[2]}, // weighted median
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(5000), Power: int64(40), Voter: keeper.ValAddrs[3]},
+	atomBallot := types.ExchangeRateBallot{
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(4160), Power: int64(10), Voter: keeper.ValAddrs[0]},
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(4180), Power: int64(20), Voter: keeper.ValAddrs[1]},
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(4200), Power: int64(30), Voter: keeper.ValAddrs[2]}, // weighted median
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(5000), Power: int64(40), Voter: keeper.ValAddrs[3]},
 	}
 
 	// median = 4200
@@ -181,7 +181,7 @@ func TestTally(t *testing.T) {
 	// upper limit = 4242
 	// lower limit = 4158
 
-	weightedMedian := Tally(ctx, uatomBallot, math.LegacyNewDecWithPrec(2, 2), validatorClaimMap)
+	weightedMedian := Tally(ctx, atomBallot, math.LegacyNewDecWithPrec(2, 2), validatorClaimMap)
 	require.Equal(t, math.LegacyNewDec(4200), weightedMedian)
 
 	// validate validators who voted

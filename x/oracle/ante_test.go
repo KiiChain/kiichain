@@ -82,7 +82,7 @@ func TestSpammingPreventionHandle(t *testing.T) {
 
 	// Create test exchange rate
 	randomAExchangeRate := math.LegacyNewDec(1700)
-	exchangeRate := randomAExchangeRate.String() + utils.MicroAtomDenom
+	exchangeRate := randomAExchangeRate.String() + utils.AtomDenom
 
 	voteMsg := types.NewMsgAggregateExchangeRateVote(exchangeRate, keeper.Addrs[0], keeper.ValAddrs[0])
 	invalidVoteMsg := types.NewMsgAggregateExchangeRateVote(exchangeRate, keeper.Addrs[5], keeper.ValAddrs[2]) // addr 3 has not been delegated by val 2

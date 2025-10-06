@@ -21,13 +21,13 @@ func TestHandleOracleQuery(t *testing.T) {
 	app, ctx := helpers.SetupCustomApp(t, actor)
 
 	// Create two rates
-	err := app.OracleKeeper.ExchangeRate.Set(ctx, "uusdc", types.OracleExchangeRate{
+	err := app.OracleKeeper.ExchangeRate.Set(ctx, "usdc", types.OracleExchangeRate{
 		ExchangeRate:        math.LegacyMustNewDecFromStr("0.5"),
 		LastUpdate:          math.NewIntFromUint64(1000000),
 		LastUpdateTimestamp: 1000000,
 	})
 	require.NoError(t, err)
-	err = app.OracleKeeper.ExchangeRate.Set(ctx, "akii", types.OracleExchangeRate{
+	err = app.OracleKeeper.ExchangeRate.Set(ctx, "kii", types.OracleExchangeRate{
 		ExchangeRate:        math.LegacyMustNewDecFromStr("125.2"),
 		LastUpdate:          math.NewIntFromUint64(2000000),
 		LastUpdateTimestamp: 2000000,
@@ -39,7 +39,7 @@ func TestHandleOracleQuery(t *testing.T) {
 		SnapshotTimestamp: 2,
 		PriceSnapshotItems: []types.PriceSnapshotItem{
 			{
-				Denom: "uusdc",
+				Denom: "usdc",
 				OracleExchangeRate: types.OracleExchangeRate{
 					ExchangeRate:        math.LegacyMustNewDecFromStr("0.5"),
 					LastUpdate:          math.NewIntFromUint64(1000000),
@@ -61,7 +61,7 @@ func TestHandleOracleQuery(t *testing.T) {
 			name: "Valid - exchange rate",
 			query: oraclebindingtypes.Query{
 				ExchangeRate: &oraclebindingtypes.ExchangeRateQuery{
-					Denom: "uusdc",
+					Denom: "usdc",
 				},
 			},
 			expected: []byte(`{"oracle_exchange_rate":{"exchange_rate":"0.500000000000000000","last_update":"1000000","last_update_timestamp":1000000}}`),
@@ -89,7 +89,7 @@ func TestHandleOracleQuery(t *testing.T) {
 			query: oraclebindingtypes.Query{
 				ExchangeRates: &oraclebindingtypes.ExchangeRatesQuery{},
 			},
-			expected: []byte(`{"denom_oracle_exchange_rate":[{"denom":"akii","oracle_exchange_rate":{"exchange_rate":"125.200000000000000000","last_update":"2000000","last_update_timestamp":2000000}},{"denom":"uusdc","oracle_exchange_rate":{"exchange_rate":"0.500000000000000000","last_update":"1000000","last_update_timestamp":1000000}}]}`),
+			expected: []byte(`{"denom_oracle_exchange_rate":[{"denom":"kii","oracle_exchange_rate":{"exchange_rate":"125.200000000000000000","last_update":"2000000","last_update_timestamp":2000000}},{"denom":"usdc","oracle_exchange_rate":{"exchange_rate":"0.500000000000000000","last_update":"1000000","last_update_timestamp":1000000}}]}`),
 		},
 		{
 			name: "valid - twaps",
@@ -98,7 +98,7 @@ func TestHandleOracleQuery(t *testing.T) {
 					LookbackSeconds: 1000,
 				},
 			},
-			expected: []byte(`{"oracle_twap":[{"denom":"uusdc","twap":"0.500000000000000000","lookback_seconds":1000}]}`),
+			expected: []byte(`{"oracle_twap":[{"denom":"usdc","twap":"0.500000000000000000","lookback_seconds":1000}]}`),
 		},
 		{
 			name: "invalid - twaps bad lookback",

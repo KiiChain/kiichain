@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/kiichain/kiichain/v5/x/oracle/types"
+	"github.com/kiichain/kiichain/v5/x/oracle/utils"
 )
 
 func TestGetVoteTargets(t *testing.T) {
@@ -18,7 +19,7 @@ func TestGetVoteTargets(t *testing.T) {
 	require.NoError(t, err)
 
 	// set new expected targets
-	expectedTargets := []string{"akii", "ubtc", "ueth"}
+	expectedTargets := []string{utils.KiiDenom, utils.BtcDenom, utils.EthDenom}
 	for _, target := range expectedTargets {
 		err = oracleKeeper.VoteTarget.Set(input.Ctx, target, types.Denom{Name: target})
 		require.NoError(t, err)
@@ -49,7 +50,7 @@ func TestIsVoteTarget(t *testing.T) {
 	require.NoError(t, err)
 
 	// set new expected targets and validate
-	validTargets := []string{"akii", "ubtc", "ueth"}
+	validTargets := []string{utils.KiiDenom, utils.BtcDenom, utils.EthDenom}
 	for _, target := range validTargets {
 		err = oracleKeeper.VoteTarget.Set(input.Ctx, target, types.Denom{Name: target})
 		require.NoError(t, err)
