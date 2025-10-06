@@ -147,7 +147,7 @@ func (s *IntegrationTestSuite) checkAndUpdateOracleParams() {
 	s.Require().NoError(err, "failed to query oracle parameters")
 
 	// Check if the parameters are set under the expected values
-	expectedWhitelist := []string{"kii"}
+	expectedWhitelist := []string{"akii"}
 	if len(params.Params.Whitelist) == 1 && params.Params.Whitelist[0].Name == expectedWhitelist[0] {
 		s.T().Log("Oracle parameters are already set correctly, skipping update")
 		return
@@ -182,7 +182,7 @@ func (s *IntegrationTestSuite) checkAndUpdateOracleParams() {
 			params, err := queryOracleParameters(chainEndpoint)
 			s.Require().NoError(err, "failed to query oracle parameters after proposal")
 			s.Require().Equal(len(params.Params.Whitelist), 1, "expected one whitelist entry after proposal")
-			s.Require().Equal(params.Params.Whitelist[0].Name, "kii", "expected whitelist entry to be 'kii' after proposal")
+			s.Require().Equal(params.Params.Whitelist[0].Name, "akii", "expected whitelist entry to be 'akii' after proposal")
 
 			return true
 		},
@@ -213,7 +213,7 @@ func (s *IntegrationTestSuite) writeOracleParamChangeProposal(c *chain) {
 					"reward_band": "0.020000000000000000",
 					"whitelist": [
 						{
-							"name": "kii"
+							"name": "akii"
 						}
 					],
 					"slash_fraction": "0.050000000000000000",
