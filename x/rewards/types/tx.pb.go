@@ -6,6 +6,10 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+	io "io"
+	math "math"
+	math_bits "math/bits"
+
 	_ "github.com/cosmos/cosmos-proto"
 	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
@@ -17,9 +21,6 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
-	io "io"
-	math "math"
-	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -383,7 +384,7 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	// FundPool adds funds to the community pool that can be used on a extension
 	FundPool(ctx context.Context, in *MsgFundPool, opts ...grpc.CallOption) (*MsgFundPoolResponse, error)
-	// UpdateParams defines a governance operation for updating the x/mint module
+	// UpdateParams defines a governance operation for updating the x/rewards module
 	// parameters. The authority is hard-coded to the x/gov module account.
 	//
 	// Since: cosmos-sdk 0.47
@@ -432,7 +433,7 @@ func (c *msgClient) ChangeSchedule(ctx context.Context, in *MsgChangeSchedule, o
 type MsgServer interface {
 	// FundPool adds funds to the community pool that can be used on a extension
 	FundPool(context.Context, *MsgFundPool) (*MsgFundPoolResponse, error)
-	// UpdateParams defines a governance operation for updating the x/mint module
+	// UpdateParams defines a governance operation for updating the x/rewards module
 	// parameters. The authority is hard-coded to the x/gov module account.
 	//
 	// Since: cosmos-sdk 0.47

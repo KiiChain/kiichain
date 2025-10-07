@@ -6,6 +6,10 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+	io "io"
+	math "math"
+	math_bits "math/bits"
+
 	_ "github.com/cosmos/cosmos-proto"
 	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
@@ -17,9 +21,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	io "io"
-	math "math"
-	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -639,7 +640,7 @@ var xxx_messageInfo_MsgForceTransferResponse proto.InternalMessageInfo
 type MsgUpdateParams struct {
 	// authority is the address of the governance account.
 	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
-	// params defines the x/mint parameters to update.
+	// params defines the x/tokenfactory parameters to update.
 	//
 	// NOTE: All parameters must be supplied.
 	Params Params `protobuf:"bytes,2,opt,name=params,proto3" json:"params"`
@@ -837,7 +838,7 @@ type MsgClient interface {
 	ChangeAdmin(ctx context.Context, in *MsgChangeAdmin, opts ...grpc.CallOption) (*MsgChangeAdminResponse, error)
 	SetDenomMetadata(ctx context.Context, in *MsgSetDenomMetadata, opts ...grpc.CallOption) (*MsgSetDenomMetadataResponse, error)
 	ForceTransfer(ctx context.Context, in *MsgForceTransfer, opts ...grpc.CallOption) (*MsgForceTransferResponse, error)
-	// UpdateParams defines a governance operation for updating the x/mint module
+	// UpdateParams defines a governance operation for updating the x/tokenfactory module
 	// parameters. The authority is hard-coded to the x/gov module account.
 	//
 	// Since: cosmos-sdk 0.47
@@ -923,7 +924,7 @@ type MsgServer interface {
 	ChangeAdmin(context.Context, *MsgChangeAdmin) (*MsgChangeAdminResponse, error)
 	SetDenomMetadata(context.Context, *MsgSetDenomMetadata) (*MsgSetDenomMetadataResponse, error)
 	ForceTransfer(context.Context, *MsgForceTransfer) (*MsgForceTransferResponse, error)
-	// UpdateParams defines a governance operation for updating the x/mint module
+	// UpdateParams defines a governance operation for updating the x/tokenfactory module
 	// parameters. The authority is hard-coded to the x/gov module account.
 	//
 	// Since: cosmos-sdk 0.47

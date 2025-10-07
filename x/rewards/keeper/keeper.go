@@ -62,12 +62,12 @@ func NewKeeper(
 	return k
 }
 
-// GetAuthority returns the x/mint module's authority.
+// GetAuthority returns the x/rewards module's authority.
 func (k Keeper) GetAuthority() string {
 	return k.authority
 }
 
-// Logger returns a logger for the x/tokenfactory module
+// Logger returns a logger for the x/rewards module
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

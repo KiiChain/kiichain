@@ -4,6 +4,7 @@
 
 ### Fixes
 - Removed wasmd precompile due to vulnerabilities it had
+- Correct some doc strings mentioning mint module
 
 ## v5.0.0 — 2025-09-28
 
