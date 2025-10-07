@@ -4,6 +4,7 @@
 
 ### Fixes
 - Removed wasmd precompile due to vulnerabilities it had
+- Swapped default micro oracle coins to their normal denom
 - Correct some doc strings mentioning mint module
 
 ## v5.0.0 — 2025-09-28

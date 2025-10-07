@@ -142,7 +142,7 @@ func TestParams(t *testing.T) {
 	slashFraccion := math.LegacyNewDecWithPrec(1, 2)  // 0.01
 	slashwindow := uint64(1000)
 	minValPerWindow := math.LegacyNewDecWithPrec(1, 4) // 0.0001
-	whiteList := types.DenomList{{Name: utils.MicroKiiDenom}, {Name: utils.MicroAtomDenom}}
+	whiteList := types.DenomList{{Name: utils.KiiDenom}, {Name: utils.AtomDenom}}
 	lookbackDuration := uint64(3600)
 
 	params := types.Params{
@@ -351,17 +351,17 @@ func TestRemoveExcessFeeds(t *testing.T) {
 	// Aggregate voting targets
 	err := oracleKeeper.VoteTarget.Clear(ctx, nil)
 	require.NoError(t, err)
-	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroAtomDenom, types.Denom{Name: utils.MicroAtomDenom})
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.AtomDenom, types.Denom{Name: utils.AtomDenom})
 	require.NoError(t, err)
-	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroEthDenom, types.Denom{Name: utils.MicroEthDenom})
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.EthDenom, types.Denom{Name: utils.EthDenom})
 	require.NoError(t, err)
 
 	// Aggregate base exchange rate
-	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroAtomDenom, math.LegacyNewDec(1))
+	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.AtomDenom, math.LegacyNewDec(1))
 	require.NoError(t, err)
-	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroEthDenom, math.LegacyNewDec(2))
+	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.EthDenom, math.LegacyNewDec(2))
 	require.NoError(t, err)
-	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroKiiDenom, math.LegacyNewDec(3)) // extra denom
+	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.KiiDenom, math.LegacyNewDec(3)) // extra denom
 	require.NoError(t, err)
 
 	// remove excess
@@ -370,7 +370,7 @@ func TestRemoveExcessFeeds(t *testing.T) {
 
 	// Validate the successful erased of the extra denoms
 	err = oracleKeeper.ExchangeRate.Walk(ctx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
-		require.True(t, denom != utils.MicroKiiDenom)
+		require.True(t, denom != utils.KiiDenom)
 		return false, nil
 	})
 	require.NoError(t, err)
@@ -386,10 +386,10 @@ func TestVoteTargetLogic(t *testing.T) {
 	err := oracleKeeper.VoteTarget.Clear(ctx, nil)
 	require.NoError(t, err)
 	voteTarget := map[string]types.Denom{
-		utils.MicroKiiDenom:  {Name: utils.MicroKiiDenom},
-		utils.MicroEthDenom:  {Name: utils.MicroEthDenom},
-		utils.MicroUsdcDenom: {Name: utils.MicroUsdcDenom},
-		utils.MicroAtomDenom: {Name: utils.MicroAtomDenom},
+		utils.KiiDenom:  {Name: utils.KiiDenom},
+		utils.EthDenom:  {Name: utils.EthDenom},
+		utils.UsdcDenom: {Name: utils.UsdcDenom},
+		utils.AtomDenom: {Name: utils.AtomDenom},
 	}
 
 	for denom := range voteTarget {
@@ -434,8 +434,8 @@ func TestPriceSnapshotLogic(t *testing.T) {
 		LastUpdate:          math.NewInt(2),
 		LastUpdateTimestamp: 2,
 	}
-	snapshotItem1 := types.NewPriceSnapshotItem(utils.MicroKiiDenom, exchangeRate1)
-	snapshotItem2 := types.NewPriceSnapshotItem(utils.MicroEthDenom, exchangeRate2)
+	snapshotItem1 := types.NewPriceSnapshotItem(utils.KiiDenom, exchangeRate1)
+	snapshotItem2 := types.NewPriceSnapshotItem(utils.EthDenom, exchangeRate2)
 	snapshot1 := types.NewPriceSnapshot(1, types.PriceSnapshotItems{snapshotItem1, snapshotItem1})
 	snapshot2 := types.NewPriceSnapshot(2, types.PriceSnapshotItems{snapshotItem2, snapshotItem2})
 
@@ -498,8 +498,8 @@ func TestAddPriceSnapshot(t *testing.T) {
 		LastUpdate:          math.NewInt(2),
 		LastUpdateTimestamp: 2,
 	}
-	snapshotItem1 := types.NewPriceSnapshotItem(utils.MicroKiiDenom, exchangeRate1)
-	snapshotItem2 := types.NewPriceSnapshotItem(utils.MicroEthDenom, exchangeRate2)
+	snapshotItem1 := types.NewPriceSnapshotItem(utils.KiiDenom, exchangeRate1)
+	snapshotItem2 := types.NewPriceSnapshotItem(utils.EthDenom, exchangeRate2)
 	snapshot1 := types.NewPriceSnapshot(1, types.PriceSnapshotItems{snapshotItem1, snapshotItem2})
 	snapshot2 := types.NewPriceSnapshot(2, types.PriceSnapshotItems{snapshotItem1, snapshotItem2})
 
@@ -526,7 +526,7 @@ func TestAddPriceSnapshot(t *testing.T) {
 		LastUpdate:          math.NewInt(4),
 		LastUpdateTimestamp: 3,
 	}
-	snapshotItem3 := types.NewPriceSnapshotItem(utils.MicroKiiDenom, exchangeRate3)
+	snapshotItem3 := types.NewPriceSnapshotItem(utils.KiiDenom, exchangeRate3)
 	snapshot3 := types.NewPriceSnapshot(1000, types.PriceSnapshotItems{snapshotItem1, snapshotItem2, snapshotItem3})
 
 	// Add snapshots (the function will delete the snapshot 1 and 2)
@@ -558,9 +558,9 @@ func TestClearVoteTargets(t *testing.T) {
 	require.NoError(t, err)
 
 	// Aggregate voting targets
-	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroAtomDenom, types.Denom{Name: utils.MicroAtomDenom})
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.AtomDenom, types.Denom{Name: utils.AtomDenom})
 	require.NoError(t, err)
-	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroEthDenom, types.Denom{Name: utils.MicroEthDenom})
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.EthDenom, types.Denom{Name: utils.EthDenom})
 	require.NoError(t, err)
 
 	// Validate the voting target were successfully added

@@ -168,7 +168,7 @@ func (s *OraclePrecompileTestSuite) TestGetTwaps() {
 		SnapshotTimestamp: 2,
 		PriceSnapshotItems: []types.PriceSnapshotItem{
 			{
-				Denom: "uusdc",
+				Denom: "usdc",
 				OracleExchangeRate: types.OracleExchangeRate{
 					ExchangeRate:        math.LegacyMustNewDecFromStr("0.5"),
 					LastUpdate:          math.NewIntFromUint64(1000000),
@@ -190,7 +190,7 @@ func (s *OraclePrecompileTestSuite) TestGetTwaps() {
 			name: "valid query - get twaps",
 			args: []any{big.NewInt(2)},
 			expValue: []TwapsResponse{
-				{Denom: "uusdc", Twap: "0.500000000000000000"},
+				{Denom: "usdc", Twap: "0.500000000000000000"},
 			},
 		},
 		{
