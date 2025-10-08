@@ -1,7 +1,12 @@
 package wasmd_test
 
 import (
-	"encoding/hex"
+	"bytes"
+
+	"github.com/stretchr/testify/require"
+
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/testutil"
@@ -108,10 +113,18 @@ func (s *WasmdPrecompileTestSuite) TestUnsafeLogging() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
+			// Start a new logger with buffer to capture logs
+			var buf bytes.Buffer
+			testLogger := log.NewLogger(&buf)
+
+			// Add to the context
+			ctx := s.Ctx.WithLogger(testLogger)
+
+			// Start the contract
 			stateDB := s.GetStateDB()
 			contract, ctx := testutil.NewPrecompileContract(
 				s.T(),
-				s.Ctx,
+				ctx,
 				account.Addr,
 				s.Precompile.Address(),
 				200000,
@@ -127,15 +140,17 @@ func (s *WasmdPrecompileTestSuite) TestUnsafeLogging() {
 			// The issue is that msg.Msg is logged as-is, which could expose binary data
 			_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
 
+			// Make the buf into a string for inspection
+			logOutput := buf.String()
+
+			// Logs should never surpass a reasonable length
+			s.Require().Less(len(logOutput), 200, "Logs should be truncated to avoid overflow")
+
 			// We expect these to fail because of invalid CosmWasm messages
 			// But the real issue is that they get logged with raw binary
 			if tc.expectError {
 				s.Require().Error(err, tc.description)
 			}
-
-			// Log what would be logged unsafely
-			s.T().Logf("Binary data logged unsafely: %v", tc.msg)
-			s.T().Logf("Safe hex encoding: %s...", hex.EncodeToString(tc.msg[:min(len(tc.msg), 32)]))
 		})
 	}
 }
@@ -148,27 +163,23 @@ func (s *WasmdPrecompileTestSuite) TestGasHandling() {
 	account := s.keyring.GetKey(0)
 
 	testCases := []struct {
-		name        string
-		gasLimit    uint64
-		expectError bool
-		errContains string
+		name              string
+		gasLimit          uint64
+		shouldPanicOutGas bool
 	}{
 		{
-			name:        "very low gas limit",
-			gasLimit:    1000,
-			expectError: true,
-			errContains: "out of gas",
+			name:              "zero gas limit",
+			gasLimit:          0,
+			shouldPanicOutGas: true,
 		},
 		{
-			name:        "adequate gas limit",
-			gasLimit:    200000,
-			expectError: false,
+			name:              "very low gas limit",
+			gasLimit:          1000,
+			shouldPanicOutGas: true,
 		},
 		{
-			name:        "zero gas limit",
-			gasLimit:    0,
-			expectError: true,
-			errContains: "out of gas",
+			name:     "adequate gas limit",
+			gasLimit: 200000,
 		},
 	}
 
@@ -189,15 +200,18 @@ func (s *WasmdPrecompileTestSuite) TestGasHandling() {
 				[]cmn.Coin{},
 			}
 
-			_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+			// Set the gas limit on the context
+			ctx = ctx.WithGasMeter(storetypes.NewGasMeter(tc.gasLimit))
 
-			if tc.expectError {
-				s.Require().Error(err, "Should fail with gas limit %d", tc.gasLimit)
-				if tc.errContains != "" {
-					s.Require().Contains(err.Error(), tc.errContains)
-				}
+			if tc.shouldPanicOutGas {
+				require.Panics(s.T(), func() {
+					// The call panics if out of gas
+					_, _ = s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+				}, "Expected out-of-gas panic for %s", tc.name)
 			} else {
-				s.Require().NoError(err, "Should succeed with gas limit %d", tc.gasLimit)
+				// Should not panic
+				_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+				s.Require().NoError(err, "Should succeed with adequate gas for %s", tc.name)
 			}
 		})
 	}
@@ -304,6 +318,7 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 			s.T().Log("  3. Could drain funds or corrupt state")
 			s.T().Log("")
 			s.T().Log("IMPACT: HIGH - Cross-contract call exploitation possible")
+			require.Fail(s.T(), "Reentrancy vulnerability exists")
 		}
 	})
 
@@ -340,42 +355,6 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 			s.T().Log("    This could lead to state inconsistencies")
 		}
 	})
-
-	s.Run("verify_reentrancy_guard_implementation", func() {
-		s.T().Log("")
-		s.T().Log("REENTRANCY GUARD ANALYSIS")
-		s.T().Log("════════════════════════════")
-
-		// Check the code for common reentrancy protection patterns
-		s.T().Log("Checking for protection mechanisms:")
-		s.T().Log("  [ ] Mutex lock before execution")
-		s.T().Log("  [ ] Reentrancy flag/counter")
-		s.T().Log("  [ ] Call depth tracking")
-		s.T().Log("  [ ] State commitment before callbacks")
-		s.T().Log("")
-		s.T().Log("⚠️  RECOMMENDATION:")
-		s.T().Log("    Add explicit reentrancy guard using one of:")
-		s.T().Log("    1. sync.Mutex to prevent concurrent execution")
-		s.T().Log("    2. execution status flag (locked/unlocked)")
-		s.T().Log("    3. call depth counter with maximum limit")
-		s.T().Log("")
-		s.T().Log("EXAMPLE IMPLEMENTATION:")
-		s.T().Log("  type Precompile struct {")
-		s.T().Log("      mu            sync.Mutex")
-		s.T().Log("      executing     bool")
-		s.T().Log("  }")
-		s.T().Log("")
-		s.T().Log("  func (p *Precompile) Execute(...) {")
-		s.T().Log("      p.mu.Lock()")
-		s.T().Log("      defer p.mu.Unlock()")
-		s.T().Log("      if p.executing {")
-		s.T().Log("          return nil, errors.New(\"reentrant call\")")
-		s.T().Log("      }")
-		s.T().Log("      p.executing = true")
-		s.T().Log("      defer func() { p.executing = false }()")
-		s.T().Log("      // ... rest of execution")
-		s.T().Log("  }")
-	})
 }
 
 // TestKeeperReference tests that the correct keeper is referenced
@@ -407,11 +386,4 @@ func (s *WasmdPrecompileTestSuite) TestKeeperReference() {
 		_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
 		s.Require().NoError(err, "Keeper should work correctly without typo")
 	})
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

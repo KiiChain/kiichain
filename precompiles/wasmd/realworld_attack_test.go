@@ -1,18 +1,23 @@
 package wasmd_test
 
 import (
-	"encoding/hex"
 	"encoding/json"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
 	storetypes "cosmossdk.io/store/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/testutil"
 
 	wasmdprecompile "github.com/kiichain/kiichain/v5/precompiles/wasmd"
 )
+
+// Note:
+// The test TestRealWorldDataLeakage was removed because its causer was removed
+// The test TestCompareRealWorldVsUnitTest was removed because it was redundant
 
 // TestRealWorldReentrancyAttack simulates a real-world attack scenario
 // This test is closer to what would happen on an actual running chain
@@ -36,8 +41,10 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 		// Simulate funding the victim contract (like a DeFi pool)
 		initialFunds := sdk.NewCoins(sdk.NewInt64Coin("ukii", 10000000))
 		victimAddr, _ := sdk.AccAddressFromBech32(victimContract)
-		s.App.BankKeeper.MintCoins(s.Ctx, "evm", initialFunds)
-		s.App.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, "evm", victimAddr, initialFunds)
+		err := s.App.BankKeeper.MintCoins(s.Ctx, "evm", initialFunds)
+		require.NoError(s.T(), err)
+		err = s.App.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, "evm", victimAddr, initialFunds)
+		require.NoError(s.T(), err)
 
 		victimBalance := s.App.BankKeeper.GetBalance(s.Ctx, victimAddr, "ukii")
 		s.T().Logf("✓ Victim contract funded: %s", victimBalance.String())
@@ -90,11 +97,14 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 
 			_, err := s.Precompile.Execute(ctx, attacker.Addr, contract, stateDB, &method, args)
 
-			if err == nil {
+			// Analyze result
+			switch {
+			case err == nil:
 				successfulReentries++
 				s.T().Logf("    ⚠️  ALLOWED - Execution %d succeeded", attempt)
 				s.T().Logf("       (In real DeFi: this would be withdrawal #%d)", attempt)
-			} else if err.Error() == "reentrant call" || err.Error() == "reentrancy detected" {
+			//nolint:goconst
+			case err.Error() == "reentrant call" || err.Error() == "reentrancy detected":
 				s.T().Logf("    ✓ BLOCKED - Reentrancy guard detected: %v", err)
 				s.T().Log("")
 				s.T().Log("═══════════════════════════════════════════════")
@@ -102,7 +112,7 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 				s.T().Log("   Guard correctly blocked second execution")
 				s.T().Log("═══════════════════════════════════════════════")
 				return // Exit early - guard is working
-			} else {
+			default:
 				s.T().Logf("    ℹ️  Failed: %v", err)
 			}
 		}
@@ -117,7 +127,9 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 		s.T().Logf("Final Balance:    %s", finalBalance.String())
 		s.T().Logf("Successful Reentries: %d/%d", successfulReentries, attackAttempts)
 
-		if successfulReentries >= 2 {
+		// Analyze results
+		switch {
+		case successfulReentries >= 2:
 			s.T().Log("")
 			s.T().Log("════════════════════════════════════════════════")
 			s.T().Log("❌ CRITICAL: REENTRANCY VULNERABILITY CONFIRMED!")
@@ -143,10 +155,10 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 			s.T().Log("  👥 All users affected")
 			s.T().Log("")
 			require.Fail(s.T(), "REENTRANCY VULNERABILITY EXISTS")
-		} else if successfulReentries == 1 {
+		case successfulReentries == 1:
 			s.T().Log("")
 			s.T().Log("✅ Only one execution succeeded - Guard may be present")
-		} else {
+		default:
 			s.T().Log("")
 			s.T().Log("ℹ️  No executions succeeded (contract method issue)")
 			s.T().Log("   Note: Reentrancy vulnerability still tested in other test suites")
@@ -169,15 +181,20 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldGasExhaustion() {
 		method := s.Precompile.Methods[wasmdprecompile.ExecuteMethod]
 		attacker := s.keyring.GetKey(1)
 
+		expectedUsage := uint64(68137)
+
 		gasLimits := []struct {
-			name              string
-			gasLimit          uint64
-			shouldPanicOutGas bool
+			name       string
+			gasLimit   uint64
+			panicsWith interface{}
 		}{
-			{"Minimal Gas (1)", 1, true},
-			{"Low Gas (100)", 100, true},
-			{"Medium Gas (10K)", 10000, true},
-			{"Adequate Gas (200K)", 200000, false},
+			{"Minimal Gas (1)", 1, storetypes.ErrorOutOfGas{Descriptor: "ReadFlat"}},
+			{"Low Gas (100)", 100, storetypes.ErrorOutOfGas{Descriptor: "ReadFlat"}},
+			{"Medium Gas (10K)", 10000, storetypes.ErrorOutOfGas{Descriptor: "Loading CosmWasm module: execute"}},
+			{"Medium Gas (20K)", 20000, storetypes.ErrorOutOfGas{Descriptor: "Loading CosmWasm module: execute"}},
+			{"10 less than usage", expectedUsage - 10, storetypes.ErrorOutOfGas{Descriptor: "Custom contract event attributes"}},
+			{"10 more than usage", expectedUsage + 10, nil},
+			{"Adequate Gas (200K)", 200000, nil},
 		}
 
 		s.T().Log("Testing gas limits like on real chain:")
@@ -185,7 +202,6 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldGasExhaustion() {
 
 		// Run the tests for each gas limit
 		for _, test := range gasLimits {
-
 			stateDB := s.GetStateDB()
 			contract, ctx := testutil.NewPrecompileContract(
 				s.T(),
@@ -207,153 +223,32 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldGasExhaustion() {
 			// Measure actual gas consumed (like real chain would)
 			gasStart := ctx.GasMeter().GasConsumed()
 
-			if test.shouldPanicOutGas {
-				require.Panics(s.T(), func() {
+			if test.panicsWith != nil {
+				require.PanicsWithValue(s.T(), test.panicsWith, func() {
 					// The call panics if out of gas
 					_, _ = s.Precompile.Execute(ctx, attacker.Addr, contract, stateDB, &method, args)
-				}, "Expected out-of-gas panic for %s", test.name)
+				})
 				s.T().Logf("  %s: ✓ Rejected - Out of Gas panic", test.name)
 				continue
-			} else {
-				// The call panics if out of gas
-				_, err := s.Precompile.Execute(ctx, attacker.Addr, contract, stateDB, &method, args)
-				require.NoError(s.T(), err, "Unexpected error for %s", test.name)
-				s.T().Logf("  %s: ✓ Allowed - Executed successfully", test.name)
 			}
+
+			// The call panics if out of gas
+			_, err := s.Precompile.Execute(ctx, attacker.Addr, contract, stateDB, &method, args)
+			require.NoError(s.T(), err)
+			s.T().Logf("  %s: ✓ Allowed - Executed successfully", test.name)
 
 			// Check gas used
 			gasUsed := ctx.GasMeter().GasConsumed() - gasStart
+			// Log the gas used
+			s.T().Logf("    → Gas Used: %d / Limit: %d", gasUsed, test.gasLimit)
 
 			// Final gas should be less than limit
 			require.Less(s.T(), gasUsed, test.gasLimit, "Gas used should be less than limit for %s", test.name)
 			// But should be a significant portion (indicating real work done)
 			require.Greater(s.T(), gasUsed, test.gasLimit/10, "Gas used should be significant for %s", test.name)
+
 		}
 
-		s.T().Log("")
-	})
-}
-
-// TestRealWorldDataLeakage simulates log-based data leakage
-func (s *WasmdPrecompileTestSuite) TestRealWorldDataLeakage() {
-	s.Run("simulate_real_chain_log_exposure", func() {
-		s.T().Log("")
-		s.T().Log("════════════════════════════════════════════════════════════")
-		s.T().Log("  REAL WORLD DATA LEAKAGE SIMULATION")
-		s.T().Log("  Simulating how logs appear on block explorer")
-		s.T().Log("════════════════════════════════════════════════════════════")
-		s.T().Log("")
-
-		contractAddr := s.instantiateContract()
-		method := s.Precompile.Methods[wasmdprecompile.ExecuteMethod]
-		user := s.keyring.GetKey(0)
-
-		// Simulate sensitive data that users might send
-		sensitivePayloads := []struct {
-			name string
-			data []byte
-		}{
-			{
-				name: "Private Key (example)",
-				data: []byte(`{"transfer": {"recipient": "kii1...", "key": "0xabcd1234..."}}`),
-			},
-			{
-				name: "Personal Data",
-				data: []byte(`{"update_profile": {"ssn": "123-45-6789", "email": "user@example.com"}}`),
-			},
-			{
-				name: "Binary Credentials",
-				data: []byte{0x00, 0x01, 0x02, 0xFF, 0xFE}, // Would be API keys, etc
-			},
-		}
-
-		s.T().Log("Simulating how data appears in real chain logs:")
-		s.T().Log("───────────────────────────────────────────────")
-		s.T().Log("")
-
-		for _, payload := range sensitivePayloads {
-			stateDB := s.GetStateDB()
-			contract, ctx := testutil.NewPrecompileContract(
-				s.T(),
-				s.Ctx,
-				user.Addr,
-				s.Precompile.Address(),
-				200000,
-			)
-
-			args := []any{
-				contractAddr,
-				payload.data,
-				[]cmn.Coin{},
-			}
-
-			s.T().Logf("Payload: %s", payload.name)
-
-			// This would appear in chain logs
-			s.Precompile.Execute(ctx, user.Addr, contract, stateDB, &method, args)
-
-			// Show how it appears in logs (UNSAFE)
-			s.T().Logf("  Logged as (current): %v", payload.data)
-			s.T().Logf("  Would appear on block explorer: %s", string(payload.data))
-
-			// Show how it SHOULD be logged (SAFE)
-			safeLog := hex.EncodeToString(payload.data)
-			if len(safeLog) > 64 {
-				safeLog = safeLog[:64] + "... (truncated)"
-			}
-			s.T().Logf("  Should be logged as:  %s", safeLog)
-			s.T().Log("")
-		}
-
-		s.T().Log("⚠️  IMPACT ON REAL CHAIN:")
-		s.T().Log("   - All transaction logs are public")
-		s.T().Log("   - Block explorers display this data")
-		s.T().Log("   - Anyone can read historical logs")
-		s.T().Log("   - Sensitive data permanently exposed")
-		s.T().Log("")
-	})
-}
-
-// TestCompareRealWorldVsUnitTest shows the differences
-func (s *WasmdPrecompileTestSuite) TestCompareRealWorldVsUnitTest() {
-	s.Run("comparison_real_vs_test", func() {
-		s.T().Log("")
-		s.T().Log("════════════════════════════════════════════════════════════")
-		s.T().Log("  REAL WORLD vs UNIT TEST COMPARISON")
-		s.T().Log("════════════════════════════════════════════════════════════")
-		s.T().Log("")
-
-		s.T().Log("WHAT'S THE SAME:")
-		s.T().Log("  ✓ Precompile code execution path")
-		s.T().Log("  ✓ WasmKeeper interactions")
-		s.T().Log("  ✓ State changes and validation")
-		s.T().Log("  ✓ Error handling logic")
-		s.T().Log("  ✓ Reentrancy vulnerability exists")
-		s.T().Log("")
-
-		s.T().Log("WHAT'S DIFFERENT:")
-		s.T().Log("  Real Chain                    Unit Test")
-		s.T().Log("  ─────────────────────────────────────────────────────")
-		s.T().Log("  Real network latency          Instant execution")
-		s.T().Log("  Consensus mechanism           Mock consensus")
-		s.T().Log("  Multiple validators           Single node")
-		s.T().Log("  Real gas costs                Simulated gas")
-		s.T().Log("  Actual transactions           Mock transactions")
-		s.T().Log("  Block production              Instant blocks")
-		s.T().Log("  Real user wallets             Test accounts")
-		s.T().Log("")
-
-		s.T().Log("VULNERABILITY CONFIDENCE:")
-		s.T().Log("  If vulnerable in tests → 99.9% vulnerable in production")
-		s.T().Log("  Reason: Same code, same execution path")
-		s.T().Log("")
-
-		s.T().Log("TO TEST ON REAL CHAIN:")
-		s.T().Log("  1. Deploy to KiiChain testnet")
-		s.T().Log("  2. Get test tokens from faucet")
-		s.T().Log("  3. Deploy malicious contract")
-		s.T().Log("  4. Execute attack transaction")
-		s.T().Log("  5. Verify reentrancy succeeds")
 		s.T().Log("")
 	})
 }
