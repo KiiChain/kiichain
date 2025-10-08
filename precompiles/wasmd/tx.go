@@ -21,10 +21,8 @@ const (
 	ExecuteMethod = "execute"
 )
 
-var (
-	// reentrancyPerTargetNs is the namespace for the reentrancy lock per target contract
-	reentrancyPerTargetNs = []byte("wasmd.precompile.reentrancy.lock:")
-)
+// reentrancyPerTargetNs is the namespace for the reentrancy lock per target contract
+var reentrancyPerTargetNs = []byte("wasmd.precompile.reentrancy.lock:")
 
 // Instantiate executes wasmd instantiate from the precompile
 func (p Precompile) Instantiate(
@@ -86,7 +84,7 @@ func (p Precompile) Execute(
 	}
 
 	// Ensure the reentrancy lock
-	if err := p.ensureLock(ctx, origin, contract, stateDB, method); err != nil {
+	if err := p.ensureLock(origin, stateDB, method); err != nil {
 		return nil, err
 	}
 
@@ -126,9 +124,7 @@ func (p Precompile) Execute(
 // This is done under a transient key under Cosmos SDK's stateDB
 // The lock is released at the end of the transaction by Cosmos SDK itself
 func (p Precompile) ensureLock(
-	ctx sdk.Context,
 	origin common.Address,
-	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
 ) error {
@@ -160,7 +156,7 @@ func buildReentrancyLockKey(
 	binary.BigEndian.PutUint64(nonceBytes[:], originNonce)
 
 	return crypto.Keccak256Hash(
-		[]byte(reentrancyPerTargetNs),
+		reentrancyPerTargetNs,
 		precompileAddr.Bytes(),
 		origin.Bytes(),
 		nonceBytes[:],
