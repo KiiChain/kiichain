@@ -95,8 +95,8 @@ func (p Precompile) Execute(
 		"tx called",
 		"method", method.Name,
 		"args", fmt.Sprintf(
-			"{ contract: %s, msg: %s, sender: %s }",
-			msg.Contract, msg.Msg, msg.Sender,
+			"{ contract: %s, sender: %s }",
+			msg.Contract, msg.Sender,
 		),
 	)
 
