@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
+	storetypes "cosmossdk.io/store/types"
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/testutil"
 
@@ -169,20 +170,22 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldGasExhaustion() {
 		attacker := s.keyring.GetKey(1)
 
 		gasLimits := []struct {
-			name     string
-			gasLimit uint64
-			expected string
+			name              string
+			gasLimit          uint64
+			shouldPanicOutGas bool
 		}{
-			{"Minimal Gas (1)", 1, "should reject"},
-			{"Low Gas (100)", 100, "should reject"},
-			{"Medium Gas (10K)", 10000, "should reject"},
-			{"Adequate Gas (200K)", 200000, "should succeed"},
+			{"Minimal Gas (1)", 1, true},
+			{"Low Gas (100)", 100, true},
+			{"Medium Gas (10K)", 10000, true},
+			{"Adequate Gas (200K)", 200000, false},
 		}
 
 		s.T().Log("Testing gas limits like on real chain:")
 		s.T().Log("───────────────────────────────────────────────")
 
+		// Run the tests for each gas limit
 		for _, test := range gasLimits {
+
 			stateDB := s.GetStateDB()
 			contract, ctx := testutil.NewPrecompileContract(
 				s.T(),
@@ -198,23 +201,33 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldGasExhaustion() {
 				[]cmn.Coin{},
 			}
 
+			// Set the gas limit on the context
+			ctx = ctx.WithGasMeter(storetypes.NewGasMeter(test.gasLimit))
+
 			// Measure actual gas consumed (like real chain would)
 			gasStart := ctx.GasMeter().GasConsumed()
 
-			_, err := s.Precompile.Execute(ctx, attacker.Addr, contract, stateDB, &method, args)
+			if test.shouldPanicOutGas {
+				require.Panics(s.T(), func() {
+					// The call panics if out of gas
+					_, _ = s.Precompile.Execute(ctx, attacker.Addr, contract, stateDB, &method, args)
+				}, "Expected out-of-gas panic for %s", test.name)
+				s.T().Logf("  %s: ✓ Rejected - Out of Gas panic", test.name)
+				continue
+			} else {
+				// The call panics if out of gas
+				_, err := s.Precompile.Execute(ctx, attacker.Addr, contract, stateDB, &method, args)
+				require.NoError(s.T(), err, "Unexpected error for %s", test.name)
+				s.T().Logf("  %s: ✓ Allowed - Executed successfully", test.name)
+			}
 
+			// Check gas used
 			gasUsed := ctx.GasMeter().GasConsumed() - gasStart
 
-			if err != nil {
-				s.T().Logf("  %s: ✓ Rejected - %v", test.name, err)
-			} else {
-				s.T().Logf("  %s: ⚠️  Allowed (used %d gas, limit %d)",
-					test.name, gasUsed, test.gasLimit)
-
-				if test.gasLimit < 10000 {
-					s.T().Logf("    ⚠️  VULNERABILITY: Should have rejected low gas!")
-				}
-			}
+			// Final gas should be less than limit
+			require.Less(s.T(), gasUsed, test.gasLimit, "Gas used should be less than limit for %s", test.name)
+			// But should be a significant portion (indicating real work done)
+			require.Greater(s.T(), gasUsed, test.gasLimit/10, "Gas used should be significant for %s", test.name)
 		}
 
 		s.T().Log("")
