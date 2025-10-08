@@ -1,11 +1,13 @@
 package wasmd
 
 import (
+	"encoding/binary"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/crypto"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -17,6 +19,11 @@ const (
 	InstantiateMethod = "instantiate"
 	// ExecuteMethod is the method name for executing a contract
 	ExecuteMethod = "execute"
+)
+
+var (
+	// reentrancyPerTargetNs is the namespace for the reentrancy lock per target contract
+	reentrancyPerTargetNs = []byte("wasmd.precompile.reentrancy.lock:")
 )
 
 // Instantiate executes wasmd instantiate from the precompile
@@ -78,6 +85,11 @@ func (p Precompile) Execute(
 		return nil, err
 	}
 
+	// Ensure the reentrancy lock
+	if err := p.ensureLock(ctx, origin, contract, stateDB, method); err != nil {
+		return nil, err
+	}
+
 	// Log the call
 	p.Logger(ctx).Debug(
 		"tx called",
@@ -105,4 +117,52 @@ func (p Precompile) Execute(
 
 	// Return the response
 	return method.Outputs.Pack(true)
+}
+
+// ensureLock ensures that a reentrancy lock is set and not broken for the target contract
+// Reentrance lock is built using: precompile address, origin and origin nonce
+//   - Args are avoid to build the lock key, since the attacker may manipulate it
+//
+// This is done under a transient key under Cosmos SDK's stateDB
+// The lock is released at the end of the transaction by Cosmos SDK itself
+func (p Precompile) ensureLock(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+) error {
+	// Build the lock key
+	lockKey := buildReentrancyLockKey(p.Address(), origin, stateDB.GetNonce(origin))
+
+	// Check if already locked
+	if stateDB.GetTransientState(p.Address(), lockKey) == common.BytesToHash([]byte{1}) {
+		return fmt.Errorf(
+			"reentrancy detected in precompile %s, method %s",
+			p.Address().Hex(), method.Name,
+		)
+	}
+
+	// Set lock
+	stateDB.SetTransientState(p.Address(), lockKey, common.BytesToHash([]byte{1}))
+	return nil
+}
+
+// buildReentrancyLockKey builds a deterministic lock key:
+//
+//	H( "wasmd.precompile.reentrancy.lock:", precompileAddr, originAddr, originNonce[8] )
+func buildReentrancyLockKey(
+	precompileAddr common.Address,
+	origin common.Address,
+	originNonce uint64,
+) common.Hash {
+	var nonceBytes [8]byte
+	binary.BigEndian.PutUint64(nonceBytes[:], originNonce)
+
+	return crypto.Keccak256Hash(
+		[]byte(reentrancyPerTargetNs),
+		precompileAddr.Bytes(),
+		origin.Bytes(),
+		nonceBytes[:],
+	)
 }
