@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/testutil"
@@ -60,8 +61,8 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 		attackAttempts := 5
 		successfulReentries := 0
 
+		stateDB := s.GetStateDB()
 		for attempt := 1; attempt <= attackAttempts; attempt++ {
-			stateDB := s.GetStateDB()
 			contract, ctx := testutil.NewPrecompileContract(
 				s.T(),
 				s.Ctx,
@@ -140,6 +141,7 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 			s.T().Log("  🔒 Funds irrecoverable once stolen")
 			s.T().Log("  👥 All users affected")
 			s.T().Log("")
+			require.Fail(s.T(), "REENTRANCY VULNERABILITY EXISTS")
 		} else if successfulReentries == 1 {
 			s.T().Log("")
 			s.T().Log("✅ Only one execution succeeded - Guard may be present")
