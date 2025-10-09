@@ -28,7 +28,7 @@ We are also using our own fork of cosmos/evm v0.4.1 with changes to fee collecti
 ### Config changes
 
 - IDs are uint64 instead of strings
-- We followed Mantrachain fetching of the chain ID at init. Most of the changes are found on [this file](https://github.com/KiiChain/kiichain/blob/feat/upgrade-v5/app/config.go)
+- We followed Mantrachain fetching of the chain ID at init. Most of the changes are found on [this file](https://github.com/KiiChain/kiichain/blob/main/app/config.go)
 
 ### App changes
 
