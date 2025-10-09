@@ -145,7 +145,6 @@ func (p Precompile) ensureLock(
 }
 
 // buildReentrancyLockKey builds a deterministic lock key:
-//
 //	H( "wasmd.precompile.reentrancy.lock:", precompileAddr, originAddr, originNonce[8] )
 func buildReentrancyLockKey(
 	precompileAddr common.Address,
