@@ -120,6 +120,7 @@ func (p Precompile) Execute(
 // ensureLock ensures that a reentrancy lock is set and not broken for the target contract
 // Reentrance lock is built using: precompile address, origin and origin nonce
 //   - Args are avoided to build the lock key, since the attacker may manipulate it
+//
 // This is done under a transient key under Cosmos SDK's stateDB
 // The lock is released at the end of the transaction by Cosmos SDK itself
 func (p Precompile) ensureLock(
@@ -144,6 +145,7 @@ func (p Precompile) ensureLock(
 }
 
 // buildReentrancyLockKey builds a deterministic lock key:
+//
 //	H( "wasmd.precompile.reentrancy.lock:", precompileAddr, originAddr, originNonce[8] )
 func buildReentrancyLockKey(
 	precompileAddr common.Address,
