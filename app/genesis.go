@@ -2,6 +2,10 @@ package kiichain
 
 import (
 	"encoding/json"
+
+	testconstants "github.com/cosmos/evm/testutil/constants"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 // The genesis state of the blockchain is represented here as a map of raw json
@@ -12,3 +16,27 @@ import (
 // the ModuleBasicManager which populates json from each BasicModule
 // object provided to it during init.
 type GenesisState map[string]json.RawMessage
+
+// NewEVMGenesisState returns the default genesis state for the EVM module.
+//
+// NOTE: for the example chain implementation we need to set the default EVM denomination,
+// enable ALL precompiles, and include default preinstalls.
+func NewEVMGenesisState() *evmtypes.GenesisState {
+	evmGenState := evmtypes.DefaultGenesisState()
+	evmGenState.Params.ActiveStaticPrecompiles = evmtypes.AvailableStaticPrecompiles
+	evmGenState.Preinstalls = evmtypes.DefaultPreinstalls
+
+	return evmGenState
+}
+
+// NewErc20GenesisState returns the default genesis state for the ERC20 module.
+//
+// NOTE: for the example chain implementation we are also adding a default token pair,
+// which is the base denomination of the chain (i.e. the WEVMOS contract).
+func NewErc20GenesisState() *erc20types.GenesisState {
+	erc20GenState := erc20types.DefaultGenesisState()
+	erc20GenState.TokenPairs = testconstants.ExampleTokenPairs
+	erc20GenState.NativePrecompiles = []string{testconstants.WEVMOSContractMainnet}
+
+	return erc20GenState
+}

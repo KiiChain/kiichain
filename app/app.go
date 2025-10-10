@@ -1,6 +1,7 @@
 package kiichain
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/fs"
@@ -559,6 +560,21 @@ func (app *KiichainApp) GetBaseApp() *baseapp.BaseApp {
 // GetTxConfig implements the TestingApp interface.
 func (app *KiichainApp) GetTxConfig() client.TxConfig {
 	return app.txConfig
+}
+
+// DefaultGenesis returns a default genesis from the registered ModuleBasics's.
+func (app *KiichainApp) DefaultGenesis() map[string]json.RawMessage {
+	genesis := app.ModuleBasics.DefaultGenesis(app.appCodec)
+
+	evmGenState := NewEVMGenesisState()
+	genesis[evmtypes.ModuleName] = app.appCodec.MustMarshalJSON(evmGenState)
+
+	// NOTE: for the example chain implementation we are also adding a default token pair,
+	// which is the base denomination of the chain (i.e. the WEVMOS contract)
+	erc20GenState := NewErc20GenesisState()
+	genesis[erc20types.ModuleName] = app.appCodec.MustMarshalJSON(erc20GenState)
+
+	return genesis
 }
 
 // GetTestGovKeeper implements the TestingApp interface.

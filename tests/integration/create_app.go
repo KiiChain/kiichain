@@ -21,7 +21,7 @@ import (
 
 // CreateKiichain creates a kiichain app for regular integration tests (non-mempool)
 // This version uses a noop mempool to avoid state issues during transaction processing
-func CreateKiichain(chainID string, customBaseAppOptions ...func(*baseapp.BaseApp)) evm.EvmApp {
+func CreateKiichain(chainID string, _ uint64, customBaseAppOptions ...func(*baseapp.BaseApp)) evm.EvmApp {
 	defaultNodeHome, err := clienthelpers.GetNodeHomeDirectory(".kiichain")
 	if err != nil {
 		panic(err)
@@ -46,7 +46,7 @@ func CreateKiichain(chainID string, customBaseAppOptions ...func(*baseapp.BaseAp
 }
 
 // SetupKiichain initializes a new kiichain app with default genesis state.
-// It is used in IBC integration tests to create a new evmd app instance.
+// It is used in IBC integration tests to create a new kiichain app instance.
 func SetupKiichain() (ibctesting.TestingApp, map[string]json.RawMessage) {
 	defaultNodeHome, err := clienthelpers.GetNodeHomeDirectory(".kiichain")
 	if err != nil {
