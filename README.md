@@ -112,20 +112,6 @@ source ~/.zshrc  # or restart terminal
 
 ## Getting Started
 
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/KiiChain/kiichain.git
-cd kiichain
-
-# Build and install
-make install
-
-# Verify installation
-kiichaind version
-```
-
 ### Running a Node
 
 Follow the official [Step-by-Step Guide](https://docs.kiiglobal.io/docs/validate-the-network/run-a-validator-full-node/step-by-step-guide) for joining Testnet Oro:
@@ -146,8 +132,7 @@ kiichaind init $NODE_MONIKER --chain-id $CHAIN_ID --home $NODE_HOME
 sed -i.bak "s/^persistent_peers = \"\"/persistent_peers = \"$PERSISTENT_PEERS\"/" $NODE_HOME/config/config.toml
 
 # Set minimum gas prices
-sed -i -e "/minimum-gas-prices =/ s^= .*^= \"$MINIMUM_GAS_PRICES\"^" $NODE_HOME/config/app.toml
-
+sed -i.bak -e "/minimum-gas-prices =/ s^= .*^= \"$MINIMUM_GAS_PRICES\"^" "$NODE_HOME/config/app.toml"
 # Download official genesis file
 curl -L $GENESIS_URL -o genesis.json
 mv genesis.json $NODE_HOME/config/genesis.json
@@ -186,6 +171,67 @@ kiichaind genesis collect-gentxs
 # Validate genesis file
 kiichaind genesis validate-genesis
 ```
+## Quick-Start Guide for Developers
+
+Get up and running with KiiChain in minutes. This guide covers the essentials for setting up a development environment.
+
+### Prerequisites
+- **Go**: Version 1.23.6+ ([Install Guide](https://golang.org/dl/))
+- **Git**: For cloning the repository
+- **GNU Make**: Recommended (required for the `make install` path below)
+Check your setup:
+```bash
+go version  # Should show 1.23.6+
+git --version
+```
+
+### Setup Steps
+
+1) Clone the repository
+```bash
+git clone https://github.com/KiiChain/kiichain.git
+cd kiichain
+```
+
+2) Build (or install)
+
+Using GNU Make (recommended, requires GNU Make):
+
+```bash
+make build    # Builds the kiichaind binary (often at ./build/kiichaind)
+```
+If your Makefile includes an 'install' target:
+```bash
+make install  # Installs kiichaind into your GOPATH/bin (or as defined by the Makefile)
+```
+- Or without GNU Make (Go-only):
+```bash
+# Respect GOBIN if set; otherwise fall back to GOPATH/bin
+go build -o "${GOBIN:-$(go env GOPATH)/bin}/kiichaind" ./cmd/kiichaind
+```
+
+3) Verify installation
+Add Go bin to PATH (temporary) and verify
+ ```bash
+export PATH="$HOME/go/bin:$PATH"
+which kiichaind  # Should print a path if the binary is in PATH
+kiichaind version  # Should print the binary version
+```
+4) Persist PATH to your shell profile
+```bash
+# Persist for future shells:
+echo 'export PATH="$HOME/go/bin:$PATH"' >> ~/.zshrc  # or ~/.bashrc
+source ~/.zshrc  # or source ~/.bashrc
+```
+
+### Troubleshooting (quick)
+- "Minimum Go version 1.23 required" → Upgrade to Go 1.23.6+
+- "command not found: kiichaind" → Ensure $HOME/go/bin is in PATH (see above)
+- Gas price error → Set minimum gas prices in app.toml:
+```bash
+sed -i.bak -e '/minimum-gas-prices =/ s^= .*^= "1000000000akii"^' ~/.kiichain/config/app.toml
+```
+- macOS `curl` alternative: If `wget` is unavailable, use `curl -L <URL> -o filename` to download files.
 
 For detailed setup instructions, visit our [documentation](https://docs.kiiglobal.io/docs).
 
@@ -214,8 +260,7 @@ kiichaind version                   # Should show version like v3.0.0-5-g239012d
 
 ```bash
 export PATH="$HOME/go/bin:$PATH"                                                                              # Fix PATH issues (current session)
-sed -i -e "/minimum-gas-prices =/ s^= .*^= \"1000000000akii\"^" ~/.kiichain/config/app.toml              # Fix gas price error
-# On macOS, use curl instead of wget: curl -L <URL> -o filename
+sed -i.bak -e "/minimum-gas-prices =/ s^= .*^= \"1000000000akii\"^" ~/.kiichain/config/app.toml
 ```
 
 ## Contributing
