@@ -12,5 +12,5 @@ const (
 // Upgrade defines the upgrade, nothing is done here
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
-	CreateUpgradeHandler: nil,
+	CreateUpgradeHandler: CreateUpgradeHandler,
 }
