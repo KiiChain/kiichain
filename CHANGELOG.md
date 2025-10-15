@@ -4,9 +4,11 @@
 
 ### Fixes
 
--   Fix wasmd precompile against reentrance attacks
+- Fix wasmd precompile against reentrance attacks
 
 ## v5.0.0 — 2025-09-26
+- Swapped default micro oracle coins to their normal denom
+- Correct some doc strings mentioning mint module
 
 ## DEPENDENCIES
 

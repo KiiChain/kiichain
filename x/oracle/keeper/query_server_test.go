@@ -41,10 +41,10 @@ func TestQueryExchangeRate(t *testing.T) {
 
 	// insert data on the module
 	rate := math.LegacyNewDec(12)
-	err := oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroAtomDenom, rate)
+	err := oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.AtomDenom, rate)
 	require.NoError(t, err)
 	// query params
-	res, err := querier.ExchangeRate(ctx, &types.QueryExchangeRateRequest{Denom: utils.MicroAtomDenom})
+	res, err := querier.ExchangeRate(ctx, &types.QueryExchangeRateRequest{Denom: utils.AtomDenom})
 
 	// validation
 	require.NoError(t, err)
@@ -62,9 +62,9 @@ func TestQueryExchangeRates(t *testing.T) {
 
 	// insert data on the module
 	rate := math.LegacyNewDec(12)
-	err := oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroAtomDenom, rate)
+	err := oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.AtomDenom, rate)
 	require.NoError(t, err)
-	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroEthDenom, rate)
+	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.EthDenom, rate)
 	require.NoError(t, err)
 
 	// query params
@@ -86,9 +86,9 @@ func TestQueryActives(t *testing.T) {
 
 	// insert data on the module
 	rate := math.LegacyNewDec(12)
-	err := oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroAtomDenom, rate)
+	err := oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.AtomDenom, rate)
 	require.NoError(t, err)
-	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroEthDenom, rate)
+	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.EthDenom, rate)
 	require.NoError(t, err)
 
 	// query params
@@ -97,8 +97,8 @@ func TestQueryActives(t *testing.T) {
 	// validation
 	require.NoError(t, err)
 	require.Equal(t, 2, len(res.Actives))
-	require.Equal(t, utils.MicroAtomDenom, res.Actives[0])
-	require.Equal(t, utils.MicroEthDenom, res.Actives[1])
+	require.Equal(t, utils.AtomDenom, res.Actives[0])
+	require.Equal(t, utils.EthDenom, res.Actives[1])
 }
 
 func TestQueryVoteTargets(t *testing.T) {
@@ -113,9 +113,9 @@ func TestQueryVoteTargets(t *testing.T) {
 	// insert data on the module
 	err := oracleKeeper.VoteTarget.Clear(ctx, nil)
 	require.NoError(t, err)
-	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroAtomDenom, types.Denom{Name: utils.MicroAtomDenom})
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.AtomDenom, types.Denom{Name: utils.AtomDenom})
 	require.NoError(t, err)
-	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroEthDenom, types.Denom{Name: utils.MicroEthDenom})
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.EthDenom, types.Denom{Name: utils.EthDenom})
 	require.NoError(t, err)
 
 	// query params
@@ -124,8 +124,8 @@ func TestQueryVoteTargets(t *testing.T) {
 	// validation
 	require.NoError(t, err)
 	require.Equal(t, 2, len(res.VoteTargets))
-	require.Equal(t, utils.MicroAtomDenom, res.VoteTargets[0])
-	require.Equal(t, utils.MicroEthDenom, res.VoteTargets[1])
+	require.Equal(t, utils.AtomDenom, res.VoteTargets[0])
+	require.Equal(t, utils.EthDenom, res.VoteTargets[1])
 }
 
 func TestQueryPriceSnapshotHistory(t *testing.T) {
@@ -139,22 +139,22 @@ func TestQueryPriceSnapshotHistory(t *testing.T) {
 
 	// insert data on the module
 	snapShot1 := types.NewPriceSnapshot(1, types.PriceSnapshotItems{
-		types.NewPriceSnapshotItem(utils.MicroEthDenom, types.OracleExchangeRate{
+		types.NewPriceSnapshotItem(utils.EthDenom, types.OracleExchangeRate{
 			ExchangeRate: math.LegacyNewDec(11),
 			LastUpdate:   math.NewInt(20),
 		}),
-		types.NewPriceSnapshotItem(utils.MicroAtomDenom, types.OracleExchangeRate{
+		types.NewPriceSnapshotItem(utils.AtomDenom, types.OracleExchangeRate{
 			ExchangeRate: math.LegacyNewDec(12),
 			LastUpdate:   math.NewInt(20),
 		}),
 	})
 
 	snapShot2 := types.NewPriceSnapshot(2, types.PriceSnapshotItems{
-		types.NewPriceSnapshotItem(utils.MicroEthDenom, types.OracleExchangeRate{
+		types.NewPriceSnapshotItem(utils.EthDenom, types.OracleExchangeRate{
 			ExchangeRate: math.LegacyNewDec(21),
 			LastUpdate:   math.NewInt(30),
 		}),
-		types.NewPriceSnapshotItem(utils.MicroAtomDenom, types.OracleExchangeRate{
+		types.NewPriceSnapshotItem(utils.AtomDenom, types.OracleExchangeRate{
 			ExchangeRate: math.LegacyNewDec(22),
 			LastUpdate:   math.NewInt(30),
 		}),
@@ -195,8 +195,8 @@ func TestQueryTwaps(t *testing.T) {
 		LastUpdate:          math.NewInt(2),
 		LastUpdateTimestamp: 2,
 	}
-	snapshotItem1 := types.NewPriceSnapshotItem(utils.MicroKiiDenom, exchangeRate1)
-	snapshotItem2 := types.NewPriceSnapshotItem(utils.MicroEthDenom, exchangeRate2)
+	snapshotItem1 := types.NewPriceSnapshotItem(utils.KiiDenom, exchangeRate1)
+	snapshotItem2 := types.NewPriceSnapshotItem(utils.EthDenom, exchangeRate2)
 	snapshot1 := types.NewPriceSnapshot(1, types.PriceSnapshotItems{snapshotItem1, snapshotItem1})
 	snapshot2 := types.NewPriceSnapshot(2, types.PriceSnapshotItems{snapshotItem2, snapshotItem2})
 
@@ -219,7 +219,7 @@ func TestQueryTwaps(t *testing.T) {
 
 	// validation
 	require.NoError(t, err)
-	require.Equal(t, utils.MicroEthDenom, res.OracleTwap[0].Denom)
+	require.Equal(t, utils.EthDenom, res.OracleTwap[0].Denom)
 	require.Equal(t, math.LegacyNewDec(2), res.OracleTwap[0].Twap)
 }
 
