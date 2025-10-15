@@ -40,8 +40,9 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 
 		// Simulate funding the victim contract (like a DeFi pool)
 		initialFunds := sdk.NewCoins(sdk.NewInt64Coin("ukii", 10000000))
-		victimAddr, _ := sdk.AccAddressFromBech32(victimContract)
-		err := s.App.BankKeeper.MintCoins(s.Ctx, "evm", initialFunds)
+		victimAddr, err := sdk.AccAddressFromBech32(victimContract)
+		require.NoError(s.T(), err)
+		err = s.App.BankKeeper.MintCoins(s.Ctx, "evm", initialFunds)
 		require.NoError(s.T(), err)
 		err = s.App.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, "evm", victimAddr, initialFunds)
 		require.NoError(s.T(), err)
@@ -85,7 +86,8 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 			setMsg := map[string]interface{}{
 				"set": attempt * 10, // Set to different values
 			}
-			msgBytes, _ := json.Marshal(setMsg)
+			msgBytes, err := json.Marshal(setMsg)
+			require.NoError(s.T(), err)
 
 			args := []any{
 				victimContract,
@@ -95,7 +97,7 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 
 			s.T().Logf("  Execution %d: set(value=%d)...", attempt, attempt*10)
 
-			_, err := s.Precompile.Execute(ctx, attacker.Addr, contract, stateDB, &method, args)
+			_, err = s.Precompile.Execute(ctx, attacker.Addr, contract, stateDB, &method, args)
 
 			// Analyze result
 			switch {
