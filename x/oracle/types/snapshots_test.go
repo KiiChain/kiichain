@@ -20,7 +20,7 @@ func TestNewPriceSnapshotItem(t *testing.T) {
 
 	// expected result
 	expected := PriceSnapshotItem{
-		Denom: utils.MicroAtomDenom,
+		Denom: utils.AtomDenom,
 		OracleExchangeRate: OracleExchangeRate{
 			ExchangeRate:        math.LegacyNewDec(11),
 			LastUpdate:          math.NewInt(10),
@@ -29,7 +29,7 @@ func TestNewPriceSnapshotItem(t *testing.T) {
 	}
 
 	// create snapshot item
-	item := NewPriceSnapshotItem(utils.MicroAtomDenom, rate)
+	item := NewPriceSnapshotItem(utils.AtomDenom, rate)
 
 	// validate
 	require.Equal(t, expected, item)
@@ -42,7 +42,7 @@ func TestNewPriceSnapshot(t *testing.T) {
 		LastUpdate:          math.NewInt(10),
 		LastUpdateTimestamp: time.Now().Unix(),
 	}
-	item1 := NewPriceSnapshotItem(utils.MicroAtomDenom, rate1)
+	item1 := NewPriceSnapshotItem(utils.AtomDenom, rate1)
 
 	// price item 2
 	rate2 := OracleExchangeRate{
@@ -50,7 +50,7 @@ func TestNewPriceSnapshot(t *testing.T) {
 		LastUpdate:          math.NewInt(10),
 		LastUpdateTimestamp: time.Now().Unix(),
 	}
-	item2 := NewPriceSnapshotItem(utils.MicroEthDenom, rate2)
+	item2 := NewPriceSnapshotItem(utils.EthDenom, rate2)
 
 	// create snapshot
 	items := PriceSnapshotItems{item1, item2}
@@ -61,7 +61,7 @@ func TestNewPriceSnapshot(t *testing.T) {
 		SnapshotTimestamp: 12,
 		PriceSnapshotItems: PriceSnapshotItems{
 			PriceSnapshotItem{
-				Denom: utils.MicroAtomDenom,
+				Denom: utils.AtomDenom,
 				OracleExchangeRate: OracleExchangeRate{
 					ExchangeRate:        math.LegacyNewDec(11),
 					LastUpdate:          math.NewInt(10),
@@ -70,7 +70,7 @@ func TestNewPriceSnapshot(t *testing.T) {
 			},
 
 			PriceSnapshotItem{
-				Denom: utils.MicroEthDenom,
+				Denom: utils.EthDenom,
 				OracleExchangeRate: OracleExchangeRate{
 					ExchangeRate:        math.LegacyNewDec(22),
 					LastUpdate:          math.NewInt(10),

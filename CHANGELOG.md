@@ -2,6 +2,11 @@
 
 ## UNRELEASED
 
+### Fixes
+- Swapped default micro oracle coins to their normal denom
+- Correct some doc strings mentioning mint module
+
+## v5.0.0 — 2025-09-28
 
 ## DEPENDENCIES
 - Bump [cosmos-sdk](https://github.com/cosmos/cosmos-sdk) to [v0.53.4](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.53.4)

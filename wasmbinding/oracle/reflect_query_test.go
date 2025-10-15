@@ -28,7 +28,7 @@ func TestOracleQueries(t *testing.T) {
 	require.NotEmpty(t, reflect)
 
 	// Create a rate
-	err := app.OracleKeeper.ExchangeRate.Set(ctx, "uusdc", oracletypes.OracleExchangeRate{
+	err := app.OracleKeeper.ExchangeRate.Set(ctx, "usdc", oracletypes.OracleExchangeRate{
 		ExchangeRate:        math.LegacyMustNewDecFromStr("0.5"),
 		LastUpdate:          math.NewIntFromUint64(1000000),
 		LastUpdateTimestamp: 1000000,
@@ -39,7 +39,7 @@ func TestOracleQueries(t *testing.T) {
 		SnapshotTimestamp: 2,
 		PriceSnapshotItems: []oracletypes.PriceSnapshotItem{
 			{
-				Denom: "uusdc",
+				Denom: "usdc",
 				OracleExchangeRate: oracletypes.OracleExchangeRate{
 					ExchangeRate:        math.LegacyMustNewDecFromStr("0.5"),
 					LastUpdate:          math.NewIntFromUint64(1000000),
@@ -53,7 +53,7 @@ func TestOracleQueries(t *testing.T) {
 	// query exchange rate
 	query := oraclebindingtypes.Query{
 		ExchangeRate: &oraclebindingtypes.ExchangeRateQuery{
-			Denom: "uusdc",
+			Denom: "usdc",
 		},
 	}
 	resp := oracletypes.QueryExchangeRateResponse{}
@@ -71,7 +71,7 @@ func TestOracleQueries(t *testing.T) {
 	err = queryCustom(t, ctx, app, reflect, query, &respAll)
 	require.NoError(t, err)
 	require.Len(t, respAll.DenomOracleExchangeRate, 1)
-	require.EqualValues(t, respAll.DenomOracleExchangeRate[0].Denom, "uusdc")
+	require.EqualValues(t, respAll.DenomOracleExchangeRate[0].Denom, "usdc")
 
 	// Query the twaps
 	query = oraclebindingtypes.Query{
@@ -84,7 +84,7 @@ func TestOracleQueries(t *testing.T) {
 	err = queryCustom(t, ctx, app, reflect, query, &respTwaps)
 	require.NoError(t, err)
 	require.Len(t, respTwaps.OracleTwap, 1)
-	require.EqualValues(t, respTwaps.OracleTwap[0].Denom, "uusdc")
+	require.EqualValues(t, respTwaps.OracleTwap[0].Denom, "usdc")
 }
 
 // TestQueryDenomAdmin tests the GetDenomAdmin query
