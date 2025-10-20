@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -15,7 +17,6 @@ import (
 	"github.com/cosmos/go-bip39"
 
 	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/math/unsafe"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -31,7 +32,7 @@ import (
 	"github.com/kiichain/kiichain/v5/app/params"
 )
 
-// initCmd initializes the configuration files for a new node
+// printInfo represents node initialization output info
 type printInfo struct {
 	Moniker    string          `json:"moniker" yaml:"moniker"`
 	ChainID    string          `json:"chain_id" yaml:"chain_id"`
@@ -40,7 +41,7 @@ type printInfo struct {
 	AppMessage json.RawMessage `json:"app_message" yaml:"app_message"`
 }
 
-// newPrintInfo creates a new printInfo struct with the provided parameters
+// newPrintInfo creates a new printInfo struct with provided parameters
 func newPrintInfo(moniker, chainID, nodeID, genTxsDir string, appMessage json.RawMessage) printInfo {
 	return printInfo{
 		Moniker:    moniker,
@@ -51,51 +52,44 @@ func newPrintInfo(moniker, chainID, nodeID, genTxsDir string, appMessage json.Ra
 	}
 }
 
-// displayInfo formats and prints the information in a human-readable format
+// displayInfo formats and prints info to stdout
 func displayInfo(info printInfo) error {
 	out, err := json.MarshalIndent(info, "", " ")
 	if err != nil {
 		return err
 	}
-
 	out = append(out, '\n')
-_, err = os.Stdout.Write(out)
-	
+	_, err = os.Stdout.Write(out)
 	return err
 }
 
-// initCmd returns a command that initializes all files needed for Tendermint
-// and the respective application.
-// This file is based on https://github.com/cosmos/cosmos-sdk/blob/main/x/genutil/client/cli/init.go
-// This has customizations for block speed
+// initCmd initializes node validator, p2p, genesis, and app configuration files
 func initCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init [moniker]",
 		Short: "Initialize private validator, p2p, genesis, and application configuration files",
-		Long:  `Initialize validators's and node's configuration files.`,
+		Long:  `Initialize validator and node configuration files.`,
 		Args:  cobra.ExactArgs(1),
+
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Initializes the client context from the CMD and the codecs
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			cdc := clientCtx.Codec
-
-			// Initialize the config
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config
 			config.SetRoot(clientCtx.HomeDir)
 
-			// Starts the chain ID, if the flag is not set generate a new random one
+			// Determine ChainID
 			chainID, _ := cmd.Flags().GetString(flags.FlagChainID)
 			switch {
 			case chainID != "":
 			case clientCtx.ChainID != "":
 				chainID = clientCtx.ChainID
 			default:
-				// This has a custom configuration to respect the Eth chains
-				chainID = fmt.Sprintf("test_1234-%d", unsafe.Int())
+				rand.Seed(time.Now().UnixNano())
+				chainID = fmt.Sprintf("test_1234-%d", rand.Intn(1_000_000))
 			}
 
-			// Get bip39 mnemonic and recover
+			// Handle mnemonic recovery
 			var mnemonic string
 			recoverFlag, _ := cmd.Flags().GetBool(genutilcli.FlagRecover)
 			if recoverFlag {
@@ -104,7 +98,6 @@ func initCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 				if err != nil {
 					return err
 				}
-
 				mnemonic = value
 				if !bip39.IsMnemonicValid(mnemonic) {
 					return errors.New("invalid mnemonic")
@@ -117,37 +110,34 @@ func initCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 				initHeight = 1
 			}
 
-			// Initialize the node validator files
+			// Initialize validator files
 			nodeID, _, err := genutil.InitializeNodeValidatorFilesFromMnemonic(config, mnemonic)
 			if err != nil {
 				return err
 			}
 
-			// Set the moniker and denoms
 			config.Moniker = args[0]
 			genFile := config.GenesisFile()
 			overwrite, _ := cmd.Flags().GetBool(genutilcli.FlagOverwrite)
 			defaultDenom, _ := cmd.Flags().GetString(genutilcli.FlagDefaultBondDenom)
 
-			// Check if the genesis should be overwritten
+			// Check if genesis file exists
 			_, err = os.Stat(genFile)
 			if !overwrite && !os.IsNotExist(err) {
 				return fmt.Errorf("genesis.json file already exists: %v", genFile)
 			}
 
-			// Overwrites the SDK default denom for side-effects
+			// Override default denom if provided
 			if defaultDenom != "" {
 				sdk.DefaultBondDenom = defaultDenom
 			}
-			appGenState := mbm.DefaultGenesis(cdc)
 
-			// Marshals the genesis state
+			appGenState := mbm.DefaultGenesis(cdc)
 			appState, err := json.MarshalIndent(appGenState, "", " ")
 			if err != nil {
-				return errorsmod.Wrap(err, "Failed to marshal default genesis state")
+				return errorsmod.Wrap(err, "failed to marshal default genesis state")
 			}
 
-			// Creates the genesis file
 			appGenesis := &types.AppGenesis{}
 			if _, err := os.Stat(genFile); err != nil {
 				if !os.IsNotExist(err) {
@@ -156,43 +146,36 @@ func initCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			} else {
 				appGenesis, err = types.AppGenesisFromFile(genFile)
 				if err != nil {
-					return errorsmod.Wrap(err, "Failed to read genesis doc from file")
+					return errorsmod.Wrap(err, "failed to read genesis doc from file")
 				}
 			}
 
-			// Set the genesis file parameters
 			appGenesis.AppName = version.AppName
 			appGenesis.AppVersion = version.Version
 			appGenesis.ChainID = chainID
 			appGenesis.AppState = appState
 			appGenesis.InitialHeight = initHeight
-			appGenesis.Consensus = &types.ConsensusGenesis{
-				Validators: nil,
-			}
+			appGenesis.Consensus = &types.ConsensusGenesis{Validators: nil}
 
-			// Export the genesis to a file
 			if err = genutil.ExportGenesisFile(appGenesis, genFile); err != nil {
-				return errorsmod.Wrap(err, "Failed to export genesis file")
+				return errorsmod.Wrap(err, "failed to export genesis file")
 			}
 
-			// Print the chain info
 			toPrint := newPrintInfo(config.Moniker, chainID, nodeID, "", appState)
 
-			// Set the custom chain config
 			params.SetTendermintConfigs(config)
-
-			// Set the config
 			cfg.WriteConfigFile(filepath.Join(config.RootDir, "config", "config.toml"), config)
+
 			return displayInfo(toPrint)
 		},
 	}
 
 	cmd.Flags().String(flags.FlagHome, defaultNodeHome, "node's home directory")
 	cmd.Flags().BoolP(genutilcli.FlagOverwrite, "o", false, "overwrite the genesis.json file")
-	cmd.Flags().Bool(genutilcli.FlagRecover, false, "provide seed phrase to recover existing key instead of creating")
-	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
-	cmd.Flags().String(genutilcli.FlagDefaultBondDenom, "", "genesis file default denomination, if left blank default value is 'akii'")
-	cmd.Flags().Int64(flags.FlagInitHeight, 1, "specify the initial block height at genesis")
+	cmd.Flags().Bool(genutilcli.FlagRecover, false, "recover existing key using seed phrase")
+	cmd.Flags().String(flags.FlagChainID, "", "genesis chain-id (random if left blank)")
+	cmd.Flags().String(genutilcli.FlagDefaultBondDenom, "", "default denomination (default 'akii')")
+	cmd.Flags().Int64(flags.FlagInitHeight, 1, "initial block height at genesis")
 
 	return cmd
 }
