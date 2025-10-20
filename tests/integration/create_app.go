@@ -22,12 +22,7 @@ import (
 // CreateKiichain creates a kiichain app for regular integration tests (non-mempool)
 // This version uses a noop mempool to avoid state issues during transaction processing
 func CreateKiichain(chainID string, _ uint64, customBaseAppOptions ...func(*baseapp.BaseApp)) evm.EvmApp {
-	defaultNodeHome, err := clienthelpers.GetNodeHomeDirectory(".kiichain")
-	if err != nil {
-		panic(err)
-	}
-
-	appOptions := simutils.NewAppOptionsWithFlagHome(defaultNodeHome)
+	appOptions := simutils.NewAppOptionsWithFlagHome(kiichain.DefaultNodeHome)
 
 	baseAppOptions := append(customBaseAppOptions, baseapp.SetChainID(chainID))
 
@@ -37,7 +32,7 @@ func CreateKiichain(chainID string, _ uint64, customBaseAppOptions ...func(*base
 		nil,
 		true,
 		map[int64]bool{},
-		defaultNodeHome,
+		kiichain.DefaultNodeHome,
 		appOptions,
 		kiichain.EmptyWasmOptions,
 		kiichain.EVMAppOptions,
