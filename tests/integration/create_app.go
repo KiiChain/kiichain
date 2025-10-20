@@ -12,6 +12,7 @@ import (
 
 	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/log"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -25,6 +26,9 @@ func CreateKiichain(chainID string, _ uint64, customBaseAppOptions ...func(*base
 	appOptions := simutils.NewAppOptionsWithFlagHome(kiichain.DefaultNodeHome)
 
 	baseAppOptions := append(customBaseAppOptions, baseapp.SetChainID(chainID))
+
+	// Disable cache for integration tests to avoid state issues
+	sdk.SetAddrCacheEnabled(false)
 
 	return kiichain.NewKiichainApp(
 		log.NewNopLogger(),
