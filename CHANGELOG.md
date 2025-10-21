@@ -2,6 +2,8 @@
 
 ## UNRELEASED
 
+## Added
+- Cosmos EVM integrations tests added to the repo
 
 ## DEPENDENCIES
 - Bump [cosmos-sdk](https://github.com/cosmos/cosmos-sdk) to [v0.53.4](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.53.4)
