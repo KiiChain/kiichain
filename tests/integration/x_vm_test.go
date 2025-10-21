@@ -5,23 +5,25 @@ import (
 
 	"github.com/cosmos/evm/tests/integration/x/vm"
 
+	"github.com/cosmos/evm/testutil/integration/evm/network"
 	"github.com/stretchr/testify/suite"
 )
 
-func TestKeeperTestSuite(t *testing.T) {
-	s := vm.NewKeeperTestSuite(CreateKiichain)
-	s.EnableFeemarket = false
-	s.EnableLondonHF = true
-	suite.Run(t, s)
-}
+// Some tests need mint modul, some precise bank, this also needs a test flag `-tags=test`
+// func TestKeeperTestSuite(t *testing.T) {
+// 	s := vm.NewKeeperTestSuite(CreateKiichain, network.WithBaseCoin("akii", 18))
+// 	s.EnableFeemarket = false
+// 	s.EnableLondonHF = true
+// 	suite.Run(t, s)
+// }
 
 func TestNestedEVMExtensionCallSuite(t *testing.T) {
-	s := vm.NewNestedEVMExtensionCallSuite(CreateKiichain)
+	s := vm.NewNestedEVMExtensionCallSuite(CreateKiichain, network.WithBaseCoin("akii", 18))
 	suite.Run(t, s)
 }
 
 func TestGenesisTestSuite(t *testing.T) {
-	s := vm.NewGenesisTestSuite(CreateKiichain)
+	s := vm.NewGenesisTestSuite(CreateKiichain, network.WithBaseCoin("akii", 18))
 	suite.Run(t, s)
 }
 
@@ -31,5 +33,5 @@ func TestVmAnteTestSuite(t *testing.T) {
 }
 
 func TestIterateContracts(t *testing.T) {
-	vm.TestIterateContracts(t, CreateKiichain)
+	vm.TestIterateContracts(t, CreateKiichain, network.WithBaseCoin("akii", 18))
 }
