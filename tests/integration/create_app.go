@@ -11,7 +11,6 @@ import (
 	ibctesting "github.com/cosmos/ibc-go/v10/testing"
 	kiichain "github.com/kiichain/kiichain/v5/app"
 
-	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -54,10 +53,14 @@ func CreateKiichain(chainID string, _ uint64, customBaseAppOptions ...func(*base
 // SetupKiichain initializes a new kiichain app with default genesis state.
 // It is used in IBC integration tests to create a new kiichain app instance.
 func SetupKiichain() (ibctesting.TestingApp, map[string]json.RawMessage) {
-	defaultNodeHome, err := clienthelpers.GetNodeHomeDirectory(".kiichain")
+	// Create a temporary path
+	dir, err := os.MkdirTemp("", "kiichain-integration-test")
 	if err != nil {
 		panic(err)
 	}
+
+	// Disable cache for integration tests to avoid state issues
+	sdk.SetAddrCacheEnabled(false)
 
 	app := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
@@ -65,7 +68,7 @@ func SetupKiichain() (ibctesting.TestingApp, map[string]json.RawMessage) {
 		nil,
 		true,
 		map[int64]bool{},
-		defaultNodeHome,
+		dir,
 		kiichain.EmptyAppOptions{},
 		kiichain.EmptyWasmOptions,
 		kiichain.EVMAppOptions,
