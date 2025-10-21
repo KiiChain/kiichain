@@ -2,6 +2,7 @@ package integration
 
 import (
 	"encoding/json"
+	"os"
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/evm"
@@ -22,7 +23,7 @@ import (
 
 // CreateKiichain creates a kiichain app for regular integration tests (non-mempool)
 // This version uses a noop mempool to avoid state issues during transaction processing
-func CreateKiichain(chainID string, evmChainID uint64, customBaseAppOptions ...func(*baseapp.BaseApp)) evm.EvmApp {
+func CreateKiichain(chainID string, _ uint64, customBaseAppOptions ...func(*baseapp.BaseApp)) evm.EvmApp {
 	appOptions := simutils.NewAppOptionsWithFlagHome(kiichain.DefaultNodeHome)
 
 	baseAppOptions := append(customBaseAppOptions, baseapp.SetChainID(chainID))
@@ -30,8 +31,11 @@ func CreateKiichain(chainID string, evmChainID uint64, customBaseAppOptions ...f
 	// Disable cache for integration tests to avoid state issues
 	sdk.SetAddrCacheEnabled(false)
 
-	// Overrides chain ID with the one used in the test
-	kiichain.KiichainID = evmChainID
+	// Create a temporary path
+	dir, err := os.MkdirTemp("", "kiichain-integration-test")
+	if err != nil {
+		panic(err)
+	}
 
 	return kiichain.NewKiichainApp(
 		log.NewNopLogger(),
@@ -39,7 +43,7 @@ func CreateKiichain(chainID string, evmChainID uint64, customBaseAppOptions ...f
 		nil,
 		true,
 		map[int64]bool{},
-		kiichain.DefaultNodeHome,
+		dir,
 		appOptions,
 		kiichain.EmptyWasmOptions,
 		kiichain.EVMAppOptions,
