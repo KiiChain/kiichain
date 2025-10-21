@@ -87,15 +87,15 @@ func (app *KiichainApp) GetDistrKeeper() distrkeeper.Keeper {
 }
 
 func (app *KiichainApp) GetMintKeeper() mintkeeper.Keeper {
-	return app.GetMintKeeper()
+	return mintkeeper.Keeper{}
 }
 
 func (app *KiichainApp) GetPreciseBankKeeper() *precisebankkeeper.Keeper {
-	return app.GetPreciseBankKeeper()
+	return &precisebankkeeper.Keeper{}
 }
 
 func (app *KiichainApp) GetCallbackKeeper() ibccallbackskeeper.ContractKeeper {
-	return app.GetCallbackKeeper()
+	return ibccallbackskeeper.ContractKeeper{}
 }
 
 func (app *KiichainApp) GetTransferKeeper() transferkeeper.Keeper {
