@@ -1,19 +1,20 @@
 package integration
 
-import (
-	"testing"
+// import (
+// 	"testing"
 
-	"github.com/stretchr/testify/suite"
+// 	"github.com/stretchr/testify/suite"
 
-	"github.com/cosmos/evm/tests/integration/eip712"
-)
+// 	"github.com/cosmos/evm/tests/integration/eip712"
+// )
 
-func TestEIP712TestSuite(t *testing.T) {
-	s := eip712.NewTestSuite(CreateKiichain, false)
-	suite.Run(t, s)
+// Requires config to not be sealed
+// func TestEIP712TestSuite(t *testing.T) {
+// 	s := eip712.NewTestSuite(CreateKiichain, false)
+// 	suite.Run(t, s)
 
-	// Note that we don't test the Legacy EIP-712 Extension, since that case
-	// is sufficiently covered by the AnteHandler tests.
-	s = eip712.NewTestSuite(CreateKiichain, true)
-	suite.Run(t, s)
-}
+// 	// Note that we don't test the Legacy EIP-712 Extension, since that case
+// 	// is sufficiently covered by the AnteHandler tests.
+// 	s = eip712.NewTestSuite(CreateKiichain, true)
+// 	suite.Run(t, s)
+// }

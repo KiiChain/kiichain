@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// Some tests need mint modul, some precise bank, this also needs a test flag `-tags=test`
+// Some tests need mint module, some precise bank, this also needs a test flag `-tags=test`
 // func TestKeeperTestSuite(t *testing.T) {
 // 	s := vm.NewKeeperTestSuite(CreateKiichain, network.WithBaseCoin("akii", 18))
 // 	s.EnableFeemarket = false
