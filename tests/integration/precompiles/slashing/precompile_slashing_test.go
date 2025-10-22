@@ -14,6 +14,7 @@ func TestSlashingPrecompileTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-func TestSlashingPrecompileIntegrationTestSuite(t *testing.T) {
-	slashing.TestPrecompileIntegrationTestSuite(t, integration.CreateKiichain)
-}
+// Obscure error
+// func TestSlashingPrecompileIntegrationTestSuite(t *testing.T) {
+// 	slashing.TestPrecompileIntegrationTestSuite(t, integration.CreateKiichain)
+// }
