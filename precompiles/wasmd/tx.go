@@ -123,6 +123,10 @@ func (p Precompile) Execute(
 //
 // This is done under a transient key under Cosmos SDK's stateDB
 // The lock is released at the end of the transaction by Cosmos SDK itself
+// Locks are specifically done per transaction and not per contract:
+// - Due to a limitation between EVM and WASM gas handling
+// - And to reduce the scope of the reentrances
+// - States generated as transient states are never committed and cleared at the end of the block
 func (p Precompile) ensureLock(
 	origin common.Address,
 	stateDB vm.StateDB,
