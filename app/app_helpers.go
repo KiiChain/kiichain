@@ -1,6 +1,8 @@
 package kiichain
 
 import (
+	"encoding/json"
+
 	ibckeeper "github.com/cosmos/ibc-go/v10/modules/core/keeper"
 
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
@@ -18,12 +20,15 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	testconstants "github.com/cosmos/evm/testutil/constants"
 	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
+	erc20types "github.com/cosmos/evm/x/erc20/types"
 	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
 	ibccallbackskeeper "github.com/cosmos/evm/x/ibc/callbacks/keeper"
 	transferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 	precisebankkeeper "github.com/cosmos/evm/x/precisebank/keeper"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 // GetStakingKeeper implements the TestingApp interface. Needed for ICS.
@@ -114,4 +119,43 @@ func (app *KiichainApp) GetMempool() sdkmempool.ExtMempool {
 
 func (app *KiichainApp) GetAnteHandler() sdk.AnteHandler {
 	return app.BaseApp.AnteHandler()
+}
+
+// DefaultGenesis returns a default genesis from the registered ModuleBasics's.
+func (app *KiichainApp) DefaultGenesis() map[string]json.RawMessage {
+	genesis := app.ModuleBasics.DefaultGenesis(app.appCodec)
+
+	evmGenState := NewEVMGenesisState()
+	genesis[evmtypes.ModuleName] = app.appCodec.MustMarshalJSON(evmGenState)
+
+	// NOTE: for the example chain implementation we are also adding a default token pair,
+	// which is the base denomination of the chain (i.e. the WEVMOS contract)
+	erc20GenState := NewErc20GenesisState()
+	genesis[erc20types.ModuleName] = app.appCodec.MustMarshalJSON(erc20GenState)
+
+	return genesis
+}
+
+// NewEVMGenesisState returns the default genesis state for the EVM module.
+//
+// NOTE: for the example chain implementation we need to set the default EVM denomination,
+// enable ALL precompiles, and include default preinstalls.
+func NewEVMGenesisState() *evmtypes.GenesisState {
+	evmGenState := evmtypes.DefaultGenesisState()
+	evmGenState.Params.ActiveStaticPrecompiles = evmtypes.AvailableStaticPrecompiles
+	evmGenState.Preinstalls = evmtypes.DefaultPreinstalls
+
+	return evmGenState
+}
+
+// NewErc20GenesisState returns the default genesis state for the ERC20 module.
+//
+// NOTE: for the example chain implementation we are also adding a default token pair,
+// which is the base denomination of the chain (i.e. the WEVMOS contract).
+func NewErc20GenesisState() *erc20types.GenesisState {
+	erc20GenState := erc20types.DefaultGenesisState()
+	erc20GenState.TokenPairs = testconstants.ExampleTokenPairs
+	erc20GenState.NativePrecompiles = []string{testconstants.WEVMOSContractMainnet}
+
+	return erc20GenState
 }
