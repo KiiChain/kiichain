@@ -20,20 +20,20 @@ func TestExportInitGenesis(t *testing.T) {
 	ctx := input.Ctx
 
 	// Prepare genesis to be exported
-	exchangeRateVote, err := types.NewAggregateExchangeRateVote(types.ExchangeRateTuples{{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(123)}}, keeper.ValAddrs[0])
+	exchangeRateVote, err := types.NewAggregateExchangeRateVote(types.ExchangeRateTuples{{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(123)}}, keeper.ValAddrs[0])
 	require.NoError(t, err)
 
 	snapshot1 := types.NewPriceSnapshot(int64(3600),
 		types.PriceSnapshotItems{
 			{
-				Denom: utils.MicroAtomDenom,
+				Denom: utils.AtomDenom,
 				OracleExchangeRate: types.OracleExchangeRate{
 					ExchangeRate: math.LegacyNewDec(12),
 					LastUpdate:   math.NewInt(3600),
 				},
 			},
 			{
-				Denom: utils.MicroEthDenom,
+				Denom: utils.EthDenom,
 				OracleExchangeRate: types.OracleExchangeRate{
 					ExchangeRate: math.LegacyNewDec(10),
 					LastUpdate:   math.NewInt(3600),
@@ -45,14 +45,14 @@ func TestExportInitGenesis(t *testing.T) {
 	snapshot2 := types.NewPriceSnapshot(int64(3700),
 		types.PriceSnapshotItems{
 			{
-				Denom: utils.MicroAtomDenom,
+				Denom: utils.AtomDenom,
 				OracleExchangeRate: types.OracleExchangeRate{
 					ExchangeRate: math.LegacyNewDec(15),
 					LastUpdate:   math.NewInt(3700),
 				},
 			},
 			{
-				Denom: utils.MicroEthDenom,
+				Denom: utils.EthDenom,
 				OracleExchangeRate: types.OracleExchangeRate{
 					ExchangeRate: math.LegacyNewDec(13),
 					LastUpdate:   math.NewInt(3700),
@@ -63,14 +63,14 @@ func TestExportInitGenesis(t *testing.T) {
 
 	err = oracleKeeper.FeederDelegation.Set(ctx, keeper.ValAddrs[0], keeper.Addrs[1].String())
 	require.NoError(t, err)
-	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.MicroAtomDenom, math.LegacyNewDec(123))
+	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.AtomDenom, math.LegacyNewDec(123))
 	require.NoError(t, err)
 	err = oracleKeeper.AggregateExchangeRateVote.Set(ctx, keeper.ValAddrs[0], exchangeRateVote)
 	require.NoError(t, err)
 
-	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroAtomDenom, types.Denom{Name: utils.MicroAtomDenom})
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.AtomDenom, types.Denom{Name: utils.AtomDenom})
 	require.NoError(t, err)
-	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroEthDenom, types.Denom{Name: utils.MicroEthDenom})
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.EthDenom, types.Denom{Name: utils.EthDenom})
 	require.NoError(t, err)
 
 	err = oracleKeeper.VotePenaltyCounter.Set(ctx, keeper.ValAddrs[0], types.NewVotePenaltyCounter(2, 3, 0))

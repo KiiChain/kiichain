@@ -70,7 +70,7 @@ import (
 	kiiante "github.com/kiichain/kiichain/v5/ante"
 	"github.com/kiichain/kiichain/v5/app/keepers"
 	"github.com/kiichain/kiichain/v5/app/upgrades"
-	v5_0 "github.com/kiichain/kiichain/v5/app/upgrades/v5_0"
+	v5_1 "github.com/kiichain/kiichain/v5/app/upgrades/v5_1"
 	"github.com/kiichain/kiichain/v5/client/docs"
 )
 
@@ -80,7 +80,7 @@ var (
 
 	// Upgrades is a list of all the upgrades that are available for the application.
 	Upgrades = []upgrades.Upgrade{
-		v5_0.Upgrade,
+		v5_1.Upgrade,
 	}
 )
 

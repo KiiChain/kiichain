@@ -43,17 +43,17 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 
 	// Simulate aggregation exchange rate process
 	exchangeRate1 := types.ExchangeRateTuples{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(1)},
-		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(2)},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(3)},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4)},
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(1)},
+		{Denom: utils.EthDenom, ExchangeRate: math.LegacyNewDec(2)},
+		{Denom: utils.UsdcDenom, ExchangeRate: math.LegacyNewDec(3)},
+		{Denom: utils.KiiDenom, ExchangeRate: math.LegacyNewDec(4)},
 	}
 
 	exchangeRate2 := types.ExchangeRateTuples{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(1)},
-		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(2)},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(3)},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4)},
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(1)},
+		{Denom: utils.EthDenom, ExchangeRate: math.LegacyNewDec(2)},
+		{Denom: utils.UsdcDenom, ExchangeRate: math.LegacyNewDec(3)},
+		{Denom: utils.KiiDenom, ExchangeRate: math.LegacyNewDec(4)},
 	}
 
 	exchangeRateVote1, err := types.NewAggregateExchangeRateVote(exchangeRate1, ValAddrs[0]) // Aggregate rate tuples from Val0
@@ -92,41 +92,41 @@ func TestOrganizeBallotByDenom(t *testing.T) {
 	}
 
 	// Create expected result (with denom organized alphabetically)
-	uatomBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(1), Power: int64(10), Voter: ValAddrs[0]},
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(1), Power: int64(10), Voter: ValAddrs[1]},
+	atomBallot := types.ExchangeRateBallot{
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(1), Power: int64(10), Voter: ValAddrs[0]},
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(1), Power: int64(10), Voter: ValAddrs[1]},
 	}
 
-	uethBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(2), Power: int64(10), Voter: ValAddrs[0]},
-		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(2), Power: int64(10), Voter: ValAddrs[1]},
+	ethBallot := types.ExchangeRateBallot{
+		{Denom: utils.EthDenom, ExchangeRate: math.LegacyNewDec(2), Power: int64(10), Voter: ValAddrs[0]},
+		{Denom: utils.EthDenom, ExchangeRate: math.LegacyNewDec(2), Power: int64(10), Voter: ValAddrs[1]},
 	}
 
-	uusdcBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(3), Power: int64(10), Voter: ValAddrs[0]},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(3), Power: int64(10), Voter: ValAddrs[1]},
+	usdcBallot := types.ExchangeRateBallot{
+		{Denom: utils.UsdcDenom, ExchangeRate: math.LegacyNewDec(3), Power: int64(10), Voter: ValAddrs[0]},
+		{Denom: utils.UsdcDenom, ExchangeRate: math.LegacyNewDec(3), Power: int64(10), Voter: ValAddrs[1]},
 	}
 
-	akiiBallot := types.ExchangeRateBallot{
-		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4), Power: int64(10), Voter: ValAddrs[0]},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4), Power: int64(10), Voter: ValAddrs[1]},
+	kiiBallot := types.ExchangeRateBallot{
+		{Denom: utils.KiiDenom, ExchangeRate: math.LegacyNewDec(4), Power: int64(10), Voter: ValAddrs[0]},
+		{Denom: utils.KiiDenom, ExchangeRate: math.LegacyNewDec(4), Power: int64(10), Voter: ValAddrs[1]},
 	}
 
-	sort.Sort(uatomBallot)
-	sort.Sort(uethBallot)
-	sort.Sort(uusdcBallot)
-	sort.Sort(akiiBallot)
+	sort.Sort(atomBallot)
+	sort.Sort(ethBallot)
+	sort.Sort(usdcBallot)
+	sort.Sort(kiiBallot)
 
 	// Call function
 	denomBallot, err := oracleKeeper.OrganizeBallotByDenom(ctx, validatorClaimMap)
 	require.NoError(t, err)
 
 	// Validation
-	microAtomDenomBallot := denomBallot[utils.MicroAtomDenom]
-	require.ElementsMatch(t, uatomBallot, microAtomDenomBallot)
-	require.ElementsMatch(t, uethBallot, denomBallot[utils.MicroEthDenom])
-	require.ElementsMatch(t, uusdcBallot, denomBallot[utils.MicroUsdcDenom])
-	require.ElementsMatch(t, akiiBallot, denomBallot[utils.MicroKiiDenom])
+	atomDenomBallot := denomBallot[utils.AtomDenom]
+	require.ElementsMatch(t, atomBallot, atomDenomBallot)
+	require.ElementsMatch(t, ethBallot, denomBallot[utils.EthDenom])
+	require.ElementsMatch(t, usdcBallot, denomBallot[utils.UsdcDenom])
+	require.ElementsMatch(t, kiiBallot, denomBallot[utils.KiiDenom])
 }
 
 func TestClearBallots(t *testing.T) {
@@ -156,17 +156,17 @@ func TestClearBallots(t *testing.T) {
 
 	// Simulate aggregation exchange rate process
 	exchangeRate1 := types.ExchangeRateTuples{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(1)},
-		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(2)},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(3)},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4)},
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(1)},
+		{Denom: utils.EthDenom, ExchangeRate: math.LegacyNewDec(2)},
+		{Denom: utils.UsdcDenom, ExchangeRate: math.LegacyNewDec(3)},
+		{Denom: utils.KiiDenom, ExchangeRate: math.LegacyNewDec(4)},
 	}
 
 	exchangeRate2 := types.ExchangeRateTuples{
-		{Denom: utils.MicroAtomDenom, ExchangeRate: math.LegacyNewDec(1)},
-		{Denom: utils.MicroEthDenom, ExchangeRate: math.LegacyNewDec(2)},
-		{Denom: utils.MicroUsdcDenom, ExchangeRate: math.LegacyNewDec(3)},
-		{Denom: utils.MicroKiiDenom, ExchangeRate: math.LegacyNewDec(4)},
+		{Denom: utils.AtomDenom, ExchangeRate: math.LegacyNewDec(1)},
+		{Denom: utils.EthDenom, ExchangeRate: math.LegacyNewDec(2)},
+		{Denom: utils.UsdcDenom, ExchangeRate: math.LegacyNewDec(3)},
+		{Denom: utils.KiiDenom, ExchangeRate: math.LegacyNewDec(4)},
 	}
 
 	exchangeRateVote1, err := types.NewAggregateExchangeRateVote(exchangeRate1, ValAddrs[0]) // Aggregate rate tuples from Val0
@@ -201,27 +201,27 @@ func TestApplyWhitelist(t *testing.T) {
 	err = oracleKeeper.VoteTarget.Clear(ctx, nil) // Delete voting target to start test from scrath
 	require.NoError(t, err)
 
-	// Define new whitelist (adds uusdc)
+	// Define new whitelist (adds usdc)
 	whiteList := types.DenomList{
-		{Name: utils.MicroAtomDenom},
-		{Name: utils.MicroEthDenom},
-		{Name: utils.MicroKiiDenom},
-		{Name: utils.MicroUsdcDenom}, // New Denom
+		{Name: utils.AtomDenom},
+		{Name: utils.EthDenom},
+		{Name: utils.KiiDenom},
+		{Name: utils.UsdcDenom}, // New Denom
 	}
 	oracleParams.Whitelist = whiteList
 	err = oracleKeeper.Params.Set(ctx, oracleParams)
 	require.NoError(t, err)
 
 	// Set vote targets manually before applying the new whitelist
-	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroAtomDenom, types.Denom{Name: utils.MicroAtomDenom})
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.AtomDenom, types.Denom{Name: utils.AtomDenom})
 	require.NoError(t, err)
-	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroEthDenom, types.Denom{Name: utils.MicroEthDenom})
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.EthDenom, types.Denom{Name: utils.EthDenom})
 	require.NoError(t, err)
-	err = oracleKeeper.VoteTarget.Set(ctx, utils.MicroKiiDenom, types.Denom{Name: utils.MicroKiiDenom})
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.KiiDenom, types.Denom{Name: utils.KiiDenom})
 	require.NoError(t, err)
 
-	// Ensure that uusdc is NOT present before applying the whitelist
-	_, err = oracleKeeper.VoteTarget.Get(ctx, utils.MicroUsdcDenom)
+	// Ensure that usdc is NOT present before applying the whitelist
+	_, err = oracleKeeper.VoteTarget.Get(ctx, utils.UsdcDenom)
 	require.Error(t, err)
 
 	// Apply whitelist
