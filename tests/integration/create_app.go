@@ -27,7 +27,7 @@ import (
 func CreateKiichain(chainID string, evmChaindID uint64, customBaseAppOptions ...func(*baseapp.BaseApp)) evm.EvmApp {
 	appOptions := simutils.NewAppOptionsWithFlagHome(kiichain.DefaultNodeHome)
 
-	baseAppOptions := append(customBaseAppOptions, baseapp.SetChainID(chainID))
+	customBaseAppOptions = append(customBaseAppOptions, baseapp.SetChainID(chainID))
 
 	// Disable cache for integration tests to avoid state issues
 	sdk.SetAddrCacheEnabled(false)
@@ -51,7 +51,7 @@ func CreateKiichain(chainID string, evmChaindID uint64, customBaseAppOptions ...
 		appOptions,
 		kiichain.EmptyWasmOptions,
 		kiichain.EVMAppOptions,
-		baseAppOptions...,
+		customBaseAppOptions...,
 	)
 }
 
