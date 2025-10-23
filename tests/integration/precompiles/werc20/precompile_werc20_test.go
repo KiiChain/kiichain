@@ -14,8 +14,3 @@ func TestWERC20PrecompileUnitTestSuite(t *testing.T) {
 	s := werc20.NewPrecompileUnitTestSuite(integration.CreateKiichain)
 	suite.Run(t, s)
 }
-
-// Complains about kii denom
-// func TestWERC20PrecompileIntegrationTestSuite(t *testing.T) {
-// 	werc20.TestPrecompileIntegrationTestSuite(t, integration.CreateKiichain)
-// }
