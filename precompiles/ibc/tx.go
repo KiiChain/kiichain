@@ -21,7 +21,7 @@ func (p Precompile) Transfer(ctx sdk.Context, method *abi.Method, stateDB vm.Sta
 	}
 
 	// Log the call
-	p.logTransfer(ctx, method, msg)
+	p.LogTransfer(ctx, method, msg)
 
 	// Transfer
 	_, err = p.transferKeeper.Transfer(ctx, msg)
@@ -47,7 +47,7 @@ func (p Precompile) TransferWithDefaultTimeout(ctx sdk.Context, method *abi.Meth
 	}
 
 	// Log the call
-	p.logTransfer(ctx, method, msg)
+	p.LogTransfer(ctx, method, msg)
 
 	// Transfer
 	_, err = p.transferKeeper.Transfer(ctx, msg)
@@ -64,15 +64,16 @@ func (p Precompile) TransferWithDefaultTimeout(ctx sdk.Context, method *abi.Meth
 	return method.Outputs.Pack(true)
 }
 
-// logTransfer logs a given transfer in the debug stream
-func (p Precompile) logTransfer(ctx sdk.Context, method *abi.Method, msg *types.MsgTransfer) {
+// LogTransfer logs a given transfer in the debug stream
+// msg received here already passed basic validation
+func (p Precompile) LogTransfer(ctx sdk.Context, method *abi.Method, msg *types.MsgTransfer) {
 	p.Logger(ctx).Debug(
 		"tx called",
 		"method", method.Name,
 		"args", fmt.Sprintf(
-			"{ sender: %s, receiver: %s, port: %s, channel: %s, token: %s%s, height: %d of number %d, timeoutStamp: %d, memo: %s }",
+			"{ sender: %s, receiver: %s, port: %s, channel: %s, token: %s%s, height: %d of number %d, timeoutStamp: %d }",
 			msg.Sender, msg.Receiver, msg.SourcePort, msg.SourceChannel, msg.Token.Amount, msg.Token.Denom,
-			msg.TimeoutHeight.RevisionHeight, msg.TimeoutHeight.RevisionNumber, msg.TimeoutTimestamp, msg.Memo,
+			msg.TimeoutHeight.RevisionHeight, msg.TimeoutHeight.RevisionNumber, msg.TimeoutTimestamp,
 		),
 	)
 }
