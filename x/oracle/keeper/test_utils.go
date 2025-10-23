@@ -67,8 +67,8 @@ const faucetAccountName = "faucet"
 
 var (
 	InitTokens   = sdk.TokensFromConsensusPower(200, sdk.DefaultPowerReduction)
-	InitialCoins = sdk.NewCoins(sdk.NewCoin(utils.MicroKiiDenom, InitTokens))
-	kiiCoins     = sdk.NewCoins(sdk.NewCoin(utils.MicroKiiDenom, InitTokens.MulRaw(int64(len(Addrs)+2))))
+	InitialCoins = sdk.NewCoins(sdk.NewCoin(utils.KiiDenom, InitTokens))
+	kiiCoins     = sdk.NewCoins(sdk.NewCoin(utils.KiiDenom, InitTokens.MulRaw(int64(len(Addrs)+2))))
 
 	OracleDecPrecision = 8
 
@@ -220,7 +220,7 @@ func CreateTestInput(t *testing.T) TestInput {
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
 	)
 	stakingParams := stakingtypes.DefaultParams()
-	stakingParams.BondDenom = utils.MicroKiiDenom
+	stakingParams.BondDenom = utils.KiiDenom
 	err := stakingKeeper.SetParams(ctx, stakingParams)
 	require.NoError(t, err)
 
@@ -249,11 +249,11 @@ func CreateTestInput(t *testing.T) TestInput {
 	require.NoError(t, err) // Validate the operation
 
 	// Verify the faucet balance
-	balance := bankKeeper.GetBalance(ctx, accountKeeper.GetModuleAddress(faucetAccountName), utils.MicroKiiDenom)
+	balance := bankKeeper.GetBalance(ctx, accountKeeper.GetModuleAddress(faucetAccountName), utils.KiiDenom)
 	require.True(t, balance.IsGTE(kiiCoins[0]), "Faucet account does not have enough funds")
 
 	// Send some tokens to not_bonded_tokens_pool account
-	err = bankKeeper.SendCoinsFromModuleToModule(ctx, faucetAccountName, stakingtypes.NotBondedPoolName, sdk.NewCoins(sdk.NewCoin(utils.MicroKiiDenom, math.NewInt(100))))
+	err = bankKeeper.SendCoinsFromModuleToModule(ctx, faucetAccountName, stakingtypes.NotBondedPoolName, sdk.NewCoins(sdk.NewCoin(utils.KiiDenom, math.NewInt(100))))
 	require.NoError(t, err) // Validate the operation
 
 	// Send initial funds to testing accounts
@@ -299,7 +299,7 @@ func NewTestMsgCreateValidator(address sdk.ValAddress, pubKey cryptotypes.PubKey
 	// Get the validator rates (0.05)
 	rate := math.LegacyNewDecWithPrec(5, 2)
 	// Build the self delegation
-	selfDelegation := sdk.NewCoin(utils.MicroKiiDenom, amount)
+	selfDelegation := sdk.NewCoin(utils.KiiDenom, amount)
 	// Build the commission rates
 	commission := stakingtypes.NewCommissionRates(rate, rate, rate)
 

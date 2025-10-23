@@ -1,4 +1,4 @@
-package v130
+package v510
 
 import (
 	"github.com/kiichain/kiichain/v5/app/upgrades"
@@ -6,10 +6,10 @@ import (
 
 const (
 	// UpgradeName is the name of the upgrade
-	UpgradeName = "v1.3.0"
+	UpgradeName = "v5.1.0"
 )
 
-// Upgrade is the upgrade object
+// Upgrade defines the upgrade, nothing is done here
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateUpgradeHandler,

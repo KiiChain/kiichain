@@ -13,7 +13,7 @@ import (
 
 const (
 	ChainDenom = "akii"
-	UUSDC      = "uusdc"
+	USDC       = "usdc"
 )
 
 func TestNewClaim(t *testing.T) {
@@ -185,7 +185,7 @@ func TestStandardDeviation(t *testing.T) {
 func TestToCrossRate(t *testing.T) {
 	// Create exchangeRate ballot (reference and other)
 	denom := ChainDenom
-	denomRefernce := UUSDC
+	denomRefernce := USDC
 	voter1 := sdk.ValAddress([]byte("validator1"))
 	voter2 := sdk.ValAddress([]byte("validator2"))
 	voter3 := sdk.ValAddress([]byte("validator3"))
@@ -225,7 +225,7 @@ func TestToCrossRate(t *testing.T) {
 func TestToCrossRateNotFound(t *testing.T) {
 	// Create exchangeRate ballot (reference and other)
 	denom := ChainDenom
-	denomRefernce := UUSDC
+	denomRefernce := USDC
 	voter1 := sdk.ValAddress([]byte("validator1"))
 	voter2 := sdk.ValAddress([]byte("validator2"))
 	voter3 := sdk.ValAddress([]byte("validator3"))
@@ -263,7 +263,7 @@ func TestToCrossRateNotFound(t *testing.T) {
 func TestToCrossRateWithSort(t *testing.T) {
 	// Create exchangeRate ballot (reference and other)
 	denom := ChainDenom
-	denomRefernce := UUSDC
+	denomRefernce := USDC
 	voter1 := sdk.ValAddress([]byte("validator1"))
 	voter2 := sdk.ValAddress([]byte("validator2"))
 	voter3 := sdk.ValAddress([]byte("validator3"))

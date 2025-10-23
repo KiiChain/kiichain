@@ -17,14 +17,14 @@ var (
 	DefaultVoteThreshold = math.LegacyNewDecWithPrec(667, 3) // 0.667 | 66.7%
 	DefaultRewardBand    = math.LegacyNewDecWithPrec(2, 2)   // 0.02% | 2%
 	DefaultWhitelist     = DenomList{
-		{Name: utils.MicroBtcDenom},
-		{Name: utils.MicroEthDenom},
-		{Name: utils.MicroSolDenom},
-		{Name: utils.MicroXrpDenom},
-		{Name: utils.MicroBnbDenom},
-		{Name: utils.MicroUsdtDenom},
-		{Name: utils.MicroUsdcDenom},
-		{Name: utils.MicroTrxDenom},
+		{Name: utils.BtcDenom},
+		{Name: utils.EthDenom},
+		{Name: utils.SolDenom},
+		{Name: utils.XrpDenom},
+		{Name: utils.BnbDenom},
+		{Name: utils.UsdtDenom},
+		{Name: utils.UsdcDenom},
+		{Name: utils.TrxDenom},
 	}
 	DefaultSlashFraction     = math.LegacyNewDecWithPrec(0, 4) // 0.00 | 0%
 	DefaultMinValidPerWindow = math.LegacyNewDecWithPrec(5, 2) // 0.05 | 5%

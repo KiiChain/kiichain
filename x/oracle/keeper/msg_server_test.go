@@ -38,7 +38,7 @@ func TestAggregateExchangeRateVote(t *testing.T) {
 	require.NoError(t, err)
 
 	// send messages
-	exchangeRate := math.LegacyNewDec(12).String() + utils.MicroUsdcDenom
+	exchangeRate := math.LegacyNewDec(12).String() + utils.UsdcDenom
 	_, err = msgServer.AggregateExchangeRateVote(ctx, types.NewMsgAggregateExchangeRateVote(exchangeRate, Addrs[0], ValAddrs[0]))
 
 	// validation
