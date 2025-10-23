@@ -1,9 +1,14 @@
 # CHANGELOG
 
-## UNRELEASED
+## Unreleased
 
 ## Added
+
 - Cosmos EVM integrations tests added to the repo
+
+### Documentation
+
+- Add further docs related to the reentrance key creation
 
 ## v5.1.0 — 2025-10-15
 
