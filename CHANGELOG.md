@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Added
+
+- Cosmos EVM integrations tests added to the repo
+
 ### Documentation
 
 - Add further docs related to the reentrance key creation
