@@ -1,6 +1,7 @@
 package ibc_test
 
 import (
+	"bytes"
 	"math/big"
 	"strings"
 	"time"
@@ -9,7 +10,13 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 
 	transfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v10/modules/core/02-client/types"
 	ibctesting "github.com/cosmos/ibc-go/v10/testing"
+
+	"cosmossdk.io/log"
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/testutil"
@@ -382,4 +389,39 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransfer() {
 			}
 		})
 	}
+}
+
+// TestUnsafeLogger tests a unsafe login under the IBC precompile
+func (s *IBCPrecompileTestSuite) TestUnsafeLogger() {
+	// Create parameters for the call
+	method := s.Precompile.Methods[ibcprecompile.TransferMethod]
+
+	// Call parameters
+	args := transfertypes.MsgTransfer{
+		SourcePort:    "port-0",
+		SourceChannel: "channel-0",
+		Token:         sdk.NewCoin("atom", math.NewInt(10)),
+		Sender:        "cosmos1senderaddress",
+		Receiver:      "cosmos1receiveraddress",
+		TimeoutHeight: clienttypes.Height{
+			RevisionNumber: 1,
+			RevisionHeight: 100,
+		},
+		TimeoutTimestamp: uint64(time.Now().Add(1 * time.Hour).UnixNano()),
+		Memo:             strings.Repeat("a", 500000),
+	}
+
+	// Start a new logger with buffer to capture logs
+	var buf bytes.Buffer
+	testLogger := log.NewLogger(&buf)
+
+	// Add to the context
+	ctx := s.chainA.GetContext().WithLogger(testLogger)
+
+	// Call the logger
+	s.Precompile.LogTransfer(ctx, &method, &args)
+
+	// Check the length of the logs, should be less than 2000 characters
+	logs := buf.String()
+	s.Require().Less(len(logs), 2000, "logs exceed maximum length")
 }
