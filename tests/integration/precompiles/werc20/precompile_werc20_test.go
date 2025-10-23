@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/evm/tests/integration/precompiles/werc20"
+
 	"github.com/kiichain/kiichain/v5/tests/integration"
 )
 

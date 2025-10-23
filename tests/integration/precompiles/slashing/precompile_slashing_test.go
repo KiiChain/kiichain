@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/evm/tests/integration/precompiles/slashing"
+
 	"github.com/kiichain/kiichain/v5/tests/integration"
 )
 

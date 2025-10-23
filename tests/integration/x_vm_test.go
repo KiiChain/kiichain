@@ -3,10 +3,10 @@ package integration
 import (
 	"testing"
 
-	"github.com/cosmos/evm/tests/integration/x/vm"
-
-	"github.com/cosmos/evm/testutil/integration/evm/network"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/cosmos/evm/tests/integration/x/vm"
+	"github.com/cosmos/evm/testutil/integration/evm/network"
 )
 
 // Some tests need mint module, some precise bank, this also needs a test flag `-tags=test`

@@ -5,19 +5,21 @@ import (
 	"os"
 
 	dbm "github.com/cosmos/cosmos-db"
-	"github.com/cosmos/evm"
-	"github.com/cosmos/evm/testutil/config"
-	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	ibctesting "github.com/cosmos/ibc-go/v10/testing"
-	kiichain "github.com/kiichain/kiichain/v5/app"
 
 	"cosmossdk.io/log"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/cosmos/evm"
+	"github.com/cosmos/evm/testutil/config"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+
+	kiichain "github.com/kiichain/kiichain/v5/app"
 )
 
 // CreateKiichain creates a kiichain app for regular integration tests (non-mempool)

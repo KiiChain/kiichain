@@ -7,6 +7,7 @@ import (
 
 	"github.com/cosmos/evm/tests/integration/precompiles/p256"
 	"github.com/cosmos/evm/testutil/integration/evm/network"
+
 	"github.com/kiichain/kiichain/v5/tests/integration"
 )
 

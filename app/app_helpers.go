@@ -1,13 +1,11 @@
 package kiichain
 
 import (
-	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
-	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
-	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v10/modules/core/keeper"
 
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 	feegrantkeeper "cosmossdk.io/x/feegrant/keeper"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -19,9 +17,13 @@ import (
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
+	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
+	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
 	ibccallbackskeeper "github.com/cosmos/evm/x/ibc/callbacks/keeper"
 	transferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 	precisebankkeeper "github.com/cosmos/evm/x/precisebank/keeper"
+	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 )
 
 // GetStakingKeeper implements the TestingApp interface. Needed for ICS.
