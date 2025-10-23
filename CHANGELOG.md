@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## UNRELEASED
+
+## Added
+- Cosmos EVM integrations tests added to the repo
+
 ## v5.1.0 — 2025-10-15
 
 ### Fixes
