@@ -1,23 +1,17 @@
 package integration
 
 import (
-	"encoding/json"
 	"os"
 
 	dbm "github.com/cosmos/cosmos-db"
-	ibctesting "github.com/cosmos/ibc-go/v10/testing"
 
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/cosmos/evm"
-	"github.com/cosmos/evm/testutil/config"
-	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 
 	kiichain "github.com/kiichain/kiichain/v5/app"
 )
@@ -53,42 +47,4 @@ func CreateKiichain(chainID string, evmChaindID uint64, customBaseAppOptions ...
 		kiichain.EVMAppOptions,
 		customBaseAppOptions...,
 	)
-}
-
-// SetupKiichain initializes a new kiichain app with default genesis state.
-// It is used in IBC integration tests to create a new kiichain app instance.
-func SetupKiichain() (ibctesting.TestingApp, map[string]json.RawMessage) {
-	// Create a temporary path
-	dir, err := os.MkdirTemp("", "kiichain-integration-test")
-	if err != nil {
-		panic(err)
-	}
-
-	// Disable cache for integration tests to avoid state issues
-	sdk.SetAddrCacheEnabled(false)
-
-	app := kiichain.NewKiichainApp(
-		log.NewNopLogger(),
-		dbm.NewMemDB(),
-		nil,
-		true,
-		map[int64]bool{},
-		dir,
-		kiichain.EmptyAppOptions{},
-		kiichain.EmptyWasmOptions,
-		kiichain.EVMAppOptions,
-	)
-	// disable base fee for testing
-	genesisState := app.ModuleBasics.DefaultGenesis(app.AppCodec())
-	fmGen := feemarkettypes.DefaultGenesisState()
-	fmGen.Params.NoBaseFee = true
-	genesisState[feemarkettypes.ModuleName] = app.AppCodec().MustMarshalJSON(fmGen)
-	stakingGen := stakingtypes.DefaultGenesisState()
-	stakingGen.Params.BondDenom = config.ExampleChainDenom
-	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGen)
-	mintGen := minttypes.DefaultGenesisState()
-	mintGen.Params.MintDenom = config.ExampleChainDenom
-	genesisState[minttypes.ModuleName] = app.AppCodec().MustMarshalJSON(mintGen)
-
-	return app, genesisState
 }
