@@ -30,6 +30,7 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		),
 
 		ante.NewSetUpContextDecorator(),
+		oracle.NewVoteAloneDecorator(), // Since this only iterate TXs, it must be executed early
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit), // after setup context to enforce limits early
 		wasmkeeper.NewCountTXDecorator(options.TXCounterStoreService),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
@@ -47,7 +48,6 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		oracle.NewSpammingPreventionDecorator(options.OracleKeeper),
-		oracle.NewVoteAloneDecorator(),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
 	}
