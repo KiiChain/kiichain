@@ -9,6 +9,7 @@
 ## Fixed
 
 - Fix IBC unsafe log as reported on on issue [#143](https://github.com/KiiChain/kiichain/issues/143)
+- Fix Oracle module ante decorator to allow first vote and install oracle ante handlers
 
 ### Documentation
 
