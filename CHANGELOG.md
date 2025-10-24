@@ -6,6 +6,10 @@
 
 - Cosmos EVM integrations tests added to the repo
 
+## Fixed
+
+- Fix IBC unsafe log as reported on on issue [#143](https://github.com/KiiChain/kiichain/issues/143)
+
 ### Documentation
 
 - Add further docs related to the reentrance key creation
