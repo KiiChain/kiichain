@@ -116,6 +116,11 @@ func TestConvertEVMCoinsToSDKCoins(t *testing.T) {
 			input:         []EVMCoin{{Denom: "", Amount: big.NewInt(100)}},
 			errorContains: "invalid coins",
 		},
+		{
+			name:          "invalid coin (nil amount)",
+			input:         []EVMCoin{{Denom: "akii", Amount: nil}},
+			errorContains: "amount field must be a *big.Int, got *big.Int",
+		},
 	}
 
 	// Execute the test cases
