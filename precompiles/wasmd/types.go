@@ -202,6 +202,12 @@ func NewMsgExecute(
 
 // ConvertEVMCoinsToSDKCoins converts a slice of EVM coins to SDK coins
 func ConvertEVMCoinsToSDKCoins(input any) ([]sdk.Coin, error) {
+	// Check if the input is nil
+	if input == nil {
+		return []sdk.Coin{}, nil
+	}
+
+	// Get the reflect value of the input
 	v := reflect.ValueOf(input)
 
 	// Check if the input is a slice
@@ -209,18 +215,66 @@ func ConvertEVMCoinsToSDKCoins(input any) ([]sdk.Coin, error) {
 		return nil, fmt.Errorf("expected slice, got %T", input)
 	}
 
+	// Handle empty slice
+	if v.Len() == 0 {
+		return []sdk.Coin{}, nil
+	}
+
 	// Create the response
-	var coins []sdk.Coin
-	for i := 0; i < v.Len(); i++ {
+	var coins sdk.Coins
+	for i := range v.Len() {
 		// Get the item
 		item := v.Index(i)
 
-		// Get their fields
-		denom := item.FieldByName("Denom").String()
-		amount := item.FieldByName("Amount").Interface().(*big.Int)
+		// Item should be a struct with Denom and Amount fields
+		if item.Kind() != reflect.Struct {
+			return nil, fmt.Errorf("expected slice of structs, got slice of %T", input)
+		}
 
-		// Add to the array as a new coin
-		coins = append(coins, sdk.NewCoin(denom, math.NewIntFromBigInt(amount)))
+		// Check for Denom field
+		denom, ok := item.Type().FieldByName("Denom")
+		if !ok {
+			return nil, fmt.Errorf("struct missing Denom field")
+		}
+
+		// Check for Amount field
+		Amount, ok := item.Type().FieldByName("Amount")
+		if !ok {
+			return nil, fmt.Errorf("struct missing Amount field")
+		}
+
+		// Denom must be a string
+		denomValue := item.FieldByName(denom.Name)
+		if denomValue.Kind() != reflect.String {
+			return nil, fmt.Errorf("denom field must be a string, got %T", denomValue.Interface())
+		}
+		denomStr := denomValue.String()
+
+		// Amount must be a *big.Int
+		amountValue := item.FieldByName(Amount.Name)
+		if amountValue.Kind() != reflect.Ptr || amountValue.IsNil() || amountValue.Elem().Type().String() != "big.Int" {
+			return nil, fmt.Errorf("amount field must be a *big.Int, got %T", amountValue.Interface())
+		}
+		amount := amountValue.Interface().(*big.Int)
+
+		// Create the coin
+		newCoin := sdk.Coin{
+			Denom:  denomStr,
+			Amount: math.NewIntFromBigInt(amount),
+		}
+
+		// Validate the coin
+		if err := newCoin.Validate(); err != nil {
+			return nil, fmt.Errorf("invalid coins: %w", err)
+		}
+
+		// Append the coin to the response
+		coins = coins.Add(sdk.NewCoin(denomStr, math.NewIntFromBigInt(amount)))
+	}
+
+	// Validate the coins
+	if err := coins.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid coins: %w", err)
 	}
 
 	// Return the response
