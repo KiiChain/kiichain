@@ -269,7 +269,7 @@ func ConvertEVMCoinsToSDKCoins(input any) ([]sdk.Coin, error) {
 		}
 
 		// Append the coin to the response
-		coins = coins.Add(sdk.NewCoin(denomStr, math.NewIntFromBigInt(amount)))
+		coins = coins.Add(newCoin)
 	}
 
 	// Validate the coins
