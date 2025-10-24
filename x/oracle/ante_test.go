@@ -88,7 +88,7 @@ func TestSpammingPreventionHandle(t *testing.T) {
 	invalidVoteMsg := types.NewMsgAggregateExchangeRateVote(exchangeRate, keeper.Addrs[5], keeper.ValAddrs[2]) // addr 3 has not been delegated by val 2
 
 	// Register anti spamming decorator
-	spammingDecorator := oracle.NewSpammingPreventionDecorator(oracleKeeper)
+	spammingDecorator := oracle.NewSpammingPreventionDecorator(&oracleKeeper)
 	anteHandler := sdk.ChainAnteDecorators(spammingDecorator)
 
 	// should skip the ante handler because the context is set as Recheck
@@ -120,4 +120,42 @@ func TestSpammingPreventionHandle(t *testing.T) {
 	require.NoError(t, err)
 	_, err = anteHandler(checkCtx, oracle.NewTestTx([]sdk.Msg{voteMsg}), false)
 	require.Error(t, err)
+}
+
+// TestSpammingPreventionDecorator_noVoteYet tests that a validator that has not voted yet is allowed to vote
+func TestSpammingPreventionDecorator_noVoteYet(t *testing.T) {
+	// Prepare env
+	input, _ := oracle.SetUp(t)
+	ctx := input.Ctx
+	oracleKeeper := input.OracleKeeper
+
+	// Update the block height to 10
+	ctx = ctx.WithBlockHeight(10)
+
+	// Create test exchange rate
+	randomAExchangeRate := math.LegacyNewDec(1700)
+	exchangeRate := randomAExchangeRate.String() + utils.AtomDenom
+
+	voteMsg := types.NewMsgAggregateExchangeRateVote(exchangeRate, keeper.Addrs[0], keeper.ValAddrs[0])
+
+	// Register anti spamming decorator
+	spammingDecorator := oracle.NewSpammingPreventionDecorator(&oracleKeeper)
+	anteHandler := sdk.ChainAnteDecorators(spammingDecorator)
+
+	// should allow the vote since the validator has not voted yet
+	checkCtx := ctx.WithIsCheckTx(true)
+	_, err := anteHandler(checkCtx, oracle.NewTestTx([]sdk.Msg{voteMsg}), false)
+	require.NoError(t, err)
+
+	// try to vote again in the same block, should fail
+	_, err = anteHandler(checkCtx, oracle.NewTestTx([]sdk.Msg{voteMsg}), false)
+	require.Error(t, err)
+
+	// move to next block
+	ctx = ctx.WithBlockHeight(11)
+
+	// should allow the vote since it's a new block
+	checkCtx = ctx.WithIsCheckTx(true)
+	_, err = anteHandler(checkCtx, oracle.NewTestTx([]sdk.Msg{voteMsg}), false)
+	require.NoError(t, err)
 }
