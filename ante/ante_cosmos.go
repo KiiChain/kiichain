@@ -14,6 +14,7 @@ import (
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	cosmosante "github.com/kiichain/kiichain/v5/x/feeabstraction/ante/cosmos"
+	"github.com/kiichain/kiichain/v5/x/oracle"
 )
 
 // UseFeeMarketDecorator to make the integration testing easier: we can switch off its ante and post decorators with this flag
@@ -45,6 +46,8 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
 		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
+		oracle.NewSpammingPreventionDecorator(options.OracleKeeper),
+		oracle.NewVoteAloneDecorator(),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
 		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
 	}
