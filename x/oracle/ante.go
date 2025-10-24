@@ -3,7 +3,9 @@ package oracle
 import (
 	"fmt"
 
-	"cosmossdk.io/errors"
+	"github.com/pkg/errors"
+
+	"cosmossdk.io/collections"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -14,13 +16,13 @@ import (
 
 // SpammingPreventionDecorator will check if
 type SpammingPreventionDecorator struct {
-	oracleKepper keeper.Keeper
+	oracleKeeper *keeper.Keeper
 }
 
 // NewSpammingPreventionDecorator creates a new instance of spamming prevention decorator
-func NewSpammingPreventionDecorator(keeper keeper.Keeper) SpammingPreventionDecorator {
+func NewSpammingPreventionDecorator(keeper *keeper.Keeper) SpammingPreventionDecorator {
 	return SpammingPreventionDecorator{
-		oracleKepper: keeper,
+		oracleKeeper: keeper,
 	}
 }
 
@@ -60,22 +62,27 @@ func (spd SpammingPreventionDecorator) CheckOracleSpamming(ctx sdk.Context, msgs
 			}
 
 			// validate the feeder delegation is valid
-			err = spd.oracleKepper.ValidateFeeder(ctx, feederAddr, valAddr)
+			err = spd.oracleKeeper.ValidateFeeder(ctx, feederAddr, valAddr)
 			if err != nil {
 				return err
 			}
 
 			// check if the validator has voted on that block height
-			spamPreventionHeight, err := spd.oracleKepper.SpamPreventionCounter.Get(ctx, valAddr)
+			spamPreventionHeight, err := spd.oracleKeeper.SpamPreventionCounter.Get(ctx, valAddr)
 			if err != nil {
-				return err
+				// If the error is not found, its because the validator has not voted before
+				if errors.Is(err, collections.ErrNotFound) {
+					spamPreventionHeight = -1
+				} else {
+					return err
+				}
 			}
 			if spamPreventionHeight == currentHeight {
 				return errors.Wrap(sdkerrors.ErrConflict, fmt.Sprintf("the validator has already submitted a vote at the current height=%d", currentHeight))
 			}
 
 			// set the anti spam block height
-			err = spd.oracleKepper.SetSpamPreventionCounterWithDefault(ctx, valAddr)
+			err = spd.oracleKeeper.SetSpamPreventionCounterWithDefault(ctx, valAddr)
 			if err != nil {
 				return err
 			}
@@ -87,7 +94,7 @@ func (spd SpammingPreventionDecorator) CheckOracleSpamming(ctx sdk.Context, msgs
 	return nil
 }
 
-// VoteAloneDecorator implements the AnteFullDecorator needed to be registrated as a decorator
+// VoteAloneDecorator implements the AnteFullDecorator needed to be registered as a decorator
 type VoteAloneDecorator struct{}
 
 // NewVoteAloneDecorator returns a new instance of VoteAloneDecorator
