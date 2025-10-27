@@ -170,7 +170,7 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 				args[4] = big.NewInt(0)
 				return args
 			},
-			errContains: "amount is not positive",
+			errContains: "amount negative or zero",
 		},
 		{
 			name: "negative amount",
@@ -178,7 +178,7 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransferWithDefaultTimeout() {
 				args[4] = big.NewInt(-100)
 				return args
 			},
-			errContains: "amount is not positive",
+			errContains: "amount negative or zero",
 		},
 		// memo validation
 		{
