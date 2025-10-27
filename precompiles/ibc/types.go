@@ -117,9 +117,9 @@ func (p Precompile) NewMsgTransferDefaultTimeout(
 		return nil, err
 	}
 
-	if validatedArgs.amount.Cmp(big.NewInt(0)) == 0 {
+	if validatedArgs.amount.Cmp(big.NewInt(0)) < 1 {
 		// short circuit
-		return nil, errors.New("amount is zero, transaction is invalid")
+		return nil, errors.New("amount is not positive, transaction is invalid")
 	}
 
 	coin := sdk.Coin{
