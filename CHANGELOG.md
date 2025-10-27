@@ -8,7 +8,8 @@
 
 ## Fixed
 
-- Fix IBC unsafe log as reported on on issue [#143](https://github.com/KiiChain/kiichain/issues/143)
+- Fix IBC unsafe log as reported on issue [#143](https://github.com/KiiChain/kiichain/issues/143)
+- Fix wasmd precompile bad input handling for coins [#147](https://github.com/KiiChain/kiichain/issues/147)
 - Fix Oracle module ante decorator to allow first vote and install oracle ante handlers
 
 ### Documentation
