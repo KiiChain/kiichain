@@ -324,6 +324,22 @@ func (s *IBCPrecompileTestSuite) TestPrecompileTransfer() {
 			},
 			errContains: "timeoutTimestamp is not a uint64",
 		},
+		{
+			name: "zero amount",
+			modifyArgs: func(args []any) []any {
+				args[4] = big.NewInt(0)
+				return args
+			},
+			errContains: "amount negative or zero",
+		},
+		{
+			name: "negative amount",
+			modifyArgs: func(args []any) []any {
+				args[4] = big.NewInt(-100)
+				return args
+			},
+			errContains: "amount negative or zero",
+		},
 	}
 
 	for _, tc := range tc {
