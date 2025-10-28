@@ -93,7 +93,6 @@ func NewRootCmd() *cobra.Command {
 		tempDir,
 		initAppOptions,
 		kiichain.EmptyWasmOptions,
-		kiichain.EVMAppOptions,
 	)
 	defer func() {
 		if err := tempApplication.Close(); err != nil {
@@ -460,7 +459,6 @@ func (a appCreator) newApp(
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		appOpts,
 		wasmOpts,
-		kiichain.EVMAppOptions,
 		baseappOptions...,
 	)
 }
@@ -512,7 +510,6 @@ func (a appCreator) appExport(
 		homePath,
 		appOpts,
 		emptyWasmOpts,
-		kiichain.EVMAppOptions,
 		baseapp.SetChainID(chainID),
 	)
 

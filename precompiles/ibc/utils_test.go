@@ -44,7 +44,6 @@ func KiichainAppIniterTempDir() (ibctesting.TestingApp, map[string]json.RawMessa
 		tmpDir,
 		kiichain.EmptyAppOptions{},
 		kiichain.EmptyWasmOptions,
-		kiichain.EVMAppOptions,
 		baseAppOptions,
 	)
 
@@ -64,7 +63,7 @@ func KiichainAppIniter() (ibctesting.TestingApp, map[string]json.RawMessage) {
 		kiichain.DefaultNodeHome,
 		kiichain.EmptyAppOptions{},
 		kiichain.EmptyWasmOptions,
-		kiichain.EVMAppOptions)
+	)
 
 	testApp := ibctesting.TestingApp(app)
 

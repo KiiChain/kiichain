@@ -133,7 +133,6 @@ func MigrateEVMParams(
 	evmParams.EvmDenom = evmtypes.GetEVMCoinDenom()
 	evmParams.ActiveStaticPrecompiles = oldParams.ActiveStaticPrecompiles
 	evmParams.EVMChannels = oldParams.EVMChannels
-	evmParams.AllowUnprotectedTxs = oldParams.AllowUnprotectedTxs
 
 	return keepers.EVMKeeper.SetParams(ctx, evmParams)
 }

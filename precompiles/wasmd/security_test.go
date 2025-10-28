@@ -138,7 +138,7 @@ func (s *WasmdPrecompileTestSuite) TestUnsafeLogging() {
 
 			// This call will log the message
 			// The issue is that msg.Msg is logged as-is, which could expose binary data
-			_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+			_, err := s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, args)
 
 			// Make the buf into a string for inspection
 			logOutput := buf.String()
@@ -206,11 +206,11 @@ func (s *WasmdPrecompileTestSuite) TestGasHandling() {
 			if tc.shouldPanicOutGas {
 				require.Panics(s.T(), func() {
 					// The call panics if out of gas
-					_, _ = s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+					_, _ = s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, args)
 				}, "Expected out-of-gas panic for %s", tc.name)
 			} else {
 				// Should not panic
-				_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+				_, err := s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, args)
 				s.Require().NoError(err, "Should succeed with adequate gas for %s", tc.name)
 			}
 		})
@@ -243,12 +243,12 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 		}
 
 		// First execution starts
-		_, err1 := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+		_, err1 := s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, args)
 		s.Require().NoError(err1)
 
 		// Second execution on same contract (simulating reentrancy)
 		// In a real attack, this would be triggered from within the first execution
-		_, err2 := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+		_, err2 := s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, args)
 
 		// If there's no reentrancy guard, this should succeed
 		// If there IS a guard, this should fail with a reentrancy error
@@ -294,7 +294,7 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 
 		// Attempt nested executions
 		for i := 0; i < maxDepth; i++ {
-			_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+			_, err := s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, args)
 			if err != nil {
 				s.T().Logf("  Depth %d: BLOCKED - %v", i, err)
 				if err.Error() == "reentrant call" {
@@ -339,7 +339,7 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 			[]byte(`{"set": 50}`),
 			[]cmn.Coin{},
 		}
-		_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args1)
+		_, err := s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, args1)
 		s.Require().NoError(err)
 
 		// Try to execute again before state is committed (simulating reentrancy)
@@ -348,7 +348,7 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 			[]byte(`{"set": 75}`),
 			[]cmn.Coin{},
 		}
-		_, err = s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args2)
+		_, err = s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, args2)
 
 		if err == nil {
 			s.T().Log("⚠️  State modification allowed during potential reentrancy")
@@ -383,7 +383,7 @@ func (s *WasmdPrecompileTestSuite) TestKeeperReference() {
 			[]cmn.Coin{},
 		}
 
-		_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+		_, err := s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, args)
 		s.Require().NoError(err, "Keeper should work correctly without typo")
 	})
 }

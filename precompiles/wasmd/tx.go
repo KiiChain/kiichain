@@ -68,8 +68,8 @@ func (p Precompile) Instantiate(
 	return method.Outputs.Pack(true)
 }
 
-// Execute executes wasmd execute from the precompile
-func (p Precompile) Execute(
+// ExecuteWasm executes wasmd execute from the precompile
+func (p Precompile) ExecuteWasm(
 	ctx sdk.Context,
 	origin common.Address,
 	contract *vm.Contract,

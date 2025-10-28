@@ -74,6 +74,7 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
+	precompiletypes "github.com/cosmos/evm/precompiles/types"
 	srvflags "github.com/cosmos/evm/server/flags"
 	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
@@ -157,6 +158,7 @@ func NewAppKeeper(
 	logger log.Logger,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
+	evmChainID uint64,
 ) AppKeepers {
 	appKeepers := AppKeepers{}
 
@@ -402,7 +404,20 @@ func NewAppKeeper(
 		appKeepers.FeeMarketKeeper,
 		&appKeepers.ConsensusParamsKeeper,
 		&appKeepers.Erc20Keeper,
+		evmChainID,
 		tracer,
+	).WithStaticPrecompiles(
+		precompiletypes.DefaultStaticPrecompiles(
+			*appKeepers.StakingKeeper,
+			appKeepers.DistrKeeper,
+			appKeepers.BankKeeper,
+			&appKeepers.Erc20Keeper,
+			&appKeepers.TransferKeeper,
+			appKeepers.IBCKeeper.ChannelKeeper,
+			*appKeepers.GovKeeper,
+			appKeepers.SlashingKeeper,
+			appCodec,
+		),
 	)
 
 	appKeepers.Erc20Keeper = erc20keeper.NewKeeper(
@@ -419,7 +434,6 @@ func NewAppKeeper(
 	appKeepers.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[ibctransfertypes.StoreKey]),
-		appKeepers.GetSubspace(ibctransfertypes.ModuleName),
 		appKeepers.IBCKeeper.ChannelKeeper, // ISC4 Wrapper: This is overridden later
 		appKeepers.IBCKeeper.ChannelKeeper,
 		bApp.MsgServiceRouter(),

@@ -60,9 +60,9 @@ import (
 	// EVM
 	"github.com/cosmos/evm/ante"
 	cosmosevmante "github.com/cosmos/evm/ante/evm"
+	cosmosevmantetypes "github.com/cosmos/evm/ante/types"
 	evmencoding "github.com/cosmos/evm/encoding"
 	srvflags "github.com/cosmos/evm/server/flags"
-	cosmosevmtypes "github.com/cosmos/evm/types"
 
 	kiiante "github.com/kiichain/kiichain/v5/ante"
 	"github.com/kiichain/kiichain/v5/app/keepers"
@@ -130,7 +130,6 @@ func NewKiichainApp(
 	homePath string,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
-	evmAppOptions EVMOptionsFn,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *KiichainApp {
 	// Use the EVM encoding config
@@ -151,11 +150,6 @@ func NewKiichainApp(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 	bApp.SetTxEncoder(txConfig.TxEncoder())
-
-	// initialize the Cosmos EVM application configuration
-	if err := evmAppOptions(KiichainID); err != nil {
-		panic(err)
-	}
 
 	app := &KiichainApp{
 		BaseApp:           bApp,
@@ -323,7 +317,7 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 		Cdc:                    app.appCodec,
 		AccountKeeper:          &app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
-		ExtensionOptionChecker: cosmosevmtypes.HasDynamicFeeExtensionOption,
+		ExtensionOptionChecker: cosmosevmantetypes.HasDynamicFeeExtensionOption,
 		EvmKeeper:              app.EVMKeeper,
 		FeeAbstractionKeeper:   app.FeeAbstractionKeeper,
 		FeegrantKeeper:         app.FeeGrantKeeper,

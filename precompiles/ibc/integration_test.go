@@ -3,7 +3,6 @@ package ibc_test
 import (
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
 	ibctesting "github.com/cosmos/ibc-go/v10/testing"
@@ -67,12 +66,10 @@ func (s *IBCPrecompileTestSuite) SetupTest() {
 	s.coordinator.Setup(s.path)
 
 	// Setup ibc precompile on chain A
-	pc, err := ibcprecompile.NewPrecompile(
+	s.Precompile = ibcprecompile.NewPrecompile(
 		chain.App.(*kiichainApp.KiichainApp).TransferKeeper, *chain.App.GetIBCKeeper().ClientKeeper,
 		*chain.App.GetIBCKeeper().ConnectionKeeper, *chain.App.GetIBCKeeper().ChannelKeeper,
 	)
-	s.Require().NoError(err)
-	s.Precompile = pc
 
 	// Fund user 0 on chain A
 	s.fundAddress(s.keyring.GetKey(0).AccAddr, chain)
@@ -80,15 +77,10 @@ func (s *IBCPrecompileTestSuite) SetupTest() {
 
 // GetStateDB returns the state database for the precompile from a given chain
 func (s *IBCPrecompileTestSuite) GetStateDB(chain *ibctesting.TestChain) *statedb.StateDB {
-	ctx := chain.GetContext()
-	// Get the header hash
-	headerHash := ctx.HeaderHash()
-
-	// Return the statedb
 	return statedb.New(
-		ctx,
+		chain.GetContext(),
 		GetApp(chain).EVMKeeper,
-		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash)),
+		statedb.NewEmptyTxConfig(),
 	)
 }
 

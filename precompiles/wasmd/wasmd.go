@@ -6,7 +6,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	"cosmossdk.io/log"
@@ -27,47 +26,45 @@ const (
 // Precompile is a struct that implements the PrecompiledContract interface
 var _ vm.PrecompiledContract = &Precompile{}
 
-// Embed the json abi to the binary
-//
-//go:embed abi.json
-var f embed.FS
+var (
+	// Embed abi json file to the executable binary. Needed when importing as dependency.
+	//
+	//go:embed abi.json
+	f   embed.FS
+	ABI abi.ABI
+)
+
+// Load ABI on init
+func init() {
+	var err error
+	ABI, err = cmn.LoadABI(f, "abi.json")
+	if err != nil {
+		panic(err)
+	}
+}
 
 // Precompile defines the struct for the wasmd precompile
 type Precompile struct {
 	cmn.Precompile
-	wasmdKeeper wasmdkeeper.Keeper
-}
 
-// LoadABI loads the ABI from the embedded file for the wasmd precompile
-func LoadABI() (abi.ABI, error) {
-	return cmn.LoadABI(f, "abi.json")
+	abi.ABI
+	wasmdKeeper wasmdkeeper.Keeper
 }
 
 // NewPrecompile starts a new wasmd precompile
 func NewPrecompile(
 	wasmdKeeper wasmdkeeper.Keeper,
-) (*Precompile, error) {
-	// Load the abi
-	abi, err := LoadABI()
-	if err != nil {
-		return nil, err
-	}
-
+) *Precompile {
 	// Initialize the precompile
-	precompile := &Precompile{
+	return &Precompile{
 		Precompile: cmn.Precompile{
-			ABI:                  abi,
 			KvGasConfig:          storetypes.KVGasConfig(),
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
+			ContractAddress:      common.HexToAddress(WasmdPrecompileAddress),
 		},
+		ABI:         ABI,
 		wasmdKeeper: wasmdKeeper,
 	}
-
-	// Set the address of the precompile
-	precompile.SetAddress(common.HexToAddress(WasmdPrecompileAddress))
-
-	// Return the precompile
-	return precompile, nil
 }
 
 // RequiredGas returns the gas required for the precompile
@@ -92,23 +89,27 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 }
 
 // Run executes the wasmd precompile
-func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
-	// Initialize the context, db and chain data
-	ctx, stateDB, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
+func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readonly bool) ([]byte, error) {
+	return p.RunNativeAction(evm, contract, func(ctx sdk.Context) ([]byte, error) {
+		return p.Execute(ctx, evm.StateDB, evm.Origin, contract, readonly)
+	})
+}
+
+func (p Precompile) Execute(ctx sdk.Context, stateDB vm.StateDB, caller common.Address, contract *vm.Contract, readOnly bool) ([]byte, error) {
+	method, args, err := cmn.SetupABI(p.ABI, contract, readOnly, p.IsTransaction)
 	if err != nil {
 		return nil, err
 	}
 
-	// This handles any out of gas errors
-	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
+	var bz []byte
 
 	// Now we call the method based on the function
 	switch method.Name {
 	// Wasmd transactions
 	case InstantiateMethod:
-		bz, err = p.Instantiate(ctx, evm.Origin, contract, stateDB, method, args)
+		bz, err = p.Instantiate(ctx, caller, contract, stateDB, method, args)
 	case ExecuteMethod:
-		bz, err = p.Execute(ctx, evm.Origin, contract, stateDB, method, args)
+		bz, err = p.ExecuteWasm(ctx, caller, contract, stateDB, method, args)
 	// Wasmd queries
 	case QueryRawMethod:
 		bz, err = p.QueryRaw(ctx, method, args)
@@ -118,17 +119,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		// If default error out
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
-	if err != nil {
-		return nil, err
-	}
 
-	// Check the gas cost
-	cost := ctx.GasMeter().GasConsumed() - initialGas
-	if !contract.UseGas(cost, nil, tracing.GasChangeCallPrecompiledContract) {
-		return nil, vm.ErrOutOfGas
-	}
-
-	return bz, nil
+	return bz, err
 }
 
 // IsTransaction checks if the method is a transaction

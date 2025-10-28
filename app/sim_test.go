@@ -94,7 +94,6 @@ func TestAppStateDeterminism(t *testing.T) {
 				dir,
 				appOptions,
 				emptyWasmOption,
-				kiichain.EVMAppOptions,
 				interBlockCacheOpt(),
 				baseapp.SetChainID(AppChainID),
 			)

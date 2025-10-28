@@ -283,12 +283,13 @@ func TestDeductFeeDecorator(t *testing.T) {
 			}
 
 			// Start up the DeductFeeDecorator
+			feemarketParams := app.FeeMarketKeeper.GetParams(ctx)
 			deductFeeDecorator := cosmos.NewDeductFeeDecorator(
 				app.AccountKeeper,
 				mockBankKeeper,
 				app.FeeGrantKeeper,
 				app.FeeAbstractionKeeper,
-				cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+				cosmosevmante.NewDynamicFeeChecker(&feemarketParams),
 			)
 
 			// Wrap into a ante decorator
@@ -343,12 +344,13 @@ func TestDeductFeeDecoratorGasZero(t *testing.T) {
 	app, ctx := helpers.SetupWithContext(t)
 
 	// Start up the DeductFeeDecorator with a nil checker
+	feemarketParams := app.FeeMarketKeeper.GetParams(ctx)
 	deductFeeDecorator := cosmos.NewDeductFeeDecorator(
 		app.AccountKeeper,
 		app.BankKeeper,
 		nil, // Skip all the feegrant shenanigans
 		app.FeeAbstractionKeeper,
-		cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+		cosmosevmante.NewDynamicFeeChecker(&feemarketParams),
 	)
 
 	// Create a fee payer
@@ -378,12 +380,13 @@ func TestDeductFeeDecoratorFeeGranterNoFeeKeeper(t *testing.T) {
 	app, ctx := helpers.SetupWithContext(t)
 
 	// Start up the DeductFeeDecorator with a nil checker
+	feemarketParams := app.FeeMarketKeeper.GetParams(ctx)
 	deductFeeDecorator := cosmos.NewDeductFeeDecorator(
 		app.AccountKeeper,
 		app.BankKeeper,
 		nil,
 		app.FeeAbstractionKeeper,
-		cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+		cosmosevmante.NewDynamicFeeChecker(&feemarketParams),
 	)
 
 	// Create a fee payer

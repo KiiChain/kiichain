@@ -36,7 +36,6 @@ func TestKiichainApp_BlockedModuleAccountAddrs(t *testing.T) {
 		kiichain.DefaultNodeHome,
 		EmptyAppOptions{},
 		emptyWasmOption,
-		kiichain.EVMAppOptions,
 	)
 
 	moduleAccountAddresses := app.ModuleAccountAddrs()

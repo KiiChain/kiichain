@@ -59,33 +59,6 @@ var CoinInfo = evmtypes.EvmCoinInfo{
 	Decimals:      params.BaseDenomUnit,
 }
 
-// EVMAppOptions allows to setup the global configuration
-// for the chain.
-func EVMAppOptions(chainID uint64) error {
-	// Check if the configuration is sealed
-	if sealed {
-		return nil
-	}
-
-	// set the denom info for the chain
-	if err := setBaseDenom(CoinInfo); err != nil {
-		return err
-	}
-
-	ethCfg := evmtypes.DefaultChainConfig(chainID)
-
-	err := evmtypes.NewEVMConfigurator().
-		WithChainConfig(ethCfg).
-		WithEVMCoinInfo(CoinInfo).
-		Configure()
-	if err != nil {
-		return err
-	}
-
-	sealed = true
-	return nil
-}
-
 // setBaseDenom registers the display denom and base denom and sets the
 // base denom for the chain.
 func setBaseDenom(ci evmtypes.EvmCoinInfo) error {

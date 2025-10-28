@@ -49,7 +49,5 @@ func (s *OraclePrecompileTestSuite) SetupSuite() {
 	s.keyring = keyring
 
 	// Start the precompile
-	pc, err := oracleprecompile.NewPrecompile(s.App.OracleKeeper)
-	s.Require().NoError(err)
-	s.Precompile = pc
+	s.Precompile = oracleprecompile.NewPrecompile(s.App.OracleKeeper)
 }

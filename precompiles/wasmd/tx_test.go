@@ -283,7 +283,7 @@ func (s *WasmdPrecompileTestSuite) TestExecute() {
 			contract, ctx := testutil.NewPrecompileContract(s.T(), s.Ctx, account.Addr, s.Precompile.Address(), 200000)
 
 			// Execute the contract using the precompile
-			res, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, tc.args)
+			res, err := s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, tc.args)
 
 			// Check if the error contains the expected string
 			if tc.errContains != "" {
