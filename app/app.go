@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ethereum/go-ethereum/common"
 	geth "github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cast"
@@ -59,7 +60,6 @@ import (
 
 	// EVM
 	"github.com/cosmos/evm/ante"
-	cosmosevmante "github.com/cosmos/evm/ante/evm"
 	cosmosevmantetypes "github.com/cosmos/evm/ante/types"
 	evmencoding "github.com/cosmos/evm/encoding"
 	srvflags "github.com/cosmos/evm/server/flags"
@@ -174,6 +174,7 @@ func NewKiichainApp(
 		logger,
 		appOpts,
 		wasmOpts,
+		KiichainID,
 	)
 
 	// Create IBC Tendermint Light Client Stack
@@ -326,7 +327,8 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 		SignModeHandler:        txConfig.SignModeHandler(),
 		SigGasConsumer:         kiiante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
-		TxFeeChecker:           cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+		DynamicFeeChecker:      true,
+		PendingTxListener:      app.onPendingTx,
 		StakingKeeper:          app.StakingKeeper,
 		TXCounterStoreService:  runtime.NewKVStoreService(app.AppKeepers.GetKey(wasmtypes.StoreKey)),
 		WasmConfig:             &wasmConfig,
@@ -337,6 +339,13 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 	}
 
 	app.SetAnteHandler(kiiante.NewAnteHandler(options))
+}
+
+// onPendingTx passes the tx to be listened
+func (app *KiichainApp) onPendingTx(hash common.Hash) {
+	for _, listener := range app.pendingTxListeners {
+		listener(hash)
+	}
 }
 
 // Name returns the name of the App

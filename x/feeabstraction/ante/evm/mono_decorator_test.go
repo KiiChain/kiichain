@@ -70,6 +70,8 @@ func TestMonoDecoratorTx(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create a cached context
 			cacheCtx, _ := ctx.CacheContext()
+			params := app.EVMKeeper.GetParams(sdk.Context{})
+			feemarketParams := app.FeeMarketKeeper.GetParams(sdk.Context{})
 
 			// Start up the wrapped ante decorator
 			monoDecorator := kiievmante.NewEVMMonoDecorator(
@@ -78,6 +80,8 @@ func TestMonoDecoratorTx(t *testing.T) {
 				app.EVMKeeper,
 				app.FeeAbstractionKeeper,
 				20000000,
+				&params,
+				&feemarketParams,
 			)
 			anteHandler := sdk.ChainAnteDecorators(monoDecorator)
 
@@ -384,6 +388,8 @@ func TestMonoDecorator(t *testing.T) {
 				cacheCtx = tc.malleate(cacheCtx)
 			}
 
+			params := app.EVMKeeper.GetParams(sdk.Context{})
+			feemarketParams := app.FeeMarketKeeper.GetParams(sdk.Context{})
 			// Start up the wrapped ante decorator
 			monoDecorator := kiievmante.NewEVMMonoDecorator(
 				app.AccountKeeper,
@@ -391,6 +397,8 @@ func TestMonoDecorator(t *testing.T) {
 				app.EVMKeeper,
 				app.FeeAbstractionKeeper,
 				20000000,
+				&params,
+				&feemarketParams,
 			)
 			anteHandler := sdk.ChainAnteDecorators(monoDecorator)
 

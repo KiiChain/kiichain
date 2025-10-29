@@ -8,8 +8,7 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-
-	evmcosmosante "github.com/cosmos/evm/ante/cosmos"
+	evmantetypes "github.com/cosmos/evm/ante/cosmos"
 	evmante "github.com/cosmos/evm/ante/evm"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
@@ -21,10 +20,12 @@ import (
 var UseFeeMarketDecorator = true
 
 // newCosmosAnteHandler creates the default ante handler for Cosmos transactions
-func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
+func NewCosmosAnteHandler(ctx sdk.Context, options HandlerOptions) sdk.AnteHandler {
+	feemarketParams := options.FeeMarketKeeper.GetParams(ctx)
+
 	anteDecorators := []sdk.AnteDecorator{
-		evmcosmosante.NewRejectMessagesDecorator(), // reject MsgEthereumTxs
-		evmcosmosante.NewAuthzLimiterDecorator( // disable the Msg types that cannot be included on an authz.MsgExec msgs field
+		evmantetypes.NewRejectMessagesDecorator(), // reject MsgEthereumTxs
+		evmantetypes.NewAuthzLimiterDecorator( // disable the Msg types that cannot be included on an authz.MsgExec msgs field
 			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
 			sdk.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{}),
 		),
@@ -39,7 +40,7 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		NewGovVoteDecorator(options.Cdc, options.StakingKeeper),
 		NewGovExpeditedProposalsDecorator(options.Cdc),
-		evmcosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
+		evmantetypes.NewMinGasPriceDecorator(&feemarketParams),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
@@ -49,11 +50,17 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		oracle.NewSpammingPreventionDecorator(options.OracleKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
-		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
+		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper, &feemarketParams),
 	}
 
 	// Skip the feemarket decorator is needed
 	if UseFeeMarketDecorator {
+		// Get fee checker  if active
+		var txFeeChecker ante.TxFeeChecker
+		if options.DynamicFeeChecker {
+			txFeeChecker = evmante.NewDynamicFeeChecker(&feemarketParams)
+		}
+
 		// This wraps using the gasless decorator
 		gasLessFeeDecorator := NewFeelessDecorator(
 			cosmosante.NewDeductFeeDecorator(
@@ -61,7 +68,7 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				options.BankKeeper,
 				options.FeegrantKeeper,
 				options.FeeAbstractionKeeper,
-				options.TxFeeChecker,
+				txFeeChecker,
 			),
 			options.OracleKeeper,
 		)
