@@ -6,6 +6,10 @@
 
 - Cosmos EVM integrations tests added to the repo
 
+## DEPENDENCIES
+- Bump [EVM](github.com/cosmos/evm) from v0.4.1 to [v0.5.0](https://github.com/cosmos/evm/releases/tag/v0.5.0)
+- Bump [cosmos go-ethereum](github.com/cosmos/go-ethereum) to [v1.16.2](https://github.com/cosmos/go-ethereum/releases/tag/v1.16.2-cosmos-1)
+
 ## Fixed
 
 - Fix IBC unsafe log as reported on issue [#143](https://github.com/KiiChain/kiichain/issues/143)
