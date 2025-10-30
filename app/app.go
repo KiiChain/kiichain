@@ -63,6 +63,7 @@ import (
 	cosmosevmantetypes "github.com/cosmos/evm/ante/types"
 	evmencoding "github.com/cosmos/evm/encoding"
 	srvflags "github.com/cosmos/evm/server/flags"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	kiiante "github.com/kiichain/kiichain/v5/ante"
 	"github.com/kiichain/kiichain/v5/app/keepers"
@@ -207,6 +208,7 @@ func NewKiichainApp(
 	app.mm.SetOrderPreBlockers(
 		upgradetypes.ModuleName,
 		authtypes.ModuleName,
+		evmtypes.ModuleName,
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
