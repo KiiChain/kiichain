@@ -47,3 +47,6 @@ On `TestStakingPrecompileTestSuite`:
 
 ## Werc20 
 `TestWERC20PrecompileIntegrationTestSuite` tests complain about kii denom being bound
+
+## p256
+`TestP256PrecompileIntegrationTestSuite` failing due to gas being slightly under what it wants
