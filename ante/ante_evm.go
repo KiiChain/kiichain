@@ -7,7 +7,9 @@ import (
 )
 
 // newMonoEVMAnteHandler creates the sdk.AnteHandler implementation for the EVM transactions
-func newMonoEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
+func newMonoEVMAnteHandler(ctx sdk.Context, options HandlerOptions) sdk.AnteHandler {
+	evmParams := options.EvmKeeper.GetParams(ctx)
+	feemarketParams := options.FeeMarketKeeper.GetParams(ctx)
 	return sdk.ChainAnteDecorators(
 		kiievmante.NewEVMMonoDecorator(
 			options.AccountKeeper,
@@ -15,6 +17,9 @@ func newMonoEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 			options.EvmKeeper,
 			options.FeeAbstractionKeeper,
 			options.MaxTxGasWanted,
+			&evmParams,
+			&feemarketParams,
 		),
+		NewTxListenerDecorator(options.PendingTxListener),
 	)
 }

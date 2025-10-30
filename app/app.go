@@ -59,7 +59,6 @@ import (
 
 	// EVM
 	"github.com/cosmos/evm/ante"
-	cosmosevmante "github.com/cosmos/evm/ante/evm"
 	evmencoding "github.com/cosmos/evm/encoding"
 	srvflags "github.com/cosmos/evm/server/flags"
 	cosmosevmtypes "github.com/cosmos/evm/types"
@@ -332,7 +331,7 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 		SignModeHandler:        txConfig.SignModeHandler(),
 		SigGasConsumer:         kiiante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
-		TxFeeChecker:           cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+		DynamicFeeChecker:      true,
 		StakingKeeper:          app.StakingKeeper,
 		TXCounterStoreService:  runtime.NewKVStoreService(app.AppKeepers.GetKey(wasmtypes.StoreKey)),
 		WasmConfig:             &wasmConfig,
