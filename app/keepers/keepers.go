@@ -74,7 +74,6 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	precompiletypes "github.com/cosmos/evm/precompiles/types"
 	srvflags "github.com/cosmos/evm/server/flags"
 	erc20keeper "github.com/cosmos/evm/x/erc20/keeper"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
@@ -407,15 +406,22 @@ func NewAppKeeper(
 		evmChainID,
 		tracer,
 	).WithStaticPrecompiles(
-		precompiletypes.DefaultStaticPrecompiles(
+		// Configure EVM precompiles
+		NewAvailableStaticPrecompiles(
 			*appKeepers.StakingKeeper,
 			appKeepers.DistrKeeper,
 			appKeepers.BankKeeper,
-			&appKeepers.Erc20Keeper,
-			&appKeepers.TransferKeeper,
+			appKeepers.Erc20Keeper,
+			appKeepers.TransferKeeper,
+			*appKeepers.IBCKeeper.ClientKeeper,
+			*appKeepers.IBCKeeper.ConnectionKeeper,
 			appKeepers.IBCKeeper.ChannelKeeper,
+			appKeepers.EVMKeeper,
 			*appKeepers.GovKeeper,
 			appKeepers.SlashingKeeper,
+			appKeepers.EvidenceKeeper,
+			appKeepers.WasmKeeper,
+			appKeepers.OracleKeeper,
 			appCodec,
 		),
 	)
@@ -582,28 +588,6 @@ func NewAppKeeper(
 	appKeepers.TransferModule = transfer.NewAppModule(*appKeepers.TransferKeeper.Keeper)
 	appKeepers.PFMRouterModule = pfmrouter.NewAppModule(appKeepers.PFMRouterKeeper, appKeepers.GetSubspace(pfmroutertypes.ModuleName))
 	appKeepers.RateLimitModule = ratelimit.NewAppModule(appCodec, appKeepers.RatelimitKeeper)
-
-	// Configure EVM precompiles
-	corePrecompiles := NewAvailableStaticPrecompiles(
-		*appKeepers.StakingKeeper,
-		appKeepers.DistrKeeper,
-		appKeepers.BankKeeper,
-		appKeepers.Erc20Keeper,
-		appKeepers.TransferKeeper,
-		*appKeepers.IBCKeeper.ClientKeeper,
-		*appKeepers.IBCKeeper.ConnectionKeeper,
-		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.EVMKeeper,
-		*appKeepers.GovKeeper,
-		appKeepers.SlashingKeeper,
-		appKeepers.EvidenceKeeper,
-		appKeepers.WasmKeeper,
-		appKeepers.OracleKeeper,
-		appCodec,
-	)
-	appKeepers.EVMKeeper.WithStaticPrecompiles(
-		corePrecompiles,
-	)
 
 	return appKeepers
 }
