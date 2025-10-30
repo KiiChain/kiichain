@@ -324,7 +324,7 @@ func TestMonoDecorator(t *testing.T) {
 			},
 			gasLimit:    1, // This is less than the gas limit set in the decorator
 			gasPrice:    big.NewInt(1000000),
-			errContains: "gas limit too low",
+			errContains: "intrinsic gas too low",
 		},
 		{
 			name: "fail - fee charged with fee abstraction native token but no funds for tx payment",
