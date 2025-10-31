@@ -117,7 +117,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		GasLimit:   ethTx.Gas(),
 		BaseFee:    decUtils.BaseFee,
 		Number:     big.NewInt(ctx.BlockHeight()),
-		Time:       uint64(ctx.BlockTime().Unix()), 
+		Time:       uint64(ctx.BlockTime().Unix()),
 		Difficulty: big.NewInt(0),
 	}
 
