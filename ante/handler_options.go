@@ -85,5 +85,8 @@ func (options HandlerOptions) Validate() error {
 	if options.OracleKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "oracle keeper is required for AnteHandler")
 	}
+	if options.PendingTxListener == nil {
+		return errorsmod.Wrap(errortypes.ErrLogic, "Pending Tx listener is required for AnteHandler")
+	}
 	return nil
 }
