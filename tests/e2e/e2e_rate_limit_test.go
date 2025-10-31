@@ -260,7 +260,6 @@ func (s *IntegrationTestSuite) testUpdateRateLimit() {
 	submitGovFlags := []string{configFile(proposalUpdateRateLimitAtomFilename)}
 	depositGovFlags := []string{strconv.Itoa(proposalCounter), depositAmount.String()}
 	voteGovFlags := []string{strconv.Itoa(proposalCounter), "yes"}
-	time.Sleep(5 * time.Second)
 
 	s.T().Logf("Proposal number: %d", proposalCounter)
 	s.T().Logf("Submitting, deposit and vote Gov Proposal: Update IBC rate limit for (channel-0, akii)")
@@ -375,5 +374,7 @@ func (s *IntegrationTestSuite) testIBCTransfer(expToFail bool) {
 		s.Require().NotNil(res.RateLimit)
 		s.Require().Equal(sdkmath.NewInt(0), res.RateLimit.Flow.Inflow)
 		s.Require().NotEqual(sdkmath.NewInt(0), res.RateLimit.Flow.Outflow)
+	} else {
+		time.Sleep(5 * time.Second)
 	}
 }
