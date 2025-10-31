@@ -3,9 +3,9 @@ package ante
 import (
 	"github.com/ethereum/go-ethereum/common"
 
-	evmtypes "github.com/cosmos/evm/x/vm/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 type PendingTxListener func(common.Hash)
