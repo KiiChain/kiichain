@@ -20,7 +20,6 @@ func (s *IntegrationTestSuite) testDistribution() {
 	delegatorAddress, _ := s.chainA.genesisAccounts[2].keyInfo.GetAddress()
 
 	newWithdrawalAddress, _ := s.chainA.genesisAccounts[3].keyInfo.GetAddress()
-	fees := sdk.NewCoin(akiiDenom, math.NewInt(1000))
 
 	beforeBalance, err := getSpecificBalance(chainEndpoint, newWithdrawalAddress.String(), akiiDenom)
 	s.Require().NoError(err)
@@ -28,7 +27,7 @@ func (s *IntegrationTestSuite) testDistribution() {
 		beforeBalance = sdk.NewCoin(akiiDenom, math.NewInt(0))
 	}
 
-	s.execSetWithdrawAddress(s.chainA, 0, fees.String(), delegatorAddress.String(), newWithdrawalAddress.String(), kiichainHomePath)
+	s.execSetWithdrawAddress(s.chainA, 0, delegatorAddress.String(), newWithdrawalAddress.String(), kiichainHomePath)
 
 	// Verify
 	s.Require().Eventually(
