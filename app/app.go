@@ -336,12 +336,20 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 		TXCounterStoreService:  runtime.NewKVStoreService(app.AppKeepers.GetKey(wasmtypes.StoreKey)),
 		WasmConfig:             &wasmConfig,
 		OracleKeeper:           &app.OracleKeeper,
+		PendingTxListener:      app.onPendingTx,
 	}
 	if err := options.Validate(); err != nil {
 		panic(err)
 	}
 
 	app.SetAnteHandler(kiiante.NewAnteHandler(options))
+}
+
+// Appends hash to tx listener
+func (app *KiichainApp) onPendingTx(hash geth.Hash) {
+	for _, listener := range app.pendingTxListeners {
+		listener(hash)
+	}
 }
 
 // Name returns the name of the App
