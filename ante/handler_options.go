@@ -17,6 +17,7 @@ import (
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
+	txlistener "github.com/cosmos/evm/ante"
 	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
 
 	antetypes "github.com/kiichain/kiichain/v5/ante/types"
@@ -40,7 +41,7 @@ type HandlerOptions struct {
 	MaxTxGasWanted         uint64
 	// use dynamic fee checker or the cosmos-sdk default one for native transactions
 	DynamicFeeChecker bool
-	PendingTxListener PendingTxListener
+	PendingTxListener txlistener.PendingTxListener
 
 	StakingKeeper         *stakingkeeper.Keeper
 	TXCounterStoreService corestoretypes.KVStoreService

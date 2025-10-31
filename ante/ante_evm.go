@@ -3,6 +3,7 @@ package ante
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	txlistener "github.com/cosmos/evm/ante"
 	kiievmante "github.com/kiichain/kiichain/v5/x/feeabstraction/ante/evm"
 )
 
@@ -16,6 +17,6 @@ func newMonoEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 			options.FeeAbstractionKeeper,
 			options.MaxTxGasWanted,
 		),
-		NewTxListenerDecorator(options.PendingTxListener),
+		txlistener.NewTxListenerDecorator(options.PendingTxListener),
 	)
 }
