@@ -59,7 +59,6 @@ import (
 
 	// EVM
 	"github.com/cosmos/evm/ante"
-	cosmosevmante "github.com/cosmos/evm/ante/evm"
 	evmencoding "github.com/cosmos/evm/encoding"
 	srvflags "github.com/cosmos/evm/server/flags"
 	cosmosevmtypes "github.com/cosmos/evm/types"
@@ -67,7 +66,7 @@ import (
 	kiiante "github.com/kiichain/kiichain/v5/ante"
 	"github.com/kiichain/kiichain/v5/app/keepers"
 	"github.com/kiichain/kiichain/v5/app/upgrades"
-	v5_1 "github.com/kiichain/kiichain/v5/app/upgrades/v5_1"
+	v5_2 "github.com/kiichain/kiichain/v5/app/upgrades/v5_2"
 	"github.com/kiichain/kiichain/v5/client/docs"
 )
 
@@ -77,7 +76,7 @@ var (
 
 	// Upgrades is a list of all the upgrades that are available for the application.
 	Upgrades = []upgrades.Upgrade{
-		v5_1.Upgrade,
+		v5_2.Upgrade,
 	}
 )
 
@@ -332,17 +331,25 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 		SignModeHandler:        txConfig.SignModeHandler(),
 		SigGasConsumer:         kiiante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
-		TxFeeChecker:           cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+		DynamicFeeChecker:      true,
 		StakingKeeper:          app.StakingKeeper,
 		TXCounterStoreService:  runtime.NewKVStoreService(app.AppKeepers.GetKey(wasmtypes.StoreKey)),
 		WasmConfig:             &wasmConfig,
 		OracleKeeper:           &app.OracleKeeper,
+		PendingTxListener:      app.onPendingTx,
 	}
 	if err := options.Validate(); err != nil {
 		panic(err)
 	}
 
 	app.SetAnteHandler(kiiante.NewAnteHandler(options))
+}
+
+// Appends hash to tx listener
+func (app *KiichainApp) onPendingTx(hash geth.Hash) {
+	for _, listener := range app.pendingTxListeners {
+		listener(hash)
+	}
 }
 
 // Name returns the name of the App

@@ -11,6 +11,7 @@
 package evm
 
 import (
+	"math"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -25,11 +26,18 @@ import (
 
 	evmante "github.com/cosmos/evm/ante/evm"
 	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
+	"github.com/cosmos/evm/mempool/txpool"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	antetypes "github.com/kiichain/kiichain/v5/ante/types"
 )
+
+const AcceptedTxType = 0 |
+	1<<ethtypes.LegacyTxType |
+	1<<ethtypes.AccessListTxType |
+	1<<ethtypes.DynamicFeeTxType |
+	1<<ethtypes.SetCodeTxType
 
 // MonoDecorator is a single decorator that handles all the prechecks for
 // ethereum transactions.
@@ -93,199 +101,220 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 	// NOTE: the protocol does not support multiple EVM messages currently so
 	// this loop will complete after the first message.
-	for i, msg := range tx.GetMsgs() {
-		ethMsg, ethTx, err := evmtypes.UnpackEthMsg(msg)
-		if err != nil {
+	msgs := tx.GetMsgs()
+	if len(msgs) != 1 {
+		return ctx, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "expected 1 message, got %d", len(msgs))
+	}
+	msgIndex := 0
+
+	ethMsg, ethTx, err := evmtypes.UnpackEthMsg(msgs[msgIndex])
+	if err != nil {
+		return ctx, err
+	}
+
+	// call go-ethereum transaction validation
+	header := ethtypes.Header{
+		GasLimit:   ethTx.Gas(),
+		BaseFee:    decUtils.BaseFee,
+		Number:     big.NewInt(ctx.BlockHeight()),
+		Time:       uint64(ctx.BlockTime().Unix()),
+		Difficulty: big.NewInt(0),
+	}
+
+	chainConfig := evmtypes.GetEthChainConfig()
+
+	if err := txpool.ValidateTransaction(ethTx, &header, decUtils.Signer, &txpool.ValidationOptions{
+		Config:  chainConfig,
+		Accept:  AcceptedTxType,
+		MaxSize: math.MaxUint64, // tx size is checked in cometbft
+		MinTip:  new(big.Int),
+	}); err != nil {
+		return ctx, err
+	}
+
+	feeAmt := ethMsg.GetFee()
+	gas := ethTx.Gas()
+	fee := sdkmath.LegacyNewDecFromBigInt(feeAmt)
+	gasLimit := sdkmath.LegacyNewDecFromBigInt(new(big.Int).SetUint64(gas))
+
+	// TODO: computation for mempool and global fee can be made using only
+	// the price instead of the fee. This would save some computation.
+	//
+	// 2. mempool inclusion fee
+	if ctx.IsCheckTx() && !simulate {
+		// FIX: Mempool dec should be converted
+		if err := evmante.CheckMempoolFee(fee, decUtils.MempoolMinGasPrice, gasLimit, decUtils.Rules.IsLondon); err != nil {
 			return ctx, err
 		}
+	}
 
-		feeAmt := ethMsg.GetFee()
-		gas := ethTx.Gas()
-		fee := sdkmath.LegacyNewDecFromBigInt(feeAmt)
-		gasLimit := sdkmath.LegacyNewDecFromBigInt(new(big.Int).SetUint64(gas))
+	if ethTx.Type() == ethtypes.DynamicFeeTxType && decUtils.BaseFee != nil {
+		// If the base fee is not empty, we compute the effective gas price
+		// according to current base fee price. The gas limit is specified
+		// by the user, while the price is given by the minimum between the
+		// max price paid for the entire tx, and the sum between the price
+		// for the tip and the base fee.
+		feeAmt = ethMsg.GetEffectiveFee(decUtils.BaseFee)
+		fee = sdkmath.LegacyNewDecFromBigInt(feeAmt)
+	}
 
-		// TODO: computation for mempool and global fee can be made using only
-		// the price instead of the fee. This would save some computation.
-		//
-		// 2. mempool inclusion fee
-		if ctx.IsCheckTx() && !simulate {
-			// FIX: Mempool dec should be converted
-			if err := evmante.CheckMempoolFee(fee, decUtils.MempoolMinGasPrice, gasLimit, decUtils.Rules.IsLondon); err != nil {
-				return ctx, err
-			}
-		}
+	// 3. min gas price (global min fee)
+	if err := evmante.CheckGlobalFee(fee, decUtils.GlobalMinGasPrice, gasLimit); err != nil {
+		return ctx, err
+	}
 
-		if ethTx.Type() == ethtypes.DynamicFeeTxType && decUtils.BaseFee != nil {
-			// If the base fee is not empty, we compute the effective gas price
-			// according to current base fee price. The gas limit is specified
-			// by the user, while the price is given by the minimum between the
-			// max price paid for the entire tx, and the sum between the price
-			// for the tip and the base fee.
-			feeAmt = ethMsg.GetEffectiveFee(decUtils.BaseFee)
-			fee = sdkmath.LegacyNewDecFromBigInt(feeAmt)
-		}
+	// 4. validate msg contents
+	if err := evmante.ValidateMsg(
+		decUtils.EvmParams,
+		ethTx,
+	); err != nil {
+		return ctx, err
+	}
 
-		// 3. min gas price (global min fee)
-		if err := evmante.CheckGlobalFee(fee, decUtils.GlobalMinGasPrice, gasLimit); err != nil {
-			return ctx, err
-		}
+	// 5. signature verification
+	if err := evmante.SignatureVerification(
+		ethMsg,
+		decUtils.Signer,
+		decUtils.EvmParams.AllowUnprotectedTxs,
+	); err != nil {
+		return ctx, err
+	}
 
-		// 4. validate msg contents
-		if err := evmante.ValidateMsg(
-			decUtils.EvmParams,
-			ethTx,
-		); err != nil {
-			return ctx, err
-		}
+	from := ethMsg.GetFrom()
+	fromAddr := common.BytesToAddress(from)
 
-		// 5. signature verification
-		if err := evmante.SignatureVerification(
-			ethMsg,
-			decUtils.Signer,
-			decUtils.EvmParams.AllowUnprotectedTxs,
-		); err != nil {
-			return ctx, err
-		}
+	// Get the user account, this is used on the account verification process
+	account := md.evmKeeper.GetAccount(ctx, fromAddr)
+	if err := VerifyIfAccountExists(
+		ctx,
+		md.accountKeeper,
+		account,
+		fromAddr,
+	); err != nil {
+		return ctx, err
+	}
 
-		from := ethMsg.GetFrom()
+	// 7. can transfer
+	coreMsg := ethMsg.AsMessage(decUtils.BaseFee)
 
-		// Get the user account, this is used on the account verification process
-		fromAddr := common.BytesToAddress(from)
-		account := md.evmKeeper.GetAccount(ctx, fromAddr)
-		if err := VerifyIfAccountExists(
-			ctx,
-			md.accountKeeper,
-			account,
-			fromAddr,
-		); err != nil {
-			return ctx, err
-		}
+	// This checks if the user has enough balance to transfer the value (not the fees)
+	if err := evmante.CanTransfer(
+		ctx,
+		md.evmKeeper,
+		*coreMsg,
+		decUtils.BaseFee,
+		decUtils.EvmParams,
+		decUtils.Rules.IsLondon,
+	); err != nil {
+		return ctx, err
+	}
 
-		// 7. can transfer
-		coreMsg := ethMsg.AsMessage(decUtils.BaseFee)
+	// 8. gas consumption
+	msgFees, err := evmkeeper.VerifyFee(
+		ethTx,
+		evmDenom,
+		decUtils.BaseFee,
+		decUtils.Rules.IsHomestead,
+		decUtils.Rules.IsIstanbul,
+		decUtils.Rules.IsShanghai,
+		ctx.IsCheckTx(),
+	)
+	if err != nil {
+		return ctx, err
+	}
 
-		// This checks if the user has enough balance to transfer the value (not the fees)
-		if err := evmante.CanTransfer(
-			ctx,
-			md.evmKeeper,
-			*coreMsg,
-			decUtils.BaseFee,
-			decUtils.EvmParams,
-			decUtils.Rules.IsLondon,
-		); err != nil {
-			return ctx, err
-		}
+	// Here the fee abstraction module does it work
+	// We check if the user has enough balance to pay for the fees using the
+	// native token (evmDenom), if not we iterate the fee abstraction module tokens
+	convertedMsgFees, err := md.feeAbstractionKeeper.ConvertNativeFee(ctx, from, msgFees)
+	if err != nil {
+		return ctx, err
+	}
 
-		// 8. gas consumption
-		msgFees, err := evmkeeper.VerifyFee(
-			ethTx,
-			evmDenom,
-			decUtils.BaseFee,
-			decUtils.Rules.IsHomestead,
-			decUtils.Rules.IsIstanbul,
-			decUtils.Rules.IsShanghai,
-			ctx.IsCheckTx(),
-		)
-		if err != nil {
-			return ctx, err
-		}
+	// Here the gas is deducted from the user
+	err = evmante.ConsumeFeesAndEmitEvent(
+		ctx,
+		md.evmKeeper,
+		convertedMsgFees,
+		from,
+	)
+	if err != nil {
+		return ctx, err
+	}
 
-		// Here the fee abstraction module does it work
-		// We check if the user has enough balance to pay for the fees using the
-		// native token (evmDenom), if not we iterate the fee abstraction module tokens
-		convertedMsgFees, err := md.feeAbstractionKeeper.ConvertNativeFee(ctx, from, msgFees)
-		if err != nil {
-			return ctx, err
-		}
+	// This checks if the user has enough balance
+	// The main change here in comparison to the original implementation is that
+	// we only check if the user has enough balance to pay for the transaction value
+	// fees are ignored at this point and considered paid
+	account = md.evmKeeper.GetAccount(ctx, fromAddr)
+	if err := VerifyAccountBalance(
+		ctx,
+		md.accountKeeper,
+		account,
+		ethTx,
+	); err != nil {
+		return ctx, err
+	}
 
-		// Here the gas is deducted from the user
-		err = evmante.ConsumeFeesAndEmitEvent(
-			ctx,
-			md.evmKeeper,
-			convertedMsgFees,
+	gasWanted := evmante.UpdateCumulativeGasWanted(
+		ctx,
+		gas,
+		md.maxGasWanted,
+		decUtils.GasWanted,
+	)
+	decUtils.GasWanted = gasWanted
+
+	minPriority := evmante.GetMsgPriority(
+		ethTx,
+		decUtils.MinPriority,
+		decUtils.BaseFee,
+	)
+	decUtils.MinPriority = minPriority
+
+	// Update the fee to be paid for the tx adding the fee specified for the
+	// current message.
+	decUtils.TxFee.Add(decUtils.TxFee, ethMsg.GetFee())
+
+	// Update the transaction gas limit adding the gas specified in the
+	// current message.
+	decUtils.TxGasLimit += gas
+
+	// 9. increment sequence
+	acc := md.accountKeeper.GetAccount(ctx, from)
+	if acc == nil {
+		// safety check: shouldn't happen
+		return ctx, errorsmod.Wrapf(
+			errortypes.ErrUnknownAddress,
+			"account %s does not exist",
 			from,
 		)
-		if err != nil {
-			return ctx, err
-		}
-
-		// This checks if the user has enough balance
-		// The main change here in comparison to the original implementation is that
-		// we only check if the user has enough balance to pay for the transaction value
-		// fees are ignored at this point and considered paid
-		account = md.evmKeeper.GetAccount(ctx, fromAddr)
-		if err := VerifyAccountBalance(
-			ctx,
-			md.accountKeeper,
-			account,
-			ethTx,
-		); err != nil {
-			return ctx, err
-		}
-
-		gasWanted := evmante.UpdateCumulativeGasWanted(
-			ctx,
-			gas,
-			md.maxGasWanted,
-			decUtils.GasWanted,
-		)
-		decUtils.GasWanted = gasWanted
-
-		minPriority := evmante.GetMsgPriority(
-			ethTx,
-			decUtils.MinPriority,
-			decUtils.BaseFee,
-		)
-		decUtils.MinPriority = minPriority
-
-		// Update the fee to be paid for the tx adding the fee specified for the
-		// current message.
-		decUtils.TxFee.Add(decUtils.TxFee, ethMsg.GetFee())
-
-		// Update the transaction gas limit adding the gas specified in the
-		// current message.
-		decUtils.TxGasLimit += gas
-
-		// 9. increment sequence
-		acc := md.accountKeeper.GetAccount(ctx, from)
-		if acc == nil {
-			// safety check: shouldn't happen
-			return ctx, errorsmod.Wrapf(
-				errortypes.ErrUnknownAddress,
-				"account %s does not exist",
-				from,
-			)
-		}
-
-		if err := evmante.IncrementNonce(ctx, md.accountKeeper, acc, ethTx.Nonce()); err != nil {
-			return ctx, err
-		}
-
-		// 10. gas wanted
-		if err := evmante.CheckGasWanted(ctx, md.feeMarketKeeper, tx, decUtils.Rules.IsLondon); err != nil {
-			return ctx, err
-		}
-
-		// 11. emit events
-		txIdx := uint64(i)
-		evmante.EmitTxHashEvent(ctx, ethMsg, decUtils.BlockTxIndex, txIdx)
-
-		ctx.Logger().Info(
-			"processed EVM message",
-			"msg_index", txIdx,
-			"from", from,
-			"gas_wanted", decUtils.GasWanted,
-			"gas_limit", gas,
-			"fee", decUtils.TxFee,
-			"min_priority", decUtils.MinPriority,
-			"base_fee", decUtils.BaseFee,
-			"tx_type", ethTx.Type(),
-			"paid_fees", convertedMsgFees,
-		)
-
-		// Define the fee on the context for gas refunding
-		ctx = ctx.WithValue(evmkeeper.ContextPaidFeesKey{}, convertedMsgFees)
 	}
+
+	if err := evmante.IncrementNonce(ctx, md.accountKeeper, acc, ethTx.Nonce()); err != nil {
+		return ctx, err
+	}
+
+	// 10. gas wanted
+	if err := evmante.CheckGasWanted(ctx, md.feeMarketKeeper, tx, decUtils.Rules.IsLondon); err != nil {
+		return ctx, err
+	}
+
+	// 11. emit events
+	txIdx := uint64(msgIndex)
+	evmante.EmitTxHashEvent(ctx, ethMsg, decUtils.BlockTxIndex, txIdx)
+
+	ctx.Logger().Debug(
+		"processed EVM message",
+		"msg_index", txIdx,
+		"from", from,
+		"gas_wanted", decUtils.GasWanted,
+		"gas_limit", gas,
+		"fee", decUtils.TxFee,
+		"min_priority", decUtils.MinPriority,
+		"base_fee", decUtils.BaseFee,
+		"tx_type", ethTx.Type(),
+		"paid_fees", convertedMsgFees,
+	)
 
 	if err := evmante.CheckTxFee(txFeeInfo, decUtils.TxFee, decUtils.TxGasLimit); err != nil {
 		return ctx, err
@@ -295,6 +324,9 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	if err != nil {
 		return ctx, err
 	}
+
+	// Define the fee on the context for gas refunding
+	ctx = ctx.WithValue(evmkeeper.ContextPaidFeesKey{}, convertedMsgFees)
 
 	return next(ctx, tx, simulate)
 }

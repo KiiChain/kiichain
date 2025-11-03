@@ -127,7 +127,7 @@ func NewAvailableStaticPrecompiles(
 	}
 
 	// Prepare the staking precompile
-	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, options.AddressCodec)
+	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, bankKeeper, options.AddressCodec)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate staking precompile: %w", err))
 	}
@@ -135,6 +135,7 @@ func NewAvailableStaticPrecompiles(
 	// Prepare the distribution precompile
 	distributionPrecompile, err := distprecompile.NewPrecompile(
 		distributionKeeper,
+		bankKeeper,
 		stakingKeeper,
 		evmKeeper,
 		options.AddressCodec,
@@ -162,13 +163,13 @@ func NewAvailableStaticPrecompiles(
 	}
 
 	// Prepare the gov precompile
-	govPrecompile, err := govprecompile.NewPrecompile(govKeeper, codec, options.AddressCodec)
+	govPrecompile, err := govprecompile.NewPrecompile(govKeeper, bankKeeper, codec, options.AddressCodec)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
 	}
 
 	// Prepare the slashing precompile
-	slashingPrecompile, err := slashingprecompile.NewPrecompile(slashingKeeper, options.ValidatorAddrCodec, options.ConsensusAddrCodec)
+	slashingPrecompile, err := slashingprecompile.NewPrecompile(slashingKeeper, bankKeeper, options.ValidatorAddrCodec, options.ConsensusAddrCodec)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate slashing precompile: %w", err))
 	}

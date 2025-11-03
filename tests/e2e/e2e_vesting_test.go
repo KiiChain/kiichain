@@ -38,7 +38,6 @@ var (
 	vestingAmount           = sdk.NewCoin(akiiDenom, mustNewIntFromString("350000000000000000"))      // 0.35 Kii
 	vestingBalance          = sdk.NewCoins(vestingAmountVested).Add(vestingAmount)
 	vestingDelegationAmount = sdk.NewCoin(akiiDenom, mustNewIntFromString("500000000000000000000")) // 500 Kii
-	vestingDelegationFees   = sdk.NewCoin(akiiDenom, mustNewIntFromString("1000000000000"))         // 0.001 Kii
 )
 
 func (s *IntegrationTestSuite) testDelayedVestingAccount(api string) {
@@ -62,7 +61,7 @@ func (s *IntegrationTestSuite) testDelayedVestingAccount(api string) {
 
 		// Delegate coins should succeed
 		s.execDelegate(chain, valIdx, vestingDelegationAmount.String(), valOpAddr,
-			vestingDelayedAcc.String(), kiichainHomePath, vestingDelegationFees.String())
+			vestingDelayedAcc.String(), kiichainHomePath)
 
 		// Validate delegation successful
 		s.Require().Eventually(
@@ -131,7 +130,7 @@ func (s *IntegrationTestSuite) testContinuousVestingAccount(api string) {
 
 		// Delegate coins should succeed
 		s.execDelegate(chain, valIdx, vestingDelegationAmount.String(),
-			valOpAddr, continuousVestingAcc.String(), kiichainHomePath, vestingDelegationFees.String())
+			valOpAddr, continuousVestingAcc.String(), kiichainHomePath)
 
 		// Validate delegation successful
 		s.Require().Eventually(
@@ -270,7 +269,7 @@ func (s *IntegrationTestSuite) testPeriodicVestingAccount(api string) { //nolint
 
 		// Delegate coins should succeed
 		s.execDelegate(chain, valIdx, vestingDelegationAmount.String(), valOpAddr,
-			periodicVestingAddr, kiichainHomePath, vestingDelegationFees.String())
+			periodicVestingAddr, kiichainHomePath)
 
 		// Validate delegation successful
 		s.Require().Eventually(

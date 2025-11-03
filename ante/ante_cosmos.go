@@ -55,13 +55,18 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	// Skip the feemarket decorator is needed
 	if UseFeeMarketDecorator {
 		// This wraps using the gasless decorator
+		var txFeeChecker ante.TxFeeChecker
+		if options.DynamicFeeChecker {
+			txFeeChecker = evmante.NewDynamicFeeChecker(options.FeeMarketKeeper)
+		}
+
 		gasLessFeeDecorator := NewFeelessDecorator(
 			cosmosante.NewDeductFeeDecorator(
 				options.AccountKeeper,
 				options.BankKeeper,
 				options.FeegrantKeeper,
 				options.FeeAbstractionKeeper,
-				options.TxFeeChecker,
+				txFeeChecker,
 			),
 			options.OracleKeeper,
 		)

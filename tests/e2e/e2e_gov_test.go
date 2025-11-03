@@ -196,7 +196,9 @@ func (s *IntegrationTestSuite) submitGovCommand(chainAAPIEndpoint, sender string
 				proposal, err := queryGovProposalV1(chainAAPIEndpoint, proposalID)
 				s.Require().NoError(err)
 				if proposal.GetProposal().Status != expectedSuccessStatus {
-					s.T().Logf("Proposal failed with: %s", proposal.GetProposal().FailedReason)
+					if proposal.GetProposal().FailedReason != "" {
+						s.T().Logf("Proposal failed with: %s", proposal.GetProposal().FailedReason)
+					}
 					return false
 				}
 				return true
