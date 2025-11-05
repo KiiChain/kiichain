@@ -1,6 +1,8 @@
 package tokenfactory
 
 import (
+	"fmt"
+
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v3/types"
 
 	errorsmod "cosmossdk.io/errors"
@@ -128,7 +130,7 @@ func PerformMint(f *tokenfactorykeeper.Keeper, b bankkeeper.Keeper, ctx sdk.Cont
 	}
 
 	if b.BlockedAddr(rcpt) {
-		return errorsmod.Wrapf(err, "minting coins to blocked address %s", rcpt.String())
+		return fmt.Errorf("minting coins to blocked address %s", rcpt.String())
 	}
 
 	err = b.SendCoins(ctx, contractAddr, rcpt, sdk.NewCoins(coin))
