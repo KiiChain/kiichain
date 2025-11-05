@@ -8,7 +8,7 @@
 
 ## Removed
 
-- Removed IBC precompile in preference to ICS20 precompile that also handles IBC transfers.
+- Removed IBC precompile since ICS20 precompile also handles IBC transfers.
 
 ## DEPENDENCIES
 
