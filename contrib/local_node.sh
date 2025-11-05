@@ -95,11 +95,11 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	$KIICHAIND config set client chain-id "$CHAINID" --home "$HOMEDIR"
 	$KIICHAIND config set client keyring-backend "$KEYRING" --home "$HOMEDIR"
 
-	# myKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e | os10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky
+	# myKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e | kii10jmp6sgh4cc6zt3e8gw05wavvejgr5pwfe2u6n
 	VAL_KEY="mykey"
 	VAL_MNEMONIC="gesture inject test cycle original hollow east ridge hen combine junk child bacon zero hope comfort vacuum milk pitch cage oppose unhappy lunar seat"
 
-	# dev0 address 0xc6fe5d33615a1c52c08018c47e8bc53646a0e101 | os1cml96vmptgw99syqrrz8az79xer2pcgp84pdun
+	# dev0 address 0xc6fe5d33615a1c52c08018c47e8bc53646a0e101 | kii1cml96vmptgw99syqrrz8az79xer2pcgpul2fsy
 	USER1_KEY="dev0"
 	USER1_MNEMONIC="copper push brief egg scan entry inform record adjust fossil boss egg comic alien upon aspect dry avoid interest fury window hint race symptom"
 
