@@ -37,7 +37,6 @@ import (
 	transferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 
-	"github.com/kiichain/kiichain/v5/precompiles/ibc"
 	"github.com/kiichain/kiichain/v5/precompiles/oracle"
 	"github.com/kiichain/kiichain/v5/precompiles/wasmd"
 	oraclekeeper "github.com/kiichain/kiichain/v5/x/oracle/keeper"
@@ -180,12 +179,6 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate wasmd precompile: %w", err))
 	}
 
-	// Prepare the ibc precompile
-	ibcPrecompile, err := ibc.NewPrecompile(transferKeeper, clientKeeper, connectionKeeper, *channelKeeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate ibc precompile: %w", err))
-	}
-
 	// Prepare the oracle precompile
 	oraclePrecompile, err := oracle.NewPrecompile(oracleKeeper)
 	if err != nil {
@@ -204,7 +197,6 @@ func NewAvailableStaticPrecompiles(
 	precompiles[govPrecompile.Address()] = govPrecompile
 	precompiles[slashingPrecompile.Address()] = slashingPrecompile
 	precompiles[wasmdPrecompile.Address()] = wasmdPrecompile
-	precompiles[ibcPrecompile.Address()] = ibcPrecompile
 	precompiles[oraclePrecompile.Address()] = oraclePrecompile
 
 	// Return the precompiles

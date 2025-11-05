@@ -6,6 +6,10 @@
 
 - Cosmos EVM integrations tests added to the repo
 
+## Removed
+
+- Removed IBC precompile since ICS20 precompile also handles IBC transfers.
+
 ## DEPENDENCIES
 
 -   Bump [EVM](github.com/cosmos/evm) to [v0.4.2](https://github.com/cosmos/evm/releases/tag/v0.4.2)
