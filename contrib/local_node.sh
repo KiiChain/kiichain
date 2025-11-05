@@ -6,7 +6,6 @@ MONIKER="localtestnet"
 # otherwise your balance will be wiped quickly
 # The keyring test does not require private key to steal tokens from you
 KEYRING="test"
-KEYALGO="eth_secp256k1"
 
 LOGLEVEL="info"
 # Set dedicated home directory for the kiichaind instance
@@ -104,8 +103,8 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	USER1_MNEMONIC="copper push brief egg scan entry inform record adjust fossil boss egg comic alien upon aspect dry avoid interest fury window hint race symptom"
 
 	# Import keys from mnemonics
-	echo "$VAL_MNEMONIC" | $KIICHAIND keys add "$VAL_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$HOMEDIR"
-	echo "$USER1_MNEMONIC" | $KIICHAIND keys add "$USER1_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$HOMEDIR"
+	echo "$VAL_MNEMONIC" | $KIICHAIND keys add "$VAL_KEY" --recover --keyring-backend "$KEYRING" --home "$HOMEDIR"
+	echo "$USER1_MNEMONIC" | $KIICHAIND keys add "$USER1_KEY" --recover --keyring-backend "$KEYRING" --home "$HOMEDIR"
 
 	# Set moniker and chain-id for the example chain (Moniker can be anything, chain-id must be an integer)
 	$KIICHAIND init $MONIKER -o --chain-id "$CHAINID" --home "$HOMEDIR"
