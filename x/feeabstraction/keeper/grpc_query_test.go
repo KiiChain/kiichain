@@ -13,7 +13,6 @@ func (s *KeeperTestSuite) TestQuerierParams() {
 		"testcoin",
 		"testcoinoracle",
 		types.DefaultClampFactor.MulInt64(2),
-		types.DefaultFallbackNativePrice,
 		types.DefaultTwapLookbackWindow,
 		false,
 	)

@@ -45,12 +45,8 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 					s.Require().True(token.Enabled, "Expected token to be enabled: %s", token.Denom)
 				}
 
-				// Get the module params and get the fallback native price
-				params, err := s.app.FeeAbstractionKeeper.Params.Get(ctx)
-				s.Require().NoError(err)
-
 				// Calculate the token from one to the other
-				expectedPrice := math.LegacyMustNewDecFromStr("0.5").Quo(params.FallbackNativePrice)
+				expectedPrice := math.LegacyMustNewDecFromStr("0.5").Quo(math.LegacyMustNewDecFromStr("0.01"))
 				expectedPriceMin := expectedPrice.Mul(math.LegacyMustNewDecFromStr("0.8")) // Allow 20% variance
 				expectedPriceMax := expectedPrice.Mul(math.LegacyMustNewDecFromStr("1.2")) // Allow 20% variance
 

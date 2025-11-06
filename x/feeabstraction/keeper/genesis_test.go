@@ -16,7 +16,6 @@ func (s *KeeperTestSuite) TestGenesisInitExport() {
 		"newcoin",
 		"newcoinoracle",
 		types.DefaultClampFactor.MulInt64(3),
-		types.DefaultFallbackNativePrice,
 		types.DefaultTwapLookbackWindow,
 		true,
 	)
