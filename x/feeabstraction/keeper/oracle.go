@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
@@ -39,7 +37,9 @@ func (k Keeper) CalculateFeeTokenPrices(ctx sdk.Context) error {
 	// Find the price for the base token
 	baseTokenPrice, ok := twapPriceMap[params.NativeOracleDenom]
 	if !ok {
-		return fmt.Errorf("akii has no price, feeabstraction disabled")
+		// Short circuit if no price for base
+		k.Logger(ctx).Debug("akii has no price, feeabstraction disabled")
+		return nil
 	}
 
 	// Iterate all the tokens
