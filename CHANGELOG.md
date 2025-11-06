@@ -21,6 +21,7 @@
 - Fix Oracle module ante decorator to allow first vote and install oracle ante handlers
 - Fix IBC validation of negative numbers happens a bit early [#144](https://github.com/KiiChain/kiichain/issues/144)
 - Fix incorrect error passing on tokenfactory wasmbinding
+- Fix blocked address checked after minting in wasmbinding tokenfactory 
 
 ### Documentation
 
