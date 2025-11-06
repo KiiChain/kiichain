@@ -140,7 +140,7 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 			return err
 		}
 
-		// Fetch info again, it can't be nil since we already checked it before
+		// Refresh info, it can't be nil since we checked it exists before
 		deductFeesFromAcc = dfd.accountKeeper.GetAccount(ctx, deductFeesFrom)
 
 		// Deduct the fees from the fee payer account
