@@ -122,15 +122,15 @@ func PerformMint(f *tokenfactorykeeper.Keeper, b bankkeeper.Keeper, ctx sdk.Cont
 		return err
 	}
 
+	if b.BlockedAddr(rcpt) {
+		return fmt.Errorf("minting coins to blocked address %s", rcpt.String())
+	}
+
 	// Mint through token factory / message server
 	msgServer := tokenfactorykeeper.NewMsgServerImpl(*f)
 	_, err = msgServer.Mint(ctx, sdkMsg)
 	if err != nil {
 		return errorsmod.Wrap(err, "minting coins from message")
-	}
-
-	if b.BlockedAddr(rcpt) {
-		return fmt.Errorf("minting coins to blocked address %s", rcpt.String())
 	}
 
 	err = b.SendCoins(ctx, contractAddr, rcpt, sdk.NewCoins(coin))
