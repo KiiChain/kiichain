@@ -37,8 +37,10 @@ func (k Keeper) CalculateFeeTokenPrices(ctx sdk.Context) error {
 	// Find the price for the base token
 	baseTokenPrice, ok := twapPriceMap[params.NativeOracleDenom]
 	if !ok {
-		// Short circuit if no price for base
+		// Disable fee abstraction if there is no pricing
 		k.Logger(ctx).Debug("akii has no price, feeabstraction disabled")
+		params.Enabled = false
+		k.Params.Set(ctx, params)
 		return nil
 	}
 
