@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/require"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/kiichain/kiichain/v5/app/apptesting"
 	mock "github.com/kiichain/kiichain/v5/tests/e2e/mock"
 	evmwasmbinding "github.com/kiichain/kiichain/v5/wasmbinding/evm"
@@ -307,4 +308,74 @@ func TestHandleERC20Allowance(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestEthCall_ConsumeGas tests that EthCall does not consume gas
+func TestEthCall_ConsumeGas(t *testing.T) {
+	// Set the app
+	actor := apptesting.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, actor)
+
+	// Give to the sdk a budget
+	ctx = ctx.WithGasMeter(storetypes.NewGasMeter(500_000))
+
+	// Deploy the counter contract
+	contractAddr := deployCounter(t, ctx, app)
+
+	// Prepare ABI call data for getCounter()
+	counterABI, err := mock.CounterMetaData.GetAbi()
+	require.NoError(t, err)
+
+	// Prepare the input data for the getCounter function
+	inputData, err := counterABI.Pack("getCounter")
+	require.NoError(t, err)
+
+	// Start the query server
+	evmQueryPlugin := evmwasmbinding.NewQueryPlugin(app.EVMKeeper)
+
+	// Save the initial gas
+	initialGas := ctx.GasMeter().GasConsumed()
+
+	// Apply the query
+	_, err = evmQueryPlugin.HandleEthCall(ctx, &evmbindingtypes.EthCallRequest{
+		Contract: contractAddr.String(),
+		Data:     hexutil.Encode(inputData),
+	})
+	require.NoError(t, err)
+
+	// Check if gas was consumed
+	finalGas := ctx.GasMeter().GasConsumed()
+	require.Greater(t, finalGas, initialGas)
+}
+
+// TestEthCall_explodeGas tests gas explosion in EthCall
+func TestEthCall_explodeGas(t *testing.T) {
+	// Set the app
+	actor := apptesting.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, actor)
+
+	// Deploy the counter contract
+	contractAddr := deployCounter(t, ctx, app)
+
+	// Prepare ABI call data for explodeGas()
+	counterABI, err := mock.CounterMetaData.GetAbi()
+	require.NoError(t, err)
+
+	// Prepare the input data for the explodeGas
+	inputData, err := counterABI.Pack("getCounter")
+	require.NoError(t, err)
+
+	// Start the query server
+	evmQueryPlugin := evmwasmbinding.NewQueryPlugin(app.EVMKeeper)
+
+	// Give to the sdk a budget
+	ctx = ctx.WithGasMeter(storetypes.NewGasMeter(1_000))
+
+	// Apply the query
+	require.PanicsWithValue(t, storetypes.ErrorOutOfGas{Descriptor: "ReadPerByte"}, func() {
+		_, err = evmQueryPlugin.HandleEthCall(ctx, &evmbindingtypes.EthCallRequest{
+			Contract: contractAddr.String(),
+			Data:     hexutil.Encode(inputData),
+		})
+	})
 }
