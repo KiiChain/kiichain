@@ -5,6 +5,7 @@
 ## Added
 
 - Cosmos EVM integrations tests added to the repo
+- Added logs and telemetry for reentrance detection in wasmd precompile
 
 ## Removed
 
