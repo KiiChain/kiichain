@@ -260,6 +260,7 @@ func (s *KeeperTestSuite) createTwaps(
 				snapshotItems,
 			)
 		} else {
+			s.Require().NoError(err)
 			snapshot.PriceSnapshotItems = append(snapshot.PriceSnapshotItems, snapshotItems...)
 		}
 
