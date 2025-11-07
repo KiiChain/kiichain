@@ -9,7 +9,7 @@ import (
 // TestBeginBlocker tests the BeginBlocker of the fee abstraction module
 func (s *KeeperTestSuite) TestBeginBlocker() {
 	// Create kii twap so fee abstraction will be enabled
-	s.ctx = s.createTwaps(s.ctx, math.LegacyMustNewDecFromStr("0.5"), 100, "kii")
+	s.ctx = s.createTwaps(s.ctx, s.ctx.BlockTime(), math.LegacyMustNewDecFromStr("0.5"), 100, "kii")
 
 	// Set the fee token prices in the keeper
 	err := s.app.FeeAbstractionKeeper.FeeTokens.Set(s.ctx, *types.NewFeeTokenMetadataCollection(
