@@ -33,6 +33,15 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 			name: "empty sets",
 		},
 		{
+			name: "module disabled whithout kii price",
+			postCheck: func(ctx sdk.Context) {
+				// Check params is disabled
+				params, err := s.app.FeeAbstractionKeeper.Params.Get(ctx)
+				s.Require().NoError(err)
+				s.Require().False(params.Enabled)
+			},
+		},
+		{
 			name: "calculate fee token prices",
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Mock oracle twaps
