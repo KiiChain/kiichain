@@ -4,11 +4,13 @@ import (
 	"encoding/binary"
 	"fmt"
 
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	wasmdkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -84,7 +86,7 @@ func (p Precompile) Execute(
 	}
 
 	// Ensure the reentrancy lock
-	if err := p.ensureLock(origin, stateDB, method); err != nil {
+	if err := p.ensureLock(ctx, origin, stateDB, method); err != nil {
 		return nil, err
 	}
 
@@ -128,6 +130,7 @@ func (p Precompile) Execute(
 // - And to reduce the scope of the reentrances
 // - States generated as transient states are never committed and cleared at the end of the block
 func (p Precompile) ensureLock(
+	ctx sdk.Context,
 	origin common.Address,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -137,6 +140,20 @@ func (p Precompile) ensureLock(
 
 	// Check if already locked
 	if stateDB.GetTransientState(p.Address(), lockKey) == common.BytesToHash([]byte{1}) {
+		ctx.Logger().Error(
+			"Reentrancy detected",
+			"precompile", p.Address().Hex(),
+			"method", method.Name,
+			"origin", origin.Hex(),
+		)
+
+		// Add to telemetry
+		telemetry.IncrCounter(
+			1,
+			evmtypes.ModuleName,
+			"reentrancy_detected",
+		)
+
 		return fmt.Errorf(
 			"reentrancy detected in precompile %s, method %s",
 			p.Address().Hex(), method.Name,
