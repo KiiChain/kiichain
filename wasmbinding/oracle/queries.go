@@ -86,8 +86,8 @@ func (qp *QueryPlugin) HandleOracleQuery(ctx sdk.Context, oracleQuery oraclebind
 // HandleExchangeRate handles the exchange rate query
 func (qp *QueryPlugin) HandleExchangeRate(ctx sdk.Context, query oraclebindingtypes.ExchangeRateQuery) (*oracletypes.QueryExchangeRateResponse, error) {
 	// Validate the query
-	if query.Denom == "" {
-		return nil, wasmvmtypes.InvalidRequest{Err: "empty denom"}
+	if err := sdk.ValidateDenom(query.Denom); err != nil {
+		return nil, wasmvmtypes.InvalidRequest{Err: err.Error(), Request: []byte(query.Denom)}
 	}
 
 	// Get the exchange rate from the keeper
@@ -122,6 +122,16 @@ func (qp *QueryPlugin) HandleExchangeRates(ctx sdk.Context) (*oracletypes.QueryE
 
 // HandleTwaps handles the twaps query
 func (qp *QueryPlugin) HandleTwaps(ctx sdk.Context, query oraclebindingtypes.TwapsQuery) (*oracletypes.QueryTwapsResponse, error) {
+	// Check if the lookback is zero
+	if query.LookbackSeconds <= 0 {
+		return nil, wasmvmtypes.InvalidRequest{Err: "Twap lookback window can't be zero", Request: []byte{}}
+	}
+
+	// Check if the twap is within the allowed lookback period
+	if err := qp.oracleKeeper.ValidateLookBackSeconds(ctx, query.LookbackSeconds); err != nil {
+		return nil, wasmvmtypes.InvalidRequest{Err: err.Error(), Request: []byte{}}
+	}
+
 	// Get the twaps from the keeper
 	twaps, err := qp.oracleQueryServer.Twaps(
 		ctx,

@@ -73,7 +73,16 @@ func TestHandleOracleQuery(t *testing.T) {
 					Denom: "",
 				},
 			},
-			errContains: "invalid request: empty denom",
+			errContains: "invalid request: invalid denom",
+		},
+		{
+			name: "Invalid - demon with invalid characters",
+			query: oraclebindingtypes.Query{
+				ExchangeRate: &oraclebindingtypes.ExchangeRateQuery{
+					Denom: "usdc$%^",
+				},
+			},
+			errContains: "invalid request: invalid denom",
 		},
 		{
 			name: "Invalid - exchange rate bad request",
@@ -105,6 +114,15 @@ func TestHandleOracleQuery(t *testing.T) {
 			query: oraclebindingtypes.Query{
 				Twaps: &oraclebindingtypes.TwapsQuery{
 					LookbackSeconds: 0,
+				},
+			},
+			errContains: "Twap lookback window can't be zero",
+		},
+		{
+			name: "invalid - lookback window too large",
+			query: oraclebindingtypes.Query{
+				Twaps: &oraclebindingtypes.TwapsQuery{
+					LookbackSeconds: 1000000, // Huge value
 				},
 			},
 			errContains: "Twap lookback seconds is greater than max lookback",
