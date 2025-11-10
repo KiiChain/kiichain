@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	storetypes "cosmossdk.io/store/types"
+
 	"github.com/kiichain/kiichain/v5/app/apptesting"
 	mock "github.com/kiichain/kiichain/v5/tests/e2e/mock"
 	evmwasmbinding "github.com/kiichain/kiichain/v5/wasmbinding/evm"
