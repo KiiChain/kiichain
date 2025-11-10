@@ -124,7 +124,7 @@ func (qp *QueryPlugin) HandleExchangeRates(ctx sdk.Context) (*oracletypes.QueryE
 func (qp *QueryPlugin) HandleTwaps(ctx sdk.Context, query oraclebindingtypes.TwapsQuery) (*oracletypes.QueryTwapsResponse, error) {
 	// Check if the lookback is zero
 	if query.LookbackSeconds <= 0 {
-		return nil, wasmvmtypes.InvalidRequest{Err: "Twap lookback window can't be zero", Request: []byte{}}
+		return nil, wasmvmtypes.InvalidRequest{Err: "Twap lookback window must be positive", Request: []byte{}}
 	}
 
 	// Check if the twap is within the allowed lookback period

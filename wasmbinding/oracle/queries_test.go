@@ -116,7 +116,7 @@ func TestHandleOracleQuery(t *testing.T) {
 					LookbackSeconds: 0,
 				},
 			},
-			errContains: "Twap lookback window can't be zero",
+			errContains: "Twap lookback window must be positive",
 		},
 		{
 			name: "invalid - lookback window too large",
