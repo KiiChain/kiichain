@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	evmtypes "github.com/cosmos/evm/x/vm/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -14,6 +13,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	wasmdkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 const (
