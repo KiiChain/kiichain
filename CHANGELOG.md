@@ -5,6 +5,7 @@
 ## Added
 
 - Cosmos EVM integrations tests added to the repo
+- Add further validations to Wasmd Oracle precompile query calls
 
 ## Removed
 
