@@ -76,7 +76,7 @@ func TestHandleOracleQuery(t *testing.T) {
 			errContains: "invalid request: invalid denom",
 		},
 		{
-			name: "Invalid - demon with invalid characters",
+			name: "Invalid - denom with invalid characters",
 			query: oraclebindingtypes.Query{
 				ExchangeRate: &oraclebindingtypes.ExchangeRateQuery{
 					Denom: "usdc$%^",
