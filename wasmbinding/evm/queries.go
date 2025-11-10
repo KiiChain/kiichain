@@ -44,10 +44,10 @@ func (qp *QueryPlugin) HandleEVMQuery(ctx sdk.Context, evmQuery evmbindingtypes.
 	case evmQuery.EthCall != nil:
 		res, err := qp.HandleEthCall(ctx, evmQuery.EthCall)
 		if err != nil && (err.Error() == vm.ErrExecutionReverted.Error()) {
-			return nil, ErrExecutionReverted
+			return nil, wasmvmtypes.SystemError{}
 		}
 		if err != nil {
-			return nil, ErrExecutingEthCall
+			return nil, ErrExecutingEthCall.Wrap(err.Error())
 		}
 
 		bz, err := json.Marshal(res)
@@ -106,7 +106,7 @@ func (qp *QueryPlugin) HandleEthCall(ctx sdk.Context, call *evmbindingtypes.EthC
 	}
 
 	// Build the eth call request
-	req, err := buildEthCallRequest(to, data, chainID, proposer)
+	req, err := buildEthCallRequest(ctx, to, data, chainID, proposer)
 	if err != nil {
 		return nil, err
 	}
@@ -300,7 +300,7 @@ func handleRevertError(vmError string, ret []byte) error {
 }
 
 // buildEthCallRequest builds the EVM query call
-func buildEthCallRequest(to common.Address, data hexutil.Bytes, chainID *big.Int, proposer []byte) (*evmtypes.EthCallRequest, error) {
+func buildEthCallRequest(ctx sdk.Context, to common.Address, data hexutil.Bytes, chainID *big.Int, proposer []byte) (*evmtypes.EthCallRequest, error) {
 	// Build the arguments
 	args := evmtypes.TransactionArgs{
 		To:   &to,
@@ -316,7 +316,7 @@ func buildEthCallRequest(to common.Address, data hexutil.Bytes, chainID *big.Int
 	// Return the request
 	return &evmtypes.EthCallRequest{
 		Args:            bz,
-		GasCap:          emvconfig.DefaultGasCap,
+		GasCap:          ctx.GasMeter().GasRemaining(),
 		ChainId:         chainID.Int64(),
 		ProposerAddress: sdk.ConsAddress(proposer),
 	}, nil
