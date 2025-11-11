@@ -28,6 +28,9 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 	// Default erc20 address to use in tests
 	DefaultFirstERC20 := "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd"
 
+	// Reactivate keeper since it was disabled on abci
+	s.app.FeeAbstractionKeeper.Params.Set(s.ctx, types.DefaultParams())
+
 	// Build the test cases
 	testCases := []struct {
 		name        string
@@ -93,6 +96,7 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 						Price:       math.LegacyOneDec(),
 						Enabled:     false,
 					},
+					defaultKii,
 				))
 				s.Require().NoError(err)
 

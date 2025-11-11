@@ -53,6 +53,9 @@ func TestDeductFeeDecorator(t *testing.T) {
 	// Create the funder account
 	app.AccountKeeper.SetAccount(ctx, app.AccountKeeper.NewAccountWithAddress(ctx, founder))
 
+	// Reactivate keeper since it was disabled on abci
+	app.FeeAbstractionKeeper.Params.Set(ctx, types.DefaultParams())
+
 	// Set the different test cases
 	testCases := []struct {
 		name        string
