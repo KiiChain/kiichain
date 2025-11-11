@@ -57,7 +57,7 @@ func TestWasmdPrecompileTestSuite(t *testing.T) {
 	suite.Run(t, new(WasmdPrecompileTestSuite))
 }
 
-// SetupSuite sets up the test suite
+// SetupTest sets up the test case
 func (s *WasmdPrecompileTestSuite) SetupTest() {
 	// Get the test context
 	t := s.T()
@@ -101,7 +101,7 @@ func (s *WasmdPrecompileTestSuite) SetupTest() {
 	s.stateDB = stateDB
 }
 
-// newVmInstance creates a new EVM instance for the test suite
+// NewVmInstance creates a new EVM instance for the test suite
 func (s *WasmdPrecompileTestSuite) NewVMInstance(ctx sdk.Context) *vm.EVM {
 	return vm.NewEVM(
 		vm.BlockContext{},

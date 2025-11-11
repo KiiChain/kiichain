@@ -51,7 +51,7 @@ func TestBridge_Reentrancy(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, ret.Ret)
 
-	// Unpack the output, should be 42
+	// Unpack the output
 	var output *big.Int
 	err = helpers.ReentrancyABI.UnpackIntoInterface(&output, "ping", ret.Ret)
 	require.NoError(t, err)

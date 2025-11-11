@@ -99,8 +99,6 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 
 			_, err = s.Precompile.Run(s.NewVMInstance(ctx), contract, false)
 
-			// _, err = s.Precompile.Execute(ctx, attacker.Addr, contract, stateDB, &method, args)
-
 			// Analyze result
 			switch {
 			case err == nil:

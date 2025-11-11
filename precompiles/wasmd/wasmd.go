@@ -166,7 +166,7 @@ func (p Precompile) Logger(ctx sdk.Context) log.Logger {
 }
 
 // ensureLock ensures that a reentrancy lock is set and not broken for the target contract
-// Reentrance lock is built using: precompile address, origin and origin nonce
+// Reentrance lock is built using: precompile address, origin address, origin nonce, and method ID
 //   - Args are avoided to build the lock key, since the attacker may manipulate it
 //
 // This is done under a transient key under Cosmos SDK's stateDB

@@ -44,7 +44,7 @@ func (qp *QueryPlugin) HandleEVMQuery(ctx sdk.Context, evmQuery evmbindingtypes.
 	case evmQuery.EthCall != nil:
 		res, err := qp.HandleEthCall(ctx, evmQuery.EthCall)
 		if err != nil && (err.Error() == vm.ErrExecutionReverted.Error()) {
-			return nil, wasmvmtypes.SystemError{}
+			return nil, ErrExecutionReverted
 		}
 		if err != nil {
 			return nil, ErrExecutingEthCall.Wrap(err.Error())
@@ -313,10 +313,13 @@ func buildEthCallRequest(ctx sdk.Context, to common.Address, data hexutil.Bytes,
 		return nil, err
 	}
 
+	// Determine the gas cap for the call
+	gasCap := min(ctx.GasMeter().GasRemaining(), emvconfig.DefaultGasCap)
+
 	// Return the request
 	return &evmtypes.EthCallRequest{
 		Args:            bz,
-		GasCap:          ctx.GasMeter().GasRemaining(),
+		GasCap:          gasCap,
 		ChainId:         chainID.Int64(),
 		ProposerAddress: sdk.ConsAddress(proposer),
 	}, nil

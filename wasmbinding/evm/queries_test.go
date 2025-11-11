@@ -311,7 +311,7 @@ func TestHandleERC20Allowance(t *testing.T) {
 	}
 }
 
-// TestEthCall_ConsumeGas tests that EthCall does not consume gas
+// TestEthCall_ConsumeGas tests that EthCall consumes gas
 func TestEthCall_ConsumeGas(t *testing.T) {
 	// Set the app
 	actor := apptesting.RandomAccountAddress()
