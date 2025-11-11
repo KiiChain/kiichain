@@ -112,6 +112,7 @@ func TestMonoDecorator(t *testing.T) {
 
 	// Reactivate keeper since it was disabled on abci
 	app.FeeAbstractionKeeper.Params.Set(ctx, types.DefaultParams())
+	require.NoError(t, err)
 
 	// Define the test cases
 	testCases := []struct {

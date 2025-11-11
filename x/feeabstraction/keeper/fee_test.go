@@ -29,7 +29,8 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 	DefaultFirstERC20 := "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd"
 
 	// Reactivate keeper since it was disabled on abci
-	s.app.FeeAbstractionKeeper.Params.Set(s.ctx, types.DefaultParams())
+	err := s.app.FeeAbstractionKeeper.Params.Set(s.ctx, types.DefaultParams())
+	s.Require().NoError(err)
 
 	// Build the test cases
 	testCases := []struct {
