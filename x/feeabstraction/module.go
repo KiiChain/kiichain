@@ -134,6 +134,13 @@ func (AppModule) QuerierRoute() string { return types.QuerierRoute }
 func (am AppModule) RegisterServices(c module.Configurator) {
 	types.RegisterMsgServer(c.MsgServer(), keeper.NewMsgServer(am.keeper))
 	types.RegisterQueryServer(c.QueryServer(), keeper.NewQuerier(am.keeper))
+
+	migrator := keeper.NewMigrator(am.keeper)
+
+	// register v1 -> v2 migration
+	if err := c.RegisterMigration(types.ModuleName, 1, migrator.Migrate1to2); err != nil {
+		panic(fmt.Errorf("failed to migrate %s to v2: %w", types.ModuleName, err))
+	}
 }
 
 // InitGenesis performs the module genesis initialization
