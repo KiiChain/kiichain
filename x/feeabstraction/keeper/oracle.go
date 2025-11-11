@@ -40,10 +40,7 @@ func (k Keeper) CalculateFeeTokenPrices(ctx sdk.Context) error {
 		// Disable fee abstraction if there is no pricing
 		k.Logger(ctx).Debug("akii has no price, feeabstraction disabled")
 		params.Enabled = false
-		if err = k.Params.Set(ctx, params); err != nil {
-			return err
-		}
-		return nil
+		return k.Params.Set(ctx, params)
 	}
 
 	// Iterate all the tokens
