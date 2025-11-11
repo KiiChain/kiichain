@@ -1,4 +1,4 @@
-package v510
+package v530
 
 import (
 	"github.com/kiichain/kiichain/v5/app/upgrades"
@@ -6,7 +6,7 @@ import (
 
 const (
 	// UpgradeName is the name of the upgrade
-	UpgradeName = "v5.1.0"
+	UpgradeName = "v5.3.0"
 )
 
 // Upgrade defines the upgrade, nothing is done here
