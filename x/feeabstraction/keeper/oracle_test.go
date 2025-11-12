@@ -1,14 +1,23 @@
 package keeper_test
 
 import (
+	"errors"
 	"time"
 
+	"cosmossdk.io/collections"
 	math "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/kiichain/kiichain/v5/app/params"
 	"github.com/kiichain/kiichain/v5/x/feeabstraction/types"
 	oracletypes "github.com/kiichain/kiichain/v5/x/oracle/types"
+)
+
+var (
+	defaultKii  = types.NewFeeTokenMetadata(params.BaseDenom, params.DisplayDenom, 18, math.LegacyOneDec())
+	defaultAtom = types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyOneDec())
+	defaultSol  = types.NewFeeTokenMetadata("usol", "sol", 18, math.LegacyOneDec())
 )
 
 // TestCalculateFeeTokenPrices tests the CalculateFeeTokenPrices function
@@ -24,14 +33,26 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 			name: "empty sets",
 		},
 		{
+			name: "module disabled whithout kii price",
+			postCheck: func(ctx sdk.Context) {
+				// Check params is disabled
+				params, err := s.app.FeeAbstractionKeeper.Params.Get(ctx)
+				s.Require().NoError(err)
+				s.Require().False(params.Enabled)
+			},
+		},
+		{
 			name: "calculate fee token prices",
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Mock oracle twaps
-				ctx = s.createTwaps(ctx, math.LegacyMustNewDecFromStr("0.5"), 100, "atom")
+				startTime := ctx.BlockTime()
+				ctx = s.createTwaps(ctx, startTime, math.LegacyMustNewDecFromStr("0.01"), 100, "kii")
+				ctx = s.createTwaps(ctx, startTime, math.LegacyMustNewDecFromStr("0.5"), 100, "atom")
 
 				// Set the fee token prices in the keeper
 				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyMustNewDecFromStr("50")),
+					defaultKii,
 				))
 				s.Require().NoError(err)
 
@@ -45,12 +66,8 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 					s.Require().True(token.Enabled, "Expected token to be enabled: %s", token.Denom)
 				}
 
-				// Get the module params and get the fallback native price
-				params, err := s.app.FeeAbstractionKeeper.Params.Get(ctx)
-				s.Require().NoError(err)
-
 				// Calculate the token from one to the other
-				expectedPrice := math.LegacyMustNewDecFromStr("0.5").Quo(params.FallbackNativePrice)
+				expectedPrice := math.LegacyMustNewDecFromStr("0.5").Quo(math.LegacyMustNewDecFromStr("0.01"))
 				expectedPriceMin := expectedPrice.Mul(math.LegacyMustNewDecFromStr("0.8")) // Allow 20% variance
 				expectedPriceMax := expectedPrice.Mul(math.LegacyMustNewDecFromStr("1.2")) // Allow 20% variance
 
@@ -64,10 +81,14 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 		{
 			name: "all tokens are disabled due to no twap",
 			malleate: func(ctx sdk.Context) sdk.Context {
+				// Enable fee abstraction by setting kii price
+				startTime := ctx.BlockTime()
+				ctx = s.createTwaps(ctx, startTime, math.LegacyMustNewDecFromStr("0.5"), 100, "kii")
+
 				// Set the fee token prices in the keeper without twaps
 				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("usol", "sol", 18, math.LegacyOneDec()),
-					types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyOneDec()),
+					defaultSol,
+					defaultAtom,
 				))
 				s.Require().NoError(err)
 
@@ -86,12 +107,14 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 			name: "partial tokens disabled due to no twap",
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Mock oracle twaps
-				ctx = s.createTwaps(ctx, math.LegacyMustNewDecFromStr("0.5"), 100, "atom")
+				startTime := ctx.BlockTime()
+				ctx = s.createTwaps(ctx, startTime, math.LegacyMustNewDecFromStr("0.4"), 100, "kii")
+				ctx = s.createTwaps(ctx, startTime, math.LegacyMustNewDecFromStr("0.5"), 100, "atom")
 
 				// Set the fee token prices in the keeper
 				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("usol", "sol", 18, math.LegacyOneDec()),
-					types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyOneDec()),
+					defaultSol,
+					defaultAtom,
 				))
 				s.Require().NoError(err)
 
@@ -114,10 +137,13 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 			name: "token enabled but price is zero",
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Mock oracle twaps
-				ctx = s.createTwaps(ctx, math.LegacyMustNewDecFromStr("0.5"), 100, "atom")
+				startTime := ctx.BlockTime()
+				ctx = s.createTwaps(ctx, startTime, math.LegacyMustNewDecFromStr("0.4"), 100, "kii")
+				ctx = s.createTwaps(ctx, startTime, math.LegacyMustNewDecFromStr("0.5"), 100, "atom")
 
 				// Set the fee token prices in the keeper with zero price
 				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+					defaultKii,
 					types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyZeroDec()),
 				))
 				s.Require().NoError(err)
@@ -128,17 +154,19 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 				// Price is set as normal
 				feeTokens, err := s.app.FeeAbstractionKeeper.FeeTokens.Get(ctx)
 				s.Require().NoError(err)
-				s.Require().Len(feeTokens.Items, 1)
-				s.Require().NotEqualValues(math.LegacyZeroDec(), feeTokens.Items[0].Price)
-				s.Require().True(feeTokens.Items[0].Enabled)
+				s.Require().Len(feeTokens.Items, 2)
+				s.Require().NotEqualValues(math.LegacyZeroDec(), feeTokens.Items[1].Price)
+				s.Require().True(feeTokens.Items[1].Enabled)
 			},
 		},
 		{
 			name: "partial tokens disabled, not price update",
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Mock oracle twaps
-				ctx = s.createTwaps(ctx, math.LegacyMustNewDecFromStr("0.5"), 100, "atom")
-				ctx = s.createTwaps(ctx, math.LegacyMustNewDecFromStr("0.5"), 100, "sol")
+				startTime := ctx.BlockTime()
+				ctx = s.createTwaps(ctx, startTime, math.LegacyMustNewDecFromStr("0.4"), 100, "kii")
+				ctx = s.createTwaps(ctx, startTime, math.LegacyMustNewDecFromStr("0.5"), 100, "atom")
+				ctx = s.createTwaps(ctx, startTime, math.LegacyMustNewDecFromStr("0.5"), 100, "sol")
 
 				// Set the fee token prices in the keeper
 				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
@@ -149,7 +177,7 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 						Price:       math.LegacyMustNewDecFromStr("50"),
 						Enabled:     false, // Token disabled
 					},
-					types.NewFeeTokenMetadata("usol", "sol", 18, math.LegacyOneDec()),
+					defaultSol,
 				))
 				s.Require().NoError(err)
 
@@ -202,35 +230,42 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 // CreateTwaps for oracle keeper tests
 func (s *KeeperTestSuite) createTwaps(
 	ctx sdk.Context,
+	startTime time.Time,
 	startRate math.LegacyDec,
 	steps int, //nolint:unparam
 	denom string,
 ) sdk.Context {
 	s.T().Helper()
-
 	// Get initial values for the context
 	height := ctx.BlockHeight()
-	timestamp := ctx.BlockTime()
 
 	for i := 0; i < steps; i++ {
 		// Each snapshot 3 seconds apart
-		snapshotTime := timestamp.Add(time.Second * 3 * time.Duration(i))
+		snapshotTime := startTime.Add(time.Second * 3 * time.Duration(i))
 		snapshotHeight := height + int64(i)
 
-		// Create the snapshot
-		snapshot := oracletypes.NewPriceSnapshot(
-			snapshotTime.Unix(),
-			oracletypes.PriceSnapshotItems{
-				oracletypes.NewPriceSnapshotItem(denom, oracletypes.OracleExchangeRate{
-					ExchangeRate:        startRate,
-					LastUpdate:          math.NewInt(snapshotHeight),
-					LastUpdateTimestamp: snapshotTime.Unix(),
-				}),
-			},
-		)
+		snapshotItems := oracletypes.PriceSnapshotItems{
+			oracletypes.NewPriceSnapshotItem(denom, oracletypes.OracleExchangeRate{
+				ExchangeRate:        startRate,
+				LastUpdate:          math.NewInt(snapshotHeight),
+				LastUpdateTimestamp: snapshotTime.Unix(),
+			}),
+		}
+
+		snapshot, err := s.app.OracleKeeper.PriceSnapshot.Get(ctx, snapshotTime.Unix())
+		if errors.Is(err, collections.ErrNotFound) {
+			// Create the snapshot
+			snapshot = oracletypes.NewPriceSnapshot(
+				snapshotTime.Unix(),
+				snapshotItems,
+			)
+		} else {
+			s.Require().NoError(err)
+			snapshot.PriceSnapshotItems = append(snapshot.PriceSnapshotItems, snapshotItems...)
+		}
 
 		// Set the snapshot in the keeper
-		err := s.app.OracleKeeper.PriceSnapshot.Set(ctx, snapshot.SnapshotTimestamp, snapshot)
+		err = s.app.OracleKeeper.PriceSnapshot.Set(ctx, snapshot.SnapshotTimestamp, snapshot)
 		s.Require().NoError(err)
 
 		// Vary the price slightly for each step by 0.1%

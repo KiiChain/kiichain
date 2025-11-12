@@ -37,7 +37,10 @@ func (k Keeper) CalculateFeeTokenPrices(ctx sdk.Context) error {
 	// Find the price for the base token
 	baseTokenPrice, ok := twapPriceMap[params.NativeOracleDenom]
 	if !ok {
-		baseTokenPrice = params.FallbackNativePrice
+		// Disable fee abstraction if there is no pricing
+		k.Logger(ctx).Debug("%s has no price, feeabstraction disabled", params.NativeOracleDenom)
+		params.Enabled = false
+		return k.Params.Set(ctx, params)
 	}
 
 	// Iterate all the tokens

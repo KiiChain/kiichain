@@ -12,6 +12,7 @@
 ## Removed
 
 - Removed IBC precompile since ICS20 precompile also handles IBC transfers.
+- Removed fallback native price param on the fee abstraction module. Instead of using hardcoded price, the module disables itself when price is lacking.
 
 ## DEPENDENCIES
 

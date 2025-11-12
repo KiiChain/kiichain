@@ -110,6 +110,10 @@ func TestMonoDecorator(t *testing.T) {
 	err := app.FeeMarketKeeper.SetParams(ctx, feeMarketParams)
 	require.NoError(t, err)
 
+	// Reactivate keeper since it was disabled on abci
+	err = app.FeeAbstractionKeeper.Params.Set(ctx, types.DefaultParams())
+	require.NoError(t, err)
+
 	// Define the test cases
 	testCases := []struct {
 		name        string
