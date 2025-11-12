@@ -19,6 +19,7 @@ import (
 	"github.com/kiichain/kiichain/v5/ante"
 	"github.com/kiichain/kiichain/v5/app/apptesting"
 	"github.com/kiichain/kiichain/v5/app/helpers"
+	"github.com/kiichain/kiichain/v5/x/oracle"
 	oracletypes "github.com/kiichain/kiichain/v5/x/oracle/types"
 )
 
@@ -269,7 +270,12 @@ func TestVulnerabilityFeelessDoubleVoting(t *testing.T) {
 			authate.NewDeductFeeDecorator(app.AccountKeeper, app.BankKeeper, nil, nil),
 			&app.OracleKeeper,
 		)
-		anteHandler := sdk.ChainAnteDecorators(feelessDecorator)
+
+		// Initialize the anti-spam decorator
+		antiSpamDecorator := oracle.NewSpammingPreventionDecorator(&app.OracleKeeper)
+
+		// Create the ante handler with both decorators
+		anteHandler := sdk.ChainAnteDecorators(feelessDecorator, antiSpamDecorator)
 
 		// Check 1: First vote check - should pass (no vote exists)
 		tx1, err := helpers.BuildTxFromMsgs(feeder, nil, sdk.NewCoins(feeCoin), 1000000, voteMsg1)
@@ -288,35 +294,8 @@ func TestVulnerabilityFeelessDoubleVoting(t *testing.T) {
 
 		t.Logf("    Step 2: TX2 checks if vote exists - STILL NOT FOUND ✓ (RACE!)")
 		_, err = anteHandler(cachedCtx, tx2, false)
-		require.NoError(t, err)
-		t.Logf("    Step 2 Result: TX2 antehandler ALSO passes (DOUBLE VOTE POSSIBLE!)")
-		t.Logf("")
-
-		t.Logf("  RACE CONDITION DEMONSTRATED:")
-		t.Logf("    - Both TX1 and TX2 passed feeless check")
-		t.Logf("    - Both checked vote status BEFORE either actually voted")
-		t.Logf("    - Non-atomic: Check (line 101) separate from Set (in msg handler)")
-		t.Logf("    - Window exists between check and actual vote execution")
-		t.Logf("")
-
-		t.Logf("  ATTACK IMPACT:")
-		t.Logf("    1. DOUBLE VOTING:")
-		t.Logf("       - Validator can submit multiple votes per round")
-		t.Logf("       - Corrupts oracle price aggregation")
-		t.Logf("       - Gives unfair weight to malicious validator")
-		t.Logf("")
-		t.Logf("    2. MEMPOOL MONOPOLIZATION:")
-		t.Logf("       - Feeless txs get MaxInt64 priority")
-		t.Logf("       - Normal user txs: priority = 100-2000")
-		t.Logf("       - Validator can spam mempool with feeless oracle txs")
-		t.Logf("       - Blocks fill with validator's txs, users get censored")
-		t.Logf("")
-
-		t.Logf("  TRIGGER CONDITIONS:")
-		t.Logf("    ✓ Two vote txs in mempool before block execution")
-		t.Logf("    ✓ Both pass antehandler check (non-atomic)")
-		t.Logf("    ✓ First executes and sets vote")
-		t.Logf("    ✓ Second should fail but already passed antehandler")
+		require.Error(t, err)
+		require.ErrorContains(t, err, "the validator has already submitted a vote at the current height=1")
 	})
 
 	t.Run("Priority manipulation demonstration", func(t *testing.T) {
@@ -344,7 +323,11 @@ func TestVulnerabilityFeelessDoubleVoting(t *testing.T) {
 			authate.NewDeductFeeDecorator(app.AccountKeeper, app.BankKeeper, nil, nil),
 			&app.OracleKeeper,
 		)
-		anteHandler := sdk.ChainAnteDecorators(feelessDecorator)
+
+		// Initialize the anti-spam decorator
+		antiSpamDecorator := oracle.NewSpammingPreventionDecorator(&app.OracleKeeper)
+
+		anteHandler := sdk.ChainAnteDecorators(feelessDecorator, antiSpamDecorator)
 
 		// All spam votes pass antehandler
 		passCount := 0
@@ -358,11 +341,18 @@ func TestVulnerabilityFeelessDoubleVoting(t *testing.T) {
 			}
 		}
 
-		t.Logf("  SPAM TEST RESULT:")
-		t.Logf("    - Created 10 oracle vote messages")
-		t.Logf("    - All %d passed antehandler (feeless)", passCount)
-		t.Logf("    - Each gets MaxInt64 priority")
-		t.Logf("    - Validator can spam unlimited such txs")
-		t.Logf("    - Block space monopolized by single validator")
+		// Only one should pass due to anti-spam
+		if passCount != 1 {
+			t.Logf("  SPAM TEST RESULT:")
+			t.Logf("    - Created 10 oracle vote messages")
+			t.Logf("    - All %d passed antehandler (feeless)", passCount)
+			t.Logf("    - Each gets MaxInt64 priority")
+			t.Logf("    - Validator can spam unlimited such txs")
+			t.Logf("    - Block space monopolized by single validator")
+			t.Errorf("expected only 1 message to pass the antehandler due to anti-spam decorator, but got %d", passCount)
+		} else {
+			t.Logf("  SPAM TEST RESULT:")
+			t.Logf("	- Only 1 message was allowed to pass the antehandler due to anti-spam decorator")
+		}
 	})
 }
