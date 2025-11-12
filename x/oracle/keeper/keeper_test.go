@@ -611,6 +611,9 @@ func TestVulnerabilityTWAPNumericUnderflow(t *testing.T) {
 	oracleKeeper := init.OracleKeeper
 	ctx := init.Ctx
 
+	// Set stable block time for usage
+	ctx = ctx.WithBlockTime(time.Unix(200, 0))
+
 	// Add vote target for KII
 	err := oracleKeeper.VoteTarget.Set(ctx, utils.KiiDenom, types.Denom{Name: utils.KiiDenom})
 	require.NoError(t, err)
@@ -664,7 +667,6 @@ func TestVulnerabilityTWAPNumericUnderflow(t *testing.T) {
 
 		// Try to calculate TWAP - this should demonstrate the vulnerability
 		// The function might error or produce incorrect results
-		ctx = ctx.WithBlockTime(time.Unix(200, 0))
 		twaps, err := oracleKeeper.CalculateTwaps(ctx, 200)
 
 		t.Logf("  TRIGGER CONDITIONS:")
