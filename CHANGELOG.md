@@ -5,6 +5,9 @@
 ## Added
 
 - Cosmos EVM integrations tests added to the repo
+- Added logs and telemetry for reentrance detection in wasmd precompile
+- Add further validations to Wasm Oracle query bindings
+- Moves Wasmd reentrance lock to the core of the wasmd contract to avoid reentrance attacks on queries and instantiations
 
 ## Removed
 
@@ -23,6 +26,7 @@
 - Fix Oracle module ante decorator to allow first vote and install oracle ante handlers
 - Fix IBC validation of negative numbers happens a bit early [#144](https://github.com/KiiChain/kiichain/issues/144)
 - Fix incorrect error passing on tokenfactory wasmbinding
+- Fix account balance information being stale on fee abstraction's cosmos' ante
 
 ### Documentation
 

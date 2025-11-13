@@ -221,19 +221,17 @@ func (s *WasmdPrecompileTestSuite) TestGasHandling() {
 // Bug Report Issue #5: Reentrancy Risk
 func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 	contractAddr := s.instantiateContract()
-	method := s.Precompile.Methods[wasmdprecompile.ExecuteMethod]
 	account := s.keyring.GetKey(0)
 
 	s.Run("test_concurrent_execution_without_guard", func() {
 		// This simulates what would happen if two transactions
 		// tried to execute the same contract simultaneously
-		stateDB := s.GetStateDB()
 		contract, ctx := testutil.NewPrecompileContract(
 			s.T(),
 			s.Ctx,
 			account.Addr,
 			s.Precompile.Address(),
-			200000,
+			800000,
 		)
 
 		args := []any{
@@ -243,12 +241,13 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 		}
 
 		// First execution starts
-		_, err1 := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+		contract.Input = s.PrepareInputData(wasmdprecompile.ExecuteMethod, args)
+		_, err1 := s.Precompile.Run(s.NewVMInstance(ctx), contract, false)
 		s.Require().NoError(err1)
 
 		// Second execution on same contract (simulating reentrancy)
 		// In a real attack, this would be triggered from within the first execution
-		_, err2 := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+		_, err2 := s.Precompile.Run(s.NewVMInstance(ctx), contract, false)
 
 		// If there's no reentrancy guard, this should succeed
 		// If there IS a guard, this should fail with a reentrancy error
@@ -262,6 +261,10 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 	})
 
 	s.Run("test_nested_execution_attack_scenario", func() {
+		// Restart the env
+		s.SetupTest()
+		contractAddr := s.instantiateContract()
+
 		// Simulate a realistic attack scenario:
 		// 1. Attacker calls Execute on Contract A
 		// 2. Contract A calls back to Execute on Contract B
@@ -271,13 +274,12 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 		s.T().Log("ATTACK SCENARIO: Nested Contract Execution")
 		s.T().Log("═══════════════════════════════════════════")
 
-		stateDB := s.GetStateDB()
 		contract, ctx := testutil.NewPrecompileContract(
 			s.T(),
 			s.Ctx,
 			account.Addr,
 			s.Precompile.Address(),
-			500000, // More gas for nested calls
+			800000, // More gas for nested calls
 		)
 
 		// Track execution depth
@@ -289,12 +291,13 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 			[]byte(`{"set": 42}`),
 			[]cmn.Coin{},
 		}
+		contract.Input = s.PrepareInputData(wasmdprecompile.ExecuteMethod, args)
 
 		s.T().Logf("Attempting %d nested executions...", maxDepth)
 
 		// Attempt nested executions
 		for i := 0; i < maxDepth; i++ {
-			_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+			_, err := s.Precompile.Run(s.NewVMInstance(ctx), contract, false)
 			if err != nil {
 				s.T().Logf("  Depth %d: BLOCKED - %v", i, err)
 				if err.Error() == "reentrant call" {
@@ -323,14 +326,17 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 	})
 
 	s.Run("test_state_consistency_under_reentrancy", func() {
+		// Restart the env
+		s.SetupTest()
+		contractAddr := s.instantiateContract()
+
 		// Test if state remains consistent during potential reentrancy
-		stateDB := s.GetStateDB()
 		contract, ctx := testutil.NewPrecompileContract(
 			s.T(),
 			s.Ctx,
 			account.Addr,
 			s.Precompile.Address(),
-			200000,
+			800000,
 		)
 
 		// Set initial value
@@ -339,7 +345,10 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 			[]byte(`{"set": 50}`),
 			[]cmn.Coin{},
 		}
-		_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args1)
+
+		// Prepare the contract input data
+		contract.Input = s.PrepareInputData(wasmdprecompile.ExecuteMethod, args1)
+		_, err := s.Precompile.Run(s.NewVMInstance(ctx), contract, false)
 		s.Require().NoError(err)
 
 		// Try to execute again before state is committed (simulating reentrancy)
@@ -348,7 +357,8 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 			[]byte(`{"set": 75}`),
 			[]cmn.Coin{},
 		}
-		_, err = s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args2)
+		contract.Input = s.PrepareInputData(wasmdprecompile.ExecuteMethod, args2)
+		_, err = s.Precompile.Run(s.NewVMInstance(ctx), contract, false)
 
 		if err == nil {
 			s.T().Log("⚠️  State modification allowed during potential reentrancy")

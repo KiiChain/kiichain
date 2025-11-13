@@ -45,16 +45,19 @@ func (k Keeper) WriteFeeTokenPricesMetrics(ctx context.Context) error {
 
 	// Iterate over the fee token prices and set the gauge metrics
 	for _, token := range feeTokenPrices.Items {
+		// If token is disabled, skip to next one
+		if !token.Enabled {
+			continue
+		}
+
 		// Set a module metric for each enabled token
-		if token.Enabled {
-			if floatPrice, err := token.Price.Float64(); err == nil {
-				telemetry.ModuleSetGauge(
-					types.ModuleName,
-					float32(floatPrice),
-					"fee_token_price",
-					token.Denom,
-				)
-			}
+		if floatPrice, err := token.Price.Float64(); err == nil {
+			telemetry.ModuleSetGauge(
+				types.ModuleName,
+				float32(floatPrice),
+				"fee_token_price",
+				token.Denom,
+			)
 		}
 	}
 

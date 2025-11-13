@@ -66,18 +66,16 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 		s.T().Log("  - Reentrancy = Multiple withdrawals from same balance")
 		s.T().Log("")
 
-		method := s.Precompile.Methods[wasmdprecompile.ExecuteMethod]
 		attackAttempts := 5
 		successfulReentries := 0
 
-		stateDB := s.GetStateDB()
 		for attempt := 1; attempt <= attackAttempts; attempt++ {
 			contract, ctx := testutil.NewPrecompileContract(
 				s.T(),
 				s.Ctx,
 				attacker.Addr,
 				s.Precompile.Address(),
-				500000,
+				800000,
 			)
 
 			// Simulate state modification attack using counter's "set" method
@@ -95,9 +93,11 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 				[]cmn.Coin{},
 			}
 
+			// Prepare the contract input data
+			contract.Input = s.PrepareInputData(wasmdprecompile.ExecuteMethod, args)
 			s.T().Logf("  Execution %d: set(value=%d)...", attempt, attempt*10)
 
-			_, err = s.Precompile.Execute(ctx, attacker.Addr, contract, stateDB, &method, args)
+			_, err = s.Precompile.Run(s.NewVMInstance(ctx), contract, false)
 
 			// Analyze result
 			switch {
