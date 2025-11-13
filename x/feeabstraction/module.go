@@ -33,7 +33,7 @@ var (
 )
 
 // ConsensusVersion defines the current x/feeabstraction module consensus version
-const ConsensusVersion = 1
+const ConsensusVersion = 2
 
 // ----------------------------------------------------------------------------
 // AppModuleBasic
