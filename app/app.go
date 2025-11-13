@@ -63,11 +63,11 @@ import (
 	srvflags "github.com/cosmos/evm/server/flags"
 	cosmosevmtypes "github.com/cosmos/evm/types"
 
-	kiiante "github.com/kiichain/kiichain/v5/ante"
-	"github.com/kiichain/kiichain/v5/app/keepers"
-	"github.com/kiichain/kiichain/v5/app/upgrades"
-	v5_2 "github.com/kiichain/kiichain/v5/app/upgrades/v5_2"
-	"github.com/kiichain/kiichain/v5/client/docs"
+	kiiante "github.com/kiichain/kiichain/v6/ante"
+	"github.com/kiichain/kiichain/v6/app/keepers"
+	"github.com/kiichain/kiichain/v6/app/upgrades"
+	v6_0 "github.com/kiichain/kiichain/v6/app/upgrades/v6_0"
+	"github.com/kiichain/kiichain/v6/client/docs"
 )
 
 var (
@@ -76,7 +76,7 @@ var (
 
 	// Upgrades is a list of all the upgrades that are available for the application.
 	Upgrades = []upgrades.Upgrade{
-		v5_2.Upgrade,
+		v6_0.Upgrade,
 	}
 )
 

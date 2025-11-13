@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v5/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v6/x/feeabstraction/types"
 )
 
 // InitGenesis set the module collections though the genesis state

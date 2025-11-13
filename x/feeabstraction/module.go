@@ -18,9 +18,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/kiichain/kiichain/v5/x/feeabstraction/client/cli"
-	"github.com/kiichain/kiichain/v5/x/feeabstraction/keeper"
-	"github.com/kiichain/kiichain/v5/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v6/x/feeabstraction/client/cli"
+	"github.com/kiichain/kiichain/v6/x/feeabstraction/keeper"
+	"github.com/kiichain/kiichain/v6/x/feeabstraction/types"
 )
 
 // Interface inference
@@ -33,7 +33,7 @@ var (
 )
 
 // ConsensusVersion defines the current x/feeabstraction module consensus version
-const ConsensusVersion = 1
+const ConsensusVersion = 2
 
 // ----------------------------------------------------------------------------
 // AppModuleBasic
@@ -134,6 +134,13 @@ func (AppModule) QuerierRoute() string { return types.QuerierRoute }
 func (am AppModule) RegisterServices(c module.Configurator) {
 	types.RegisterMsgServer(c.MsgServer(), keeper.NewMsgServer(am.keeper))
 	types.RegisterQueryServer(c.QueryServer(), keeper.NewQuerier(am.keeper))
+
+	migrator := keeper.NewMigrator(am.keeper)
+
+	// register v1 -> v2 migration
+	if err := c.RegisterMigration(types.ModuleName, 1, migrator.Migrate1to2); err != nil {
+		panic(fmt.Errorf("failed to migrate %s to v2: %w", types.ModuleName, err))
+	}
 }
 
 // InitGenesis performs the module genesis initialization

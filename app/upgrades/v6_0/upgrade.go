@@ -1,4 +1,4 @@
-package v510
+package v600
 
 import (
 	"context"
@@ -8,10 +8,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/kiichain/kiichain/v5/app/keepers"
+	"github.com/kiichain/kiichain/v6/app/keepers"
 )
 
-// CreateUpgradeHandler creates the upgrade handler for the v5.1.0 upgrade
+// CreateUpgradeHandler creates the upgrade handler for the v6.0.0 upgrade
 // Its only purpose is to run the module migrations
 func CreateUpgradeHandler(
 	mm *module.Manager,
@@ -30,7 +30,7 @@ func CreateUpgradeHandler(
 		}
 
 		// Log the upgrade completion
-		ctx.Logger().Info("Upgrade v5.1.0 complete")
+		ctx.Logger().Info("Upgrade v6.0.0 complete")
 		return vm, nil
 	}
 }

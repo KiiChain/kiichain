@@ -12,9 +12,9 @@ import (
 
 	testkeyring "github.com/cosmos/evm/testutil/keyring"
 
-	app "github.com/kiichain/kiichain/v5/app"
-	"github.com/kiichain/kiichain/v5/app/helpers"
-	oracleprecompile "github.com/kiichain/kiichain/v5/precompiles/oracle"
+	app "github.com/kiichain/kiichain/v6/app"
+	"github.com/kiichain/kiichain/v6/app/helpers"
+	oracleprecompile "github.com/kiichain/kiichain/v6/precompiles/oracle"
 )
 
 // OraclePrecompileTestSuite is a test suite for the oracle precompile

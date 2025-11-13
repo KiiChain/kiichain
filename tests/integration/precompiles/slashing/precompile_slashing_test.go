@@ -7,7 +7,7 @@ import (
 
 	"github.com/cosmos/evm/tests/integration/precompiles/slashing"
 
-	"github.com/kiichain/kiichain/v5/tests/integration"
+	"github.com/kiichain/kiichain/v6/tests/integration"
 )
 
 func TestSlashingPrecompileTestSuite(t *testing.T) {

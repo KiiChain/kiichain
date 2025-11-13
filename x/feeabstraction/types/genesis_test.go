@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kiichain/kiichain/v5/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v6/x/feeabstraction/types"
 )
 
 // TestGenesisStateValidate tests the Validate method of GenesisState
