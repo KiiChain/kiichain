@@ -5,7 +5,7 @@ import (
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
-	wasmdprecompile "github.com/kiichain/kiichain/v5/precompiles/wasmd"
+	wasmdprecompile "github.com/kiichain/kiichain/v6/precompiles/wasmd"
 )
 
 // TestQueryRaw is a test for the QueryRaw precompile method

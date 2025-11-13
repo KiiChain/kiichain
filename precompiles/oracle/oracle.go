@@ -16,7 +16,7 @@ import (
 
 	cmn "github.com/cosmos/evm/precompiles/common"
 
-	oraclekeeper "github.com/kiichain/kiichain/v5/x/oracle/keeper"
+	oraclekeeper "github.com/kiichain/kiichain/v6/x/oracle/keeper"
 )
 
 const (

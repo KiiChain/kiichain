@@ -10,7 +10,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v5/precompiles/wasmd"
+	"github.com/kiichain/kiichain/v6/precompiles/wasmd"
 )
 
 // EVMCoin represents a coin in EVM format

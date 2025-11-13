@@ -13,7 +13,7 @@ import (
 
 	"github.com/cosmos/evm"
 
-	kiichain "github.com/kiichain/kiichain/v5/app"
+	kiichain "github.com/kiichain/kiichain/v6/app"
 )
 
 // CreateKiichain creates a kiichain app for regular integration tests (non-mempool)

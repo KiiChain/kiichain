@@ -7,8 +7,8 @@ import (
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
-	app "github.com/kiichain/kiichain/v5/app"
-	"github.com/kiichain/kiichain/v5/cmd/kiichaind/cmd"
+	app "github.com/kiichain/kiichain/v6/app"
+	"github.com/kiichain/kiichain/v6/cmd/kiichaind/cmd"
 )
 
 func TestRootCmdConfig(t *testing.T) {

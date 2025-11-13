@@ -10,11 +10,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v5/app/apptesting"
-	"github.com/kiichain/kiichain/v5/wasmbinding/helpers"
-	wasmbinding "github.com/kiichain/kiichain/v5/wasmbinding/tokenfactory"
-	bindingtypes "github.com/kiichain/kiichain/v5/wasmbinding/tokenfactory/types"
-	"github.com/kiichain/kiichain/v5/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v6/app/apptesting"
+	"github.com/kiichain/kiichain/v6/wasmbinding/helpers"
+	wasmbinding "github.com/kiichain/kiichain/v6/wasmbinding/tokenfactory"
+	bindingtypes "github.com/kiichain/kiichain/v6/wasmbinding/tokenfactory/types"
+	"github.com/kiichain/kiichain/v6/x/tokenfactory/types"
 )
 
 // TestCreateDenom tests the CreateDenom function
