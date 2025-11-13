@@ -32,7 +32,7 @@ func TestMsgUpdateParamsValidate(t *testing.T) {
 			name: "valid - custom params",
 			msg: types.NewMessageUpdateParams(
 				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				types.NewParams("coin", "coinoracle", types.DefaultClampFactor, types.DefaultFallbackNativePrice, types.DefaultTwapLookbackWindow, true),
+				types.NewParams("coin", "coinoracle", types.DefaultClampFactor, types.DefaultTwapLookbackWindow, true),
 			),
 		},
 		{
@@ -44,7 +44,7 @@ func TestMsgUpdateParamsValidate(t *testing.T) {
 			name: "invalid - bad params",
 			msg: types.NewMessageUpdateParams(
 				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				types.NewParams("", "coinoracle", types.DefaultClampFactor, math.LegacyZeroDec(), 0, true),
+				types.NewParams("", "coinoracle", types.DefaultClampFactor, 0, true),
 			),
 			errContains: "native denom is invalid: invalid fee abstraction params",
 		},

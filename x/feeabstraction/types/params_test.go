@@ -28,7 +28,6 @@ func TestValidateParams(t *testing.T) {
 				"coin",
 				"oraclecoin",
 				types.DefaultClampFactor,
-				types.DefaultFallbackNativePrice,
 				types.DefaultTwapLookbackWindow,
 				true,
 			),
@@ -39,7 +38,6 @@ func TestValidateParams(t *testing.T) {
 				"",
 				"oraclecoin",
 				types.DefaultClampFactor,
-				types.DefaultFallbackNativePrice,
 				types.DefaultTwapLookbackWindow,
 				true,
 			),
@@ -51,7 +49,6 @@ func TestValidateParams(t *testing.T) {
 				"123",
 				"oraclecoin",
 				types.DefaultClampFactor,
-				types.DefaultFallbackNativePrice,
 				types.DefaultTwapLookbackWindow,
 				true,
 			),
@@ -63,7 +60,6 @@ func TestValidateParams(t *testing.T) {
 				"coin",
 				"",
 				types.DefaultClampFactor,
-				types.DefaultFallbackNativePrice,
 				types.DefaultTwapLookbackWindow,
 				true,
 			),
@@ -75,7 +71,6 @@ func TestValidateParams(t *testing.T) {
 				"coin",
 				"123",
 				types.DefaultClampFactor,
-				types.DefaultFallbackNativePrice,
 				types.DefaultTwapLookbackWindow,
 				true,
 			),
@@ -87,7 +82,6 @@ func TestValidateParams(t *testing.T) {
 				"coin",
 				"oraclecoin",
 				types.DefaultClampFactor.Neg(), // Negative value
-				types.DefaultFallbackNativePrice,
 				types.DefaultTwapLookbackWindow,
 				true,
 			),
@@ -99,35 +93,10 @@ func TestValidateParams(t *testing.T) {
 				"coin",
 				"oraclecoin",
 				types.DefaultClampFactor.Add(math.LegacyOneDec()), // Greater than 1
-				types.DefaultFallbackNativePrice,
 				types.DefaultTwapLookbackWindow,
 				true,
 			),
 			errContains: "clamp factor must be between 0 and 1",
-		},
-		{
-			name: "invalid - invalid fallback native price (negative)",
-			params: types.NewParams(
-				"coin",
-				"oraclecoin",
-				types.DefaultClampFactor,
-				types.DefaultFallbackNativePrice.Neg(), // Negative value
-				types.DefaultTwapLookbackWindow,
-				true,
-			),
-			errContains: "fallback native price must be greater than 0",
-		},
-		{
-			name: "invalid - invalid fallback native price (zero)",
-			params: types.NewParams(
-				"coin",
-				"oraclecoin",
-				types.DefaultClampFactor,
-				math.LegacyZeroDec(), // Zero value
-				types.DefaultTwapLookbackWindow,
-				true,
-			),
-			errContains: "fallback native price must be greater than 0",
 		},
 		{
 			name: "invalid - twap lookback window zero",
@@ -135,7 +104,6 @@ func TestValidateParams(t *testing.T) {
 				"coin",
 				"oraclecoin",
 				types.DefaultClampFactor,
-				types.DefaultFallbackNativePrice, // Negative value
 				0,
 				true,
 			),

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/stretchr/testify/suite"
 
 	_ "embed"
@@ -18,6 +19,7 @@ import (
 
 	testkeyring "github.com/cosmos/evm/testutil/keyring"
 	"github.com/cosmos/evm/x/vm/statedb"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	app "github.com/kiichain/kiichain/v5/app"
 	helpers "github.com/kiichain/kiichain/v5/app/helpers"
@@ -39,6 +41,9 @@ type WasmdPrecompileTestSuite struct {
 	Ctx     sdk.Context
 	keyring testkeyring.Keyring
 
+	// Evm
+	stateDB *statedb.StateDB
+
 	// Precompile
 	Precompile *wasmdprecompile.Precompile
 
@@ -52,8 +57,8 @@ func TestWasmdPrecompileTestSuite(t *testing.T) {
 	suite.Run(t, new(WasmdPrecompileTestSuite))
 }
 
-// SetupSuite sets up the test suite
-func (s *WasmdPrecompileTestSuite) SetupSuite() {
+// SetupTest sets up the test case
+func (s *WasmdPrecompileTestSuite) SetupTest() {
 	// Get the test context
 	t := s.T()
 
@@ -81,17 +86,47 @@ func (s *WasmdPrecompileTestSuite) SetupSuite() {
 	pc, err := wasmdprecompile.NewPrecompile(s.App.WasmKeeper)
 	s.Require().NoError(err)
 	s.Precompile = pc
-}
 
-// GetStateDB returns the state database for the precompile
-func (s *WasmdPrecompileTestSuite) GetStateDB() *statedb.StateDB {
+	// Start the state DB
 	// Get the header hash
 	headerHash := s.Ctx.HeaderHash()
 
 	// Return the statedb
-	return statedb.New(
+	stateDB := statedb.New(
 		s.Ctx,
 		s.App.EVMKeeper,
 		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash)),
 	)
+
+	s.stateDB = stateDB
+}
+
+// NewVmInstance creates a new EVM instance for the test suite
+func (s *WasmdPrecompileTestSuite) NewVMInstance(ctx sdk.Context) *vm.EVM {
+	return vm.NewEVM(
+		vm.BlockContext{},
+		s.stateDB,
+		evmtypes.GetEthChainConfig(),
+		vm.Config{},
+	)
+}
+
+// GetStateDB returns the state database for the precompile
+func (s *WasmdPrecompileTestSuite) GetStateDB() *statedb.StateDB {
+	return s.stateDB
+}
+
+// PrepareInputData prepares the input data for the precompile method call
+func (s *WasmdPrecompileTestSuite) PrepareInputData(methodName string, args []interface{}) []byte {
+	s.T().Helper()
+
+	// Get the method from the precompile ABI
+	_, exists := s.Precompile.ABI.Methods[methodName]
+	s.Require().True(exists, "method %s not found in precompile ABI", methodName)
+
+	// Pack the arguments
+	inputData, err := s.Precompile.Pack(methodName, args...)
+	s.Require().NoError(err, "failed to pack arguments for method %s", methodName)
+
+	return inputData
 }

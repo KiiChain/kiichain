@@ -4,6 +4,10 @@ import "github.com/kiichain/kiichain/v5/x/feeabstraction/types"
 
 // TestGenesisInitExport tests the InitGenesis and ExportGenesis
 func (s *KeeperTestSuite) TestGenesisInitExport() {
+	// Reactivate keeper since it was disabled on abci
+	err := s.app.FeeAbstractionKeeper.Params.Set(s.ctx, types.DefaultParams())
+	s.Require().NoError(err)
+
 	// Get the current genesis state
 	genesisState, err := s.keeper.ExportGenesis(s.ctx)
 	s.Require().NoError(err)
@@ -16,7 +20,6 @@ func (s *KeeperTestSuite) TestGenesisInitExport() {
 		"newcoin",
 		"newcoinoracle",
 		types.DefaultClampFactor.MulInt64(3),
-		types.DefaultFallbackNativePrice,
 		types.DefaultTwapLookbackWindow,
 		true,
 	)

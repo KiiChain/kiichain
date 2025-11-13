@@ -11,37 +11,34 @@ import (
 
 var (
 	// Default values for the fee abstraction parameters
-	DefaultClampFactor         = math.LegacyMustNewDecFromStr("0.10") // 10%
-	DefaultFallbackNativePrice = math.LegacyMustNewDecFromStr("0.01") // 0.01 USD
-	DefaultTwapLookbackWindow  = uint64(120)                          // 120 seconds (2 minutes)
+	DefaultClampFactor        = math.LegacyMustNewDecFromStr("0.10") // 10%
+	DefaultTwapLookbackWindow = uint64(120)                          // 120 seconds (2 minutes)
 )
 
 // NewParams returns a new params instance
 func NewParams(
 	nativeDenom, nativeOracleDenom string,
-	clampFactor, fallbackNativePrice math.LegacyDec,
+	clampFactor math.LegacyDec,
 	twapLookbackWindow uint64,
 	enabled bool,
 ) Params {
 	return Params{
-		NativeDenom:         nativeDenom,
-		NativeOracleDenom:   nativeOracleDenom,
-		ClampFactor:         clampFactor,
-		Enabled:             enabled,
-		FallbackNativePrice: fallbackNativePrice,
-		TwapLookbackWindow:  twapLookbackWindow,
+		NativeDenom:        nativeDenom,
+		NativeOracleDenom:  nativeOracleDenom,
+		ClampFactor:        clampFactor,
+		Enabled:            enabled,
+		TwapLookbackWindow: twapLookbackWindow,
 	}
 }
 
 // DefaultParams returns default params
 func DefaultParams() Params {
 	return Params{
-		NativeDenom:         params.BaseDenom,
-		NativeOracleDenom:   params.DisplayDenom,
-		ClampFactor:         DefaultClampFactor,
-		FallbackNativePrice: DefaultFallbackNativePrice,
-		TwapLookbackWindow:  DefaultTwapLookbackWindow,
-		Enabled:             true,
+		NativeDenom:        params.BaseDenom,
+		NativeOracleDenom:  params.DisplayDenom,
+		ClampFactor:        DefaultClampFactor,
+		TwapLookbackWindow: DefaultTwapLookbackWindow,
+		Enabled:            true,
 	}
 }
 
@@ -60,11 +57,6 @@ func (p Params) Validate() error {
 	// Validate the clamp factor
 	if p.ClampFactor.IsNegative() || p.ClampFactor.GT(math.LegacyOneDec()) {
 		return errorsmod.Wrap(ErrInvalidParams, "clamp factor must be between 0 and 1")
-	}
-
-	// Validate the fallback native price
-	if p.FallbackNativePrice.IsNegative() || p.FallbackNativePrice.IsZero() {
-		return errorsmod.Wrap(ErrInvalidParams, "fallback native price must be greater than 0")
 	}
 
 	// Validate the twap lookback window
