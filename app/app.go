@@ -289,8 +289,10 @@ func NewKiichainApp(
 		app.EVMMempool = evmMempool
 
 		// Set the global mempool for RPC access
-		if err := evmmempool.SetGlobalEVMMempool(evmMempool); err != nil {
-			panic(err)
+		if evmmempool.GetGlobalEVMMempool() == nil {
+			if err := evmmempool.SetGlobalEVMMempool(evmMempool); err != nil {
+				panic(err)
+			}
 		}
 		app.SetMempool(evmMempool)
 		checkTxHandler := evmmempool.NewCheckTxHandler(evmMempool)
