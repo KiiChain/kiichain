@@ -374,7 +374,5 @@ func (s *IntegrationTestSuite) testIBCTransfer(expToFail bool) {
 		s.Require().NotNil(res.RateLimit)
 		s.Require().Equal(sdkmath.NewInt(0), res.RateLimit.Flow.Inflow)
 		s.Require().NotEqual(sdkmath.NewInt(0), res.RateLimit.Flow.Outflow)
-	} else {
-		time.Sleep(5 * time.Second)
 	}
 }
