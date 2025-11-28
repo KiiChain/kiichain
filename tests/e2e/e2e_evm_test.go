@@ -148,7 +148,6 @@ func (s *IntegrationTestSuite) testMempoolEVM(jsonRPC string) {
 
 		// Wait for successful second tx
 		s.waitForTransaction(client, tx2, evmAccount.address)
-
 	})
 }
 
