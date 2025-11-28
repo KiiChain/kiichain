@@ -163,6 +163,7 @@ func (s *IntegrationTestSuite) TestEVM() {
 	jsonRPC := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("8545/tcp"))
 	s.testEVMQueries(jsonRPC)
 	s.testEVM(jsonRPC)
+	s.testMempoolEVM(jsonRPC)
 }
 
 // TestERC20 runs the ERC20 tests. It is skipped if the variable is set
