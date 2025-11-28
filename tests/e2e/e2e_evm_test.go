@@ -9,6 +9,7 @@ import (
 	"math/big"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -122,7 +123,7 @@ func (s *IntegrationTestSuite) testMempoolEVM(jsonRPC string) {
 	amount := big.NewInt(1000000)
 
 	// Test Mempool
-	s.Run("Testing out of order nounce", func() {
+	s.Run("Testing out of order nonce", func() {
 		// Send 3 Txs with nonce
 		// Nonce +0
 		tx, err := EVMSendWithNonce(client, evmAccount.key, evmAccount.address, s.chainB.evmAccount.address, amount, nil, nonce)
@@ -132,6 +133,9 @@ func (s *IntegrationTestSuite) testMempoolEVM(jsonRPC string) {
 		tx2, err := EVMSendWithNonce(client, evmAccount.key, evmAccount.address, s.chainB.evmAccount.address, amount, nil, nonce+2)
 		s.Require().NoError(err)
 
+		// Wait to make sure it is in the correct ordering
+		time.Sleep(time.Millisecond * 500)
+
 		// Nonce +1
 		tx3, err := EVMSendWithNonce(client, evmAccount.key, evmAccount.address, s.chainB.evmAccount.address, amount, nil, nonce+1)
 		s.Require().NoError(err)
@@ -139,11 +143,12 @@ func (s *IntegrationTestSuite) testMempoolEVM(jsonRPC string) {
 		// Wait for successful first tx
 		s.waitForTransaction(client, tx, evmAccount.address)
 
+		// Wait for successful third tx
+		s.waitForTransaction(client, tx3, evmAccount.address)
+
 		// Wait for successful second tx
 		s.waitForTransaction(client, tx2, evmAccount.address)
 
-		// Wait for successful third tx
-		s.waitForTransaction(client, tx3, evmAccount.address)
 	})
 }
 

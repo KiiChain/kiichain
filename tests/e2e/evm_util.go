@@ -98,7 +98,7 @@ func EVMTransaction(
 	return *receipt, nil
 }
 
-// EVMSendWithNonce builds up an evm_sendTransaction with a specific nounce and returns its tx
+// EVMSendWithNonce builds up an evm_sendTransaction with a specific nonce and returns its tx
 func EVMSendWithNonce(
 	client *ethclient.Client,
 	privateKey *ecdsa.PrivateKey,
