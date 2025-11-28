@@ -124,6 +124,7 @@ func (s *IntegrationTestSuite) testMempoolEVM(jsonRPC string) {
 	// Test Mempool
 	s.Run("Testing out of order nounce", func() {
 		// Send 3 Txs with nonce
+		// Nonce +0
 		tx, err := EVMSendWithNonce(client, evmAccount.key, evmAccount.address, s.chainB.evmAccount.address, amount, nil, nonce)
 		s.Require().NoError(err)
 
