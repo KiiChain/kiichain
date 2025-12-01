@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/stretchr/testify/suite"
 
@@ -83,19 +82,14 @@ func (s *WasmdPrecompileTestSuite) SetupTest() {
 	s.CounterCodeID = res.CodeID
 
 	// Start the precompile
-	pc, err := wasmdprecompile.NewPrecompile(s.App.WasmKeeper)
-	s.Require().NoError(err)
+	pc := wasmdprecompile.NewPrecompile(s.App.WasmKeeper)
 	s.Precompile = pc
-
-	// Start the state DB
-	// Get the header hash
-	headerHash := s.Ctx.HeaderHash()
 
 	// Return the statedb
 	stateDB := statedb.New(
 		s.Ctx,
 		s.App.EVMKeeper,
-		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash)),
+		statedb.NewEmptyTxConfig(),
 	)
 
 	s.stateDB = stateDB

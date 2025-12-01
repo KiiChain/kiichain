@@ -1,6 +1,12 @@
 # CHANGELOG
 
-## v6.0.0 - 2025-11-13
+## Unreleased
+
+## DEPENDENCIES
+- Bump [EVM](github.com/cosmos/evm) from v0.4.1 to [v0.5.0](https://github.com/cosmos/evm/releases/tag/v0.5.0)
+- Bump [cosmos go-ethereum](github.com/cosmos/go-ethereum) to [v1.16.2](https://github.com/cosmos/go-ethereum/releases/tag/v1.16.2-cosmos-1)
+
+## v6.0.0 - 2025-11-23
 
 ## Added
 

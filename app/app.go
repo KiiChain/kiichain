@@ -59,11 +59,11 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	// EVM
-	"github.com/cosmos/evm/ante"
+	txlistener "github.com/cosmos/evm/ante"
+	cosmosevmantetypes "github.com/cosmos/evm/ante/types"
 	evmencoding "github.com/cosmos/evm/encoding"
 	evmmempool "github.com/cosmos/evm/mempool"
 	srvflags "github.com/cosmos/evm/server/flags"
-	cosmosevmtypes "github.com/cosmos/evm/types"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	kiiante "github.com/kiichain/kiichain/v6/ante"
@@ -102,7 +102,7 @@ type KiichainApp struct { //nolint: revive
 	interfaceRegistry types.InterfaceRegistry
 	// EVM v0.4.1
 	clientCtx          client.Context
-	pendingTxListeners []ante.PendingTxListener // from "github.com/cosmos/evm/ante"
+	pendingTxListeners []txlistener.PendingTxListener // from "github.com/cosmos/evm/ante"
 	EVMMempool         *evmmempool.ExperimentalEVMMempool
 
 	// the module manager
@@ -133,7 +133,6 @@ func NewKiichainApp(
 	homePath string,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
-	evmAppOptions EVMOptionsFn,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *KiichainApp {
 	// Use the EVM encoding config
@@ -154,11 +153,6 @@ func NewKiichainApp(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 	bApp.SetTxEncoder(txConfig.TxEncoder())
-
-	// initialize the Cosmos EVM application configuration
-	if err := evmAppOptions(KiichainID); err != nil {
-		panic(err)
-	}
 
 	app := &KiichainApp{
 		BaseApp:           bApp,
@@ -183,6 +177,7 @@ func NewKiichainApp(
 		logger,
 		appOpts,
 		wasmOpts,
+		KiichainID,
 	)
 
 	// Create IBC Tendermint Light Client Stack
@@ -215,6 +210,7 @@ func NewKiichainApp(
 	app.mm.SetOrderPreBlockers(
 		upgradetypes.ModuleName,
 		authtypes.ModuleName,
+		evmtypes.ModuleName,
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
@@ -352,7 +348,7 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 		Cdc:                    app.appCodec,
 		AccountKeeper:          &app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
-		ExtensionOptionChecker: cosmosevmtypes.HasDynamicFeeExtensionOption,
+		ExtensionOptionChecker: cosmosevmantetypes.HasDynamicFeeExtensionOption,
 		EvmKeeper:              app.EVMKeeper,
 		FeeAbstractionKeeper:   app.FeeAbstractionKeeper,
 		FeegrantKeeper:         app.FeeGrantKeeper,

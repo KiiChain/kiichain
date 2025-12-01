@@ -46,6 +46,10 @@ func TestMonoDecoratorTx(t *testing.T) {
 	// Create the app and the context
 	app, ctx := helpers.SetupWithContext(t)
 
+	// fetch params
+	evmparams := app.EVMKeeper.GetParams(sdk.Context{})
+	feemarketParams := app.FeeMarketKeeper.GetParams(sdk.Context{})
+
 	// Define the test cases
 	testCases := []struct {
 		name        string
@@ -78,6 +82,8 @@ func TestMonoDecoratorTx(t *testing.T) {
 				app.EVMKeeper,
 				app.FeeAbstractionKeeper,
 				20000000,
+				&evmparams,
+				&feemarketParams,
 			)
 			anteHandler := sdk.ChainAnteDecorators(monoDecorator)
 
@@ -113,6 +119,9 @@ func TestMonoDecorator(t *testing.T) {
 	// Reactivate keeper since it was disabled on abci
 	err = app.FeeAbstractionKeeper.Params.Set(ctx, types.DefaultParams())
 	require.NoError(t, err)
+
+	// fetch params
+	evmparams := app.EVMKeeper.GetParams(sdk.Context{})
 
 	// Define the test cases
 	testCases := []struct {
@@ -395,6 +404,8 @@ func TestMonoDecorator(t *testing.T) {
 				app.EVMKeeper,
 				app.FeeAbstractionKeeper,
 				20000000,
+				&evmparams,
+				&feeMarketParams,
 			)
 			anteHandler := sdk.ChainAnteDecorators(monoDecorator)
 

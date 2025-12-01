@@ -6,7 +6,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	"cosmossdk.io/log"
@@ -27,47 +26,43 @@ const (
 // Precompile implements the PrecompiledContract interface
 var _ vm.PrecompiledContract = &Precompile{}
 
-// Embed the json abi to the binary
-//
-//go:embed abi.json
-var f embed.FS
+var (
+	// Embed abi json file to the executable binary. Needed when importing as dependency.
+	//
+	//go:embed abi.json
+	f   embed.FS
+	ABI abi.ABI
+)
+
+// inits the abi for the precompile
+func init() {
+	var err error
+	ABI, err = cmn.LoadABI(f, "abi.json")
+	if err != nil {
+		panic(err)
+	}
+}
 
 // Precompile defines the struct for the oracle precompile
 type Precompile struct {
 	cmn.Precompile
+	abi.ABI
 	oracleKeeper oraclekeeper.Keeper
-}
-
-// LoadABI loads the ABI from the embedded file for the oracle precompile
-func LoadABI() (abi.ABI, error) {
-	return cmn.LoadABI(f, "abi.json")
 }
 
 // NewPrecompile creates a new oracle precompile instance
 func NewPrecompile(
 	oracleKeeper oraclekeeper.Keeper,
-) (*Precompile, error) {
-	// Load the ABI
-	abi, err := LoadABI()
-	if err != nil {
-		return nil, err
-	}
-
-	// Initialize the precompile
-	precompile := &Precompile{
+) *Precompile {
+	return &Precompile{
 		Precompile: cmn.Precompile{
-			ABI:                  abi,
 			KvGasConfig:          storetypes.KVGasConfig(),
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
+			ContractAddress:      common.HexToAddress(OraclePrecompileAddress),
 		},
+		ABI:          ABI,
 		oracleKeeper: oracleKeeper,
 	}
-
-	// Set the address of the precompile
-	precompile.SetAddress(common.HexToAddress(OraclePrecompileAddress))
-
-	// Return the precompile
-	return precompile, nil
 }
 
 // RequiredGas returns the required gas for the precompile
@@ -90,25 +85,20 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	return p.Precompile.RequiredGas(input, p.IsTransaction(method))
 }
 
-// Run executes the oracle precompile
-func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
-	bz, err = p.run(evm, contract, readOnly)
-	if err != nil {
-		return cmn.ReturnRevertError(evm, err)
-	}
-	return bz, nil
+func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readonly bool) ([]byte, error) {
+	return p.RunNativeAction(evm, contract, func(ctx sdk.Context) ([]byte, error) {
+		return p.Execute(ctx, evm.StateDB, contract, readonly)
+	})
 }
 
-// run executes the oracle precompile (internal implementation)
-func (p Precompile) run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
-	// Initialize the context, db and chain data
-	ctx, _, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
+// Execute redirects into the oracle precompile
+func (p Precompile) Execute(ctx sdk.Context, stateDB vm.StateDB, contract *vm.Contract, readOnly bool) ([]byte, error) {
+	method, args, err := cmn.SetupABI(p.ABI, contract, readOnly, p.IsTransaction)
 	if err != nil {
 		return nil, err
 	}
 
-	// This handles any out of gas errors
-	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
+	var bz []byte
 
 	// Now we call the method on the oracle keeper
 	switch method.Name {
@@ -122,17 +112,8 @@ func (p Precompile) run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		// If default error out
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
-	if err != nil {
-		return nil, err
-	}
 
-	// Check the gas cost
-	cost := ctx.GasMeter().GasConsumed() - initialGas
-	if !contract.UseGas(cost, nil, tracing.GasChangeCallPrecompiledContract) {
-		return nil, vm.ErrOutOfGas
-	}
-
-	return bz, nil
+	return bz, err
 }
 
 // IsTransaction checks if the method is a transaction

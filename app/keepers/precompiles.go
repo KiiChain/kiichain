@@ -126,64 +126,57 @@ func NewAvailableStaticPrecompiles(
 	}
 
 	// Prepare the staking precompile
-	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, bankKeeper, options.AddressCodec)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate staking precompile: %w", err))
-	}
-
-	// Prepare the distribution precompile
-	distributionPrecompile, err := distprecompile.NewPrecompile(
-		distributionKeeper,
-		bankKeeper,
+	stakingPrecompile := stakingprecompile.NewPrecompile(
 		stakingKeeper,
-		evmKeeper,
+		stakingkeeper.NewMsgServerImpl(&stakingKeeper),
+		stakingkeeper.NewQuerier(&stakingKeeper),
+		bankKeeper,
 		options.AddressCodec,
 	)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate distribution precompile: %w", err))
-	}
+
+	// Prepare the distribution precompile
+	distributionPrecompile := distprecompile.NewPrecompile(
+		distributionKeeper,
+		distributionkeeper.NewMsgServerImpl(distributionKeeper),
+		distributionkeeper.NewQuerier(distributionKeeper),
+		stakingKeeper,
+		bankKeeper,
+		options.AddressCodec,
+	)
 
 	// Prepare the ibc precompile
-	ibcTransferPrecompile, err := ics20precompile.NewPrecompile(
+	ibcTransferPrecompile := ics20precompile.NewPrecompile(
 		bankKeeper,
 		stakingKeeper,
 		transferKeeper,
 		channelKeeper,
-		evmKeeper,
 	)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate ICS20 precompile: %w", err))
-	}
 
 	// Prepare the bank precompile
-	bankPrecompile, err := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
-	}
+	bankPrecompile := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
 
 	// Prepare the gov precompile
-	govPrecompile, err := govprecompile.NewPrecompile(govKeeper, bankKeeper, codec, options.AddressCodec)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
-	}
-
+	govPrecompile := govprecompile.NewPrecompile(
+		govkeeper.NewMsgServerImpl(&govKeeper),
+		govkeeper.NewQueryServer(&govKeeper),
+		bankKeeper,
+		codec,
+		options.AddressCodec,
+	)
 	// Prepare the slashing precompile
-	slashingPrecompile, err := slashingprecompile.NewPrecompile(slashingKeeper, bankKeeper, options.ValidatorAddrCodec, options.ConsensusAddrCodec)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate slashing precompile: %w", err))
-	}
+	slashingPrecompile := slashingprecompile.NewPrecompile(
+		slashingKeeper,
+		slashingkeeper.NewMsgServerImpl(slashingKeeper),
+		bankKeeper,
+		options.ValidatorAddrCodec,
+		options.ConsensusAddrCodec,
+	)
 
 	// Prepare the wasmd precompile
-	wasmdPrecompile, err := wasmd.NewPrecompile(wasmdKeeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate wasmd precompile: %w", err))
-	}
+	wasmdPrecompile := wasmd.NewPrecompile(wasmdKeeper)
 
 	// Prepare the oracle precompile
-	oraclePrecompile, err := oracle.NewPrecompile(oracleKeeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate oracle precompile: %w", err))
-	}
+	oraclePrecompile := oracle.NewPrecompile(oracleKeeper)
 
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile

@@ -157,6 +157,7 @@ func NewAppKeeper(
 	logger log.Logger,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
+	evmChainID uint64,
 ) AppKeepers {
 	appKeepers := AppKeepers{}
 
@@ -402,7 +403,27 @@ func NewAppKeeper(
 		appKeepers.FeeMarketKeeper,
 		&appKeepers.ConsensusParamsKeeper,
 		&appKeepers.Erc20Keeper,
+		evmChainID,
 		tracer,
+	).WithStaticPrecompiles(
+		// Configure EVM precompiles
+		NewAvailableStaticPrecompiles(
+			*appKeepers.StakingKeeper,
+			appKeepers.DistrKeeper,
+			appKeepers.BankKeeper,
+			appKeepers.Erc20Keeper,
+			appKeepers.TransferKeeper,
+			*appKeepers.IBCKeeper.ClientKeeper,
+			*appKeepers.IBCKeeper.ConnectionKeeper,
+			appKeepers.IBCKeeper.ChannelKeeper,
+			appKeepers.EVMKeeper,
+			*appKeepers.GovKeeper,
+			appKeepers.SlashingKeeper,
+			appKeepers.EvidenceKeeper,
+			appKeepers.WasmKeeper,
+			appKeepers.OracleKeeper,
+			appCodec,
+		),
 	)
 
 	appKeepers.Erc20Keeper = erc20keeper.NewKeeper(
@@ -419,7 +440,6 @@ func NewAppKeeper(
 	appKeepers.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[ibctransfertypes.StoreKey]),
-		appKeepers.GetSubspace(ibctransfertypes.ModuleName),
 		appKeepers.IBCKeeper.ChannelKeeper, // ISC4 Wrapper: This is overridden later
 		appKeepers.IBCKeeper.ChannelKeeper,
 		bApp.MsgServiceRouter(),
@@ -568,28 +588,6 @@ func NewAppKeeper(
 	appKeepers.TransferModule = transfer.NewAppModule(*appKeepers.TransferKeeper.Keeper)
 	appKeepers.PFMRouterModule = pfmrouter.NewAppModule(appKeepers.PFMRouterKeeper, appKeepers.GetSubspace(pfmroutertypes.ModuleName))
 	appKeepers.RateLimitModule = ratelimit.NewAppModule(appCodec, appKeepers.RatelimitKeeper)
-
-	// Configure EVM precompiles
-	corePrecompiles := NewAvailableStaticPrecompiles(
-		*appKeepers.StakingKeeper,
-		appKeepers.DistrKeeper,
-		appKeepers.BankKeeper,
-		appKeepers.Erc20Keeper,
-		appKeepers.TransferKeeper,
-		*appKeepers.IBCKeeper.ClientKeeper,
-		*appKeepers.IBCKeeper.ConnectionKeeper,
-		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.EVMKeeper,
-		*appKeepers.GovKeeper,
-		appKeepers.SlashingKeeper,
-		appKeepers.EvidenceKeeper,
-		appKeepers.WasmKeeper,
-		appKeepers.OracleKeeper,
-		appCodec,
-	)
-	appKeepers.EVMKeeper.WithStaticPrecompiles(
-		corePrecompiles,
-	)
 
 	return appKeepers
 }

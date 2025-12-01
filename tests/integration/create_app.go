@@ -44,7 +44,6 @@ func CreateKiichain(chainID string, evmChaindID uint64, customBaseAppOptions ...
 		dir,
 		appOptions,
 		kiichain.EmptyWasmOptions,
-		kiichain.EVMAppOptions,
 		customBaseAppOptions...,
 	)
 }

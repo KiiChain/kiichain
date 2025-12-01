@@ -138,7 +138,7 @@ func (s *WasmdPrecompileTestSuite) TestUnsafeLogging() {
 
 			// This call will log the message
 			// The issue is that msg.Msg is logged as-is, which could expose binary data
-			_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+			_, err := s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, args)
 
 			// Make the buf into a string for inspection
 			logOutput := buf.String()
@@ -206,11 +206,11 @@ func (s *WasmdPrecompileTestSuite) TestGasHandling() {
 			if tc.shouldPanicOutGas {
 				require.Panics(s.T(), func() {
 					// The call panics if out of gas
-					_, _ = s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+					_, _ = s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, args)
 				}, "Expected out-of-gas panic for %s", tc.name)
 			} else {
 				// Should not panic
-				_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+				_, err := s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, args)
 				s.Require().NoError(err, "Should succeed with adequate gas for %s", tc.name)
 			}
 		})
@@ -393,7 +393,7 @@ func (s *WasmdPrecompileTestSuite) TestKeeperReference() {
 			[]cmn.Coin{},
 		}
 
-		_, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, args)
+		_, err := s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, args)
 		s.Require().NoError(err, "Keeper should work correctly without typo")
 	})
 }

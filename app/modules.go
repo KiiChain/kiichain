@@ -123,7 +123,7 @@ func appModules(
 		app.PFMRouterModule,
 		app.RateLimitModule,
 		// EVM modules
-		vm.NewAppModule(app.EVMKeeper, app.AccountKeeper, app.AccountKeeper.AddressCodec()),
+		vm.NewAppModule(app.EVMKeeper, app.AccountKeeper, app.BankKeeper, app.AccountKeeper.AddressCodec()),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 		feeabstraction.NewAppModule(app.FeeAbstractionKeeper),

@@ -156,7 +156,6 @@ func setup() (*kiichain.KiichainApp, kiichain.GenesisState) {
 		dir,
 		appOptions,
 		emptyWasmOpts,
-		kiichain.EVMAppOptions,
 		baseAppOptions,
 	)
 	return kiichainApp, kiichainApp.ModuleBasics.DefaultGenesis(kiichainApp.AppCodec())

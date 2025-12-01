@@ -47,7 +47,6 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 		kiichain.DefaultNodeHome,
 		appOptions,
 		emptyWasmOption,
-		kiichain.EVMAppOptions,
 		interBlockCacheOpt(),
 		baseapp.SetChainID(AppChainID),
 	)
