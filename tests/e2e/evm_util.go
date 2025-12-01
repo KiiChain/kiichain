@@ -98,6 +98,53 @@ func EVMTransaction(
 	return *receipt, nil
 }
 
+// EVMSendWithNonce builds up an evm_sendTransaction with a specific nonce and returns its tx
+func EVMSendWithNonce(
+	client *ethclient.Client,
+	privateKey *ecdsa.PrivateKey,
+	fromAddress common.Address,
+	toAddress common.Address,
+	amount *big.Int,
+	contractBinary []byte,
+	nonce uint64,
+) (*geth.Transaction, error) {
+	// Get suggested gas price
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("failed to get gas price: %w", err)
+	}
+
+	// Get chain ID
+	chainID, err := client.NetworkID(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("failed to get chain ID: %w", err)
+	}
+
+	// Create the transaction
+	tx := geth.NewTransaction(
+		nonce,
+		toAddress,
+		amount,
+		1500000, // gas limit
+		gasPrice,
+		contractBinary, // contract bytes
+	)
+
+	// Sign the transaction
+	signedTx, err := geth.SignTx(tx, geth.NewEIP155Signer(chainID), privateKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sign transaction: %w", err)
+	}
+
+	// Send the transaction
+	err = client.SendTransaction(context.Background(), signedTx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send transaction: %w", err)
+	}
+
+	return signedTx, nil
+}
+
 // checkTransactionByHash returns a receipt from a given tx hash
 func checkTransactionByHash(client *ethclient.Client, txHash common.Hash) (*geth.Transaction, *geth.Receipt, error) {
 	// Get the transaction details

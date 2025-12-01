@@ -8,6 +8,7 @@
 - Added logs and telemetry for reentrance detection in wasmd precompile
 - Add further validations to Wasm Oracle query bindings
 - Moves Wasmd reentrance lock to the core of the wasmd contract to avoid reentrance attacks on queries and instantiations
+- Added EVM mempool
 
 ## Removed
 
