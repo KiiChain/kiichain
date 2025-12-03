@@ -1,6 +1,7 @@
 package kiichain
 
 import (
+	"math"
 	"path/filepath"
 
 	"github.com/spf13/cast"
@@ -75,7 +76,7 @@ func GetBlockGasLimit(appOpts servertypes.AppOptions, logger log.Logger) uint64 
 	maxGas := genDoc.ConsensusParams.Block.MaxGas
 	if maxGas == -1 {
 		logger.Warn("genesis max_gas is unlimited (-1), using max uint64")
-		return 0
+		return math.MaxUint64
 	}
 	if maxGas < -1 {
 		logger.Error("invalid max_gas value in genesis, using zero block gas limit")
