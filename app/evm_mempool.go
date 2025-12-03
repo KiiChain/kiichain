@@ -23,7 +23,7 @@ var defaultBlockGasLimit uint64 = 100_000_000
 func (app *KiichainApp) SetupEVMMempool(appOpts servertypes.AppOptions, logger log.Logger) {
 	mempoolConfig := &evmmempool.EVMMempoolConfig{
 		AnteHandler:   app.GetAnteHandler(),
-		BlockGasLimit: GetBlockGasLimit(appOpts, logger),
+		BlockGasLimit: getBlockGasLimit(appOpts, logger),
 	}
 
 	evmMempool := evmmempool.NewExperimentalEVMMempool(app.CreateQueryContext, logger, app.EVMKeeper, app.FeeMarketKeeper, app.txConfig, app.clientCtx, mempoolConfig)
@@ -44,35 +44,46 @@ func (app *KiichainApp) SetupEVMMempool(appOpts servertypes.AppOptions, logger l
 	app.SetPrepareProposal(abciProposalHandler.PrepareProposalHandler())
 }
 
-// GetBlockGasLimit reads the genesis json file using AppGenesisFromFile
+// getBlockGasLimit fetches block gas limit and set to default if 0
+// Similar behavior is done on EVM v0.5, but its broken on v0.4.2 due to consuming
+// the value before checking if 0 and overriding
+func getBlockGasLimit(appOpts servertypes.AppOptions, logger log.Logger) uint64 {
+	gasLimit := fetchBlockGasLimit(appOpts, logger)
+	if gasLimit == 0 {
+		gasLimit = defaultBlockGasLimit
+	}
+	return gasLimit
+}
+
+// getBlockGasLimit reads the genesis json file using AppGenesisFromFile
 // to extract the consensus block gas limit before InitChain is called.
-func GetBlockGasLimit(appOpts servertypes.AppOptions, logger log.Logger) uint64 {
+func fetchBlockGasLimit(appOpts servertypes.AppOptions, logger log.Logger) uint64 {
 	if appOpts == nil {
 		logger.Error("app options is nil, using default gas limit")
-		return defaultBlockGasLimit
+		return 0
 	}
 
 	homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
 	if homeDir == "" {
 		logger.Error("home directory not found in app options, using default block gas limit")
-		return defaultBlockGasLimit
+		return 0
 	}
 	genesisPath := filepath.Join(homeDir, "config", "genesis.json")
 
 	appGenesis, err := genutiltypes.AppGenesisFromFile(genesisPath)
 	if err != nil {
 		logger.Error("failed to load genesis using SDK AppGenesisFromFile, using default block gas limit", "path", genesisPath, "error", err)
-		return defaultBlockGasLimit
+		return 0
 	}
 	genDoc, err := appGenesis.ToGenesisDoc()
 	if err != nil {
 		logger.Error("failed to convert AppGenesis to GenesisDoc, using default block gas limit", "path", genesisPath, "error", err)
-		return defaultBlockGasLimit
+		return 0
 	}
 
 	if genDoc.ConsensusParams == nil {
 		logger.Error("consensus parameters not found in genesis (nil), using default block gas limit")
-		return defaultBlockGasLimit
+		return 0
 	}
 
 	maxGas := genDoc.ConsensusParams.Block.MaxGas
@@ -82,7 +93,7 @@ func GetBlockGasLimit(appOpts servertypes.AppOptions, logger log.Logger) uint64 
 	}
 	if maxGas < -1 {
 		logger.Error("invalid max_gas value in genesis, using default block gas limit")
-		return defaultBlockGasLimit
+		return 0
 	}
 	blockGasLimit := uint64(maxGas) // #nosec G115 -- maxGas >= 0 checked above
 
