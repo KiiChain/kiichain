@@ -278,7 +278,7 @@ func NewKiichainApp(
 
 	// set the EVM priority nonce mempool
 	if evmtypes.GetChainConfig() != nil {
-		app.SetupMempool(appOpts, logger)
+		app.SetupEVMMempool(appOpts, logger)
 	}
 
 	if manager := app.SnapshotManager(); manager != nil {

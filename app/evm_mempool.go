@@ -16,7 +16,8 @@ import (
 	evmmempool "github.com/cosmos/evm/mempool"
 )
 
-func (app *KiichainApp) SetupMempool(appOpts servertypes.AppOptions, logger log.Logger) {
+// SetupEVMMempool creates and sets the EVM mempool
+func (app *KiichainApp) SetupEVMMempool(appOpts servertypes.AppOptions, logger log.Logger) {
 	mempoolConfig := &evmmempool.EVMMempoolConfig{
 		AnteHandler:   app.GetAnteHandler(),
 		BlockGasLimit: GetBlockGasLimit(appOpts, logger),
