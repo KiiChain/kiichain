@@ -46,14 +46,14 @@ func (app *KiichainApp) SetupEVMMempool(appOpts servertypes.AppOptions, logger l
 // to extract the consensus block gas limit before InitChain is called.
 func GetBlockGasLimit(appOpts servertypes.AppOptions, logger log.Logger) uint64 {
 	if appOpts == nil {
-		logger.Error("app options is nil, using zero block gas limit")
-		return 0
+		logger.Error("app options is nil, using max block gas limit")
+		return math.MaxUint64
 	}
 
 	homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
 	if homeDir == "" {
-		logger.Error("home directory not found in app options, using zero block gas limit")
-		return 0
+		logger.Error("home directory not found in app options, using max block gas limit")
+		return math.MaxUint64
 	}
 	genesisPath := filepath.Join(homeDir, "config", "genesis.json")
 
