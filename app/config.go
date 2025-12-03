@@ -49,16 +49,6 @@ func NoOpEVMOptions(_ uint64) error {
 
 var sealed = false
 
-// ChainsCoinInfo is a map of the chain id and its corresponding EvmCoinInfo
-// that allows initializing the app with different coin info based on the
-// chain id
-var CoinInfo = evmtypes.EvmCoinInfo{
-	Denom:         params.BaseDenom,
-	ExtendedDenom: params.BaseDenom,
-	DisplayDenom:  params.DisplayDenom,
-	Decimals:      params.BaseDenomUnit,
-}
-
 // setBaseDenom registers the display denom and base denom and sets the
 // base denom for the chain.
 func setBaseDenom(ci evmtypes.EvmCoinInfo) error {

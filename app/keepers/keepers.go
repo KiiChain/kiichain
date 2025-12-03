@@ -95,6 +95,16 @@ import (
 	tokenfactorytypes "github.com/kiichain/kiichain/v6/x/tokenfactory/types"
 )
 
+// ChainsCoinInfo is a map of the chain id and its corresponding EvmCoinInfo
+// that allows initializing the app with different coin info based on the
+// chain id
+var CoinInfo = evmtypes.EvmCoinInfo{
+	Denom:         kiiparams.BaseDenom,
+	ExtendedDenom: kiiparams.BaseDenom,
+	DisplayDenom:  kiiparams.DisplayDenom,
+	Decimals:      kiiparams.BaseDenomUnit,
+}
+
 type AppKeepers struct {
 	// keys to access the substores
 	keys    map[string]*storetypes.KVStoreKey
@@ -424,7 +434,7 @@ func NewAppKeeper(
 			appKeepers.OracleKeeper,
 			appCodec,
 		),
-	)
+	).WithDefaultEvmCoinInfo(CoinInfo)
 
 	appKeepers.Erc20Keeper = erc20keeper.NewKeeper(
 		appKeepers.keys[erc20types.StoreKey],
