@@ -1,7 +1,6 @@
 package kiichain
 
 import (
-	"math"
 	"path/filepath"
 
 	"github.com/spf13/cast"
@@ -46,13 +45,13 @@ func (app *KiichainApp) SetupMempool(appOpts servertypes.AppOptions, logger log.
 func GetBlockGasLimit(appOpts servertypes.AppOptions, logger log.Logger) uint64 {
 	if appOpts == nil {
 		logger.Error("app options is nil, using zero block gas limit")
-		return math.MaxUint64
+		return 0
 	}
 
 	homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
 	if homeDir == "" {
 		logger.Error("home directory not found in app options, using zero block gas limit")
-		return math.MaxUint64
+		return 0
 	}
 	genesisPath := filepath.Join(homeDir, "config", "genesis.json")
 
@@ -75,7 +74,7 @@ func GetBlockGasLimit(appOpts servertypes.AppOptions, logger log.Logger) uint64 
 	maxGas := genDoc.ConsensusParams.Block.MaxGas
 	if maxGas == -1 {
 		logger.Warn("genesis max_gas is unlimited (-1), using max uint64")
-		return math.MaxUint64
+		return 0
 	}
 	if maxGas < -1 {
 		logger.Error("invalid max_gas value in genesis, using zero block gas limit")
