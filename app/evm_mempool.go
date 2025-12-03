@@ -47,6 +47,7 @@ func (app *KiichainApp) SetupEVMMempool(appOpts servertypes.AppOptions, logger l
 // getBlockGasLimit fetches block gas limit and set to default if 0
 // Similar behavior is done on EVM v0.5, but its broken on v0.4.2 due to consuming
 // the value before checking if 0 and overriding
+// REMOVE once on evm v0.5 and its fixed https://github.com/KiiChain/evm/blob/feat/fork-v0.5.1/mempool/mempool.go#L109-L112
 func getBlockGasLimit(appOpts servertypes.AppOptions, logger log.Logger) uint64 {
 	gasLimit := fetchBlockGasLimit(appOpts, logger)
 	if gasLimit == 0 {
@@ -57,6 +58,7 @@ func getBlockGasLimit(appOpts servertypes.AppOptions, logger log.Logger) uint64 
 
 // getBlockGasLimit reads the genesis json file using AppGenesisFromFile
 // to extract the consensus block gas limit before InitChain is called.
+// IMPORT from evm v0.5 once available https://github.com/KiiChain/evm/blob/04ce2e103f6f8d2e843c9bbdcdb3d266f14073b6/config/server_app_options.go#L22-L72
 func fetchBlockGasLimit(appOpts servertypes.AppOptions, logger log.Logger) uint64 {
 	if appOpts == nil {
 		logger.Error("app options is nil, using default gas limit")
