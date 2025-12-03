@@ -1,6 +1,12 @@
 # CHANGELOG
 
-## v6.0.0 - 2025-11-13
+## UNRELEASED
+
+## Fixed
+
+- Use genesis values for EVM mempool block gas limit
+
+## v6.0.0 - 2025-11-25
 
 ## Added
 
