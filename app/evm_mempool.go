@@ -20,6 +20,7 @@ func (app *KiichainApp) SetupEVMMempool(appOpts servertypes.AppOptions, logger l
 	mempoolConfig := &evmmempool.EVMMempoolConfig{
 		AnteHandler:   app.GetAnteHandler(),
 		BroadCastTxFn: app.broadcastEVMTransactions,
+		BlockGasLimit: 100_000_000,
 	}
 
 	evmMempool := evmmempool.NewExperimentalEVMMempool(app.CreateQueryContext, logger, app.EVMKeeper, app.FeeMarketKeeper, app.txConfig, app.clientCtx, mempoolConfig)
