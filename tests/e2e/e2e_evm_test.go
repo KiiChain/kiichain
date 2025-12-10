@@ -9,6 +9,7 @@ import (
 	"math/big"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -19,8 +20,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 
-	kiichain "github.com/kiichain/kiichain/v5/app"
-	"github.com/kiichain/kiichain/v5/tests/e2e/mock"
+	kiichain "github.com/kiichain/kiichain/v6/app"
+	"github.com/kiichain/kiichain/v6/tests/e2e/mock"
 )
 
 const (
@@ -100,6 +101,53 @@ func (s *IntegrationTestSuite) testEVM(jsonRPC string) {
 		counterValue, err := counter.GetCounter(nil)
 		s.Require().NoError(err)
 		s.Require().Equal(big.NewInt(1), counterValue)
+	})
+}
+
+// testMempoolEVM Tests EVM's mempool
+func (s *IntegrationTestSuite) testMempoolEVM(jsonRPC string) {
+	var err error
+
+	// Get a funded EVM account and check balance transactions
+	evmAccount := s.chainA.evmAccount
+
+	// Setup client
+	client, err := ethclient.Dial(jsonRPC)
+	s.Require().NoError(err)
+
+	// Get the nonce (transaction count)
+	nonce, err := client.PendingNonceAt(context.Background(), evmAccount.address)
+	s.Require().NoError(err)
+
+	// Setup send amt
+	amount := big.NewInt(1000000)
+
+	// Test Mempool
+	s.Run("Testing out of order nonce", func() {
+		// Send 3 Txs with nonce
+		// Nonce +0
+		tx, err := EVMSendWithNonce(client, evmAccount.key, evmAccount.address, s.chainB.evmAccount.address, amount, nil, nonce)
+		s.Require().NoError(err)
+
+		// Nonce +2
+		tx2, err := EVMSendWithNonce(client, evmAccount.key, evmAccount.address, s.chainB.evmAccount.address, amount, nil, nonce+2)
+		s.Require().NoError(err)
+
+		// Wait to make sure it is in the correct ordering
+		time.Sleep(time.Millisecond * 500)
+
+		// Nonce +1
+		tx3, err := EVMSendWithNonce(client, evmAccount.key, evmAccount.address, s.chainB.evmAccount.address, amount, nil, nonce+1)
+		s.Require().NoError(err)
+
+		// Wait for successful first tx
+		s.waitForTransaction(client, tx, evmAccount.address)
+
+		// Wait for successful third tx
+		s.waitForTransaction(client, tx3, evmAccount.address)
+
+		// Wait for successful second tx
+		s.waitForTransaction(client, tx2, evmAccount.address)
 	})
 }
 

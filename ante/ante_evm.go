@@ -5,7 +5,7 @@ import (
 
 	txlistener "github.com/cosmos/evm/ante"
 
-	kiievmante "github.com/kiichain/kiichain/v5/x/feeabstraction/ante/evm"
+	kiievmante "github.com/kiichain/kiichain/v6/x/feeabstraction/ante/evm"
 )
 
 // newMonoEVMAnteHandler creates the sdk.AnteHandler implementation for the EVM transactions

@@ -11,7 +11,7 @@ import (
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/testutil"
 
-	wasmdprecompile "github.com/kiichain/kiichain/v5/precompiles/wasmd"
+	wasmdprecompile "github.com/kiichain/kiichain/v6/precompiles/wasmd"
 )
 
 // TestInvalidCodeIDValidation tests if the precompile properly validates code_id

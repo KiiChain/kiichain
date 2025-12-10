@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	kiichain "github.com/kiichain/kiichain/v5/app"
+	kiichain "github.com/kiichain/kiichain/v6/app"
 )
 
 func TestParseChainID(t *testing.T) {

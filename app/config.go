@@ -18,7 +18,7 @@ import (
 
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	"github.com/kiichain/kiichain/v5/app/params"
+	"github.com/kiichain/kiichain/v6/app/params"
 )
 
 // Setup for regex of chain ID

@@ -10,11 +10,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v5/app/apptesting"
-	"github.com/kiichain/kiichain/v5/wasmbinding/helpers"
-	wasmbinding "github.com/kiichain/kiichain/v5/wasmbinding/tokenfactory"
-	bindingtypes "github.com/kiichain/kiichain/v5/wasmbinding/tokenfactory/types"
-	"github.com/kiichain/kiichain/v5/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v6/app/apptesting"
+	"github.com/kiichain/kiichain/v6/wasmbinding/helpers"
+	wasmbinding "github.com/kiichain/kiichain/v6/wasmbinding/tokenfactory"
+	bindingtypes "github.com/kiichain/kiichain/v6/wasmbinding/tokenfactory/types"
+	"github.com/kiichain/kiichain/v6/x/tokenfactory/types"
 )
 
 // TestCreateDenom tests the CreateDenom function
@@ -206,9 +206,15 @@ func TestMint(t *testing.T) {
 	amount, ok := sdkmath.NewIntFromString("8080")
 	require.True(t, ok)
 
+	// blocky is the first blocked addr
+	var blocky string
+	for blocky = range app.BankKeeper.GetBlockedAddresses() {
+		break
+	}
+
 	specs := map[string]struct {
 		mint   *bindingtypes.MintTokens
-		expErr bool
+		expErr string
 	}{
 		"valid mint": {
 			mint: &bindingtypes.MintTokens{
@@ -223,7 +229,6 @@ func TestMint(t *testing.T) {
 				Amount:        amount,
 				MintToAddress: lucky.String(),
 			},
-			expErr: false,
 		},
 		"nonexistent sub-denom": {
 			mint: &bindingtypes.MintTokens{
@@ -231,7 +236,7 @@ func TestMint(t *testing.T) {
 				Amount:        amount,
 				MintToAddress: lucky.String(),
 			},
-			expErr: true,
+			expErr: "denom does not exist",
 		},
 		"invalid sub-denom": {
 			mint: &bindingtypes.MintTokens{
@@ -239,7 +244,7 @@ func TestMint(t *testing.T) {
 				Amount:        amount,
 				MintToAddress: lucky.String(),
 			},
-			expErr: true,
+			expErr: "denom does not exist",
 		},
 		"zero amount": {
 			mint: &bindingtypes.MintTokens{
@@ -247,7 +252,7 @@ func TestMint(t *testing.T) {
 				Amount:        sdkmath.ZeroInt(),
 				MintToAddress: lucky.String(),
 			},
-			expErr: true,
+			expErr: "invalid coins",
 		},
 		"negative amount": {
 			mint: &bindingtypes.MintTokens{
@@ -255,7 +260,7 @@ func TestMint(t *testing.T) {
 				Amount:        amount.Neg(),
 				MintToAddress: lucky.String(),
 			},
-			expErr: true,
+			expErr: "invalid coins",
 		},
 		"empty recipient": {
 			mint: &bindingtypes.MintTokens{
@@ -263,7 +268,7 @@ func TestMint(t *testing.T) {
 				Amount:        amount,
 				MintToAddress: "",
 			},
-			expErr: true,
+			expErr: "empty address string is not allowed",
 		},
 		"invalid recipient": {
 			mint: &bindingtypes.MintTokens{
@@ -271,11 +276,19 @@ func TestMint(t *testing.T) {
 				Amount:        amount,
 				MintToAddress: "invalid",
 			},
-			expErr: true,
+			expErr: "invalid bech32 string length",
+		},
+		"blocked recipient": {
+			mint: &bindingtypes.MintTokens{
+				Denom:         validDenomStr,
+				Amount:        amount,
+				MintToAddress: blocky,
+			},
+			expErr: "minting coins to blocked address",
 		},
 		"null mint": {
 			mint:   nil,
-			expErr: true,
+			expErr: "mint token null mint",
 		},
 	}
 	for name, spec := range specs {
@@ -283,8 +296,8 @@ func TestMint(t *testing.T) {
 			// when
 			gotErr := wasmbinding.PerformMint(&app.TokenFactoryKeeper, app.BankKeeper, ctx, creator, spec.mint)
 			// then
-			if spec.expErr {
-				require.Error(t, gotErr)
+			if spec.expErr != "" {
+				require.ErrorContains(t, gotErr, spec.expErr)
 				return
 			}
 			require.NoError(t, gotErr)

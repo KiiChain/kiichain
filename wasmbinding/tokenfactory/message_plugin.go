@@ -12,10 +12,10 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	tfbindingtypes "github.com/kiichain/kiichain/v5/wasmbinding/tokenfactory/types"
-	"github.com/kiichain/kiichain/v5/wasmbinding/utils"
-	tokenfactorykeeper "github.com/kiichain/kiichain/v5/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/kiichain/kiichain/v5/x/tokenfactory/types"
+	tfbindingtypes "github.com/kiichain/kiichain/v6/wasmbinding/tokenfactory/types"
+	"github.com/kiichain/kiichain/v6/wasmbinding/utils"
+	tokenfactorykeeper "github.com/kiichain/kiichain/v6/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/kiichain/kiichain/v6/x/tokenfactory/types"
 )
 
 // CustomMessenger is a wrapper for the token factory message plugin
@@ -122,15 +122,15 @@ func PerformMint(f *tokenfactorykeeper.Keeper, b bankkeeper.Keeper, ctx sdk.Cont
 		return err
 	}
 
+	if b.BlockedAddr(rcpt) {
+		return fmt.Errorf("minting coins to blocked address %s", rcpt.String())
+	}
+
 	// Mint through token factory / message server
 	msgServer := tokenfactorykeeper.NewMsgServerImpl(*f)
 	_, err = msgServer.Mint(ctx, sdkMsg)
 	if err != nil {
 		return errorsmod.Wrap(err, "minting coins from message")
-	}
-
-	if b.BlockedAddr(rcpt) {
-		return fmt.Errorf("minting coins to blocked address %s", rcpt.String())
 	}
 
 	err = b.SendCoins(ctx, contractAddr, rcpt, sdk.NewCoins(coin))

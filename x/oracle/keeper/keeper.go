@@ -15,7 +15,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/kiichain/kiichain/v5/x/oracle/types"
+	"github.com/kiichain/kiichain/v6/x/oracle/types"
 )
 
 // Keeper manages the oracle module's state
@@ -421,7 +421,7 @@ func (k Keeper) CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (types.O
 			denom := priceItem.Denom
 			_, ok := targetsMap[denom]
 			if !ok {
-				continue // The denom that is not tergeted does not care
+				continue // The denom that is not targeted does not care
 			}
 
 			// Check if the twap by denom exist, if so initialize the average with 0

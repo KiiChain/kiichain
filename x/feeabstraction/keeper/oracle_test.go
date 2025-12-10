@@ -9,9 +9,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v5/app/params"
-	"github.com/kiichain/kiichain/v5/x/feeabstraction/types"
-	oracletypes "github.com/kiichain/kiichain/v5/x/oracle/types"
+	"github.com/kiichain/kiichain/v6/app/params"
+	"github.com/kiichain/kiichain/v6/x/feeabstraction/types"
+	oracletypes "github.com/kiichain/kiichain/v6/x/oracle/types"
 )
 
 var (
