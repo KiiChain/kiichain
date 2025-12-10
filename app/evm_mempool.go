@@ -1,29 +1,19 @@
 package kiichain
 
 import (
-	"math"
-	"path/filepath"
-
-	"github.com/spf13/cast"
-
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
 	evmmempool "github.com/cosmos/evm/mempool"
 )
 
-var defaultBlockGasLimit uint64 = 100_000_000
-
 // SetupEVMMempool creates and sets the EVM mempool
 func (app *KiichainApp) SetupEVMMempool(appOpts servertypes.AppOptions, logger log.Logger) {
 	mempoolConfig := &evmmempool.EVMMempoolConfig{
-		AnteHandler:   app.GetAnteHandler(),
-		BlockGasLimit: getBlockGasLimit(appOpts, logger),
+		AnteHandler: app.GetAnteHandler(),
 	}
 
 	evmMempool := evmmempool.NewExperimentalEVMMempool(app.CreateQueryContext, logger, app.EVMKeeper, app.FeeMarketKeeper, app.txConfig, app.clientCtx, mempoolConfig)
@@ -42,69 +32,4 @@ func (app *KiichainApp) SetupEVMMempool(appOpts servertypes.AppOptions, logger l
 	abciProposalHandler := baseapp.NewDefaultProposalHandler(evmMempool, app)
 	abciProposalHandler.SetSignerExtractionAdapter(evmmempool.NewEthSignerExtractionAdapter(sdkmempool.NewDefaultSignerExtractionAdapter()))
 	app.SetPrepareProposal(abciProposalHandler.PrepareProposalHandler())
-}
-
-// getBlockGasLimit fetches block gas limit and set to default if 0
-// Similar behavior is done on EVM v0.5, but its broken on v0.4.2 due to consuming
-// the value before checking if 0 and overriding
-// REMOVE once on evm v0.5 and its fixed https://github.com/KiiChain/evm/blob/feat/fork-v0.5.1/mempool/mempool.go#L109-L112
-func getBlockGasLimit(appOpts servertypes.AppOptions, logger log.Logger) uint64 {
-	gasLimit := fetchBlockGasLimit(appOpts, logger)
-	if gasLimit == 0 {
-		gasLimit = defaultBlockGasLimit
-	}
-	return gasLimit
-}
-
-// getBlockGasLimit reads the genesis json file using AppGenesisFromFile
-// to extract the consensus block gas limit before InitChain is called.
-// IMPORT from evm v0.5 once available https://github.com/KiiChain/evm/blob/04ce2e103f6f8d2e843c9bbdcdb3d266f14073b6/config/server_app_options.go#L22-L72
-func fetchBlockGasLimit(appOpts servertypes.AppOptions, logger log.Logger) uint64 {
-	if appOpts == nil {
-		logger.Error("app options is nil, using default gas limit")
-		return 0
-	}
-
-	homeDir := cast.ToString(appOpts.Get(flags.FlagHome))
-	if homeDir == "" {
-		logger.Error("home directory not found in app options, using default block gas limit")
-		return 0
-	}
-	genesisPath := filepath.Join(homeDir, "config", "genesis.json")
-
-	appGenesis, err := genutiltypes.AppGenesisFromFile(genesisPath)
-	if err != nil {
-		logger.Error("failed to load genesis using SDK AppGenesisFromFile, using default block gas limit", "path", genesisPath, "error", err)
-		return 0
-	}
-	genDoc, err := appGenesis.ToGenesisDoc()
-	if err != nil {
-		logger.Error("failed to convert AppGenesis to GenesisDoc, using default block gas limit", "path", genesisPath, "error", err)
-		return 0
-	}
-
-	if genDoc.ConsensusParams == nil {
-		logger.Error("consensus parameters not found in genesis (nil), using default block gas limit")
-		return 0
-	}
-
-	maxGas := genDoc.ConsensusParams.Block.MaxGas
-	if maxGas == -1 {
-		logger.Warn("genesis max_gas is unlimited (-1), using max uint64")
-		return math.MaxUint64
-	}
-	if maxGas < -1 {
-		logger.Error("invalid max_gas value in genesis, using default block gas limit")
-		return 0
-	}
-	blockGasLimit := uint64(maxGas) // #nosec G115 -- maxGas >= 0 checked above
-
-	logger.Debug(
-		"extracted block gas limit from genesis using SDK AppGenesisFromFile",
-		"genesis_path", genesisPath,
-		"max_gas", maxGas,
-		"block_gas_limit", blockGasLimit,
-	)
-
-	return blockGasLimit
 }
