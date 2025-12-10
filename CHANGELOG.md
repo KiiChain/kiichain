@@ -4,7 +4,7 @@
 
 ## Fixed
 
-- Use genesis values for EVM mempool block gas limit
+- Fix EVM mempool broadcast failure on public node
 
 ## v6.0.0 - 2025-11-25
 
