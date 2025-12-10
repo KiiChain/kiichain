@@ -3,9 +3,9 @@ package kiichain
 import (
 	"fmt"
 
-	"cosmossdk.io/log"
-
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
+	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
