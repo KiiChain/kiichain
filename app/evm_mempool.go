@@ -1,10 +1,6 @@
 package kiichain
 
 import (
-	"fmt"
-
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -12,14 +8,12 @@ import (
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 
 	evmmempool "github.com/cosmos/evm/mempool"
-	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 // SetupEVMMempool creates and sets the EVM mempool
 func (app *KiichainApp) SetupEVMMempool(appOpts servertypes.AppOptions, logger log.Logger) {
 	mempoolConfig := &evmmempool.EVMMempoolConfig{
 		AnteHandler:   app.GetAnteHandler(),
-		BroadCastTxFn: app.broadcastEVMTransactions,
 		BlockGasLimit: 100_000_000,
 	}
 
@@ -39,37 +33,4 @@ func (app *KiichainApp) SetupEVMMempool(appOpts servertypes.AppOptions, logger l
 	abciProposalHandler := baseapp.NewDefaultProposalHandler(evmMempool, app)
 	abciProposalHandler.SetSignerExtractionAdapter(evmmempool.NewEthSignerExtractionAdapter(sdkmempool.NewDefaultSignerExtractionAdapter()))
 	app.SetPrepareProposal(abciProposalHandler.PrepareProposalHandler())
-}
-
-// broadcastEVMTransactions converts Ethereum transactions to Cosmos SDK format and broadcasts them.
-// This function wraps EVM transactions in MsgEthereumTx messages and submits them to the network
-// using the provided client context. It handles encoding and error reporting for each transaction.
-// TODO: Remove once EVM pushes a fix
-func (app *KiichainApp) broadcastEVMTransactions(ethTxs []*ethtypes.Transaction) error {
-	for _, ethTx := range ethTxs {
-		msg := &evmtypes.MsgEthereumTx{}
-		ethSigner := ethtypes.LatestSigner(evmtypes.GetEthChainConfig())
-		if err := msg.FromSignedEthereumTx(ethTx, ethSigner); err != nil {
-			return fmt.Errorf("failed to convert ethereum transaction: %w", err)
-		}
-
-		cosmosTx, err := msg.BuildTx(app.clientCtx.TxConfig.NewTxBuilder(), "akii")
-		if err != nil {
-			return fmt.Errorf("failed to build cosmos tx: %w", err)
-		}
-
-		txBytes, err := app.clientCtx.TxConfig.TxEncoder()(cosmosTx)
-		if err != nil {
-			return fmt.Errorf("failed to encode transaction: %w", err)
-		}
-
-		res, err := app.clientCtx.BroadcastTxSync(txBytes)
-		if err != nil {
-			return fmt.Errorf("failed to broadcast transaction %s: %w", ethTx.Hash().Hex(), err)
-		}
-		if res.Code != 0 && res.Code != 19 {
-			return fmt.Errorf("transaction %s rejected by mempool: code=%d, log=%s", ethTx.Hash().Hex(), res.Code, res.RawLog)
-		}
-	}
-	return nil
 }

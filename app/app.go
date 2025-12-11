@@ -486,7 +486,6 @@ func (app *KiichainApp) RegisterTendermintService(clientCtx client.Context) {
 		app.interfaceRegistry,
 		app.Query,
 	)
-	app.SetClientCtx(clientCtx)
 }
 
 // configure store loader that checks if version == upgradeHeight and applies store upgrades
