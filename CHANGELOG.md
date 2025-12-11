@@ -4,7 +4,7 @@
 
 ## Fixed
 
-- Fix EVM mempool broadcast failure on public node
+- Disable EVM mempool due to bug on public nodes broadcast
 
 ## v6.0.0 - 2025-11-25
 
