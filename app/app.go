@@ -42,7 +42,6 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	sigtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -64,7 +63,6 @@ import (
 	evmmempool "github.com/cosmos/evm/mempool"
 	srvflags "github.com/cosmos/evm/server/flags"
 	cosmosevmtypes "github.com/cosmos/evm/types"
-	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	kiiante "github.com/kiichain/kiichain/v6/ante"
 	"github.com/kiichain/kiichain/v6/app/keepers"
@@ -278,30 +276,11 @@ func NewKiichainApp(
 	app.setAnteHandler(app.txConfig, maxGasWanted, appOpts)
 
 	// set the EVM priority nonce mempool
-	if evmtypes.GetChainConfig() != nil {
-		// TODO: Get the actual block gas limit from consensus parameters
-		mempoolConfig := &evmmempool.EVMMempoolConfig{
-			AnteHandler:   app.GetAnteHandler(),
-			BlockGasLimit: 100_000_000,
-		}
-
-		evmMempool := evmmempool.NewExperimentalEVMMempool(app.CreateQueryContext, logger, app.EVMKeeper, app.FeeMarketKeeper, app.txConfig, app.clientCtx, mempoolConfig)
-		app.EVMMempool = evmMempool
-
-		// Set the global mempool for RPC access
-		if evmmempool.GetGlobalEVMMempool() == nil {
-			if err := evmmempool.SetGlobalEVMMempool(evmMempool); err != nil {
-				panic(err)
-			}
-		}
-		app.SetMempool(evmMempool)
-		checkTxHandler := evmmempool.NewCheckTxHandler(evmMempool)
-		app.SetCheckTxHandler(checkTxHandler)
-
-		abciProposalHandler := baseapp.NewDefaultProposalHandler(evmMempool, app)
-		abciProposalHandler.SetSignerExtractionAdapter(evmmempool.NewEthSignerExtractionAdapter(sdkmempool.NewDefaultSignerExtractionAdapter()))
-		app.SetPrepareProposal(abciProposalHandler.PrepareProposalHandler())
-	}
+	// Mempool is currently disabled due to a bug in EVM mempool on public nodes
+	// It will be enabled again once the bug is fixed on EVM
+	// if evmtypes.GetChainConfig() != nil {
+	// 	app.SetupEVMMempool(appOpts, logger)
+	// }
 
 	if manager := app.SnapshotManager(); manager != nil {
 		err = manager.RegisterExtensions(wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper))

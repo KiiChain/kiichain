@@ -1,6 +1,12 @@
 # CHANGELOG
 
-## v6.0.0 - 2025-11-13
+## UNRELEASED
+
+## Fixed
+
+- Disable EVM mempool due to bug on public nodes broadcast
+
+## v6.0.0 - 2025-11-25
 
 ## Added
 
