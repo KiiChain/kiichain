@@ -48,14 +48,17 @@ func (app *KiichainApp) SetupEVMMempool(appOpts servertypes.AppOptions, logger l
 func (app *KiichainApp) broadcastEVMTransactions(ethTxs []*ethtypes.Transaction) error {
 	for _, ethTx := range ethTxs {
 		msg := &evmtypes.MsgEthereumTx{}
-		msg.FromEthereumTx(ethTx)
-
-		txBuilder := app.txConfig.NewTxBuilder()
-		if err := txBuilder.SetMsgs(msg); err != nil {
-			return fmt.Errorf("failed to set msg in tx builder: %w", err)
+		ethSigner := ethtypes.LatestSigner(evmtypes.GetEthChainConfig())
+		if err := msg.FromSignedEthereumTx(ethTx, ethSigner); err != nil {
+			return fmt.Errorf("failed to convert ethereum transaction: %w", err)
 		}
 
-		txBytes, err := app.txConfig.TxEncoder()(txBuilder.GetTx())
+		cosmosTx, err := msg.BuildTx(app.clientCtx.TxConfig.NewTxBuilder(), "akii")
+		if err != nil {
+			return fmt.Errorf("failed to build cosmos tx: %w", err)
+		}
+
+		txBytes, err := app.clientCtx.TxConfig.TxEncoder()(cosmosTx)
 		if err != nil {
 			return fmt.Errorf("failed to encode transaction: %w", err)
 		}
@@ -64,7 +67,7 @@ func (app *KiichainApp) broadcastEVMTransactions(ethTxs []*ethtypes.Transaction)
 		if err != nil {
 			return fmt.Errorf("failed to broadcast transaction %s: %w", ethTx.Hash().Hex(), err)
 		}
-		if res.Code != 0 {
+		if res.Code != 0 && res.Code != 19 {
 			return fmt.Errorf("transaction %s rejected by mempool: code=%d, log=%s", ethTx.Hash().Hex(), res.Code, res.RawLog)
 		}
 	}
