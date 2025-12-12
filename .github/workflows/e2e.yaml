@@ -43,7 +43,7 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Build Docker and download packages in parallel
-        # if: env.GIT_DIFF
+        if: env.GIT_DIFF
         run: |
           set -e
           echo "Starting docker build and go mod download in parallel..."
@@ -64,7 +64,7 @@ jobs:
           echo "All tasks completed."
 
       - name: Test E2E
-        # if: env.GIT_DIFF
+        if: env.GIT_DIFF
         env:
           SKIP_IBC_TESTS: ${{ github.event_name == 'pull_request' && 'true' || 'false' }}
         run: make test-e2e
