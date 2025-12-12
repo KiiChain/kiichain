@@ -290,6 +290,7 @@ func NewKiichainApp(
 	}
 
 	app.setupUpgradeHandlers()
+	app.setupUpgradeHandlers()
 	app.setupUpgradeStoreLoaders()
 
 	// At startup, after all modules have been registered, check that all prot
