@@ -194,7 +194,8 @@ func (s *IntegrationTestSuite) passScheduleProposal(chainEndpoint string, amount
 	s.writeScheduleProposal(s.chainA, amount, endTime)
 
 	// Create command
-	proposalCounter++
+	s.proposalCounter++
+	proposalCounter := s.proposalCounter
 	submitGovFlags := []string{configFile(proposalAddSchedule)}
 	depositGovFlags := []string{strconv.Itoa(proposalCounter), depositAmount.String()}
 	voteGovFlags := []string{strconv.Itoa(proposalCounter), "yes"}

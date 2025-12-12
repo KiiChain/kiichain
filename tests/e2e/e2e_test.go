@@ -1,8 +1,12 @@
+// test_parallel.go
 package e2e
 
 import (
 	"fmt"
 	"os"
+	"testing"
+
+	"github.com/stretchr/testify/suite"
 )
 
 var (
@@ -28,173 +32,225 @@ var (
 	skipIBCTests = os.Getenv("SKIP_IBC_TESTS") == "true"
 )
 
-// TestRestInterfaces runs the rest interfaces tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestRestInterfaces() {
-	if !runRestInterfacesTest {
-		s.T().Skip()
+// TestParallelE2E runs all E2E tests in parallel with isolated networks
+func TestParallelE2E(t *testing.T) {
+	// Define all test configurations
+	tests := []struct {
+		name    string
+		enabled bool
+		runner  func(*testing.T)
+	}{
+		{
+			name:    "TestRestInterfaces",
+			enabled: runRestInterfacesTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				s.testRestInterfaces()
+			},
+		},
+		{
+			name:    "TestBank",
+			enabled: runBankTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				s.testBankTokenTransfer()
+			},
+		},
+		{
+			name:    "TestEncode",
+			enabled: runEncodeTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				s.testEncode()
+				s.testDecode()
+			},
+		},
+		{
+			name:    "TestEvidence",
+			enabled: runEvidenceTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				s.testEvidence()
+			},
+		},
+		{
+			name:    "TestFeeGrant",
+			enabled: runFeeGrantTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				s.testFeeGrant()
+			},
+		},
+		{
+			name:    "TestGov",
+			enabled: runGovTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				s.GovCancelSoftwareUpgrade()
+				s.GovCommunityPoolSpend()
+				s.GovSoftwareUpgradeExpedited()
+			},
+		},
+		{
+			name:    "TestIBC",
+			enabled: runIBCTest && !skipIBCTests,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				s.testIBCTokenTransfer()
+				s.testMultihopIBCTokenTransfer()
+				s.testFailedMultihopIBCTokenTransfer()
+				s.testICARegisterAccountAndSendTx()
+			},
+		},
+		{
+			name:    "TestSlashing",
+			enabled: runSlashingTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				chainAPI := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
+				s.testSlashing(chainAPI)
+			},
+		},
+		{
+			name:    "TestStakingAndDistribution",
+			enabled: runStakingAndDistributionTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				s.testStaking()
+				s.testDistribution()
+			},
+		},
+		{
+			name:    "TestVesting",
+			enabled: runVestingTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				chainAAPI := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
+				s.testDelayedVestingAccount(chainAAPI)
+				s.testContinuousVestingAccount(chainAAPI)
+			},
+		},
+		{
+			name:    "TestRewards",
+			enabled: runRewardsTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				s.testRewardUpdate()
+			},
+		},
+		{
+			name:    "TestTokenFactory",
+			enabled: runTokenFactoryTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				s.testTokenFactory()
+			},
+		},
+		{
+			name:    "TestRateLimit",
+			enabled: runRateLimitTest && !skipIBCTests,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				s.testAddRateLimits()
+				s.testIBCTransfer(true)
+				s.testUpdateRateLimit()
+				s.testIBCTransfer(false)
+				s.testResetRateLimit()
+				s.testRemoveRateLimit()
+			},
+		},
+		{
+			name:    "TestEVM",
+			enabled: runEVMTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				jsonRPC := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("8545/tcp"))
+				s.testEVMQueries(jsonRPC)
+				s.testEVM(jsonRPC)
+				// Disabled until mempool bug is fixed
+				// s.testMempoolEVM(jsonRPC)
+			},
+		},
+		{
+			name:    "TestERC20",
+			enabled: runERC20Test,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				jsonRPC := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("8545/tcp"))
+				s.testERC20(jsonRPC)
+			},
+		},
+		{
+			name:    "TestWasm",
+			enabled: runWasmTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				s.testWasmdCounter()
+				// Test precompile
+				s.testWasmdPrecompile()
+			},
+		},
+		{
+			name:    "TestOracle",
+			enabled: runOracleTest,
+			runner: func(t *testing.T) {
+				s := NewIntegrationTestSuite(t)
+				s.SetupSuite()
+				defer s.TearDownSuite()
+				s.testFeelessTx()
+				s.testFeeder()
+				s.testSlash()
+			},
+		},
 	}
-	s.testRestInterfaces()
+
+	// Run all tests in parallel
+	for _, tc := range tests {
+		tc := tc // Capture range variable
+		t.Run(tc.name, func(t *testing.T) {
+			if !tc.enabled {
+				t.Skipf("%s is disabled", tc.name)
+			}
+			t.Parallel() // Each test runs in parallel
+			tc.runner(t)
+		})
+	}
 }
 
-// TestBank runs the bank tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestBank() {
-	if !runBankTest {
-		s.T().Skip()
-	}
-	s.testBankTokenTransfer()
-}
-
-// TestEncode runs the encode tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestEncode() {
-	if !runEncodeTest {
-		s.T().Skip()
-	}
-	s.testEncode()
-	s.testDecode()
-}
-
-// TestEvidence runs the evidence tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestEvidence() {
-	if !runEvidenceTest {
-		s.T().Skip()
-	}
-	s.testEvidence()
-}
-
-// TestFeeGrant runs the fee grant tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestFeeGrant() {
-	if !runFeeGrantTest {
-		s.T().Skip()
-	}
-	s.testFeeGrant()
-}
-
-// TestGov runs the governance tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestGov() {
-	if !runGovTest {
-		s.T().Skip()
-	}
-
-	s.GovCancelSoftwareUpgrade()
-	s.GovCommunityPoolSpend()
-
-	s.GovSoftwareUpgradeExpedited()
-}
-
-// TestIBC runs the IBC tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestIBC() {
-	if !runIBCTest || skipIBCTests {
-		s.T().Log("skipping IBC e2e tests...")
-		s.T().Skip()
-	}
-
-	s.testIBCTokenTransfer()
-	s.testMultihopIBCTokenTransfer()
-	s.testFailedMultihopIBCTokenTransfer()
-	s.testICARegisterAccountAndSendTx()
-}
-
-// TestSlashing runs the slashing tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestSlashing() {
-	if !runSlashingTest {
-		s.T().Skip()
-	}
-	chainAPI := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
-	s.testSlashing(chainAPI)
-}
-
-// todo add fee test with wrong denom order
-func (s *IntegrationTestSuite) TestStakingAndDistribution() {
-	if !runStakingAndDistributionTest {
-		s.T().Skip()
-	}
-	s.testStaking()
-	s.testDistribution()
-}
-
-// TestVesting runs the vesting tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestVesting() {
-	if !runVestingTest {
-		s.T().Skip()
-	}
-	chainAAPI := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("1317/tcp"))
-	s.testDelayedVestingAccount(chainAAPI)
-	s.testContinuousVestingAccount(chainAAPI)
-}
-
-// TestRewards runs the rewards tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestRewards() {
-	if !runRewardsTest {
-		s.T().Log("skipping rewards module e2e tests...")
-		s.T().Skip()
-	}
-	s.testRewardUpdate()
-}
-
-// TestTokenFactory runs the token factory tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestTokenFactory() {
-	if !runTokenFactoryTest {
-		s.T().Log("skipping token factory e2e tests...")
-		s.T().Skip()
-	}
-	s.testTokenFactory()
-}
-
-// TestRateLimit runs the rate limit tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestRateLimit() {
-	if !runRateLimitTest || skipIBCTests {
-		s.T().Log("skipping rate limit e2e tests...")
-		s.T().Skip()
-	}
-	s.testAddRateLimits()
-	s.testIBCTransfer(true)
-	s.testUpdateRateLimit()
-	s.testIBCTransfer(false)
-	s.testResetRateLimit()
-	s.testRemoveRateLimit()
-}
-
-// TestEVM runs basic EVM tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestEVM() {
-	if !runEVMTest {
-		s.T().Log("skipping evm e2e tests...")
-		s.T().Skip()
-	}
-	jsonRPC := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("8545/tcp"))
-	s.testEVMQueries(jsonRPC)
-	s.testEVM(jsonRPC)
-	// Disabled until mempool bug is fixed
-	// s.testMempoolEVM(jsonRPC)
-}
-
-// TestERC20 runs the ERC20 tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestERC20() {
-	if !runERC20Test {
-		s.T().Skip()
-	}
-	jsonRPC := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("8545/tcp"))
-	s.testERC20(jsonRPC)
-}
-
-// TestWasm runs the Wasm tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestWasmd() {
-	if !runWasmTest {
-		s.T().Log("skipping wasm e2e tests...")
-		s.T().Skip()
-	}
-	s.testWasmdCounter()
-
-	// Test precompile
-	s.testWasmdPrecompile()
-}
-
-// TestOracle runs the Oracle tests. It is skipped if the variable is set
-func (s *IntegrationTestSuite) TestOracle() {
-	if !runOracleTest {
-		s.T().Log("skipping oracle e2e tests...")
-		s.T().Skip()
-	}
-	s.testFeelessTx()
-	s.testFeeder()
-	s.testSlash()
+// TestSequentialE2E can be kept for backward compatibility
+// This runs tests sequentially as before
+func TestSequentialE2E(t *testing.T) {
+	suite.Run(t, new(IntegrationTestSuite))
 }

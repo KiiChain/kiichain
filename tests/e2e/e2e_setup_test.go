@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -91,15 +92,15 @@ const (
 )
 
 var (
-	kiichainConfigPath = filepath.Join(kiichainHomePath, "config")
-	stakingAmount      = mustNewIntFromString("100000000000000000000000") // 100,000 Kii
-	stakingAmountCoin  = sdk.NewCoin(akiiDenom, stakingAmount)
-	tokenAmount        = sdk.NewCoin(akiiDenom, mustNewIntFromString("3300000000000000000000")) // 3,300 Kii
-	standardFees       = sdk.NewCoin(akiiDenom, mustNewIntFromString("330000000000000000"))     // 0.33 Kii
-	depositAmount      = sdk.NewCoin(akiiDenom, mustNewIntFromString("330000000000000000000"))  // 3,300 Kii
-	distModuleAddress  = authtypes.NewModuleAddress(distrtypes.ModuleName).String()
-	govModuleAddress   = authtypes.NewModuleAddress(govtypes.ModuleName).String()
-	proposalCounter    = 0
+	kiichainConfigPath        = filepath.Join(kiichainHomePath, "config")
+	stakingAmount             = mustNewIntFromString("100000000000000000000000") // 100,000 Kii
+	stakingAmountCoin         = sdk.NewCoin(akiiDenom, stakingAmount)
+	tokenAmount               = sdk.NewCoin(akiiDenom, mustNewIntFromString("3300000000000000000000")) // 3,300 Kii
+	standardFees              = sdk.NewCoin(akiiDenom, mustNewIntFromString("330000000000000000"))     // 0.33 Kii
+	depositAmount             = sdk.NewCoin(akiiDenom, mustNewIntFromString("330000000000000000000"))  // 3,300 Kii
+	distModuleAddress         = authtypes.NewModuleAddress(distrtypes.ModuleName).String()
+	govModuleAddress          = authtypes.NewModuleAddress(govtypes.ModuleName).String()
+	testCounter        uint64 = 0
 )
 
 type IntegrationTestSuite struct {
@@ -112,7 +113,9 @@ type IntegrationTestSuite struct {
 	dkrNet         *dockertest.Network
 	hermesResource *dockertest.Resource
 
-	valResources map[string][]*dockertest.Resource
+	valResources    map[string][]*dockertest.Resource
+	proposalCounter int
+	testID          uint64
 }
 
 type AddressResponse struct {
@@ -124,6 +127,15 @@ type AddressResponse struct {
 
 func TestIntegrationTestSuite(t *testing.T) {
 	suite.Run(t, new(IntegrationTestSuite))
+}
+
+// Helper to create new test suite instance
+func NewIntegrationTestSuite(t *testing.T) *IntegrationTestSuite {
+	s := &IntegrationTestSuite{}
+	s.SetT(t)
+	s.proposalCounter = 0
+	s.testID = atomic.AddUint64(&testCounter, 2)
+	return s
 }
 
 func (s *IntegrationTestSuite) SetupSuite() {
@@ -161,13 +173,13 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	s.initNodes(s.chainA)
 	s.initGenesis(s.chainA, vestingMnemonic, jailedValMnemonic)
 	s.initValidatorConfigs(s.chainA)
-	s.runValidators(s.chainA, 0)
+	s.runValidators(s.chainA, int(s.testID))
 
 	s.T().Logf("starting e2e infrastructure for chain B; chain-id: %s; datadir: %s", s.chainB.id, s.chainB.dataDir)
 	s.initNodes(s.chainB)
 	s.initGenesis(s.chainB, vestingMnemonic, jailedValMnemonic)
 	s.initValidatorConfigs(s.chainB)
-	s.runValidators(s.chainB, 10)
+	s.runValidators(s.chainB, int(s.testID-1))
 
 	time.Sleep(10 * time.Second)
 

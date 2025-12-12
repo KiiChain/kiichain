@@ -159,7 +159,8 @@ func (s *IntegrationTestSuite) checkAndUpdateOracleParams() {
 	// Get the chain and update its information
 	c := s.chainA
 	s.writeOracleParamChangeProposal(c)
-	proposalCounter++
+	s.proposalCounter++
+	proposalCounter := s.proposalCounter
 	submitGovFlags := []string{configFile(proposalUpdateRateLimitAtomFilename)}
 	depositGovFlags := []string{strconv.Itoa(proposalCounter), depositAmount.String()}
 	voteGovFlags := []string{strconv.Itoa(proposalCounter), "yes"}

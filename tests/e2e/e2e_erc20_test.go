@@ -89,7 +89,8 @@ func (s *IntegrationTestSuite) testERC20(jsonRPC string) {
 	sender := senderAddress.String()
 
 	s.Run("Register ERC20 proposal", func() {
-		proposalCounter++
+		s.proposalCounter++
+		proposalCounter := s.proposalCounter
 		s.writeERC20RegisterProposal(c, contractAddress)
 		submitGovFlags := []string{configFile(proposalRegisterERC20)}
 

@@ -28,7 +28,8 @@ func (s *IntegrationTestSuite) GovSoftwareUpgrade() {
 	height := s.getLatestBlockHeight(s.chainA, 0)
 	proposalHeight := height + govProposalBlockBuffer
 	// Gov tests may be run in arbitrary order, each test must increment proposalCounter to have the correct proposal id to submit and query
-	proposalCounter++
+	s.proposalCounter++
+	proposalCounter := s.proposalCounter
 
 	s.writeSoftwareUpgradeProposal(s.chainA, int64(proposalHeight), "upgrade-v0")
 
@@ -75,7 +76,8 @@ func (s *IntegrationTestSuite) GovCancelSoftwareUpgrade() {
 	s.writeSoftwareUpgradeProposal(s.chainA, int64(proposalHeight), "upgrade-v1")
 
 	// Gov tests may be run in arbitrary order, each test must increment proposalCounter to have the correct proposal id to submit and query
-	proposalCounter++
+	s.proposalCounter++
+	proposalCounter := s.proposalCounter
 	submitGovFlags := []string{configFile(proposalSoftwareUpgrade)}
 
 	depositGovFlags := []string{strconv.Itoa(proposalCounter), depositAmount.String()}
@@ -114,7 +116,8 @@ func (s *IntegrationTestSuite) GovCommunityPoolSpend() {
 	s.Require().NoError(err)
 
 	// Gov tests may be run in arbitrary order, each test must increment proposalCounter to have the correct proposal id to submit and query
-	proposalCounter++
+	s.proposalCounter++
+	proposalCounter := s.proposalCounter
 	submitGovFlags := []string{configFile(proposalCommunitySpendFilename)}
 	depositGovFlags := []string{strconv.Itoa(proposalCounter), depositAmount.String()}
 	voteGovFlags := []string{strconv.Itoa(proposalCounter), "yes"}
@@ -216,7 +219,8 @@ func (s *IntegrationTestSuite) GovSoftwareUpgradeExpedited() {
 	senderAddress, _ := s.chainA.validators[0].keyInfo.GetAddress()
 	sender := senderAddress.String()
 
-	proposalCounter++
+	s.proposalCounter++
+	proposalCounter := s.proposalCounter
 	s.writeExpeditedSoftwareUpgradeProp(s.chainA)
 	submitGovFlags := []string{configFile(proposalExpeditedSoftwareUpgrade)}
 

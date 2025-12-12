@@ -172,7 +172,8 @@ func (s *IntegrationTestSuite) testAddRateLimits() {
 	validatorAAddr, _ := validatorA.keyInfo.GetAddress()
 
 	s.writeAddRateLimitAtomProposal(s.chainA)
-	proposalCounter++
+	s.proposalCounter++
+	proposalCounter := s.proposalCounter
 	submitGovFlags := []string{configFile(proposalAddRateLimitAtomFilename)}
 	depositGovFlags := []string{strconv.Itoa(proposalCounter), depositAmount.String()}
 	voteGovFlags := []string{strconv.Itoa(proposalCounter), "yes"}
@@ -256,7 +257,8 @@ func (s *IntegrationTestSuite) testUpdateRateLimit() {
 	validatorAAddr, _ := validatorA.keyInfo.GetAddress()
 
 	s.writeUpdateRateLimitAtomProposal(s.chainA)
-	proposalCounter++
+	s.proposalCounter++
+	proposalCounter := s.proposalCounter
 	submitGovFlags := []string{configFile(proposalUpdateRateLimitAtomFilename)}
 	depositGovFlags := []string{strconv.Itoa(proposalCounter), depositAmount.String()}
 	voteGovFlags := []string{strconv.Itoa(proposalCounter), "yes"}
@@ -289,7 +291,8 @@ func (s *IntegrationTestSuite) testResetRateLimit() {
 	validatorAAddr, _ := validatorA.keyInfo.GetAddress()
 
 	s.writeResetRateLimitAtomProposal(s.chainA)
-	proposalCounter++
+	s.proposalCounter++
+	proposalCounter := s.proposalCounter
 	submitGovFlags := []string{configFile(proposalResetRateLimitAtomFilename)}
 	depositGovFlags := []string{strconv.Itoa(proposalCounter), depositAmount.String()}
 	voteGovFlags := []string{strconv.Itoa(proposalCounter), "yes"}
@@ -322,7 +325,8 @@ func (s *IntegrationTestSuite) testRemoveRateLimit() {
 	validatorAAddr, _ := validatorA.keyInfo.GetAddress()
 
 	s.writeRemoveRateLimitAtomProposal(s.chainA)
-	proposalCounter++
+	s.proposalCounter++
+	proposalCounter := s.proposalCounter
 	submitGovFlags := []string{configFile(proposalRemoveRateLimitAtomFilename)}
 	depositGovFlags := []string{strconv.Itoa(proposalCounter), depositAmount.String()}
 	voteGovFlags := []string{strconv.Itoa(proposalCounter), "yes"}
