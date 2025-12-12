@@ -1,12 +1,10 @@
-// test_parallel.go
+// e2e_test.go
 package e2e
 
 import (
 	"fmt"
 	"os"
 	"testing"
-
-	"github.com/stretchr/testify/suite"
 )
 
 var (
@@ -247,10 +245,4 @@ func TestParallelE2E(t *testing.T) {
 			tc.runner(t)
 		})
 	}
-}
-
-// TestSequentialE2E can be kept for backward compatibility
-// This runs tests sequentially as before
-func TestSequentialE2E(t *testing.T) {
-	suite.Run(t, new(IntegrationTestSuite))
 }
