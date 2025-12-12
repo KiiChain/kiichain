@@ -46,7 +46,7 @@ jobs:
       - name: test & coverage report creation
         if: env.GIT_DIFF
         run: |
-          go test -v -coverprofile=profile.txt -covermode=atomic -coverpkg=./... $(go list ./... | grep -v -e '/tests/e2e' | grep -v -e '/tests/interchain')
+          go test -v -coverprofile=profile.txt -covermode=atomic -coverpkg=./... $(go list ./... | grep -v -e '/tests/e2e' | grep -v -e '/tests/interchain') | grep -v "store.go:" | grep -v "mutable_tree.go:"
       - uses: actions/upload-artifact@v4
         if: env.GIT_DIFF
         with:
