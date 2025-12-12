@@ -64,7 +64,7 @@ jobs:
           echo "All tasks completed."
 
       - name: Test E2E
-        if: env.GIT_DIFF
+        # if: env.GIT_DIFF
         env:
           SKIP_IBC_TESTS: ${{ github.event_name == 'pull_request' && 'true' || 'false' }}
         run: make test-e2e
