@@ -33,6 +33,15 @@ jobs:
             **/Makefile
             Makefile
 
+      - uses: actions/cache@v4.2.0
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
       - name: Build Docker and download packages in parallel
         if: env.GIT_DIFF
         run: |
