@@ -282,26 +282,6 @@ func initRootCmd(rootCmd *cobra.Command,
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	wasm.AddModuleInitFlags(startCmd)
-	overrideEVMChainID(startCmd)
-}
-
-// overrideEVMChainID changes the default evm chain id
-func overrideEVMChainID(cmd *cobra.Command) {
-	// Create precheck function
-	preCheck := func(cmd *cobra.Command, _ []string) error {
-		// Read in the client context from the command line and environment variables
-		evmChainID, err := cmd.Flags().GetUint64(srvflags.EVMChainID)
-		if err != nil {
-			return err
-		}
-		// If the chain id is still default, we override it on the CLI
-		if evmChainID == evmserverconfig.DefaultEVMChainID {
-			err = cmd.Flags().Set(srvflags.EVMChainID, fmt.Sprintf("%d", kiichain.KiichainID))
-		}
-		return err
-	}
-
-	cmd.PreRunE = chainPreRuns(preCheck, cmd.PreRunE)
 }
 
 // preRunFn defines a preRun function
@@ -449,6 +429,12 @@ func (a appCreator) newApp(
 		baseapp.SetSnapshot(snapshotStore, snapshotOptions),
 		baseapp.SetIAVLCacheSize(cast.ToInt(appOpts.Get(server.FlagIAVLCacheSize))),
 	}
+
+	viperAppOpts, ok := appOpts.(*viper.Viper)
+	if !ok {
+		panic("appOpts is not viper.Viper")
+	}
+	viperAppOpts.Set(srvflags.EVMChainID, kiichain.KiichainID)
 
 	return kiichain.NewKiichainApp(
 		logger,

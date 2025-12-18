@@ -135,7 +135,8 @@ func NewKiichainApp(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *KiichainApp {
 	// Use the EVM encoding config
-	encodingConfig := evmencoding.MakeConfig(KiichainID)
+	evmChainID := cast.ToUint64(appOpts.Get(srvflags.EVMChainID))
+	encodingConfig := evmencoding.MakeConfig(evmChainID)
 	appCodec := encodingConfig.Codec
 	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -176,7 +177,7 @@ func NewKiichainApp(
 		logger,
 		appOpts,
 		wasmOpts,
-		KiichainID,
+		evmChainID,
 	)
 
 	// Create IBC Tendermint Light Client Stack
