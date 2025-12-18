@@ -152,9 +152,13 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	)
 	require.NoError(t, err)
 
-	// Setup evm config for tests
+	// Reset configs
 	configurator.ResetTestConfig()
 	err = configurator.WithEVMCoinInfo(keepers.CoinInfo).Configure()
+	require.NoError(t, err)
+
+	cfg := evmtypes.DefaultChainConfig(kiichain.KiichainID)
+	err = evmtypes.SetChainConfig(cfg)
 	require.NoError(t, err)
 
 	_, err = kiichainApp.FinalizeBlock(&abci.RequestFinalizeBlock{
