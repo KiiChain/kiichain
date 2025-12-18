@@ -274,10 +274,11 @@ func NewKiichainApp(
 	app.setAnteHandler(app.txConfig, maxGasWanted, appOpts)
 
 	// set the EVM priority nonce mempool
-	// if you wish to use the noop mempool, remove this codeblock
-	if err := app.configureEVMMempool(appOpts, logger); err != nil {
-		panic(fmt.Sprintf("failed to configure EVM mempool: %s", err.Error()))
-	}
+	// Mempool is currently disabled due to a bug in EVM mempool on public nodes
+	// It will be enabled again once the bug is fixed on EVM
+	// if evmtypes.GetChainConfig() != nil {
+	// 	app.SetupEVMMempool(appOpts, logger)
+	// }
 
 	if manager := app.SnapshotManager(); manager != nil {
 		err = manager.RegisterExtensions(wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper))

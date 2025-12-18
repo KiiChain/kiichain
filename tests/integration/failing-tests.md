@@ -26,7 +26,7 @@ Test requires `network.WithBaseCoin("akii", 18)`
 Requires unsealed config.
 
 ## Mempool
-Complains of not being accessible.
+About 70% pass, but 30% do cosmos transactions using fee as Aatom.
 
 ## Gov
 On `TestGovPrecompileTestSuite`:
