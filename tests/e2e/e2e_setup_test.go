@@ -46,8 +46,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	evmconfig "github.com/cosmos/evm/server/config"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	kiichain "github.com/kiichain/kiichain/v6/app"
+	"github.com/kiichain/kiichain/v6/app/keepers"
 	"github.com/kiichain/kiichain/v6/app/params"
 )
 
@@ -394,17 +396,20 @@ func (s *IntegrationTestSuite) addGenesisVestingAndJailedAccounts(
 
 	// update the denom metadata for the bank module
 	bankGenState.DenomMetadata = append(bankGenState.DenomMetadata, banktypes.Metadata{
-		Description: "An example stable token",
-		Display:     akiiDenom,
-		Base:        akiiDenom,
-		Symbol:      akiiDenom,
-		Name:        akiiDenom,
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    akiiDenom,
+				Denom:    keepers.CoinInfo.Denom,
 				Exponent: 0,
 			},
+			{
+				Denom:    keepers.CoinInfo.DisplayDenom,
+				Exponent: keepers.CoinInfo.Decimals,
+			},
 		},
+		Base:    keepers.CoinInfo.Denom,
+		Display: keepers.CoinInfo.DisplayDenom,
+		Name:    keepers.CoinInfo.DisplayDenom,
+		Symbol:  "KII",
 	})
 
 	// update bank module state
@@ -476,6 +481,15 @@ func (s *IntegrationTestSuite) initGenesis(c *chain, vestingMnemonic, jailedValM
 	genUtilGenState.GenTxs = genTxs
 
 	appGenState[genutiltypes.ModuleName], err = cdc.MarshalJSON(&genUtilGenState)
+	s.Require().NoError(err)
+
+	var evmGenState evmtypes.GenesisState
+	s.Require().NoError(cdc.UnmarshalJSON(appGenState[evmtypes.ModuleName], &evmGenState))
+	evmGenState.Params.EvmDenom = keepers.CoinInfo.Denom
+	evmGenState.Params.ExtendedDenomOptions = &evmtypes.ExtendedDenomOptions{
+		ExtendedDenom: keepers.CoinInfo.ExtendedDenom,
+	}
+	appGenState[evmtypes.ModuleName], err = cdc.MarshalJSON(&evmGenState)
 	s.Require().NoError(err)
 
 	genDoc.AppState, err = json.MarshalIndent(appGenState, "", "  ")
