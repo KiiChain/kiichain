@@ -95,7 +95,7 @@ import (
 	tokenfactorytypes "github.com/kiichain/kiichain/v6/x/tokenfactory/types"
 )
 
-// ChainsCoinInfo is a map of the chain id and its corresponding EvmCoinInfo
+// CoinInfo is a map of the chain id and its corresponding EvmCoinInfo
 // that allows initializing the app with different coin info based on the
 // chain id
 var CoinInfo = evmtypes.EvmCoinInfo{

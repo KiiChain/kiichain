@@ -33,7 +33,9 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	kiichain "github.com/kiichain/kiichain/v6/app"
+	"github.com/kiichain/kiichain/v6/app/keepers"
 	"github.com/kiichain/kiichain/v6/app/params"
 )
 
@@ -103,6 +105,34 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 
 	kiichainApp, genesisState := setup()
 	genesisState = genesisStateWithValSet(t, kiichainApp, genesisState, valSet, genAccs, balances...)
+
+	var bankGenesis banktypes.GenesisState
+	kiichainApp.AppCodec().MustUnmarshalJSON(genesisState[banktypes.ModuleName], &bankGenesis)
+	bankGenesis.DenomMetadata = append(bankGenesis.DenomMetadata, banktypes.Metadata{
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    keepers.CoinInfo.Denom,
+				Exponent: 0,
+			},
+			{
+				Denom:    keepers.CoinInfo.DisplayDenom,
+				Exponent: keepers.CoinInfo.Decimals,
+			},
+		},
+		Base:    keepers.CoinInfo.Denom,
+		Display: keepers.CoinInfo.DisplayDenom,
+		Name:    keepers.CoinInfo.DisplayDenom,
+		Symbol:  "KII",
+	})
+	genesisState[banktypes.ModuleName] = kiichainApp.AppCodec().MustMarshalJSON(&bankGenesis)
+
+	var evmGenState evmtypes.GenesisState
+	kiichainApp.AppCodec().MustUnmarshalJSON(genesisState[evmtypes.ModuleName], &evmGenState)
+	evmGenState.Params.EvmDenom = keepers.CoinInfo.Denom
+	evmGenState.Params.ExtendedDenomOptions = &evmtypes.ExtendedDenomOptions{
+		ExtendedDenom: keepers.CoinInfo.ExtendedDenom,
+	}
+	genesisState[evmtypes.ModuleName] = kiichainApp.AppCodec().MustMarshalJSON(&evmGenState)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)
