@@ -152,7 +152,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	)
 	require.NoError(t, err)
 
-	// Reset configs
+	// Reset evm configs
 	configurator.ResetTestConfig()
 	err = configurator.WithEVMCoinInfo(keepers.CoinInfo).Configure()
 	require.NoError(t, err)
