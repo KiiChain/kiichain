@@ -134,6 +134,10 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	}
 	genesisState[evmtypes.ModuleName] = kiichainApp.AppCodec().MustMarshalJSON(&evmGenState)
 
+	// Reset config so init doesn't crash
+	configurator := evmtypes.NewEVMConfigurator()
+	configurator.ResetTestConfig()
+
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)
 
@@ -148,7 +152,11 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	)
 	require.NoError(t, err)
 
+	// Setup evm config for tests
+	configurator.ResetTestConfig()
+	err = configurator.WithEVMCoinInfo(keepers.CoinInfo).Configure()
 	require.NoError(t, err)
+
 	_, err = kiichainApp.FinalizeBlock(&abci.RequestFinalizeBlock{
 		Height:             kiichainApp.LastBlockHeight() + 1,
 		Hash:               kiichainApp.LastCommitID().Hash,
