@@ -333,7 +333,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	}
 
 	// Define the fee on the context for gas refunding
-	// ctx = ctx.WithValue(evmkeeper.ContextPaidFeesKey{}, convertedMsgFees)
+	ctx = ctx.WithValue(evmkeeper.ContextPaidFeesKey{}, convertedMsgFees)
 
 	return next(ctx, tx, simulate)
 }
