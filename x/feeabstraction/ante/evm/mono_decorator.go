@@ -66,7 +66,6 @@ func NewEVMMonoDecorator(
 	maxGasWanted uint64,
 	evmParams *evmtypes.Params,
 	feemarketParams *feemarkettypes.Params,
-
 ) MonoDecorator {
 	return MonoDecorator{
 		accountKeeper:        accountKeeper,

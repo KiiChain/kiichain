@@ -11,12 +11,8 @@ import (
 	"github.com/spf13/viper"
 
 	clienthelpers "cosmossdk.io/client/v2/helpers"
-	"cosmossdk.io/math"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-
-	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/kiichain/kiichain/v6/app/params"
 )
@@ -45,20 +41,6 @@ type EVMOptionsFn func(uint64) error
 // need any specific configuration
 func NoOpEVMOptions(_ uint64) error {
 	return nil
-}
-
-var sealed = false
-
-// setBaseDenom registers the display denom and base denom and sets the
-// base denom for the chain.
-func setBaseDenom(ci evmtypes.EvmCoinInfo) error {
-	if err := sdk.RegisterDenom(ci.DisplayDenom, math.LegacyOneDec()); err != nil {
-		return err
-	}
-
-	// sdk.RegisterDenom will automatically overwrite the base denom when the
-	// new setBaseDenom() are lower than the current base denom's units.
-	return sdk.RegisterDenom(ci.Denom, math.LegacyNewDecWithPrec(1, int64(ci.Decimals)))
 }
 
 var KiichainID uint64 = params.DefaultChainID // default Chain ID

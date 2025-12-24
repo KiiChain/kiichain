@@ -34,6 +34,7 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	evmtypes "github.com/cosmos/evm/x/vm/types"
+
 	kiichain "github.com/kiichain/kiichain/v6/app"
 	"github.com/kiichain/kiichain/v6/app/keepers"
 	"github.com/kiichain/kiichain/v6/app/params"

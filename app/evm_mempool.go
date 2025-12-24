@@ -1,8 +1,6 @@
 package kiichain
 
 import (
-	"fmt"
-
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -15,22 +13,19 @@ import (
 )
 
 // configureEVMMempool sets up the EVM mempool and related handlers using viper configuration.
-func (app *KiichainApp) configureEVMMempool(appOpts servertypes.AppOptions, logger log.Logger) error {
+func (app *KiichainApp) configureEVMMempool(appOpts servertypes.AppOptions, logger log.Logger) { //nolint:unused
 	if evmtypes.GetChainConfig() == nil {
 		logger.Debug("evm chain config is not set, skipping mempool configuration")
-		return nil
+		return
 	}
 
 	cosmosPoolMaxTx := evmconfig.GetCosmosPoolMaxTx(appOpts, logger)
 	if cosmosPoolMaxTx < 0 {
 		logger.Debug("app-side mempool is disabled, skipping evm mempool configuration")
-		return nil
+		return
 	}
 
-	mempoolConfig, err := app.createMempoolConfig(appOpts, logger)
-	if err != nil {
-		return fmt.Errorf("failed to get mempool config: %w", err)
-	}
+	mempoolConfig := app.createMempoolConfig(appOpts, logger)
 
 	evmMempool := evmmempool.NewExperimentalEVMMempool(
 		app.CreateQueryContext,
@@ -54,17 +49,15 @@ func (app *KiichainApp) configureEVMMempool(appOpts servertypes.AppOptions, logg
 		),
 	)
 	app.SetPrepareProposal(abciProposalHandler.PrepareProposalHandler())
-
-	return nil
 }
 
 // createMempoolConfig creates a new EVMMempoolConfig with the default configuration
 // and overrides it with values from appOpts if they exist and are non-zero.
-func (app *KiichainApp) createMempoolConfig(appOpts servertypes.AppOptions, logger log.Logger) (*evmmempool.EVMMempoolConfig, error) {
+func (app *KiichainApp) createMempoolConfig(appOpts servertypes.AppOptions, logger log.Logger) *evmmempool.EVMMempoolConfig { //nolint:unused
 	return &evmmempool.EVMMempoolConfig{
 		AnteHandler:      app.GetAnteHandler(),
 		LegacyPoolConfig: evmconfig.GetLegacyPoolConfig(appOpts, logger),
 		BlockGasLimit:    evmconfig.GetBlockGasLimit(appOpts, logger),
 		MinTip:           evmconfig.GetMinTip(appOpts, logger),
-	}, nil
+	}
 }
