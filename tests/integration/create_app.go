@@ -20,9 +20,9 @@ import (
 // CreateKiichain creates a kiichain app for regular integration tests (non-mempool)
 // This version uses a noop mempool to avoid state issues during transaction processing
 func CreateKiichain(chainID string, evmChaindID uint64, customBaseAppOptions ...func(*baseapp.BaseApp)) evm.EvmApp {
-	appOptions := simutils.NewAppOptionsWithFlagHome(kiichain.DefaultNodeHome)
+	appOptions := simutils.NewAppOptionsWithFlagHome(kiichain.DefaultNodeHome) //nolint:staticcheck
 
-	customBaseAppOptions = append(customBaseAppOptions, baseapp.SetChainID(chainID))
+	customBaseAppOptions = append(customBaseAppOptions, baseapp.SetChainID(chainID)) //nolint:staticcheck
 
 	// Disable cache for integration tests to avoid state issues
 	sdk.SetAddrCacheEnabled(false)
@@ -31,7 +31,7 @@ func CreateKiichain(chainID string, evmChaindID uint64, customBaseAppOptions ...
 	kiichain.KiichainID = evmChaindID
 
 	// Create a temporary path
-	dir, err := os.MkdirTemp("", "kiichain-integration-test")
+	dir, err := os.MkdirTemp("", "kiichain-integration-test") //nolint:staticcheck
 	if err != nil {
 		panic(err)
 	}
