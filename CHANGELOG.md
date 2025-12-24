@@ -3,7 +3,7 @@
 ## Unreleased
 
 ## DEPENDENCIES
-- Bump [EVM](github.com/cosmos/evm) from v0.4.1 to [v0.5.1](https://github.com/cosmos/evm/releases/tag/v0.5.1)
+- Bump [EVM](https://github.com/cosmos/evm) from v0.4.2 to [v0.5.1](https://github.com/cosmos/evm/releases/tag/v0.5.1)
 - Bump [cosmos go-ethereum](github.com/cosmos/go-ethereum) to [v1.16.2](https://github.com/cosmos/go-ethereum/releases/tag/v1.16.2-cosmos-1)
 
 ## Fixed
