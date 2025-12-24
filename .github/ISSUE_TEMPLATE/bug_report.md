@@ -27,7 +27,7 @@ Provide a **clear and precise description** of the bug.
 
 - What is broken?
 - Which module or component is affected?
-- Why this is a bug (not expected behavior)?
+- Why is this a bug (not expected behavior)?
 
 ---
 
