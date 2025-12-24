@@ -12,6 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/evm"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	kiichain "github.com/kiichain/kiichain/v6/app"
 )
@@ -35,7 +36,10 @@ func CreateKiichain(chainID string, evmChaindID uint64, customBaseAppOptions ...
 		panic(err)
 	}
 
-	return kiichain.NewKiichainApp(
+	configurator := evmtypes.NewEVMConfigurator()
+	configurator.ResetTestConfig()
+
+	app := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
 		nil,
@@ -46,4 +50,14 @@ func CreateKiichain(chainID string, evmChaindID uint64, customBaseAppOptions ...
 		kiichain.EmptyWasmOptions,
 		customBaseAppOptions...,
 	)
+
+	configurator.ResetTestConfig()
+
+	cfg := evmtypes.DefaultChainConfig(kiichain.KiichainID)
+	err = evmtypes.SetChainConfig(cfg)
+	if err != nil {
+		panic(err)
+	}
+
+	return app
 }
