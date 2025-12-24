@@ -46,10 +46,6 @@ func TestMonoDecoratorTx(t *testing.T) {
 	// Create the app and the context
 	app, ctx := helpers.SetupWithContext(t)
 
-	// fetch params
-	evmparams := app.EVMKeeper.GetParams(sdk.Context{})
-	feemarketParams := app.FeeMarketKeeper.GetParams(sdk.Context{})
-
 	// Define the test cases
 	testCases := []struct {
 		name        string
@@ -74,6 +70,10 @@ func TestMonoDecoratorTx(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create a cached context
 			cacheCtx, _ := ctx.CacheContext()
+
+			// fetch params
+			evmparams := app.EVMKeeper.GetParams(cacheCtx)
+			feemarketParams := app.FeeMarketKeeper.GetParams(cacheCtx)
 
 			// Start up the wrapped ante decorator
 			monoDecorator := kiievmante.NewEVMMonoDecorator(
@@ -119,9 +119,6 @@ func TestMonoDecorator(t *testing.T) {
 	// Reactivate keeper since it was disabled on abci
 	err = app.FeeAbstractionKeeper.Params.Set(ctx, types.DefaultParams())
 	require.NoError(t, err)
-
-	// fetch params
-	evmparams := app.EVMKeeper.GetParams(sdk.Context{})
 
 	// Define the test cases
 	testCases := []struct {
@@ -396,6 +393,10 @@ func TestMonoDecorator(t *testing.T) {
 			if tc.malleate != nil {
 				cacheCtx = tc.malleate(cacheCtx)
 			}
+
+			// fetch params
+			evmparams := app.EVMKeeper.GetParams(cacheCtx)
+			feeMarketParams := app.FeeMarketKeeper.GetParams(cacheCtx)
 
 			// Start up the wrapped ante decorator
 			monoDecorator := kiievmante.NewEVMMonoDecorator(
