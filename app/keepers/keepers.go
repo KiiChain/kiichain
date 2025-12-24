@@ -415,25 +415,6 @@ func NewAppKeeper(
 		&appKeepers.Erc20Keeper,
 		evmChainID,
 		tracer,
-	).WithStaticPrecompiles(
-		// Configure EVM precompiles
-		NewAvailableStaticPrecompiles(
-			*appKeepers.StakingKeeper,
-			appKeepers.DistrKeeper,
-			appKeepers.BankKeeper,
-			appKeepers.Erc20Keeper,
-			appKeepers.TransferKeeper,
-			*appKeepers.IBCKeeper.ClientKeeper,
-			*appKeepers.IBCKeeper.ConnectionKeeper,
-			appKeepers.IBCKeeper.ChannelKeeper,
-			appKeepers.EVMKeeper,
-			*appKeepers.GovKeeper,
-			appKeepers.SlashingKeeper,
-			appKeepers.EvidenceKeeper,
-			appKeepers.WasmKeeper,
-			appKeepers.OracleKeeper,
-			appCodec,
-		),
 	).WithDefaultEvmCoinInfo(CoinInfo)
 
 	appKeepers.Erc20Keeper = erc20keeper.NewKeeper(
@@ -598,6 +579,27 @@ func NewAppKeeper(
 	appKeepers.TransferModule = transfer.NewAppModule(*appKeepers.TransferKeeper.Keeper)
 	appKeepers.PFMRouterModule = pfmrouter.NewAppModule(appKeepers.PFMRouterKeeper, appKeepers.GetSubspace(pfmroutertypes.ModuleName))
 	appKeepers.RateLimitModule = ratelimit.NewAppModule(appCodec, appKeepers.RatelimitKeeper)
+
+	appKeepers.EVMKeeper.WithStaticPrecompiles(
+		// Configure EVM precompiles
+		NewAvailableStaticPrecompiles(
+			*appKeepers.StakingKeeper,
+			appKeepers.DistrKeeper,
+			appKeepers.BankKeeper,
+			appKeepers.Erc20Keeper,
+			appKeepers.TransferKeeper,
+			*appKeepers.IBCKeeper.ClientKeeper,
+			*appKeepers.IBCKeeper.ConnectionKeeper,
+			appKeepers.IBCKeeper.ChannelKeeper,
+			appKeepers.EVMKeeper,
+			*appKeepers.GovKeeper,
+			appKeepers.SlashingKeeper,
+			appKeepers.EvidenceKeeper,
+			appKeepers.WasmKeeper,
+			appKeepers.OracleKeeper,
+			appCodec,
+		),
+	)
 
 	return appKeepers
 }
