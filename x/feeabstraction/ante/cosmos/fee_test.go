@@ -57,9 +57,6 @@ func TestDeductFeeDecorator(t *testing.T) {
 	err := app.FeeAbstractionKeeper.Params.Set(ctx, types.DefaultParams())
 	require.NoError(t, err)
 
-	// Fetch params
-	feemarketParams := app.FeeMarketKeeper.GetParams(ctx)
-
 	// Set the different test cases
 	testCases := []struct {
 		name        string
@@ -288,6 +285,9 @@ func TestDeductFeeDecorator(t *testing.T) {
 					},
 				).AnyTimes()
 			}
+
+			// Fetch params
+			feemarketParams := app.FeeMarketKeeper.GetParams(cachedCtx)
 
 			// Start up the DeductFeeDecorator
 			deductFeeDecorator := cosmos.NewDeductFeeDecorator(
