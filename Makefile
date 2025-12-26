@@ -343,6 +343,8 @@ start-localnet-ci: build
 	./build/kiichaind genesis gentx val 1000000000000000000000akii --home ~/.kiichaind-liveness --chain-id localchain_1010-1 --keyring-backend test
 	./build/kiichaind genesis collect-gentxs --home ~/.kiichaind-liveness
 	sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0akii"/' ~/.kiichaind-liveness/config/app.toml
+	sed -i 's/"evm_denom": "[^"]*"/"evm_denom": "akii"/' ~/.kiichaind-liveness/config/genesis.json
+	sed -i 's/"denom_metadata": \[[^]]*\],/"denom_metadata": [{"description":"The native staking token of the kiichain network","denomUnits":[{"denom":"akii","exponent":"0"},{"denom":"kii","exponent":"18"}],"base":"akii","display":"kii","name":"kii","symbol":"KII"}],/' ~/.kiichaind-liveness/config/genesis.json
 	./build/kiichaind start --home ~/.kiichaind-liveness
 
 .PHONY: start-localnet-ci
