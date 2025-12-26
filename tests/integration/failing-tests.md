@@ -3,6 +3,8 @@
 ## VM Test
 On the `TestKeeperTestSuite` several tests are failing because they need the mint module or the precise bank. 
 
+The test `vm.NewNestedEVMExtensionCallSuite(CreateKiichain, network.WithBaseCoin("akii", 18))` was removed due to a validator requiring balance it does not have. I could not find a straightforward way to add balance to it.
+
 This test also needs a test flag `-tags=test`, as well as `network.WithBaseCoin("akii", 18)` being passed.
 
 ## ERC20 Tests
