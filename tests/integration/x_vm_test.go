@@ -9,6 +9,11 @@ import (
 	"github.com/cosmos/evm/testutil/integration/evm/network"
 )
 
+func TestNestedEVMExtensionCallSuite(t *testing.T) {
+	s := vm.NewNestedEVMExtensionCallSuite(CreateKiichain)
+	suite.Run(t, s)
+}
+
 func TestGenesisTestSuite(t *testing.T) {
 	s := vm.NewGenesisTestSuite(CreateKiichain, network.WithBaseCoin("akii", 18))
 	suite.Run(t, s)
