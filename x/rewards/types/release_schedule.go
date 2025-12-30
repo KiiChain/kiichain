@@ -20,16 +20,6 @@ func InitialReleaseSchedule() ReleaseSchedule {
 
 // ValidateGenesis validates the release schedule for a genesis state
 func (rr ReleaseSchedule) ValidateGenesis() error {
-	// Validate EndTime (zero time is allowed for genesis)
-	if !rr.EndTime.IsZero() && rr.EndTime.Before(time.Now()) {
-		return fmt.Errorf("end time %s cannot be in the past", rr.EndTime.String())
-	}
-
-	// Validate LastReleaseTime
-	if rr.LastReleaseTime.After(time.Now()) {
-		return fmt.Errorf("last release time %s cannot be in the future", rr.EndTime.String())
-	}
-
 	// Some validations just make sense if active
 	if rr.Active {
 		// Validate TotalAmount

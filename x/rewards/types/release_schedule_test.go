@@ -89,30 +89,6 @@ func TestRewardReleaserValidateGenesis(t *testing.T) {
 			errMsg:  "cannot be greater than total amount",
 		},
 		{
-			name: "end time in past",
-			schedule: types.ReleaseSchedule{
-				TotalAmount:     validCoin,
-				ReleasedAmount:  sdk.Coin{},
-				EndTime:         now.Add(-time.Hour * 24),
-				LastReleaseTime: time.Time{},
-				Active:          false,
-			},
-			wantErr: true,
-			errMsg:  "cannot be in the past",
-		},
-		{
-			name: "last release in future",
-			schedule: types.ReleaseSchedule{
-				TotalAmount:     validCoin,
-				ReleasedAmount:  sdk.Coin{},
-				EndTime:         time.Time{},
-				LastReleaseTime: now.Add(time.Hour * 24),
-				Active:          false,
-			},
-			wantErr: true,
-			errMsg:  "cannot be in the future",
-		},
-		{
 			name: "active with zero total",
 			schedule: types.ReleaseSchedule{
 				TotalAmount:     sdk.Coin{Denom: "akii", Amount: math.NewInt(0)},
