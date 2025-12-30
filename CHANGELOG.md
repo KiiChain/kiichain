@@ -5,6 +5,7 @@
 ## Fixed
 
 - Disable EVM mempool due to bug on public nodes broadcast
+- Remove unsafe math.Sqrt usage in oracle ballot standard deviation calculation
 
 ## v6.0.0 - 2025-11-25
 
