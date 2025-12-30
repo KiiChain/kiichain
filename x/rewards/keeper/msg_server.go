@@ -67,6 +67,9 @@ func (k msgServer) FundPool(ctx context.Context, msg *types.MsgFundPool) (*types
 
 // ChangeSchedule validates changes to the release scheduler
 func (k msgServer) ChangeSchedule(ctx context.Context, msg *types.MsgChangeSchedule) (*types.MsgChangeScheduleResponse, error) {
+	// Get cosmos sdk context from golang context
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
 	// Authority validation
 	if err := k.validateAuthority(msg.Authority); err != nil {
 		return nil, err
@@ -74,17 +77,17 @@ func (k msgServer) ChangeSchedule(ctx context.Context, msg *types.MsgChangeSched
 
 	// Check if schedule is sound
 	schedule := msg.Schedule
-	if err := k.validateSchedule(ctx, schedule); err != nil {
+	if err := k.validateSchedule(sdkCtx, schedule); err != nil {
 		return nil, fmt.Errorf("invalid schedule: %w", err)
 	}
 
 	// Check available funds
-	if err := k.fundsAvailable(ctx, schedule.TotalAmount); err != nil {
+	if err := k.fundsAvailable(sdkCtx, schedule.TotalAmount); err != nil {
 		return nil, fmt.Errorf("insufficient funds: %w", err)
 	}
 
 	// Save the new schedule
-	if err := k.Keeper.ReleaseSchedule.Set(ctx, schedule); err != nil {
+	if err := k.Keeper.ReleaseSchedule.Set(sdkCtx, schedule); err != nil {
 		return nil, fmt.Errorf("failed to set release schedule: %w", err)
 	}
 
