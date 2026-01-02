@@ -35,9 +35,9 @@ import (
 
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	kiichain "github.com/kiichain/kiichainv7/app"
-	"github.com/kiichain/kiichainv7/app/keepers"
-	"github.com/kiichain/kiichainv7/app/params"
+	kiichain "github.com/kiichain/kiichain/v7/app"
+	"github.com/kiichain/kiichain/v7/app/keepers"
+	"github.com/kiichain/kiichain/v7/app/params"
 )
 
 // SimAppChainID hardcoded chainID for simulation
