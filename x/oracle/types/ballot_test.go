@@ -179,7 +179,12 @@ func TestStandardDeviation(t *testing.T) {
 	// Calculate the standard deviation
 	median := ballot.WeightedMedianWithAssertion()
 	deviation := ballot.StandardDeviation(median)
-	require.Equal(t, sdkMath.LegacyNewDecWithPrec(1224745, 6), deviation)
+
+	expected := sdkMath.LegacyNewDecWithPrec(1224745, 6)
+	// 2e-7 tolerance
+	delta := sdkMath.LegacyNewDecWithPrec(2, 7)
+
+	require.True(t, deviation.Sub(expected).Abs().LTE(delta))
 }
 
 func TestToCrossRate(t *testing.T) {

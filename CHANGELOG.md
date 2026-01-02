@@ -2,13 +2,19 @@
 
 ## UNRELEASED
 
-## DEPENDENCIES
+## Dependencies
 - Bump [EVM](https://github.com/cosmos/evm) from v0.4.2 to [v0.5.1](https://github.com/cosmos/evm/releases/tag/v0.5.1)
 - Bump [cosmos go-ethereum](github.com/cosmos/go-ethereum) to [v1.16.2](https://github.com/cosmos/go-ethereum/releases/tag/v1.16.2-cosmos-1)
+
+## Removed
+
+- Removed dead code related to no gas consumption
 
 ## Fixed
 
 - Disable EVM mempool due to bug on public nodes broadcast
+- Remove references to time.Now() on release schedule validation
+- Remove unsafe math.Sqrt usage in oracle ballot standard deviation calculation
 
 ## v6.0.0 - 2025-11-25
 

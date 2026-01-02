@@ -1,10 +1,7 @@
 package types
 
 import (
-	"fmt"
-	"math"
 	"sort"
-	"strconv"
 
 	sdkMath "cosmossdk.io/math"
 
@@ -182,12 +179,14 @@ func (ex ExchangeRateBallot) StandardDeviation(median sdkMath.LegacyDec) (standa
 		sum = sum.Add(deviation.Mul(deviation))     // Calculate sum += (ex - median)^2
 	}
 
-	variance := sum.QuoInt64(int64(len(ex))) // Divide the result by the number of ex
+	// Divide the result by the number of ex
+	variance := sum.QuoInt64(int64(len(ex)))
 
-	floatNum, _ := strconv.ParseFloat(variance.String(), 64)
-	floatNum = math.Sqrt(floatNum)
-
-	standardDeviation, _ = sdkMath.LegacyNewDecFromStr(fmt.Sprintf("%f", floatNum))
+	// Finally get the square root of variance
+	standardDeviation, err := variance.ApproxSqrt()
+	if err != nil {
+		return sdkMath.LegacyZeroDec()
+	}
 
 	return
 }
