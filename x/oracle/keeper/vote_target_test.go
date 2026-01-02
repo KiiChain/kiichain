@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kiichain/kiichain/v6/x/oracle/types"
-	"github.com/kiichain/kiichain/v6/x/oracle/utils"
+	"github.com/kiichain/kiichain/v7/x/oracle/types"
+	"github.com/kiichain/kiichain/v7/x/oracle/utils"
 )
 
 func TestGetVoteTargets(t *testing.T) {

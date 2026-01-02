@@ -9,9 +9,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v6/app/apptesting"
-	"github.com/kiichain/kiichain/v6/wasmbinding/helpers"
-	wasmbinding "github.com/kiichain/kiichain/v6/wasmbinding/tokenfactory"
+	"github.com/kiichain/kiichain/v7/app/apptesting"
+	"github.com/kiichain/kiichain/v7/wasmbinding/helpers"
+	wasmbinding "github.com/kiichain/kiichain/v7/wasmbinding/tokenfactory"
 )
 
 // TestFullDenom tests the GetFullDenom function of the token factory

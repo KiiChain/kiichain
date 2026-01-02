@@ -7,7 +7,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	evmtypes "github.com/cosmos/evm/types"
+	hd "github.com/cosmos/evm/crypto/hd"
+	evmutils "github.com/cosmos/evm/utils"
 )
 
 const (
@@ -46,9 +47,9 @@ func SetBech32Prefixes(config *sdk.Config) {
 
 // SetBip44CoinType sets the global coin type to be used in hierarchical deterministic wallets.
 func SetBip44CoinType(config *sdk.Config) {
-	config.SetCoinType(evmtypes.Bip44CoinType)
-	config.SetPurpose(sdk.Purpose)                     // Shared
-	config.SetFullFundraiserPath(evmtypes.BIP44HDPath) //nolint: staticcheck
+	config.SetCoinType(hd.Bip44CoinType)
+	config.SetPurpose(sdk.Purpose)               // Shared
+	config.SetFullFundraiserPath(hd.BIP44HDPath) //nolint: staticcheck
 }
 
 // Init initializes all the params
@@ -63,7 +64,7 @@ func init() {
 	config.Seal()
 
 	// Update power reduction based on the new 18-decimal base unit
-	sdk.DefaultPowerReduction = evmtypes.AttoPowerReduction
+	sdk.DefaultPowerReduction = evmutils.AttoPowerReduction
 
 	// Update the sdk default bond denom
 	sdk.DefaultBondDenom = BaseDenom

@@ -27,10 +27,11 @@ import (
 	evmante "github.com/cosmos/evm/ante/evm"
 	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
 	"github.com/cosmos/evm/mempool/txpool"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	antetypes "github.com/kiichain/kiichain/v6/ante/types"
+	antetypes "github.com/kiichain/kiichain/v7/ante/types"
 )
 
 const AcceptedTxType = 0 |
@@ -47,6 +48,8 @@ type MonoDecorator struct {
 	evmKeeper            anteinterfaces.EVMKeeper
 	feeAbstractionKeeper antetypes.FeeAbstractionKeeper
 	maxGasWanted         uint64
+	evmParams            *evmtypes.Params
+	feemarketParams      *feemarkettypes.Params
 }
 
 // NewEVMMonoDecorator creates the 'mono' decorator, that is used to run the ante handle logic
@@ -61,6 +64,8 @@ func NewEVMMonoDecorator(
 	evmKeeper anteinterfaces.EVMKeeper,
 	feeAbstractionKeeper antetypes.FeeAbstractionKeeper,
 	maxGasWanted uint64,
+	evmParams *evmtypes.Params,
+	feemarketParams *feemarkettypes.Params,
 ) MonoDecorator {
 	return MonoDecorator{
 		accountKeeper:        accountKeeper,
@@ -68,6 +73,8 @@ func NewEVMMonoDecorator(
 		evmKeeper:            evmKeeper,
 		feeAbstractionKeeper: feeAbstractionKeeper,
 		maxGasWanted:         maxGasWanted,
+		evmParams:            evmParams,
+		feemarketParams:      feemarketParams,
 	}
 }
 
@@ -94,7 +101,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	}
 
 	// 2. get utils
-	decUtils, err := evmante.NewMonoDecoratorUtils(ctx, md.evmKeeper)
+	decUtils, err := evmante.NewMonoDecoratorUtils(ctx, md.evmKeeper, md.evmParams, md.feemarketParams)
 	if err != nil {
 		return ctx, err
 	}
@@ -174,8 +181,8 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	// 5. signature verification
 	if err := evmante.SignatureVerification(
 		ethMsg,
+		ethTx,
 		decUtils.Signer,
-		decUtils.EvmParams.AllowUnprotectedTxs,
 	); err != nil {
 		return ctx, err
 	}
@@ -295,7 +302,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	}
 
 	// 10. gas wanted
-	if err := evmante.CheckGasWanted(ctx, md.feeMarketKeeper, tx, decUtils.Rules.IsLondon); err != nil {
+	if err := evmante.CheckGasWanted(ctx, md.feeMarketKeeper, tx, decUtils.Rules.IsLondon, md.feemarketParams); err != nil {
 		return ctx, err
 	}
 

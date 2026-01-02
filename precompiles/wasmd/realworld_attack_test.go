@@ -12,7 +12,7 @@ import (
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/testutil"
 
-	wasmdprecompile "github.com/kiichain/kiichain/v6/precompiles/wasmd"
+	wasmdprecompile "github.com/kiichain/kiichain/v7/precompiles/wasmd"
 )
 
 // Note:
@@ -228,14 +228,14 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldGasExhaustion() {
 			if test.panicsWith != nil {
 				require.PanicsWithValue(s.T(), test.panicsWith, func() {
 					// The call panics if out of gas
-					_, _ = s.Precompile.Execute(ctx, attacker.Addr, contract, stateDB, &method, args)
+					_, _ = s.Precompile.ExecuteWasm(ctx, attacker.Addr, contract, stateDB, &method, args)
 				})
 				s.T().Logf("  %s: ✓ Rejected - Out of Gas panic", test.name)
 				continue
 			}
 
 			// The call panics if out of gas
-			_, err := s.Precompile.Execute(ctx, attacker.Addr, contract, stateDB, &method, args)
+			_, err := s.Precompile.ExecuteWasm(ctx, attacker.Addr, contract, stateDB, &method, args)
 			require.NoError(s.T(), err)
 			s.T().Logf("  %s: ✓ Allowed - Executed successfully", test.name)
 

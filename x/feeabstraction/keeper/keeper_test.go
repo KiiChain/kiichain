@@ -7,10 +7,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	kiichain "github.com/kiichain/kiichain/v6/app"
-	"github.com/kiichain/kiichain/v6/app/helpers"
-	"github.com/kiichain/kiichain/v6/x/feeabstraction/keeper"
-	"github.com/kiichain/kiichain/v6/x/feeabstraction/types"
+	kiichain "github.com/kiichain/kiichain/v7/app"
+	"github.com/kiichain/kiichain/v7/app/helpers"
+	"github.com/kiichain/kiichain/v7/x/feeabstraction/keeper"
+	"github.com/kiichain/kiichain/v7/x/feeabstraction/types"
 )
 
 // KeeperTestSuite is a test suite for the keeper package

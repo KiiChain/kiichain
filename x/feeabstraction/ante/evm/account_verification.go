@@ -28,7 +28,7 @@ func VerifyIfAccountExists(
 	from common.Address,
 ) error {
 	// Only EOA are allowed to send transactions.
-	if account != nil && account.IsContract() {
+	if account != nil && account.HasCodeHash() {
 		return errorsmod.Wrapf(
 			errortypes.ErrInvalidType,
 			"the sender is not EOA: address %s", from,

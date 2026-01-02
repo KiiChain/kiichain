@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v6/x/rewards/types"
+	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
 // TestUpdateParams test changes to the params of the module

@@ -24,12 +24,12 @@ import (
 	"github.com/cosmos/evm/x/vm/statedb"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	kiichain "github.com/kiichain/kiichain/v6/app"
-	"github.com/kiichain/kiichain/v6/app/apptesting"
-	"github.com/kiichain/kiichain/v6/app/helpers"
-	"github.com/kiichain/kiichain/v6/app/params"
-	kiievmante "github.com/kiichain/kiichain/v6/x/feeabstraction/ante/evm"
-	"github.com/kiichain/kiichain/v6/x/feeabstraction/types"
+	kiichain "github.com/kiichain/kiichain/v7/app"
+	"github.com/kiichain/kiichain/v7/app/apptesting"
+	"github.com/kiichain/kiichain/v7/app/helpers"
+	"github.com/kiichain/kiichain/v7/app/params"
+	kiievmante "github.com/kiichain/kiichain/v7/x/feeabstraction/ante/evm"
+	"github.com/kiichain/kiichain/v7/x/feeabstraction/types"
 )
 
 var (
@@ -71,6 +71,10 @@ func TestMonoDecoratorTx(t *testing.T) {
 			// Create a cached context
 			cacheCtx, _ := ctx.CacheContext()
 
+			// fetch params
+			evmparams := app.EVMKeeper.GetParams(cacheCtx)
+			feemarketParams := app.FeeMarketKeeper.GetParams(cacheCtx)
+
 			// Start up the wrapped ante decorator
 			monoDecorator := kiievmante.NewEVMMonoDecorator(
 				app.AccountKeeper,
@@ -78,6 +82,8 @@ func TestMonoDecoratorTx(t *testing.T) {
 				app.EVMKeeper,
 				app.FeeAbstractionKeeper,
 				20000000,
+				&evmparams,
+				&feemarketParams,
 			)
 			anteHandler := sdk.ChainAnteDecorators(monoDecorator)
 
@@ -388,6 +394,10 @@ func TestMonoDecorator(t *testing.T) {
 				cacheCtx = tc.malleate(cacheCtx)
 			}
 
+			// fetch params
+			evmparams := app.EVMKeeper.GetParams(cacheCtx)
+			feeMarketParams := app.FeeMarketKeeper.GetParams(cacheCtx)
+
 			// Start up the wrapped ante decorator
 			monoDecorator := kiievmante.NewEVMMonoDecorator(
 				app.AccountKeeper,
@@ -395,6 +405,8 @@ func TestMonoDecorator(t *testing.T) {
 				app.EVMKeeper,
 				app.FeeAbstractionKeeper,
 				20000000,
+				&evmparams,
+				&feeMarketParams,
 			)
 			anteHandler := sdk.ChainAnteDecorators(monoDecorator)
 

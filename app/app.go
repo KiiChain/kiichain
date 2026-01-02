@@ -58,17 +58,18 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	// EVM
-	"github.com/cosmos/evm/ante"
+	txlistener "github.com/cosmos/evm/ante"
+	cosmosevmantetypes "github.com/cosmos/evm/ante/types"
 	evmencoding "github.com/cosmos/evm/encoding"
 	evmmempool "github.com/cosmos/evm/mempool"
 	srvflags "github.com/cosmos/evm/server/flags"
-	cosmosevmtypes "github.com/cosmos/evm/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	kiiante "github.com/kiichain/kiichain/v6/ante"
-	"github.com/kiichain/kiichain/v6/app/keepers"
-	"github.com/kiichain/kiichain/v6/app/upgrades"
-	v6_0 "github.com/kiichain/kiichain/v6/app/upgrades/v6_0"
-	"github.com/kiichain/kiichain/v6/client/docs"
+	kiiante "github.com/kiichain/kiichain/v7/ante"
+	"github.com/kiichain/kiichain/v7/app/keepers"
+	"github.com/kiichain/kiichain/v7/app/upgrades"
+	v7_0 "github.com/kiichain/kiichain/v7/app/upgrades/v7_0"
+	"github.com/kiichain/kiichain/v7/client/docs"
 )
 
 var (
@@ -77,7 +78,7 @@ var (
 
 	// Upgrades is a list of all the upgrades that are available for the application.
 	Upgrades = []upgrades.Upgrade{
-		v6_0.Upgrade,
+		v7_0.Upgrade,
 	}
 )
 
@@ -100,7 +101,7 @@ type KiichainApp struct { //nolint: revive
 	interfaceRegistry types.InterfaceRegistry
 	// EVM v0.4.1
 	clientCtx          client.Context
-	pendingTxListeners []ante.PendingTxListener // from "github.com/cosmos/evm/ante"
+	pendingTxListeners []txlistener.PendingTxListener // from "github.com/cosmos/evm/ante"
 	EVMMempool         *evmmempool.ExperimentalEVMMempool
 
 	// the module manager
@@ -131,11 +132,11 @@ func NewKiichainApp(
 	homePath string,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
-	evmAppOptions EVMOptionsFn,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *KiichainApp {
 	// Use the EVM encoding config
-	encodingConfig := evmencoding.MakeConfig(KiichainID)
+	evmChainID := cast.ToUint64(appOpts.Get(srvflags.EVMChainID))
+	encodingConfig := evmencoding.MakeConfig(evmChainID)
 	appCodec := encodingConfig.Codec
 	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -152,11 +153,6 @@ func NewKiichainApp(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 	bApp.SetTxEncoder(txConfig.TxEncoder())
-
-	// initialize the Cosmos EVM application configuration
-	if err := evmAppOptions(KiichainID); err != nil {
-		panic(err)
-	}
 
 	app := &KiichainApp{
 		BaseApp:           bApp,
@@ -181,6 +177,7 @@ func NewKiichainApp(
 		logger,
 		appOpts,
 		wasmOpts,
+		evmChainID,
 	)
 
 	// Create IBC Tendermint Light Client Stack
@@ -213,6 +210,7 @@ func NewKiichainApp(
 	app.mm.SetOrderPreBlockers(
 		upgradetypes.ModuleName,
 		authtypes.ModuleName,
+		evmtypes.ModuleName,
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
@@ -331,7 +329,7 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 		Cdc:                    app.appCodec,
 		AccountKeeper:          &app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
-		ExtensionOptionChecker: cosmosevmtypes.HasDynamicFeeExtensionOption,
+		ExtensionOptionChecker: cosmosevmantetypes.HasDynamicFeeExtensionOption,
 		EvmKeeper:              app.EVMKeeper,
 		FeeAbstractionKeeper:   app.FeeAbstractionKeeper,
 		FeegrantKeeper:         app.FeeGrantKeeper,

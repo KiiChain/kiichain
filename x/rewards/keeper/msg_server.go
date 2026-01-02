@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/kiichain/kiichain/v6/x/rewards/types"
+	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
 type msgServer struct {

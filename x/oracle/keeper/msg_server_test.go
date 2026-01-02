@@ -10,8 +10,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/kiichain/kiichain/v6/x/oracle/types"
-	"github.com/kiichain/kiichain/v6/x/oracle/utils"
+	"github.com/kiichain/kiichain/v7/x/oracle/types"
+	"github.com/kiichain/kiichain/v7/x/oracle/utils"
 )
 
 func TestAggregateExchangeRateVote(t *testing.T) {

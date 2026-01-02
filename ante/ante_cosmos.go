@@ -13,15 +13,17 @@ import (
 	evmante "github.com/cosmos/evm/ante/evm"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	cosmosante "github.com/kiichain/kiichain/v6/x/feeabstraction/ante/cosmos"
-	"github.com/kiichain/kiichain/v6/x/oracle"
+	cosmosante "github.com/kiichain/kiichain/v7/x/feeabstraction/ante/cosmos"
+	"github.com/kiichain/kiichain/v7/x/oracle"
 )
 
 // UseFeeMarketDecorator to make the integration testing easier: we can switch off its ante and post decorators with this flag
 var UseFeeMarketDecorator = true
 
 // newCosmosAnteHandler creates the default ante handler for Cosmos transactions
-func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
+func NewCosmosAnteHandler(ctx sdk.Context, options HandlerOptions) sdk.AnteHandler {
+	feemarketParams := options.FeeMarketKeeper.GetParams(ctx)
+
 	anteDecorators := []sdk.AnteDecorator{
 		evmcosmosante.NewRejectMessagesDecorator(), // reject MsgEthereumTxs
 		evmcosmosante.NewAuthzLimiterDecorator( // disable the Msg types that cannot be included on an authz.MsgExec msgs field
@@ -40,7 +42,7 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		NewGovVoteDecorator(options.Cdc, options.StakingKeeper),
 		NewGovExpeditedProposalsDecorator(options.Cdc),
-		evmcosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
+		evmcosmosante.NewMinGasPriceDecorator(&feemarketParams),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
@@ -49,7 +51,7 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
-		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
+		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper, &feemarketParams),
 	}
 
 	// Skip the feemarket decorator is needed
@@ -57,7 +59,7 @@ func NewCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		// This wraps using the gasless decorator
 		var txFeeChecker ante.TxFeeChecker
 		if options.DynamicFeeChecker {
-			txFeeChecker = evmante.NewDynamicFeeChecker(options.FeeMarketKeeper)
+			txFeeChecker = evmante.NewDynamicFeeChecker(&feemarketParams)
 		}
 
 		gasLessFeeDecorator := NewFeelessDecorator(

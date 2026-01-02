@@ -10,7 +10,7 @@ import (
 )
 
 func TestNestedEVMExtensionCallSuite(t *testing.T) {
-	s := vm.NewNestedEVMExtensionCallSuite(CreateKiichain, network.WithBaseCoin("akii", 18))
+	s := vm.NewNestedEVMExtensionCallSuite(CreateKiichain)
 	suite.Run(t, s)
 }
 

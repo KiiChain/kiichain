@@ -67,7 +67,7 @@ func (p Precompile) Instantiate(
 }
 
 // Execute executes wasmd execute from the precompile
-func (p Precompile) Execute(
+func (p Precompile) ExecuteWasm(
 	ctx sdk.Context,
 	origin common.Address,
 	contract *vm.Contract,

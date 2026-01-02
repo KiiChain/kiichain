@@ -83,17 +83,27 @@ import (
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	kiiparams "github.com/kiichain/kiichain/v6/app/params"
-	"github.com/kiichain/kiichain/v6/wasmbinding"
-	feeabstractionkeeper "github.com/kiichain/kiichain/v6/x/feeabstraction/keeper"
-	feeabstractiontypes "github.com/kiichain/kiichain/v6/x/feeabstraction/types"
-	oraclekeeper "github.com/kiichain/kiichain/v6/x/oracle/keeper"
-	oracletypes "github.com/kiichain/kiichain/v6/x/oracle/types"
-	rewardskeeper "github.com/kiichain/kiichain/v6/x/rewards/keeper"
-	rewardstypes "github.com/kiichain/kiichain/v6/x/rewards/types"
-	tokenfactorykeeper "github.com/kiichain/kiichain/v6/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/kiichain/kiichain/v6/x/tokenfactory/types"
+	kiiparams "github.com/kiichain/kiichain/v7/app/params"
+	"github.com/kiichain/kiichain/v7/wasmbinding"
+	feeabstractionkeeper "github.com/kiichain/kiichain/v7/x/feeabstraction/keeper"
+	feeabstractiontypes "github.com/kiichain/kiichain/v7/x/feeabstraction/types"
+	oraclekeeper "github.com/kiichain/kiichain/v7/x/oracle/keeper"
+	oracletypes "github.com/kiichain/kiichain/v7/x/oracle/types"
+	rewardskeeper "github.com/kiichain/kiichain/v7/x/rewards/keeper"
+	rewardstypes "github.com/kiichain/kiichain/v7/x/rewards/types"
+	tokenfactorykeeper "github.com/kiichain/kiichain/v7/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/kiichain/kiichain/v7/x/tokenfactory/types"
 )
+
+// CoinInfo is a map of the chain id and its corresponding EvmCoinInfo
+// that allows initializing the app with different coin info based on the
+// chain id
+var CoinInfo = evmtypes.EvmCoinInfo{
+	Denom:         kiiparams.BaseDenom,
+	ExtendedDenom: kiiparams.BaseDenom,
+	DisplayDenom:  kiiparams.DisplayDenom,
+	Decimals:      kiiparams.BaseDenomUnit,
+}
 
 type AppKeepers struct {
 	// keys to access the substores
@@ -157,6 +167,7 @@ func NewAppKeeper(
 	logger log.Logger,
 	appOpts servertypes.AppOptions,
 	wasmOpts []wasmkeeper.Option,
+	evmChainID uint64,
 ) AppKeepers {
 	appKeepers := AppKeepers{}
 
@@ -402,8 +413,9 @@ func NewAppKeeper(
 		appKeepers.FeeMarketKeeper,
 		&appKeepers.ConsensusParamsKeeper,
 		&appKeepers.Erc20Keeper,
+		evmChainID,
 		tracer,
-	)
+	).WithDefaultEvmCoinInfo(CoinInfo)
 
 	appKeepers.Erc20Keeper = erc20keeper.NewKeeper(
 		appKeepers.keys[erc20types.StoreKey],
@@ -419,7 +431,6 @@ func NewAppKeeper(
 	appKeepers.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[ibctransfertypes.StoreKey]),
-		appKeepers.GetSubspace(ibctransfertypes.ModuleName),
 		appKeepers.IBCKeeper.ChannelKeeper, // ISC4 Wrapper: This is overridden later
 		appKeepers.IBCKeeper.ChannelKeeper,
 		bApp.MsgServiceRouter(),
@@ -569,26 +580,25 @@ func NewAppKeeper(
 	appKeepers.PFMRouterModule = pfmrouter.NewAppModule(appKeepers.PFMRouterKeeper, appKeepers.GetSubspace(pfmroutertypes.ModuleName))
 	appKeepers.RateLimitModule = ratelimit.NewAppModule(appCodec, appKeepers.RatelimitKeeper)
 
-	// Configure EVM precompiles
-	corePrecompiles := NewAvailableStaticPrecompiles(
-		*appKeepers.StakingKeeper,
-		appKeepers.DistrKeeper,
-		appKeepers.BankKeeper,
-		appKeepers.Erc20Keeper,
-		appKeepers.TransferKeeper,
-		*appKeepers.IBCKeeper.ClientKeeper,
-		*appKeepers.IBCKeeper.ConnectionKeeper,
-		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.EVMKeeper,
-		*appKeepers.GovKeeper,
-		appKeepers.SlashingKeeper,
-		appKeepers.EvidenceKeeper,
-		appKeepers.WasmKeeper,
-		appKeepers.OracleKeeper,
-		appCodec,
-	)
 	appKeepers.EVMKeeper.WithStaticPrecompiles(
-		corePrecompiles,
+		// Configure EVM precompiles
+		NewAvailableStaticPrecompiles(
+			*appKeepers.StakingKeeper,
+			appKeepers.DistrKeeper,
+			appKeepers.BankKeeper,
+			appKeepers.Erc20Keeper,
+			appKeepers.TransferKeeper,
+			*appKeepers.IBCKeeper.ClientKeeper,
+			*appKeepers.IBCKeeper.ConnectionKeeper,
+			appKeepers.IBCKeeper.ChannelKeeper,
+			appKeepers.EVMKeeper,
+			*appKeepers.GovKeeper,
+			appKeepers.SlashingKeeper,
+			appKeepers.EvidenceKeeper,
+			appKeepers.WasmKeeper,
+			appKeepers.OracleKeeper,
+			appCodec,
+		),
 	)
 
 	return appKeepers

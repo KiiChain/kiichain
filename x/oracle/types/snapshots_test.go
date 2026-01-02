@@ -8,7 +8,7 @@ import (
 
 	"cosmossdk.io/math"
 
-	"github.com/kiichain/kiichain/v6/x/oracle/utils"
+	"github.com/kiichain/kiichain/v7/x/oracle/utils"
 )
 
 func TestNewPriceSnapshotItem(t *testing.T) {

@@ -55,14 +55,14 @@ import (
 	"github.com/cosmos/evm/x/vm"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	"github.com/kiichain/kiichain/v6/x/feeabstraction"
-	feeabstractiontypes "github.com/kiichain/kiichain/v6/x/feeabstraction/types"
-	"github.com/kiichain/kiichain/v6/x/oracle"
-	oracletypes "github.com/kiichain/kiichain/v6/x/oracle/types"
-	"github.com/kiichain/kiichain/v6/x/rewards"
-	rewardstypes "github.com/kiichain/kiichain/v6/x/rewards/types"
-	"github.com/kiichain/kiichain/v6/x/tokenfactory"
-	tokenfactorytypes "github.com/kiichain/kiichain/v6/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v7/x/feeabstraction"
+	feeabstractiontypes "github.com/kiichain/kiichain/v7/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v7/x/oracle"
+	oracletypes "github.com/kiichain/kiichain/v7/x/oracle/types"
+	"github.com/kiichain/kiichain/v7/x/rewards"
+	rewardstypes "github.com/kiichain/kiichain/v7/x/rewards/types"
+	"github.com/kiichain/kiichain/v7/x/tokenfactory"
+	tokenfactorytypes "github.com/kiichain/kiichain/v7/x/tokenfactory/types"
 )
 
 var maccPerms = map[string][]string{
@@ -123,7 +123,7 @@ func appModules(
 		app.PFMRouterModule,
 		app.RateLimitModule,
 		// EVM modules
-		vm.NewAppModule(app.EVMKeeper, app.AccountKeeper, app.AccountKeeper.AddressCodec()),
+		vm.NewAppModule(app.EVMKeeper, app.AccountKeeper, app.BankKeeper, app.AccountKeeper.AddressCodec()),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper),
 		feeabstraction.NewAppModule(app.FeeAbstractionKeeper),
