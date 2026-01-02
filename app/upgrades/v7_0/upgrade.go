@@ -83,9 +83,5 @@ func EVMUpgrade(
 	// Initialize EvmCoinInfo in the module store. Chains bootstrapped before v0.5.0
 	// binaries never stored this information (it lived only in process globals),
 	// so migrating nodes would otherwise see an empty EvmCoinInfo on upgrade.
-	if err := keepers.EVMKeeper.InitEvmCoinInfo(ctx); err != nil {
-		return err
-	}
-
-	return nil
+	return keepers.EVMKeeper.InitEvmCoinInfo(ctx)
 }
