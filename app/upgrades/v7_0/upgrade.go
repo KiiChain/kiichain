@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
 	"github.com/cosmos/evm/x/vm/types"
 
 	"github.com/kiichain/kiichain/v7/app/keepers"
@@ -51,7 +52,6 @@ func EVMUpgrade(
 	ctx sdk.Context,
 	keepers *keepers.AppKeepers,
 ) error {
-
 	keepers.BankKeeper.SetDenomMetaData(ctx, banktypes.Metadata{
 		Description: "Kiichain's native token",
 		DenomUnits: []*banktypes.DenomUnit{
