@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v7.0.0 - 202-01-02
+## UNRELEASED
 
 ## DEPENDENCIES
 - Bump [EVM](https://github.com/cosmos/evm) from v0.4.2 to [v0.5.1](https://github.com/cosmos/evm/releases/tag/v0.5.1)
