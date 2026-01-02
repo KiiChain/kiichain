@@ -31,7 +31,7 @@ import (
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	antetypes "github.com/kiichain/kiichain/v6/ante/types"
+	antetypes "github.com/kiichain/kiichainv7/ante/types"
 )
 
 const AcceptedTxType = 0 |

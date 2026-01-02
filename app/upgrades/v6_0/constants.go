@@ -1,7 +1,7 @@
 package v600
 
 import (
-	"github.com/kiichain/kiichain/v6/app/upgrades"
+	"github.com/kiichain/kiichainv7/app/upgrades"
 )
 
 const (

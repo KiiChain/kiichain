@@ -12,9 +12,9 @@ import (
 
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 
-	app "github.com/kiichain/kiichain/v6/app"
-	"github.com/kiichain/kiichain/v6/app/apptesting"
-	"github.com/kiichain/kiichain/v6/wasmbinding/helpers"
+	app "github.com/kiichain/kiichainv7/app"
+	"github.com/kiichain/kiichainv7/app/apptesting"
+	"github.com/kiichain/kiichainv7/wasmbinding/helpers"
 )
 
 // Test the EVM -> Wasm(precompile) -> EVM round-trip
