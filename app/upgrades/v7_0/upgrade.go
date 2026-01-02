@@ -70,8 +70,6 @@ func EVMUpgrade(
 		Display: params.DisplayDenom,
 		Name:    "Kii",
 		Symbol:  "KII",
-		URI:     "example_uri",
-		URIHash: "example_uri_hash",
 	})
 
 	// Update EVM params to add Extended denom options
