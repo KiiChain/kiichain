@@ -14,7 +14,7 @@ import (
 
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	"github.com/kiichain/kiichain/v6/app/params"
+	"github.com/kiichain/kiichain/v7/app/params"
 )
 
 // Setup for regex of chain ID

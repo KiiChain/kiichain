@@ -57,10 +57,10 @@ import (
 	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	kiiparams "github.com/kiichain/kiichain/v6/app/params"
-	"github.com/kiichain/kiichain/v6/x/oracle/types"
-	"github.com/kiichain/kiichain/v6/x/oracle/utils"
-	tokenfactorytypes "github.com/kiichain/kiichain/v6/x/tokenfactory/types"
+	kiiparams "github.com/kiichain/kiichain/v7/app/params"
+	"github.com/kiichain/kiichain/v7/x/oracle/types"
+	"github.com/kiichain/kiichain/v7/x/oracle/utils"
+	tokenfactorytypes "github.com/kiichain/kiichain/v7/x/tokenfactory/types"
 )
 
 const faucetAccountName = "faucet"

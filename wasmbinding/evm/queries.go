@@ -22,7 +22,7 @@ import (
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	evmbindingtypes "github.com/kiichain/kiichain/v6/wasmbinding/evm/types"
+	evmbindingtypes "github.com/kiichain/kiichain/v7/wasmbinding/evm/types"
 )
 
 // QueryPlugin is a custom query plugin for the EVM module

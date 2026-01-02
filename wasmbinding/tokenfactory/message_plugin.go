@@ -12,10 +12,10 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	tfbindingtypes "github.com/kiichain/kiichain/v6/wasmbinding/tokenfactory/types"
-	"github.com/kiichain/kiichain/v6/wasmbinding/utils"
-	tokenfactorykeeper "github.com/kiichain/kiichain/v6/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/kiichain/kiichain/v6/x/tokenfactory/types"
+	tfbindingtypes "github.com/kiichain/kiichain/v7/wasmbinding/tokenfactory/types"
+	"github.com/kiichain/kiichain/v7/wasmbinding/utils"
+	tokenfactorykeeper "github.com/kiichain/kiichain/v7/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/kiichain/kiichain/v7/x/tokenfactory/types"
 )
 
 // CustomMessenger is a wrapper for the token factory message plugin

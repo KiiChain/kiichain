@@ -26,11 +26,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/kiichain/kiichain/v6/x/tokenfactory/client/cli"
-	"github.com/kiichain/kiichain/v6/x/tokenfactory/exported"
-	"github.com/kiichain/kiichain/v6/x/tokenfactory/keeper"
-	simulation "github.com/kiichain/kiichain/v6/x/tokenfactory/simulation"
-	"github.com/kiichain/kiichain/v6/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v7/x/tokenfactory/client/cli"
+	"github.com/kiichain/kiichain/v7/x/tokenfactory/exported"
+	"github.com/kiichain/kiichain/v7/x/tokenfactory/keeper"
+	simulation "github.com/kiichain/kiichain/v7/x/tokenfactory/simulation"
+	"github.com/kiichain/kiichain/v7/x/tokenfactory/types"
 )
 
 var (

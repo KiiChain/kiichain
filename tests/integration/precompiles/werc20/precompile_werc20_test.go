@@ -7,7 +7,7 @@ import (
 
 	"github.com/cosmos/evm/tests/integration/precompiles/werc20"
 
-	"github.com/kiichain/kiichain/v6/tests/integration"
+	"github.com/kiichain/kiichain/v7/tests/integration"
 )
 
 func TestWERC20PrecompileUnitTestSuite(t *testing.T) {

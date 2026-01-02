@@ -7,7 +7,7 @@ import (
 
 	"github.com/cosmos/evm/tests/integration/precompiles/p256"
 
-	"github.com/kiichain/kiichain/v6/tests/integration"
+	"github.com/kiichain/kiichain/v7/tests/integration"
 )
 
 func TestP256PrecompileTestSuite(t *testing.T) {

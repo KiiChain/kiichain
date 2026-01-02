@@ -37,9 +37,9 @@ import (
 	transferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 
-	"github.com/kiichain/kiichain/v6/precompiles/oracle"
-	"github.com/kiichain/kiichain/v6/precompiles/wasmd"
-	oraclekeeper "github.com/kiichain/kiichain/v6/x/oracle/keeper"
+	"github.com/kiichain/kiichain/v7/precompiles/oracle"
+	"github.com/kiichain/kiichain/v7/precompiles/wasmd"
+	oraclekeeper "github.com/kiichain/kiichain/v7/x/oracle/keeper"
 )
 
 // Optionals define some optional params that can be applied to _some_ precompiles.
