@@ -8,8 +8,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	appparams "github.com/kiichain/kiichain/v6/app/params"
-	"github.com/kiichain/kiichain/v6/x/tokenfactory/types"
+	appparams "github.com/kiichain/kiichain/v7/app/params"
+	"github.com/kiichain/kiichain/v7/x/tokenfactory/types"
 )
 
 func RandDenomCreationFeeParam(r *rand.Rand) sdk.Coins {

@@ -31,10 +31,10 @@ import (
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	// Kiichain
-	feeabstractiontypes "github.com/kiichain/kiichain/v6/x/feeabstraction/types"
-	oracletypes "github.com/kiichain/kiichain/v6/x/oracle/types"
-	rewardstypes "github.com/kiichain/kiichain/v6/x/rewards/types"
-	tokenfactorytypes "github.com/kiichain/kiichain/v6/x/tokenfactory/types"
+	feeabstractiontypes "github.com/kiichain/kiichain/v7/x/feeabstraction/types"
+	oracletypes "github.com/kiichain/kiichain/v7/x/oracle/types"
+	rewardstypes "github.com/kiichain/kiichain/v7/x/rewards/types"
+	tokenfactorytypes "github.com/kiichain/kiichain/v7/x/tokenfactory/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {

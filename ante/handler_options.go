@@ -20,8 +20,8 @@ import (
 	txlistener "github.com/cosmos/evm/ante"
 	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
 
-	antetypes "github.com/kiichain/kiichain/v6/ante/types"
-	oraclekeeper "github.com/kiichain/kiichain/v6/x/oracle/keeper"
+	antetypes "github.com/kiichain/kiichain/v7/ante/types"
+	oraclekeeper "github.com/kiichain/kiichain/v7/x/oracle/keeper"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Cosmos EVM

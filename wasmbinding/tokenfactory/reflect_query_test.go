@@ -10,11 +10,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	app "github.com/kiichain/kiichain/v6/app"
-	"github.com/kiichain/kiichain/v6/app/apptesting"
-	"github.com/kiichain/kiichain/v6/wasmbinding"
-	"github.com/kiichain/kiichain/v6/wasmbinding/helpers"
-	bindingtypes "github.com/kiichain/kiichain/v6/wasmbinding/tokenfactory/types"
+	app "github.com/kiichain/kiichain/v7/app"
+	"github.com/kiichain/kiichain/v7/app/apptesting"
+	"github.com/kiichain/kiichain/v7/wasmbinding"
+	"github.com/kiichain/kiichain/v7/wasmbinding/helpers"
+	bindingtypes "github.com/kiichain/kiichain/v7/wasmbinding/tokenfactory/types"
 )
 
 // TestQueryDenomAdmin tests the GetDenomAdmin query

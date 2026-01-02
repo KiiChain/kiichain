@@ -13,8 +13,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/kiichain/kiichain/v6/x/tokenfactory/testhelpers"
-	"github.com/kiichain/kiichain/v6/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v7/x/tokenfactory/testhelpers"
+	"github.com/kiichain/kiichain/v7/x/tokenfactory/types"
 )
 
 // Test authz serialize and de-serializes for tokenfactory msg.

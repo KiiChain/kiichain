@@ -14,8 +14,8 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	kiichain "github.com/kiichain/kiichain/v6/app"
-	kiihelpers "github.com/kiichain/kiichain/v6/app/helpers"
+	kiichain "github.com/kiichain/kiichain/v7/app"
+	kiihelpers "github.com/kiichain/kiichain/v7/app/helpers"
 )
 
 type EmptyAppOptions struct{}

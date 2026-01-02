@@ -83,16 +83,16 @@ import (
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	kiiparams "github.com/kiichain/kiichain/v6/app/params"
-	"github.com/kiichain/kiichain/v6/wasmbinding"
-	feeabstractionkeeper "github.com/kiichain/kiichain/v6/x/feeabstraction/keeper"
-	feeabstractiontypes "github.com/kiichain/kiichain/v6/x/feeabstraction/types"
-	oraclekeeper "github.com/kiichain/kiichain/v6/x/oracle/keeper"
-	oracletypes "github.com/kiichain/kiichain/v6/x/oracle/types"
-	rewardskeeper "github.com/kiichain/kiichain/v6/x/rewards/keeper"
-	rewardstypes "github.com/kiichain/kiichain/v6/x/rewards/types"
-	tokenfactorykeeper "github.com/kiichain/kiichain/v6/x/tokenfactory/keeper"
-	tokenfactorytypes "github.com/kiichain/kiichain/v6/x/tokenfactory/types"
+	kiiparams "github.com/kiichain/kiichain/v7/app/params"
+	"github.com/kiichain/kiichain/v7/wasmbinding"
+	feeabstractionkeeper "github.com/kiichain/kiichain/v7/x/feeabstraction/keeper"
+	feeabstractiontypes "github.com/kiichain/kiichain/v7/x/feeabstraction/types"
+	oraclekeeper "github.com/kiichain/kiichain/v7/x/oracle/keeper"
+	oracletypes "github.com/kiichain/kiichain/v7/x/oracle/types"
+	rewardskeeper "github.com/kiichain/kiichain/v7/x/rewards/keeper"
+	rewardstypes "github.com/kiichain/kiichain/v7/x/rewards/types"
+	tokenfactorykeeper "github.com/kiichain/kiichain/v7/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/kiichain/kiichain/v7/x/tokenfactory/types"
 )
 
 // CoinInfo is a map of the chain id and its corresponding EvmCoinInfo

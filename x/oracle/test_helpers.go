@@ -11,8 +11,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/kiichain/kiichain/v6/x/oracle/keeper"
-	"github.com/kiichain/kiichain/v6/x/oracle/types"
+	"github.com/kiichain/kiichain/v7/x/oracle/keeper"
+	"github.com/kiichain/kiichain/v7/x/oracle/types"
 )
 
 var (
