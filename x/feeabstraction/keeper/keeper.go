@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v6/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v7/x/feeabstraction/types"
 )
 
 // Keeper defines the fee abstraction module keeper

@@ -12,7 +12,7 @@ import (
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/testutil"
 
-	wasmdprecompile "github.com/kiichain/kiichain/v6/precompiles/wasmd"
+	wasmdprecompile "github.com/kiichain/kiichain/v7/precompiles/wasmd"
 )
 
 // Note:

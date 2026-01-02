@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/kiichain/kiichain/v6/x/rewards/types"
+	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
 func TestParamsValidateBasic(t *testing.T) {

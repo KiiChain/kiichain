@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	"github.com/kiichain/kiichain/v6/tests/e2e/precompiles"
+	"github.com/kiichain/kiichain/v7/tests/e2e/precompiles"
 )
 
 const (

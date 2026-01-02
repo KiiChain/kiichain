@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	"github.com/kiichain/kiichain/v6/app/params"
+	"github.com/kiichain/kiichain/v7/app/params"
 )
 
 // DefaultParams returns default rewards parameters

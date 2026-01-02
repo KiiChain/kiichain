@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/kiichain/kiichain/v6/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v7/x/tokenfactory/types"
 )
 
 type msgServer struct {

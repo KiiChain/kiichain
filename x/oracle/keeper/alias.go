@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v6/x/oracle/types"
+	"github.com/kiichain/kiichain/v7/x/oracle/types"
 )
 
 // GetOracleAccount returns the module name stores on the auth module (to know that the oracle have an account)
