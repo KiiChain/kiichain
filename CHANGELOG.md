@@ -2,6 +2,10 @@
 
 ## UNRELEASED
 
+## Removed
+
+- Removed dead code related to no gas consumption
+
 ## Fixed
 
 - Disable EVM mempool due to bug on public nodes broadcast
