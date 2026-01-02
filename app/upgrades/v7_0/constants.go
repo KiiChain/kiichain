@@ -1,4 +1,4 @@
-package v600
+package v700
 
 import (
 	"github.com/kiichain/kiichain/v7/app/upgrades"
@@ -6,7 +6,7 @@ import (
 
 const (
 	// UpgradeName is the name of the upgrade
-	UpgradeName = "v6.0.0"
+	UpgradeName = "v7.0.0"
 )
 
 // Upgrade defines the upgrade, nothing is done here
