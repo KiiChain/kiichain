@@ -1,11 +1,13 @@
 package keeper
 
 import (
+	"errors"
 	"strconv"
 
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/kiichain/kiichain/v7/x/oracle/types"
 )
@@ -45,18 +47,32 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) error {
 		// penalize the validator whose the valid rate is smaller than the min threshold
 		if validVoteRate.LT(minValidPerWindow) {
 			validator, err := k.StakingKeeper.Validator(ctx, operator) // get validator
-			if err != nil {
-				panic(err)
+			// If validator not found, skip slashing
+			if errors.Is(err, stakingtypes.ErrNoValidatorFound) {
+				return false, nil
 			}
-			if validator.IsBonded() && !validator.IsJailed() { // only bonded validators can be slashed
+			// Check for other errors
+			if err != nil || validator == nil {
+				k.Logger(ctx).Error("failed to get validator for slashing", "operator", operator.String(), "error", err)
+				return false, err
+			}
+
+			// Only slash if the validator is bonded
+			if validator.IsBonded() && !validator.IsJailed() {
+				// Get consensus address
 				consAddr, err := validator.GetConsAddr()
 				if err != nil {
-					panic(err)
+					k.Logger(ctx).Error("failed to get consensus address for slashing", "operator", operator.String(), "error", err)
+					return false, err
 				}
 
+				// Calculate consensus power
 				consensusPower := validator.GetConsensusPower(powerReduction)
-				_, err = k.StakingKeeper.Slash(ctx, consAddr, distributionHeight, consensusPower, slashFraction) // slash validator
+
+				// Slash the validator
+				_, err = k.StakingKeeper.Slash(ctx, consAddr, distributionHeight, consensusPower, slashFraction)
 				if err != nil {
+					k.Logger(ctx).Error("failed to slash validator", "operator", operator.String(), "error", err)
 					return true, err
 				}
 			}
