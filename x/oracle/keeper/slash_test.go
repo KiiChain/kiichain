@@ -232,7 +232,7 @@ func TestSlashAndResetCounters_MultipleValidatorsNotFound(t *testing.T) {
 		require.NoError(t, err)
 
 		// Calculate expected bonded tokens after slashing
-		expectedTokens := amount.Sub(math.Int(oracleParams.SlashFraction.MulInt(amount).TruncateInt()))
+		expectedTokens := amount.Sub(oracleParams.SlashFraction.MulInt(amount).TruncateInt())
 		require.Equal(t, expectedTokens, validator.Tokens)
 	}
 }
