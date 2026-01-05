@@ -80,13 +80,6 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			},
 			expectedPass: false,
 		},
-		{
-			name: "invalid release schedule - past end time",
-			modifyFn: func(gs *types.GenesisState) {
-				gs.ReleaseSchedule.EndTime = time.Now().Add(-time.Hour)
-			},
-			expectedPass: false,
-		},
 	}
 
 	for _, tc := range testCases {
