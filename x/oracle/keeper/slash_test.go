@@ -180,3 +180,59 @@ func TestSlashAndResetMissCounters(t *testing.T) {
 		require.Equal(t, amount, validator.Tokens)
 	})
 }
+
+// TestSlashAndResetCounters_MultipleValidatorsNotFound ensures that SlashAndResetCounters does not panic
+func TestSlashAndResetCounters_MultipleValidatorsNotFound(t *testing.T) {
+	// initial setup
+	input := CreateTestInput(t)
+	oracleKeeper := input.OracleKeeper
+	stakingKeeper := input.StakingKeeper
+	ctx := input.Ctx
+
+	// Create a staking message server
+	amount := sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction)
+	msgServer := stakingkeeper.NewMsgServerImpl(&stakingKeeper)
+
+	// Set the vote penalty counter for multiple non existing validators
+	for i := range 5 {
+		addr, val := ValAddrs[i], ValPubKeys[i]
+
+		// Skip creating validator for ValAddrs[2] to simulate not found scenario
+		if i != 2 {
+			_, err := msgServer.CreateValidator(ctx, NewTestMsgCreateValidator(addr, val, amount))
+			require.NoError(t, err)
+		}
+
+		// Add vote penalty counter
+		err := oracleKeeper.VotePenaltyCounter.Set(input.Ctx, addr, types.NewVotePenaltyCounter(
+			100000,
+			0,
+			0,
+		))
+		require.NoError(t, err)
+	}
+
+	// This should not panic even if some validators are not found
+	err := oracleKeeper.SlashAndResetCounters(ctx)
+	require.NoError(t, err)
+
+	// Ensure that existing validators are slashed
+	for i := range 5 {
+		if i == 2 {
+			// skip the non existing validator
+			continue
+		}
+
+		// Check that the validator is slashed
+		validator, err := stakingKeeper.GetValidator(ctx, ValAddrs[i])
+		require.NoError(t, err)
+
+		// Check that the validator has been slashed
+		oracleParams, err := input.OracleKeeper.Params.Get(ctx)
+		require.NoError(t, err)
+
+		// Calculate expected bonded tokens after slashing
+		expectedTokens := amount.Sub(math.Int(oracleParams.SlashFraction.MulInt(amount).TruncateInt()))
+		require.Equal(t, expectedTokens, validator.Tokens)
+	}
+}
