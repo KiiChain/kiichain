@@ -46,12 +46,12 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) error {
 		if validVoteRate.LT(minValidPerWindow) {
 			validator, err := k.StakingKeeper.Validator(ctx, operator) // get validator
 			if err != nil {
-				panic(err)
+				return false, err
 			}
 			if validator.IsBonded() && !validator.IsJailed() { // only bonded validators can be slashed
 				consAddr, err := validator.GetConsAddr()
 				if err != nil {
-					panic(err)
+					return false, err
 				}
 
 				consensusPower := validator.GetConsensusPower(powerReduction)
