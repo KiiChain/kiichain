@@ -70,22 +70,42 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 		return err
 	}
 
-	k.WriteRewardMetrics(amountToDistribute, schedule.ReleasedAmount)
+	k.WriteRewardMetrics(ctx, amountToDistribute, schedule.ReleasedAmount)
 
 	return nil
 }
 
 // WriteRewardMetrics writes reward information to telemetry metrics
-func (k Keeper) WriteRewardMetrics(distributed, total sdk.Coin) {
+func (k Keeper) WriteRewardMetrics(ctx sdk.Context, distributed, total sdk.Coin) {
+	// Forgo telemetry on conversion errors
+	distFloat, err := distributed.Amount.ToLegacyDec().Float64()
+	if err != nil {
+		k.Logger(ctx).Error("failed to convert distributed amount to float64",
+			"error", err,
+			"distributed", distributed.String(),
+			"denom", distributed.Denom,
+		)
+		return
+	}
+	totalFloat, err := total.Amount.ToLegacyDec().Float64()
+	if err != nil {
+		k.Logger(ctx).Error("failed to convert total release amount to float64",
+			"error", err,
+			"total", total.String(),
+			"denom", total.Denom,
+		)
+		return
+	}
+
 	telemetry.ModuleSetGauge(
 		types.ModuleName,
-		float32(distributed.Amount.ToLegacyDec().MustFloat64()),
+		float32(distFloat),
 		"reward_amount",
 	)
 
 	telemetry.ModuleSetGauge(
 		types.ModuleName,
-		float32(total.Amount.ToLegacyDec().MustFloat64()),
+		float32(totalFloat),
 		"total_reward_released",
 	)
 }
