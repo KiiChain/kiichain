@@ -46,10 +46,20 @@ func ParseGetTwapsArgs(args []interface{}) (*oracletypes.QueryTwapsRequest, erro
 		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	// Parse the second arg, the lookback period
+	// Parse the first arg, the lookback period
 	lookbackPeriod, ok := args[0].(*big.Int)
-	if !ok {
+	if !ok || lookbackPeriod == nil {
 		return nil, fmt.Errorf("invalid lookback period")
+	}
+
+	// Validate lookback period is positive (reject zero and negative)
+	if lookbackPeriod.Sign() <= 0 {
+		return nil, fmt.Errorf("lookback period must be positive")
+	}
+
+	// Validate lookback period fits in uint64 (prevent overflow)
+	if !lookbackPeriod.IsUint64() {
+		return nil, fmt.Errorf("lookback period overflow")
 	}
 
 	// Create the QueryTwapsRequest and return
