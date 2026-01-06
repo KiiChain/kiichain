@@ -66,5 +66,26 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 	// Update release schedule
 	schedule.LastReleaseTime = ctx.BlockTime()
 	schedule.ReleasedAmount = schedule.ReleasedAmount.Add(amountToDistribute)
-	return k.ReleaseSchedule.Set(ctx, schedule)
+	if err := k.ReleaseSchedule.Set(ctx, schedule); err != nil {
+		return err
+	}
+
+	k.WriteRewardMetrics(amountToDistribute, schedule.ReleasedAmount)
+
+	return nil
+}
+
+// WriteRewardMetrics writes reward information to telemetry metrics
+func (k Keeper) WriteRewardMetrics(distributed, total sdk.Coin) {
+	telemetry.ModuleSetGauge(
+		types.ModuleName,
+		float32(distributed.Amount.ToLegacyDec().MustFloat64()),
+		"reward_amount",
+	)
+
+	telemetry.ModuleSetGauge(
+		types.ModuleName,
+		float32(total.Amount.ToLegacyDec().MustFloat64()),
+		"total_reward_released",
+	)
 }
