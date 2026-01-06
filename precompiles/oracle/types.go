@@ -59,7 +59,7 @@ func ParseGetTwapsArgs(args []interface{}) (*oracletypes.QueryTwapsRequest, erro
 
 	// Validate lookback period fits in uint64 (prevent overflow)
 	if !lookbackPeriod.IsUint64() {
-		return nil, fmt.Errorf("lookback period overflow")
+		return nil, fmt.Errorf("lookback period must fit in uint64")
 	}
 
 	// Create the QueryTwapsRequest and return
