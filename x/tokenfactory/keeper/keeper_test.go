@@ -10,9 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/kiichain/kiichain/v6/app/apptesting"
-	"github.com/kiichain/kiichain/v6/x/tokenfactory/keeper"
-	"github.com/kiichain/kiichain/v6/x/tokenfactory/types"
+	"github.com/kiichain/kiichain/v7/app/apptesting"
+	"github.com/kiichain/kiichain/v7/x/tokenfactory/keeper"
+	"github.com/kiichain/kiichain/v7/x/tokenfactory/types"
 )
 
 type KeeperTestSuite struct {

@@ -10,10 +10,10 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	app "github.com/kiichain/kiichain/v6/app"
-	"github.com/kiichain/kiichain/v6/app/apptesting"
-	"github.com/kiichain/kiichain/v6/app/helpers"
-	tokenfactorytypes "github.com/kiichain/kiichain/v6/x/tokenfactory/types"
+	app "github.com/kiichain/kiichain/v7/app"
+	"github.com/kiichain/kiichain/v7/app/apptesting"
+	"github.com/kiichain/kiichain/v7/app/helpers"
+	tokenfactorytypes "github.com/kiichain/kiichain/v7/x/tokenfactory/types"
 )
 
 // RandomBech32AccountAddress generates a random bech32 account address

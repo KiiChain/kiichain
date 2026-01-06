@@ -61,7 +61,7 @@ import (
 	evmserverconfig "github.com/cosmos/evm/server/config"
 	srvflags "github.com/cosmos/evm/server/flags"
 
-	kiichain "github.com/kiichain/kiichain/v6/app"
+	kiichain "github.com/kiichain/kiichain/v7/app"
 )
 
 // CustomAppConfig generates a new custom config
@@ -93,7 +93,6 @@ func NewRootCmd() *cobra.Command {
 		tempDir,
 		initAppOptions,
 		kiichain.EmptyWasmOptions,
-		kiichain.EVMAppOptions,
 	)
 	defer func() {
 		if err := tempApplication.Close(); err != nil {
@@ -283,43 +282,6 @@ func initRootCmd(rootCmd *cobra.Command,
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	wasm.AddModuleInitFlags(startCmd)
-	overrideEVMChainID(startCmd)
-}
-
-// overrideEVMChainID changes the default evm chain id
-func overrideEVMChainID(cmd *cobra.Command) {
-	// Create precheck function
-	preCheck := func(cmd *cobra.Command, _ []string) error {
-		// Read in the client context from the command line and environment variables
-		evmChainID, err := cmd.Flags().GetUint64(srvflags.EVMChainID)
-		if err != nil {
-			return err
-		}
-		// If the chain id is still default, we override it on the CLI
-		if evmChainID == evmserverconfig.DefaultEVMChainID {
-			err = cmd.Flags().Set(srvflags.EVMChainID, fmt.Sprintf("%d", kiichain.KiichainID))
-		}
-		return err
-	}
-
-	cmd.PreRunE = chainPreRuns(preCheck, cmd.PreRunE)
-}
-
-// preRunFn defines a preRun function
-type preRunFn func(cmd *cobra.Command, args []string) error
-
-// chainPreRuns appends a preRun function to the pre run list
-func chainPreRuns(pfns ...preRunFn) preRunFn {
-	return func(cmd *cobra.Command, args []string) error {
-		for _, pfn := range pfns {
-			if pfn != nil {
-				if err := pfn(cmd, args); err != nil {
-					return err
-				}
-			}
-		}
-		return nil
-	}
 }
 
 // genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter
@@ -451,6 +413,17 @@ func (a appCreator) newApp(
 		baseapp.SetIAVLCacheSize(cast.ToInt(appOpts.Get(server.FlagIAVLCacheSize))),
 	}
 
+	viperAppOpts, ok := appOpts.(*viper.Viper)
+	if !ok {
+		panic("appOpts is not viper.Viper")
+	}
+
+	existingValue := viperAppOpts.Get(srvflags.EVMChainID)
+	// Check if value exists
+	if existingValue == nil || existingValue == "" {
+		viperAppOpts.Set(srvflags.EVMChainID, kiichain.KiichainID)
+	}
+
 	return kiichain.NewKiichainApp(
 		logger,
 		db,
@@ -460,7 +433,6 @@ func (a appCreator) newApp(
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		appOpts,
 		wasmOpts,
-		kiichain.EVMAppOptions,
 		baseappOptions...,
 	)
 }
@@ -512,7 +484,6 @@ func (a appCreator) appExport(
 		homePath,
 		appOpts,
 		emptyWasmOpts,
-		kiichain.EVMAppOptions,
 		baseapp.SetChainID(chainID),
 	)
 

@@ -286,10 +286,10 @@ $(TEST_TARGETS): run-tests
 run-tests:
 ifneq (,$(shell which tparse 2>/dev/null))
 	@echo "--> Running tests"
-	@go test -mod=readonly -json $(ARGS) $(TEST_PACKAGES) | tparse
+	@go test -mod=readonly -json $(ARGS) $(TEST_PACKAGES) -tags=test | tparse
 else
 	@echo "--> Running tests"
-	@go test -mod=readonly $(ARGS) $(TEST_PACKAGES)
+	@go test -mod=readonly $(ARGS) $(TEST_PACKAGES) -tags=test
 endif
 
 .PHONY: run-tests $(TEST_TARGETS)
@@ -343,6 +343,8 @@ start-localnet-ci: build
 	./build/kiichaind genesis gentx val 1000000000000000000000akii --home ~/.kiichaind-liveness --chain-id localchain_1010-1 --keyring-backend test
 	./build/kiichaind genesis collect-gentxs --home ~/.kiichaind-liveness
 	sed -i.bak'' 's/minimum-gas-prices = ""/minimum-gas-prices = "0akii"/' ~/.kiichaind-liveness/config/app.toml
+	sed -i 's/"evm_denom": "[^"]*"/"evm_denom": "akii"/' ~/.kiichaind-liveness/config/genesis.json
+	sed -i 's/"denom_metadata": \[[^]]*\],/"denom_metadata": [{"description":"The native staking token of the kiichain network","denomUnits":[{"denom":"akii","exponent":"0"},{"denom":"kii","exponent":"18"}],"base":"akii","display":"kii","name":"kii","symbol":"KII"}],/' ~/.kiichaind-liveness/config/genesis.json
 	./build/kiichaind start --home ~/.kiichaind-liveness
 
 .PHONY: start-localnet-ci

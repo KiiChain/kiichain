@@ -12,16 +12,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/evm"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	kiichain "github.com/kiichain/kiichain/v6/app"
+	kiichain "github.com/kiichain/kiichain/v7/app"
 )
 
 // CreateKiichain creates a kiichain app for regular integration tests (non-mempool)
 // This version uses a noop mempool to avoid state issues during transaction processing
 func CreateKiichain(chainID string, evmChaindID uint64, customBaseAppOptions ...func(*baseapp.BaseApp)) evm.EvmApp {
-	appOptions := simutils.NewAppOptionsWithFlagHome(kiichain.DefaultNodeHome)
+	appOptions := simutils.NewAppOptionsWithFlagHome(kiichain.DefaultNodeHome) //nolint:staticcheck
 
-	customBaseAppOptions = append(customBaseAppOptions, baseapp.SetChainID(chainID))
+	customBaseAppOptions = append(customBaseAppOptions, baseapp.SetChainID(chainID)) //nolint:staticcheck
 
 	// Disable cache for integration tests to avoid state issues
 	sdk.SetAddrCacheEnabled(false)
@@ -30,12 +31,15 @@ func CreateKiichain(chainID string, evmChaindID uint64, customBaseAppOptions ...
 	kiichain.KiichainID = evmChaindID
 
 	// Create a temporary path
-	dir, err := os.MkdirTemp("", "kiichain-integration-test")
+	dir, err := os.MkdirTemp("", "kiichain-integration-test") //nolint:staticcheck
 	if err != nil {
 		panic(err)
 	}
 
-	return kiichain.NewKiichainApp(
+	configurator := evmtypes.NewEVMConfigurator()
+	configurator.ResetTestConfig()
+
+	app := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
 		nil,
@@ -44,7 +48,16 @@ func CreateKiichain(chainID string, evmChaindID uint64, customBaseAppOptions ...
 		dir,
 		appOptions,
 		kiichain.EmptyWasmOptions,
-		kiichain.EVMAppOptions,
 		customBaseAppOptions...,
 	)
+
+	configurator.ResetTestConfig()
+
+	cfg := evmtypes.DefaultChainConfig(kiichain.KiichainID)
+	err = evmtypes.SetChainConfig(cfg)
+	if err != nil {
+		panic(err)
+	}
+
+	return app
 }

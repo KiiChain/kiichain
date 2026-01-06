@@ -11,14 +11,10 @@ import (
 	"github.com/spf13/viper"
 
 	clienthelpers "cosmossdk.io/client/v2/helpers"
-	"cosmossdk.io/math"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	evmtypes "github.com/cosmos/evm/x/vm/types"
-
-	"github.com/kiichain/kiichain/v6/app/params"
+	"github.com/kiichain/kiichain/v7/app/params"
 )
 
 // Setup for regex of chain ID
@@ -45,57 +41,6 @@ type EVMOptionsFn func(uint64) error
 // need any specific configuration
 func NoOpEVMOptions(_ uint64) error {
 	return nil
-}
-
-var sealed = false
-
-// ChainsCoinInfo is a map of the chain id and its corresponding EvmCoinInfo
-// that allows initializing the app with different coin info based on the
-// chain id
-var CoinInfo = evmtypes.EvmCoinInfo{
-	Denom:         params.BaseDenom,
-	ExtendedDenom: params.BaseDenom,
-	DisplayDenom:  params.DisplayDenom,
-	Decimals:      params.BaseDenomUnit,
-}
-
-// EVMAppOptions allows to setup the global configuration
-// for the chain.
-func EVMAppOptions(chainID uint64) error {
-	// Check if the configuration is sealed
-	if sealed {
-		return nil
-	}
-
-	// set the denom info for the chain
-	if err := setBaseDenom(CoinInfo); err != nil {
-		return err
-	}
-
-	ethCfg := evmtypes.DefaultChainConfig(chainID)
-
-	err := evmtypes.NewEVMConfigurator().
-		WithChainConfig(ethCfg).
-		WithEVMCoinInfo(CoinInfo).
-		Configure()
-	if err != nil {
-		return err
-	}
-
-	sealed = true
-	return nil
-}
-
-// setBaseDenom registers the display denom and base denom and sets the
-// base denom for the chain.
-func setBaseDenom(ci evmtypes.EvmCoinInfo) error {
-	if err := sdk.RegisterDenom(ci.DisplayDenom, math.LegacyOneDec()); err != nil {
-		return err
-	}
-
-	// sdk.RegisterDenom will automatically overwrite the base denom when the
-	// new setBaseDenom() are lower than the current base denom's units.
-	return sdk.RegisterDenom(ci.Denom, math.LegacyNewDecWithPrec(1, int64(ci.Decimals)))
 }
 
 var KiichainID uint64 = params.DefaultChainID // default Chain ID

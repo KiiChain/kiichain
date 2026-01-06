@@ -24,9 +24,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 	simcli "github.com/cosmos/cosmos-sdk/x/simulation/client/cli"
 
-	"github.com/kiichain/kiichain/v6/ante"
-	kiichain "github.com/kiichain/kiichain/v6/app"
-	"github.com/kiichain/kiichain/v6/app/sim"
+	"github.com/kiichain/kiichain/v7/ante"
+	kiichain "github.com/kiichain/kiichain/v7/app"
+	"github.com/kiichain/kiichain/v7/app/sim"
 )
 
 // AppChainID hardcoded chainID for simulation
@@ -94,7 +94,6 @@ func TestAppStateDeterminism(t *testing.T) {
 				dir,
 				appOptions,
 				emptyWasmOption,
-				kiichain.EVMAppOptions,
 				interBlockCacheOpt(),
 				baseapp.SetChainID(AppChainID),
 			)

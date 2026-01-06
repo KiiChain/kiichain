@@ -9,14 +9,14 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/kiichain/kiichain/v6/wasmbinding/bech32"
-	bech32bindingtypes "github.com/kiichain/kiichain/v6/wasmbinding/bech32/types"
-	"github.com/kiichain/kiichain/v6/wasmbinding/evm"
-	evmbindingtypes "github.com/kiichain/kiichain/v6/wasmbinding/evm/types"
-	"github.com/kiichain/kiichain/v6/wasmbinding/oracle"
-	oraclebindingtypes "github.com/kiichain/kiichain/v6/wasmbinding/oracle/types"
-	"github.com/kiichain/kiichain/v6/wasmbinding/tokenfactory"
-	tfbindingtypes "github.com/kiichain/kiichain/v6/wasmbinding/tokenfactory/types"
+	"github.com/kiichain/kiichain/v7/wasmbinding/bech32"
+	bech32bindingtypes "github.com/kiichain/kiichain/v7/wasmbinding/bech32/types"
+	"github.com/kiichain/kiichain/v7/wasmbinding/evm"
+	evmbindingtypes "github.com/kiichain/kiichain/v7/wasmbinding/evm/types"
+	"github.com/kiichain/kiichain/v7/wasmbinding/oracle"
+	oraclebindingtypes "github.com/kiichain/kiichain/v7/wasmbinding/oracle/types"
+	"github.com/kiichain/kiichain/v7/wasmbinding/tokenfactory"
+	tfbindingtypes "github.com/kiichain/kiichain/v7/wasmbinding/tokenfactory/types"
 )
 
 // KiichainQuery is the query type for all cosmwasm bindings

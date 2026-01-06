@@ -9,7 +9,7 @@ import (
 	cmn "github.com/cosmos/evm/precompiles/common"
 	"github.com/cosmos/evm/precompiles/testutil"
 
-	wasmdprecompile "github.com/kiichain/kiichain/v6/precompiles/wasmd"
+	wasmdprecompile "github.com/kiichain/kiichain/v7/precompiles/wasmd"
 )
 
 // TestInstantiate is a test for the Instantiate precompile method
@@ -283,7 +283,7 @@ func (s *WasmdPrecompileTestSuite) TestExecute() {
 			contract, ctx := testutil.NewPrecompileContract(s.T(), s.Ctx, account.Addr, s.Precompile.Address(), 200000)
 
 			// Execute the contract using the precompile
-			res, err := s.Precompile.Execute(ctx, account.Addr, contract, stateDB, &method, tc.args)
+			res, err := s.Precompile.ExecuteWasm(ctx, account.Addr, contract, stateDB, &method, tc.args)
 
 			// Check if the error contains the expected string
 			if tc.errContains != "" {

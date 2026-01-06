@@ -23,7 +23,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	kiichain "github.com/kiichain/kiichain/v6/app"
+	kiichain "github.com/kiichain/kiichain/v7/app"
 )
 
 // Simulation parameter constants

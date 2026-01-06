@@ -11,7 +11,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/kiichain/kiichain/v6/x/rewards/types"
+	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
 // validateAuthority checks if address authority is valid and same as expected
@@ -37,8 +37,8 @@ func validateAmount(amount sdk.Coin) error {
 }
 
 // validateEndTime checks if time is in the past
-func validateEndTime(endTime time.Time) error {
-	if endTime.Before(time.Now()) {
+func validateEndTime(ctx sdk.Context, endTime time.Time) error {
+	if endTime.Before(ctx.BlockTime()) {
 		return fmt.Errorf("end time %s is not in the future", endTime)
 	}
 
@@ -63,7 +63,7 @@ func (k Keeper) fundsAvailable(ctx context.Context, amount sdk.Coin) error {
 }
 
 // validateSchedule checks if the asked funds are available in the pool
-func (k Keeper) validateSchedule(ctx context.Context, schedule types.ReleaseSchedule) error {
+func (k Keeper) validateSchedule(ctx sdk.Context, schedule types.ReleaseSchedule) error {
 	// Validate TotalAmount
 	if err := validateAmount(schedule.TotalAmount); err != nil {
 		return fmt.Errorf("invalid total amount: %w", err)
@@ -95,14 +95,14 @@ func (k Keeper) validateSchedule(ctx context.Context, schedule types.ReleaseSche
 	}
 
 	// Time validations
-	currentTime := time.Now()
 	if schedule.EndTime.IsZero() {
 		return fmt.Errorf("end time cannot be zero")
 	}
-	if err = validateEndTime(schedule.EndTime); err != nil {
+	if err = validateEndTime(ctx, schedule.EndTime); err != nil {
 		return err
 	}
 
+	currentTime := ctx.BlockTime()
 	if !schedule.LastReleaseTime.IsZero() {
 		if schedule.LastReleaseTime.After(currentTime) {
 			return fmt.Errorf("last release time %s cannot be in the future",

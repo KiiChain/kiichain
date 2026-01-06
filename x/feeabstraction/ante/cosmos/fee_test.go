@@ -22,10 +22,10 @@ import (
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
-	"github.com/kiichain/kiichain/v6/app/apptesting"
-	"github.com/kiichain/kiichain/v6/app/helpers"
-	"github.com/kiichain/kiichain/v6/x/feeabstraction/ante/cosmos"
-	"github.com/kiichain/kiichain/v6/x/feeabstraction/types"
+	"github.com/kiichain/kiichain/v7/app/apptesting"
+	"github.com/kiichain/kiichain/v7/app/helpers"
+	"github.com/kiichain/kiichain/v7/x/feeabstraction/ante/cosmos"
+	"github.com/kiichain/kiichain/v7/x/feeabstraction/types"
 )
 
 var (
@@ -286,13 +286,16 @@ func TestDeductFeeDecorator(t *testing.T) {
 				).AnyTimes()
 			}
 
+			// Fetch params
+			feemarketParams := app.FeeMarketKeeper.GetParams(cachedCtx)
+
 			// Start up the DeductFeeDecorator
 			deductFeeDecorator := cosmos.NewDeductFeeDecorator(
 				app.AccountKeeper,
 				mockBankKeeper,
 				app.FeeGrantKeeper,
 				app.FeeAbstractionKeeper,
-				cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+				cosmosevmante.NewDynamicFeeChecker(&feemarketParams),
 			)
 
 			// Wrap into a ante decorator
@@ -346,13 +349,16 @@ func TestDeductFeeDecoratorGasZero(t *testing.T) {
 	// Start the app and the context
 	app, ctx := helpers.SetupWithContext(t)
 
+	// Fetch params
+	feemarketParams := app.FeeMarketKeeper.GetParams(ctx)
+
 	// Start up the DeductFeeDecorator with a nil checker
 	deductFeeDecorator := cosmos.NewDeductFeeDecorator(
 		app.AccountKeeper,
 		app.BankKeeper,
 		nil, // Skip all the feegrant shenanigans
 		app.FeeAbstractionKeeper,
-		cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+		cosmosevmante.NewDynamicFeeChecker(&feemarketParams),
 	)
 
 	// Create a fee payer
@@ -381,13 +387,16 @@ func TestDeductFeeDecoratorFeeGranterNoFeeKeeper(t *testing.T) {
 	// Start the app and the context
 	app, ctx := helpers.SetupWithContext(t)
 
+	// Fetch params
+	feemarketParams := app.FeeMarketKeeper.GetParams(ctx)
+
 	// Start up the DeductFeeDecorator with a nil checker
 	deductFeeDecorator := cosmos.NewDeductFeeDecorator(
 		app.AccountKeeper,
 		app.BankKeeper,
 		nil,
 		app.FeeAbstractionKeeper,
-		cosmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
+		cosmosevmante.NewDynamicFeeChecker(&feemarketParams),
 	)
 
 	// Create a fee payer

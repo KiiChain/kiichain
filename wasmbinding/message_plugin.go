@@ -13,9 +13,9 @@ import (
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
-	tfbinding "github.com/kiichain/kiichain/v6/wasmbinding/tokenfactory"
-	tfbindingtypes "github.com/kiichain/kiichain/v6/wasmbinding/tokenfactory/types"
-	"github.com/kiichain/kiichain/v6/wasmbinding/utils"
+	tfbinding "github.com/kiichain/kiichain/v7/wasmbinding/tokenfactory"
+	tfbindingtypes "github.com/kiichain/kiichain/v7/wasmbinding/tokenfactory/types"
+	"github.com/kiichain/kiichain/v7/wasmbinding/utils"
 )
 
 // KiichainMsg is the msg type for all cosmwasm bindings

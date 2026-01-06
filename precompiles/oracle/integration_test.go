@@ -12,9 +12,9 @@ import (
 
 	testkeyring "github.com/cosmos/evm/testutil/keyring"
 
-	app "github.com/kiichain/kiichain/v6/app"
-	"github.com/kiichain/kiichain/v6/app/helpers"
-	oracleprecompile "github.com/kiichain/kiichain/v6/precompiles/oracle"
+	app "github.com/kiichain/kiichain/v7/app"
+	"github.com/kiichain/kiichain/v7/app/helpers"
+	oracleprecompile "github.com/kiichain/kiichain/v7/precompiles/oracle"
 )
 
 // OraclePrecompileTestSuite is a test suite for the oracle precompile
@@ -49,7 +49,6 @@ func (s *OraclePrecompileTestSuite) SetupSuite() {
 	s.keyring = keyring
 
 	// Start the precompile
-	pc, err := oracleprecompile.NewPrecompile(s.App.OracleKeeper)
-	s.Require().NoError(err)
+	pc := oracleprecompile.NewPrecompile(s.App.OracleKeeper)
 	s.Precompile = pc
 }
