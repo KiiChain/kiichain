@@ -100,7 +100,7 @@ func (k Keeper) WriteRewardMetrics(ctx sdk.Context, distributed, total sdk.Coin)
 	telemetry.ModuleSetGauge(
 		types.ModuleName,
 		float32(distFloat),
-		"reward_amount",
+		"reward_released",
 	)
 
 	telemetry.ModuleSetGauge(
