@@ -42,7 +42,7 @@ func TestParseTwapsArgsValidation(t *testing.T) {
 			name:        "invalid - overflow value larger than uint64",
 			args:        []interface{}{new(big.Int).Exp(big.NewInt(2), big.NewInt(64), nil)},
 			expectError: true,
-			errContains: "lookback period overflow",
+			errContains: "lookback period must fit in uint64",
 		},
 		{
 			name:        "invalid - wrong type (string instead of *big.Int)",
