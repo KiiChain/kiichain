@@ -17,6 +17,7 @@
 
 - Disable EVM mempool due to bug on public nodes broadcast
 - Remove references to time.Now() on release schedule validation
+- Fix Oracle precompile ParseGetTwapsArgs missing validation for lookbackPeriod [#204](https://github.com/KiiChain/kiichain/issues/204)
 - Remove unsafe math.Sqrt usage in oracle ballot standard deviation calculation
 - Remove panic on oracle slash logic when validator is not found
 
