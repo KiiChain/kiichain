@@ -12,22 +12,38 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 	if genState.Params.DenomCreationFee == nil {
 		genState.Params.DenomCreationFee = sdk.NewCoins()
 	}
+
 	if err := k.SetParams(ctx, genState.Params); err != nil {
-		panic(err)
+		k.Logger(ctx).Error("failed to set tokenfactory params in genesis",
+			"err", err,
+		)
+		return
 	}
 
 	for _, genDenom := range genState.GetFactoryDenoms() {
 		creator, _, err := types.DeconstructDenom(genDenom.GetDenom())
 		if err != nil {
-			panic(err)
+			k.Logger(ctx).Error("failed to deconstruct denom in genesis",
+				"denom", genDenom.GetDenom(),
+				"err", err,
+			)
+			continue
 		}
-		err = k.createDenomAfterValidation(ctx, creator, genDenom.GetDenom())
-		if err != nil {
-			panic(err)
+
+		if err := k.createDenomAfterValidation(ctx, creator, genDenom.GetDenom()); err != nil {
+			k.Logger(ctx).Error("failed to create denom in genesis",
+				"denom", genDenom.GetDenom(),
+				"err", err,
+			)
+			continue
 		}
-		err = k.setAuthorityMetadata(ctx, genDenom.GetDenom(), genDenom.GetAuthorityMetadata())
-		if err != nil {
-			panic(err)
+
+		if err := k.setAuthorityMetadata(ctx, genDenom.GetDenom(), genDenom.GetAuthorityMetadata()); err != nil {
+			k.Logger(ctx).Error("failed to set authority metadata in genesis",
+				"denom", genDenom.GetDenom(),
+				"err", err,
+			)
+			continue
 		}
 	}
 }
