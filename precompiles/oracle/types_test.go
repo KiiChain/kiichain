@@ -39,8 +39,8 @@ func TestParseTwapsArgsValidation(t *testing.T) {
 			errContains: "lookback period must be positive",
 		},
 		{
-			name: "invalid - overflow value larger than uint64",
-			args: []interface{}{new(big.Int).Exp(big.NewInt(2), big.NewInt(64), nil)},
+			name:        "invalid - overflow value larger than uint64",
+			args:        []interface{}{new(big.Int).Exp(big.NewInt(2), big.NewInt(64), nil)},
 			expectError: true,
 			errContains: "lookback period overflow",
 		},
