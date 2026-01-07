@@ -97,7 +97,8 @@ func TestPickReferenceDenom(t *testing.T) {
 	}
 
 	// Must return denom atomDenom and kiiBallot as below threshold map
-	referenceDenom, belowThresholdVoteMap, _ := pickReferenceDenom(ctx, oracleKeeper, votingTarget, voteMap)
+	referenceDenom, belowThresholdVoteMap, err := pickReferenceDenom(ctx, oracleKeeper, votingTarget, voteMap)
+	require.NoError(t, err)
 	require.Equal(t, utils.AtomDenom, referenceDenom)
 	require.Equal(t, expectedBelowThreshold, belowThresholdVoteMap)
 }
