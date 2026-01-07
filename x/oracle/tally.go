@@ -12,7 +12,7 @@ import (
 // pickReferenceDenom selects a denom with the highest vote power as reference denom.
 // If the power of 2 denominations is the same, select the reference denom
 // in alphabetical order
-func pickReferenceDenom(ctx sdk.Context, k keeper.Keeper, voteTargets map[string]types.Denom, voteMap map[string]types.ExchangeRateBallot) (string, map[string]types.ExchangeRateBallot) {
+func pickReferenceDenom(ctx sdk.Context, k keeper.Keeper, voteTargets map[string]types.Denom, voteMap map[string]types.ExchangeRateBallot) (string, map[string]types.ExchangeRateBallot, error) {
 	highestBallotPower := int64(0)
 	referenceDenom := ""
 	belowThresholdVoteMap := map[string]types.ExchangeRateBallot{}
@@ -25,7 +25,7 @@ func pickReferenceDenom(ctx sdk.Context, k keeper.Keeper, voteTargets map[string
 	// Get threshold (minimum power necessary to considerate a successful ballot)
 	params, err := k.Params.Get(ctx)
 	if err != nil {
-		panic(err)
+		return "", nil, err
 	}
 
 	voteThreshold := params.VoteThreshold                                 // Get vote threshold from params
@@ -64,7 +64,7 @@ func pickReferenceDenom(ctx sdk.Context, k keeper.Keeper, voteTargets map[string
 			referenceDenom = denom
 		}
 	}
-	return referenceDenom, belowThresholdVoteMap
+	return referenceDenom, belowThresholdVoteMap, nil
 }
 
 // ballotIsPassing calculate the sum of each vote power per denom, then check
