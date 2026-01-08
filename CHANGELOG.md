@@ -7,6 +7,9 @@
 - Bump [EVM](https://github.com/cosmos/evm) from v0.4.2 to [v0.5.1](https://github.com/cosmos/evm/releases/tag/v0.5.1)
 - Bump [cosmos go-ethereum](github.com/cosmos/go-ethereum) to [v1.16.2](https://github.com/cosmos/go-ethereum/releases/tag/v1.16.2-cosmos-1)
 - Bump golang crypto from 0.41.0 to 0.45.0
+- Bump ulikunitz/xz from 0.5.11 to 0.5.14
+- Bump opencontainers/runc from 1.1.14 to 1.2.8
+- Bump Hashicorp/go-better to from v1.7.8 to v1.7.9
 
 ## Added
 - Added telemetry for reward distribution
@@ -19,6 +22,7 @@
 
 - Disable EVM mempool due to bug on public nodes broadcast
 - Remove references to time.Now() on release schedule validation
+- Fix Oracle precompile ParseGetTwapsArgs missing validation for lookbackPeriod [#204](https://github.com/KiiChain/kiichain/issues/204)
 - Remove unsafe math.Sqrt usage in oracle ballot standard deviation calculation
 - Remove panic on oracle slash logic when validator is not found
 
