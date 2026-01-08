@@ -216,6 +216,7 @@ func TestPickReferenceDenomError(t *testing.T) {
 	// pickReferenceDenom should return error when params are missing
 	referenceDenom, belowThresholdVoteMap, err := pickReferenceDenom(ctx, oracleKeeper, votingTarget, voteMap)
 	require.Error(t, err)
+	require.Contains(t, err.Error(), "collections")
 	require.Empty(t, referenceDenom)
 	require.Nil(t, belowThresholdVoteMap)
 }
