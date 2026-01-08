@@ -77,19 +77,19 @@
 
 ### Dependencies
 
-> **Prerequisite:** Go 1.23.8+ required
+> **Prerequisite:** Go 1.24.11+ required
 
 **Install/Upgrade Go:**
 
-- **macOS:** `brew install go@1.23` or download from [golang.org](https://golang.org/dl/)
-- **Ubuntu:** `sudo snap install go --classic --channel=1.23/stable`
+- **macOS:** `brew install go@1.24` or download from [golang.org](https://golang.org/dl/)
+- **Ubuntu:** `sudo snap install go --classic --channel=1.24/stable`
 - **Arch Linux:** `pacman -S go`
 - **Manual install:** Download from [golang.org/dl](https://golang.org/dl/)
 
 **Verify Go version:**
 
 ```bash
-go version  # Should show 1.23.8 or higher
+go version  # Should show 1.24.11 or higher
 ```
 
 **Configure Go PATH (important!):**
@@ -176,12 +176,12 @@ kiichaind genesis validate-genesis
 Get up and running with KiiChain in minutes. This guide covers the essentials for setting up a development environment.
 
 ### Prerequisites
-- **Go**: Version 1.23.6+ ([Install Guide](https://golang.org/dl/))
+- **Go**: Version 1.24.11+ ([Install Guide](https://golang.org/dl/))
 - **Git**: For cloning the repository
 - **GNU Make**: Recommended (required for the `make install` path below)
 Check your setup:
 ```bash
-go version  # Should show 1.23.6+
+go version  # Should show 1.24.11+
 git --version
 ```
 
@@ -225,7 +225,7 @@ source ~/.zshrc  # or source ~/.bashrc
 ```
 
 ### Troubleshooting (quick)
-- "Minimum Go version 1.23 required" → Upgrade to Go 1.23.6+
+- "Minimum Go version 1.24 required" → Upgrade to Go 1.24.11+
 - "command not found: kiichaind" → Ensure $HOME/go/bin is in PATH (see above)
 - Gas price error → Set minimum gas prices in app.toml:
 ```bash
@@ -239,9 +239,9 @@ For detailed setup instructions, visit our [documentation](https://docs.kiigloba
 
 **Common Issues:**
 
-- **"Minimum Go version 1.23 is required"** - Upgrade your Go installation to 1.23.6+
-- **"unknown directive: toolchain"** - Your Go version is too old, upgrade to 1.23.6+
-- **"invalid go version"** - Ensure you have Go 1.23.6+ installed and in your PATH
+- **"Minimum Go version 1.24 is required"** - Upgrade your Go installation to 1.24.11+
+- **"unknown directive: toolchain"** - Your Go version is too old, upgrade to 1.24.11+
+- **"invalid go version"** - Ensure you have Go 1.24.11+ installed and in your PATH
 - **"command not found: kiichaind"** - Add `$HOME/go/bin` to your PATH (see setup above)
 - **"set min gas price in app.toml"** - Use `1000000000akii` as shown in the setup above
 - **"Wrong Block.Header.AppHash"** - Ensure you downloaded the correct genesis file for `oro_1336-1`
@@ -250,7 +250,7 @@ For detailed setup instructions, visit our [documentation](https://docs.kiigloba
 **Check your setup:**
 
 ```bash
-go version                          # Should show 1.23.6+
+go version                          # Should show 1.24.11+
 echo $PATH | grep go                # Should include go/bin
 which kiichaind                     # Should show path after 'make install'
 kiichaind version                   # Should show version like v3.0.0-5-g239012d
