@@ -75,7 +75,10 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 		if err != nil {
 			return err
 		}
-		referenceDenom, belowThresholdVoteMap := pickReferenceDenom(ctx, k, voteTargets, voteMap)
+		referenceDenom, belowThresholdVoteMap, err := pickReferenceDenom(ctx, k, voteTargets, voteMap)
+		if err != nil {
+			return err
+		}
 
 		if referenceDenom != "" {
 			ballotRD := voteMap[referenceDenom] // get the ballot of the RD

@@ -17,6 +17,7 @@
 - Removed dead code related to no gas consumption
 
 ## Fixed
+- Handle error in pickReferenceDenom instead of panic to prevent consensus failure [#203](https://github.com/KiiChain/kiichain/issues/203)
 
 - Disable EVM mempool due to bug on public nodes broadcast
 - Remove references to time.Now() on release schedule validation

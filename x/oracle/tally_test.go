@@ -97,7 +97,8 @@ func TestPickReferenceDenom(t *testing.T) {
 	}
 
 	// Must return denom atomDenom and kiiBallot as below threshold map
-	referenceDenom, belowThresholdVoteMap := pickReferenceDenom(ctx, oracleKeeper, votingTarget, voteMap)
+	referenceDenom, belowThresholdVoteMap, err := pickReferenceDenom(ctx, oracleKeeper, votingTarget, voteMap)
+	require.NoError(t, err)
 	require.Equal(t, utils.AtomDenom, referenceDenom)
 	require.Equal(t, expectedBelowThreshold, belowThresholdVoteMap)
 }
@@ -193,4 +194,29 @@ func TestTally(t *testing.T) {
 
 		require.NotZero(t, claim.Weight) // val 0, 1 and 2 voted
 	}
+}
+
+func TestPickReferenceDenomError(t *testing.T) {
+	input := keeper.CreateTestInput(t)
+	oracleKeeper := input.OracleKeeper
+	ctx := input.Ctx
+
+	// Delete params to trigger error in pickReferenceDenom
+	err := oracleKeeper.Params.Remove(ctx)
+	require.NoError(t, err)
+
+	// Create minimal voting targets and vote map
+	votingTarget := map[string]types.Denom{
+		utils.AtomDenom: {Name: utils.AtomDenom},
+	}
+	voteMap := map[string]types.ExchangeRateBallot{
+		utils.AtomDenom: {},
+	}
+
+	// pickReferenceDenom should return error when params are missing
+	referenceDenom, belowThresholdVoteMap, err := pickReferenceDenom(ctx, oracleKeeper, votingTarget, voteMap)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "collections")
+	require.Empty(t, referenceDenom)
+	require.Nil(t, belowThresholdVoteMap)
 }
