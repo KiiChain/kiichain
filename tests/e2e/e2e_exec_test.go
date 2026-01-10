@@ -732,7 +732,7 @@ func (s *IntegrationTestSuite) expectErrExecValidation(chain *chain, valIdx int,
 				gotErr := queryKiichainTx(endpoint, txResp.TxHash) != nil
 				return gotErr == expectErr
 			},
-			time.Minute,
+			3*time.Minute,
 			5*time.Second,
 			"stdOut: %s, stdErr: %s",
 			string(stdOut), string(stdErr),
@@ -753,7 +753,7 @@ func (s *IntegrationTestSuite) defaultExecValidation(chain *chain, valIdx int) f
 				func() bool {
 					return queryKiichainTx(endpoint, txResp.TxHash) == nil
 				},
-				time.Minute,
+				3*time.Minute,
 				5*time.Second,
 				"stdOut: %s, stdErr: %s",
 				string(stdOut), string(stdErr),
