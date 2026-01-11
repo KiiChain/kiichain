@@ -146,6 +146,16 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQuerier(am.keeper))
 }
 
+// RegisterInvariants registers the rewards module's invariants.
+// Note: In Cosmos SDK v0.53+, invariants are not automatically executed.
+// This method is kept for interface compatibility and potential future use.
+func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
+    // Register all invariants from the keeper
+    for _, inv := range am.keeper.GetAllInvariants() {
+        ir.RegisterRoute(types.ModuleName, "custom", inv)
+    }
+}
+
 // InitGenesis performs the x/rewards module's genesis initialization. It
 // returns no validator updates.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) []abci.ValidatorUpdate {
