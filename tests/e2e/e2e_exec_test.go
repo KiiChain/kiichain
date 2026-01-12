@@ -341,9 +341,6 @@ func (s *IntegrationTestSuite) execDistributionFundCommunityPool(c *chain, valId
 		"fund-community-pool",
 		amt,
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
-		fmt.Sprintf("--%s=%s", flags.FlagChainID, c.id),
-		fmt.Sprintf("--%s=%s", flags.FlagFees, fees),
-		fmt.Sprintf("--%s=%s", flags.FlagGas, "400000"), // default 200000 isn't enough
 		"--keyring-backend=test",
 		"--output=json",
 		"-y",
@@ -732,16 +729,8 @@ func (s *IntegrationTestSuite) expectErrExecValidation(chain *chain, valIdx int,
 				gotErr := queryKiichainTx(endpoint, txResp.TxHash) != nil
 				return gotErr == expectErr
 			},
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 			// TODO: make this timeout configurable in the future.
 			// Increased to 3 minutes to mitigate intermittent "height:0" failures.
->>>>>>> 735b7e9 (tests(e2e): make timeout configurable; increase to 3 minutes)
-=======
-			// TODO: make this timeout configurable in the future.
-			// Increased to 3 minutes to mitigate intermittent "height:0" failures.
->>>>>>> origin/main
 			3*time.Minute,
 			5*time.Second,
 			"stdOut: %s, stdErr: %s",
@@ -763,16 +752,8 @@ func (s *IntegrationTestSuite) defaultExecValidation(chain *chain, valIdx int) f
 				func() bool {
 					return queryKiichainTx(endpoint, txResp.TxHash) == nil
 				},
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 				// TODO: make this timeout configurable in the future.
 				// Increased to 3 minutes to mitigate intermittent "height:0" failures.
->>>>>>> 735b7e9 (tests(e2e): make timeout configurable; increase to 3 minutes)
-=======
-				// TODO: make this timeout configurable in the future.
-				// Increased to 3 minutes to mitigate intermittent "height:0" failures.
->>>>>>> origin/main
 				3*time.Minute,
 				5*time.Second,
 				"stdOut: %s, stdErr: %s",
