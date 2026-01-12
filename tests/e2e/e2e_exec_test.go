@@ -733,10 +733,15 @@ func (s *IntegrationTestSuite) expectErrExecValidation(chain *chain, valIdx int,
 				return gotErr == expectErr
 			},
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 			// TODO: make this timeout configurable in the future.
 			// Increased to 3 minutes to mitigate intermittent "height:0" failures.
 >>>>>>> 735b7e9 (tests(e2e): make timeout configurable; increase to 3 minutes)
+=======
+			// TODO: make this timeout configurable in the future.
+			// Increased to 3 minutes to mitigate intermittent "height:0" failures.
+>>>>>>> origin/main
 			3*time.Minute,
 			5*time.Second,
 			"stdOut: %s, stdErr: %s",
@@ -759,10 +764,15 @@ func (s *IntegrationTestSuite) defaultExecValidation(chain *chain, valIdx int) f
 					return queryKiichainTx(endpoint, txResp.TxHash) == nil
 				},
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 				// TODO: make this timeout configurable in the future.
 				// Increased to 3 minutes to mitigate intermittent "height:0" failures.
 >>>>>>> 735b7e9 (tests(e2e): make timeout configurable; increase to 3 minutes)
+=======
+				// TODO: make this timeout configurable in the future.
+				// Increased to 3 minutes to mitigate intermittent "height:0" failures.
+>>>>>>> origin/main
 				3*time.Minute,
 				5*time.Second,
 				"stdOut: %s, stdErr: %s",
