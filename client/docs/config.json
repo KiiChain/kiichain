@@ -10,7 +10,8 @@
       "url": "./tmp-swagger-gen/cosmwasm/wasm/v1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "WasmParams"
+          "Params": "WasmParams",
+		  "Query_Params": "WasmQueryParams"
         }
       }
     },
@@ -18,7 +19,8 @@
       "url": "./tmp-swagger-gen/kiichain/tokenfactory/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "TokenFactoryParams"
+          "Params": "TokenFactoryParams",
+		  "Query_Params": "TokenFactoryQueryParams"
         }
       }
     },
@@ -26,7 +28,8 @@
       "url": "./tmp-swagger-gen/kiichain/oracle/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "OracleParams"
+          "Params": "OracleParams",
+		  "Query_Params": "OracleQueryParams"
         }
       }
     },
@@ -34,7 +37,8 @@
       "url": "./tmp-swagger-gen/kiichain/rewards/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "RewardsParams"
+          "Params": "RewardsParams",
+		  "Query_Params": "RewardsQueryParams"
         }
       }
     },
@@ -42,7 +46,8 @@
       "url": "./tmp-swagger-gen/kiichain/feeabstraction/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "FeeAbstractionParams"
+          "Params": "FeeAbstractionParams",
+		  "Query_Params": "FeeAbstractionQueryParams"
         }
       }
     },
@@ -50,7 +55,8 @@
       "url": "./tmp-swagger-gen/cosmos/bank/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "BankParams"
+          "Params": "BankParams",
+		  "Query_Params": "BankQueryParams"
         }
       }
     },
@@ -66,7 +72,8 @@
       "url": "./tmp-swagger-gen/cosmos/staking/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "StakingParams"
+          "Params": "StakingParams",
+		  "Query_Params": "StakingQueryParams"
         }
       }
     },
@@ -98,7 +105,8 @@
       "url": "./tmp-swagger-gen/cosmos/consensus/v1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "ConsensusParams"
+          "Params": "ConsensusParams",
+		  "Query_Params": "ConsensusQueryParams"
         }
       }
     },
@@ -114,7 +122,8 @@
       "url": "./tmp-swagger-gen/cosmos/evm/erc20/v1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "Erc20Params"
+          "Params": "Erc20Params",
+		  "Query_Params": "Erc20QueryParams"
         }
       }
     },
@@ -127,7 +136,8 @@
           "Balance": "VmBalance",
           "Config": "VmConfig",
           "BaseFee": "VmBaseFee",
-          "Account": "VmAccount"
+          "Account": "VmAccount",
+		  "Query_Params": "VmQueryParams"
         }
       }
     },
@@ -135,7 +145,8 @@
       "url": "./tmp-swagger-gen/cosmos/evm/feemarket/v1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "FeemarketParams"
+          "Params": "FeemarketParams",
+		  "Query_Params": "FeemarketQueryParams"
         }
       }
     },
@@ -143,7 +154,8 @@
       "url": "./tmp-swagger-gen/cosmos/auth/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "AuthParams"
+          "Params": "AuthParams",
+		  "Query_Params": "AuthQueryParams"
         }
       }
     },
@@ -152,7 +164,8 @@
       "operationIds": {
         "rename": {
           "Params": "DistributionParams",
-          "DelegatorValidators": "DistributionDelegatorValidators"
+          "DelegatorValidators": "DistributionDelegatorValidators",
+		  "Query_Params": "DistributionQueryParams"
         }
       }
     },
@@ -168,7 +181,8 @@
       "url": "./tmp-swagger-gen/cosmos/gov/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "GovParams"
+          "Params": "GovParams",
+		  "Query_Params": "GovQueryParams"
         }
       }
     },
@@ -183,7 +197,17 @@
           "Votes": "GovV1Votes",
           "Deposit": "GovV1Deposit",
           "Deposits": "GovV1Deposit",
-          "TallyResult": "GovV1TallyResult"
+          "TallyResult": "GovV1TallyResult",
+		  "Query_Params": "GovV1QueryParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/protocolpool/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "ProtocolPoolParams",
+		  "Query_Params": "ProtocolPoolQueryParams"
         }
       }
     },
@@ -197,7 +221,8 @@
       "url": "./tmp-swagger-gen/cosmos/slashing/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "SlashingParams"
+          "Params": "SlashingParams",
+		  "Query_Params": "SlashingQueryParams"
         }
       }
     },
@@ -213,15 +238,8 @@
       "url": "./tmp-swagger-gen/ibc/applications/transfer/v1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "TransferParams"
-        }
-      }
-    },
-    {
-      "url": "./tmp-swagger-gen/ibc/applications/fee/v1/query.swagger.json",
-      "operationIds": {
-        "rename": {
-          "Params": "FeeParams"
+          "Params": "TransferParams",
+		  "Query_Params": "TransferQueryParams"
         }
       }
     },
@@ -229,7 +247,8 @@
       "url": "./tmp-swagger-gen/ibc/applications/interchain_accounts/controller/v1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "InterchainAccountsControllerParams"
+          "Params": "InterchainAccountsControllerParams",
+		  "Query_Params": "InterchainAccountsControllerQueryParams"
         }
       }
     },
@@ -237,7 +256,8 @@
       "url": "./tmp-swagger-gen/ibc/applications/interchain_accounts/host/v1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "InterchainAccountsHostParams"
+          "Params": "InterchainAccountsHostParams",
+		  "Query_Params": "InterchainAccountsHostQueryParams"
         }
       }
     },
