@@ -1,6 +1,11 @@
 # CHANGELOG
 
-## UNRELEASED
+## [Unreleased]
+
+### Fixed
+- **(tests/e2e)** Increased transaction confirmation timeout from 1 minute to 3 minutes to resolve intermittent CI failures (`'height:0'` errors).
+
+## [0.1.0] - 2024-05-30
 
 ## Dependencies
 - Bump [EVM](https://github.com/cosmos/evm) from v0.4.2 to [v0.5.1](https://github.com/cosmos/evm/releases/tag/v0.5.1)
