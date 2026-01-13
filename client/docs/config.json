@@ -11,7 +11,8 @@
       "operationIds": {
         "rename": {
           "Params": "WasmParams",
-		  "Query_Params": "WasmQueryParams"
+          "Query_Params": "WasmV1Query_Params",
+          "Query_Code": "WasmV1Query_Code"
         }
       }
     },
@@ -20,7 +21,7 @@
       "operationIds": {
         "rename": {
           "Params": "TokenFactoryParams",
-		  "Query_Params": "TokenFactoryQueryParams"
+          "Query_Params": "TokenfactoryV1beta1Query_Params"
         }
       }
     },
@@ -29,7 +30,7 @@
       "operationIds": {
         "rename": {
           "Params": "OracleParams",
-		  "Query_Params": "OracleQueryParams"
+          "Query_Params": "OracleV1beta1Query_Params"
         }
       }
     },
@@ -38,7 +39,7 @@
       "operationIds": {
         "rename": {
           "Params": "RewardsParams",
-		  "Query_Params": "RewardsQueryParams"
+          "Query_Params": "RewardsV1beta1Query_Params"
         }
       }
     },
@@ -47,7 +48,7 @@
       "operationIds": {
         "rename": {
           "Params": "FeeAbstractionParams",
-		  "Query_Params": "FeeAbstractionQueryParams"
+          "Query_Params": "FeeabstractionV1beta1Query_Params"
         }
       }
     },
@@ -56,7 +57,8 @@
       "operationIds": {
         "rename": {
           "Params": "BankParams",
-		  "Query_Params": "BankQueryParams"
+          "Query_Params": "BankV1beta1Query_Params",
+          "Query_Balance": "BankV1beta1Query_Balance"
         }
       }
     },
@@ -73,7 +75,8 @@
       "operationIds": {
         "rename": {
           "Params": "StakingParams",
-		  "Query_Params": "StakingQueryParams"
+          "Query_Params": "StakingV1beta1Query_Params",
+          "Query_DelegatorValidators": "StakingV1beta1Query_DelegatorValidators"
         }
       }
     },
@@ -81,7 +84,8 @@
       "url": "./tmp-swagger-gen/cosmos/upgrade/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "UpgradeParams"
+          "Params": "UpgradeParams",
+          "Query_UpgradedConsensusState": "UpgradeV1beta1Query_UpgradedConsensusState"
         }
       }
     },
@@ -106,7 +110,7 @@
       "operationIds": {
         "rename": {
           "Params": "ConsensusParams",
-		  "Query_Params": "ConsensusQueryParams"
+          "Query_Params": "ConsensusV1Query_Params"
         }
       }
     },
@@ -123,7 +127,7 @@
       "operationIds": {
         "rename": {
           "Params": "Erc20Params",
-		  "Query_Params": "Erc20QueryParams"
+          "Query_Params": "EvmErc20V1Query_Params"
         }
       }
     },
@@ -137,7 +141,11 @@
           "Config": "VmConfig",
           "BaseFee": "VmBaseFee",
           "Account": "VmAccount",
-		  "Query_Params": "VmQueryParams"
+          "Query_Params": "EvmVmV1Query_Params",
+          "Query_BaseFee": "EvmVmV1Query_BaseFee",
+          "Query_Code": "EvmVmV1Query_Code",
+          "Query_Balance": "EvmVmV1Query_Balance",
+          "Query_Account": "EvmVmV1Query_Account"
         }
       }
     },
@@ -146,7 +154,8 @@
       "operationIds": {
         "rename": {
           "Params": "FeemarketParams",
-		  "Query_Params": "FeemarketQueryParams"
+          "Query_Params": "EvmFeemarketV1Query_Params",
+          "Query_BaseFee": "EvmFeemarketV1Query_BaseFee"
         }
       }
     },
@@ -155,7 +164,8 @@
       "operationIds": {
         "rename": {
           "Params": "AuthParams",
-		  "Query_Params": "AuthQueryParams"
+          "Query_Params": "AuthV1beta1Query_Params",
+          "Query_Account": "AuthV1beta1Query_Account"
         }
       }
     },
@@ -165,7 +175,9 @@
         "rename": {
           "Params": "DistributionParams",
           "DelegatorValidators": "DistributionDelegatorValidators",
-		  "Query_Params": "DistributionQueryParams"
+          "Query_Params": "DistributionV1beta1Query_Params",
+          "Query_DelegatorValidators": "DistributionV1beta1Query_DelegatorValidators",
+          "Query_CommunityPool": "DistributionV1beta1Query_CommunityPool"
         }
       }
     },
@@ -182,7 +194,14 @@
       "operationIds": {
         "rename": {
           "Params": "GovParams",
-		  "Query_Params": "GovQueryParams"
+          "Query_Params": "GovV1beta1Query_Params",
+          "Query_Deposit": "GovV1beta1Query_Deposit",
+          "Query_TallyResult": "GovV1beta1Query_TallyResult",
+          "Query_Proposals": "GovV1beta1Query_Proposals",
+          "Query_Votes": "GovV1beta1Query_Votes",
+          "Query_Proposal": "GovV1beta1Query_Proposal",
+          "Query_Deposits": "GovV1beta1Query_Deposits",
+          "Query_Vote": "GovV1beta1Query_Vote"
         }
       }
     },
@@ -198,7 +217,14 @@
           "Deposit": "GovV1Deposit",
           "Deposits": "GovV1Deposit",
           "TallyResult": "GovV1TallyResult",
-		  "Query_Params": "GovV1QueryParams"
+          "Query_Params": "GovV1Query_Params",
+          "Query_Deposit": "GovV1Query_Deposit",
+          "Query_TallyResult": "GovV1Query_TallyResult",
+          "Query_Proposals": "GovV1Query_Proposals",
+          "Query_Votes": "GovV1Query_Votes",
+          "Query_Proposal": "GovV1Query_Proposal",
+          "Query_Deposits": "GovV1Query_Deposits",
+          "Query_Vote": "GovV1Query_Vote"
         }
       }
     },
@@ -207,7 +233,8 @@
       "operationIds": {
         "rename": {
           "Params": "ProtocolPoolParams",
-		  "Query_Params": "ProtocolPoolQueryParams"
+          "Query_Params": "ProtocolpoolV1Query_Params",
+          "Query_CommunityPool": "ProtocolpoolV1Query_CommunityPool"
         }
       }
     },
@@ -222,7 +249,7 @@
       "operationIds": {
         "rename": {
           "Params": "SlashingParams",
-		  "Query_Params": "SlashingQueryParams"
+          "Query_Params": "SlashingV1beta1Query_Params"
         }
       }
     },
@@ -239,7 +266,7 @@
       "operationIds": {
         "rename": {
           "Params": "TransferParams",
-		  "Query_Params": "TransferQueryParams"
+          "Query_Params": "ApplicationsTransferV1Query_Params"
         }
       }
     },
@@ -248,7 +275,7 @@
       "operationIds": {
         "rename": {
           "Params": "InterchainAccountsControllerParams",
-		  "Query_Params": "InterchainAccountsControllerQueryParams"
+          "Query_Params": "ApplicationsInterchainaccountsControllerV1Query_Params"
         }
       }
     },
@@ -257,7 +284,7 @@
       "operationIds": {
         "rename": {
           "Params": "InterchainAccountsHostParams",
-		  "Query_Params": "InterchainAccountsHostQueryParams"
+          "Query_Params": "ApplicationsInterchainaccountsHostV1Query_Params"
         }
       }
     },
@@ -282,7 +309,49 @@
       "operationIds": {
         "rename": {
           "Params": "ClientParams",
-          "UpgradedConsensusState": "ClientUpgradedConsensusState"
+          "UpgradedConsensusState": "ClientUpgradedConsensusState",
+          "Query_UpgradedConsensusState": "CoreClientV1Query_UpgradedConsensusState"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/circuit/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Query_Account": "CircuitV1Query_Account"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/group/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Query_Proposal": "GroupV1Query_Proposal",
+          "Query_TallyResult": "GroupV1Query_TallyResult"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/mint/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Query_Params": "MintV1beta1Query_Params"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/nft/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Query_Balance": "NftV1beta1Query_Balance"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/cosmos/params/v1beta1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Query_Params": "ParamsV1beta1Query_Params"
         }
       }
     }
