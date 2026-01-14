@@ -5,7 +5,7 @@ CONFIG_FILE="./client/docs/config.json"
 SWAGGER_DIR="./tmp-swagger-gen"
 
 # List of conflicting OperationIDs to rename (space-separated)
-CONFLICTING_OPERATIONS="Params Query_Params Balance Account Code Query_BaseFee Query_Balance Query_Code Query_Account Query_DelegatorValidators Query_Proposals Query_Proposal Query_Deposits Query_Deposit Query_TallyResult Query_Votes Query_Vote Query_CommunityPool Query_UpgradedConsensusState"
+CONFLICTING_OPERATIONS="Params Query_Params Balance Account Code Query_BaseFee Query_Balance Query_Code Query_Account Query_DelegatorValidators Query_Proposals Query_Proposal Query_Deposits Query_Deposit Query_TallyResult Query_Votes Query_Vote Query_CommunityPool Query_UpgradedConsensusState CommunityPool"
 
 echo "Finding files with conflicting OperationIDs..."
 

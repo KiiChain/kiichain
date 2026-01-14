@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+# set -e
 
 mkdir -p ./tmp-swagger-gen
 
