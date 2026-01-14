@@ -228,14 +228,17 @@ type MockStakingKeeperError struct {
 	types.StakingKeeper
 }
 
+// TotalBondedTokens returns an error to simulate staking keeper failure.
 func (m MockStakingKeeperError) TotalBondedTokens(ctx context.Context) (math.Int, error) {
 	return math.Int{}, fmt.Errorf("mock error: failed to get total bonded tokens")
 }
 
+// PowerReduction returns the default power reduction value.
 func (m MockStakingKeeperError) PowerReduction(ctx context.Context) math.Int {
 	return sdk.DefaultPowerReduction
 }
 
+// TestPickReferenceDenomTotalBondedTokensError verifies that pickReferenceDenom returns an error when TotalBondedTokens fails.
 func TestPickReferenceDenomTotalBondedTokensError(t *testing.T) {
 	input := keeper.CreateTestInput(t)
 	oracleKeeper := input.OracleKeeper
