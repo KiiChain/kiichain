@@ -23,6 +23,7 @@
 - Fix Oracle precompile ParseGetTwapsArgs missing validation for lookbackPeriod [#204](https://github.com/KiiChain/kiichain/issues/204)
 - Remove unsafe math.Sqrt usage in oracle ballot standard deviation calculation
 - Remove panic on oracle slash logic when validator is not found
+- Updated swagger files to match current project
 
 ## v6.0.0 - 2025-11-25
 
