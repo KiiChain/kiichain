@@ -1,6 +1,8 @@
 package oracle
 
 import (
+	"context"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -217,6 +219,43 @@ func TestPickReferenceDenomError(t *testing.T) {
 	referenceDenom, belowThresholdVoteMap, err := pickReferenceDenom(ctx, oracleKeeper, votingTarget, voteMap)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "collections")
+	require.Empty(t, referenceDenom)
+	require.Nil(t, belowThresholdVoteMap)
+}
+
+// MockStakingKeeperError is a mock that returns error for TotalBondedTokens
+type MockStakingKeeperError struct {
+	types.StakingKeeper
+}
+
+func (m MockStakingKeeperError) TotalBondedTokens(ctx context.Context) (math.Int, error) {
+	return math.Int{}, fmt.Errorf("mock error: failed to get total bonded tokens")
+}
+
+func (m MockStakingKeeperError) PowerReduction(ctx context.Context) math.Int {
+	return sdk.DefaultPowerReduction
+}
+
+func TestPickReferenceDenomTotalBondedTokensError(t *testing.T) {
+	input := keeper.CreateTestInput(t)
+	oracleKeeper := input.OracleKeeper
+	ctx := input.Ctx
+
+	// Replace StakingKeeper with mock that returns error
+	oracleKeeper.StakingKeeper = MockStakingKeeperError{}
+
+	// Create minimal voting targets and vote map
+	votingTarget := map[string]types.Denom{
+		utils.AtomDenom: {Name: utils.AtomDenom},
+	}
+	voteMap := map[string]types.ExchangeRateBallot{
+		utils.AtomDenom: {},
+	}
+
+	// pickReferenceDenom should return error when TotalBondedTokens fails
+	referenceDenom, belowThresholdVoteMap, err := pickReferenceDenom(ctx, oracleKeeper, votingTarget, voteMap)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "mock error")
 	require.Empty(t, referenceDenom)
 	require.Nil(t, belowThresholdVoteMap)
 }
