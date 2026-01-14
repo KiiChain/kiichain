@@ -18,3 +18,10 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 
 - [ ] Test A
 - [ ] Test B
+
+# PR Checklist:
+
+Make sure each step was done:
+
+- [ ] Updated changelog with PR's intent
+- [ ] Lint with `make lint-fix`
