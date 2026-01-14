@@ -388,10 +388,10 @@ proto-swagger-gen:
 	@$(protoImage) sh ./proto/scripts/swagger-protoc.sh
 
 	@echo "Fixing definition conflicts"
-	@./proto/scripts/remove_conflicting_defs.sh
+	@./proto/scripts/remove-conflicting-defs.sh
 
 	@echo "Fixing Id conflicts"
-	@./proto/scripts/fix_conflicting_ids.sh
+	@./proto/scripts/fix-conflicting-ids.sh
 
 	@$(protoImage) sh ./proto/scripts/swagger-combine.sh
 
