@@ -388,7 +388,7 @@ proto-swagger-gen:
 	@$(protoImage) sh ./proto/scripts/swagger-protoc.sh
 
 	@echo "Fixing definition conflicts"
-	@./proto/scripts/remove-conflicting-defs.sh
+	@./proto/scripts/rename-conflicting-defs.sh
 
 	@echo "Fixing Id conflicts"
 	@./proto/scripts/fix-conflicting-ids.sh
