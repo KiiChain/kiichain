@@ -17,6 +17,7 @@
 - Removed dead code related to no gas consumption
 
 ## Fixed
+- Handle ignored error from TotalBondedTokens in pickReferenceDenom [#230](https://github.com/KiiChain/kiichain/issues/230)
 - Handle error in pickReferenceDenom instead of panic to prevent consensus failure [#203](https://github.com/KiiChain/kiichain/issues/203)
 
 - Disable EVM mempool due to bug on public nodes broadcast

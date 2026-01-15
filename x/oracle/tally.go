@@ -18,8 +18,12 @@ func pickReferenceDenom(ctx sdk.Context, k keeper.Keeper, voteTargets map[string
 	belowThresholdVoteMap := map[string]types.ExchangeRateBallot{}
 
 	// Get total bonded power
-	powerReductionFactor := k.StakingKeeper.PowerReduction(ctx)                             // get the power reduction
-	totalBondedTokens, _ := k.StakingKeeper.TotalBondedTokens(ctx)                          // total of tokens in staking
+	powerReductionFactor := k.StakingKeeper.PowerReduction(ctx)      // get the power reduction
+	totalBondedTokens, err := k.StakingKeeper.TotalBondedTokens(ctx) // total of tokens in staking
+	if err != nil {
+		ctx.Logger().Error("failed to get total bonded tokens in pickReferenceDenom", "error", err)
+		return "", nil, err
+	}
 	totalBondedPower := sdk.TokensToConsensusPower(totalBondedTokens, powerReductionFactor) // Get the blockchain vote power
 
 	// Get threshold (minimum power necessary to considerate a successful ballot)
