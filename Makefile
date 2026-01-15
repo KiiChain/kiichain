@@ -387,6 +387,14 @@ proto-swagger-gen:
 	@echo "Generating the swagger files"
 	@$(protoImage) sh ./proto/scripts/swagger-protoc.sh
 
+	@echo "Fixing definition conflicts"
+	@./proto/scripts/rename-conflicting-defs.sh
+
+	@echo "Fixing Id conflicts"
+	@./proto/scripts/fix-conflicting-ids.sh
+
+	@$(protoImage) sh ./proto/scripts/swagger-combine.sh
+
 proto-format:
 	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
 
