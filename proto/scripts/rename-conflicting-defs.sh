@@ -57,10 +57,6 @@ find "$SWAGGER_DIR" -name "*.swagger.json" | sort | while read file; do
       modified=1
     fi
   done
-
-  if [ "$modified" = "0" ]; then
-    :  # No-op command (do nothing)
-  fi
 done
 
 echo "✓ All conflicting definitions have been renamed"
