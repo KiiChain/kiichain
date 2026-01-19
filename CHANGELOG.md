@@ -18,6 +18,7 @@
 
 ## Fixed
 - Make ERC20 fee conversion rounding explicit by always rounding up to avoid underpayment
+- Handle error from ValAddressFromBech32 in EndBlocker to prevent nil operatorAddr [#234](https://github.com/KiiChain/kiichain/issues/234)
 - Handle ignored error from TotalBondedTokens in pickReferenceDenom [#230](https://github.com/KiiChain/kiichain/issues/230)
 - Handle error in pickReferenceDenom instead of panic to prevent consensus failure [#203](https://github.com/KiiChain/kiichain/issues/203)
 
