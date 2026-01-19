@@ -12,7 +12,8 @@ func TestSlashAndResetCounters_ValidatorNotFound(t *testing.T) {
         ctx := input.Ctx
         oracleKeeper := input.OracleKeeper
 
-        nonExistentValidator := sdk.ValAddress("truly_non_existent_validator")
+t// Fix: use proper 20-byte address instead of string
+	nonExistentValidator := sdk.ValAddress(make([]byte, 20))
         err := oracleKeeper.VotePenaltyCounter.Set(ctx, nonExistentValidator, types.NewVotePenaltyCounter(1, 0, 0))
         require.NoError(t, err)
 
