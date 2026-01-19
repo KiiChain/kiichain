@@ -109,8 +109,8 @@ func (k Keeper) convertERC20ForFees(ctx sdk.Context, account sdk.AccAddress, fee
 		if err != nil {
 			return sdk.Coins{}, math.LegacyDec{}, err
 		}
-		// Truncate the decimals
-		amountEquivalentInt := amountEquivalent.RoundInt()
+		// Round up to avoid fee underpayment
+		amountEquivalentInt := amountEquivalent.Ceil().TruncateInt()
 		// If the amount is zero, we skip this fee token
 		if amountEquivalentInt.IsZero() {
 			continue
