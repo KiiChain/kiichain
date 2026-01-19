@@ -57,8 +57,8 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 				if err != nil {
 					ctx.Logger().Error("failed to parse operator address", "operator", operator, "error", err)
 					continue
-				}
 
+				}
 				claim := types.NewClaim(valPower, 0, 0, false, operatorAddr) // Create claim object
 				validatorClaimMap[operator] = claim                          // Assign the validator on the list to receive
 			}
