@@ -18,7 +18,7 @@
 - Removed ICS precompile
 
 ## Fixed
-- Fix oracle weighted median threshold to require >50% instead of >=50% for majority
+- Fix oracle validator success count using original voteTargets size before pickReferenceDenom modifies the map [#237](https://github.com/KiiChain/kiichain/issues/237)
 - Make ERC20 fee conversion rounding explicit by always rounding up to avoid underpayment
 - Handle ValAddressFromBech32 error in oracle EndBlocker [#234](https://github.com/KiiChain/kiichain/issues/234)
 - Handle ignored error from TotalBondedTokens in pickReferenceDenom [#230](https://github.com/KiiChain/kiichain/issues/230)

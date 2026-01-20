@@ -79,6 +79,10 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 		if err != nil {
 			return err
 		}
+
+		// Store original vote target count before pickReferenceDenom modifies the map
+		originalVoteTargetCount := len(voteTargets)
+
 		referenceDenom, belowThresholdVoteMap, err := pickReferenceDenom(ctx, k, voteTargets, voteMap)
 		if err != nil {
 			return err
@@ -143,7 +147,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 
 		// Validate miss voting process
 		for _, claim := range validatorClaimMap {
-			if int(claim.WinCount) == len(voteTargets) {
+			if int(claim.WinCount) == originalVoteTargetCount {
 				err = k.IncrementSuccessCount(ctx, claim.Recipient)
 				if err != nil {
 					return err
