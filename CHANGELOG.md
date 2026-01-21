@@ -17,6 +17,7 @@
 - Removed dead code related to no gas consumption
 
 ## Fixed
+- Fix oracle weighted median threshold to require >50% instead of >=50% for majority
 - Make ERC20 fee conversion rounding explicit by always rounding up to avoid underpayment
 - Handle ValAddressFromBech32 error in oracle EndBlocker [#234](https://github.com/KiiChain/kiichain/issues/234)
 - Handle ignored error from TotalBondedTokens in pickReferenceDenom [#230](https://github.com/KiiChain/kiichain/issues/230)
@@ -50,6 +51,7 @@
 -   Bump [EVM](github.com/cosmos/evm) to [v0.4.2](https://github.com/cosmos/evm/releases/tag/v0.4.2)
 
 ## Fixed
+- Fix oracle weighted median threshold to require >50% instead of >=50% for majority
 
 - Fix IBC unsafe log as reported on issue [#143](https://github.com/KiiChain/kiichain/issues/143)
 - Fix wasmd precompile bad input handling for coins [#147](https://github.com/KiiChain/kiichain/issues/147)

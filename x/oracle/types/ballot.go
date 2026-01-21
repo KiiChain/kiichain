@@ -109,7 +109,7 @@ func (ex ExchangeRateBallot) WeightedMedianWithAssertion() sdkMath.LegacyDec {
 		// Iterate the votes
 		for _, vote := range ex {
 			pivot += vote.Power // accomulate the vote's power
-			if pivot >= (totalPower / 2) {
+			if pivot > (totalPower / 2) {
 				return vote.ExchangeRate
 			}
 		}
