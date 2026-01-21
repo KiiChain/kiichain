@@ -300,3 +300,41 @@ func TestToCrossRateWithSort(t *testing.T) {
 	crossRate := ballot.ToCrossRateWithSort(referenceBallot.ToMap())
 	require.Equal(t, expectedCrossRate, crossRate)
 }
+
+// TestWeightedMedianOddTotalPower tests that weighted median requires strict majority (>50%)
+// This is a regression test for issue #236 where >= was incorrectly used instead of >
+func TestWeightedMedianOddTotalPower(t *testing.T) {
+	// Create ballot with odd total power (101)
+	// Validator A: 50 power (49.5%), votes 1.00
+	// Validator B: 51 power (50.5%), votes 2.00
+	ballot := ExchangeRateBallot{
+		NewVoteForTally(sdkMath.LegacyNewDec(1), "test", sdk.ValAddress([]byte("val1")), 50),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), "test", sdk.ValAddress([]byte("val2")), 51),
+	}
+
+	sort.Sort(ballot)
+	require.Equal(t, int64(101), ballot.Power())
+
+	// Median should be 2 (from validator with 51 power = 50.5%)
+	// NOT 1 (from validator with 50 power = 49.5%)
+	median := ballot.WeightedMedianWithAssertion()
+	require.Equal(t, sdkMath.LegacyNewDec(2), median, "weighted median should require strict majority")
+}
+
+// TestWeightedMedianExactHalf tests edge case where validator has exactly half power
+func TestWeightedMedianExactHalf(t *testing.T) {
+	// Total power: 100 (even)
+	// Validator A: 50 power, votes 1.00
+	// Validator B: 50 power, votes 2.00
+	ballot := ExchangeRateBallot{
+		NewVoteForTally(sdkMath.LegacyNewDec(1), "test", sdk.ValAddress([]byte("val1")), 50),
+		NewVoteForTally(sdkMath.LegacyNewDec(2), "test", sdk.ValAddress([]byte("val2")), 50),
+	}
+
+	sort.Sort(ballot)
+	require.Equal(t, int64(100), ballot.Power())
+
+	// With > check: first 50 is not > 50, so continue to second
+	median := ballot.WeightedMedianWithAssertion()
+	require.Equal(t, sdkMath.LegacyNewDec(2), median, "with exactly 50 percent should continue to next")
+}
