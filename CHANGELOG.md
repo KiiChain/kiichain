@@ -6,6 +6,13 @@
 
 - Disable EVM mempool due to bug on public nodes broadcast
 
+## v6.1.1 - 2026-01-22
+
+## Fixed
+
+- Removed ICS20 precompile
+- Disabled EVM mempool
+
 ## v6.0.0 - 2025-11-25
 
 ## Added
