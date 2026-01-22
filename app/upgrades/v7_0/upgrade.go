@@ -32,6 +32,26 @@ func CreateUpgradeHandler(
 			return vm, err
 		}
 
+		ctx.Logger().Info("Removing ICS precompile...")
+
+		// Get EVM module params
+		evmParams := keepers.EVMKeeper.GetParams(ctx)
+
+		// Remove ICS precompile
+		newPrecompiles := []string{}
+		for _, precompile := range evmParams.ActiveStaticPrecompiles {
+			if precompile != "0x0000000000000000000000000000000000000802" {
+				newPrecompiles = append(newPrecompiles, precompile)
+			}
+		}
+
+		// Update params
+		evmParams.ActiveStaticPrecompiles = newPrecompiles
+		err = keepers.EVMKeeper.SetParams(ctx, evmParams)
+		if err != nil {
+			return vm, err
+		}
+
 		ctx.Logger().Info("Starting module migrations...")
 
 		// Run the module migrations, it will start the new module with it's init genesis

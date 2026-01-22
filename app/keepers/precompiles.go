@@ -29,7 +29,6 @@ import (
 	"github.com/cosmos/evm/precompiles/bech32"
 	distprecompile "github.com/cosmos/evm/precompiles/distribution"
 	govprecompile "github.com/cosmos/evm/precompiles/gov"
-	ics20precompile "github.com/cosmos/evm/precompiles/ics20"
 	"github.com/cosmos/evm/precompiles/p256"
 	slashingprecompile "github.com/cosmos/evm/precompiles/slashing"
 	stakingprecompile "github.com/cosmos/evm/precompiles/staking"
@@ -144,14 +143,6 @@ func NewAvailableStaticPrecompiles(
 		options.AddressCodec,
 	)
 
-	// Prepare the ibc precompile
-	ibcTransferPrecompile := ics20precompile.NewPrecompile(
-		bankKeeper,
-		stakingKeeper,
-		transferKeeper,
-		channelKeeper,
-	)
-
 	// Prepare the bank precompile
 	bankPrecompile := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
 
@@ -185,7 +176,6 @@ func NewAvailableStaticPrecompiles(
 	// Stateful precompiles
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
-	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
 	precompiles[slashingPrecompile.Address()] = slashingPrecompile
