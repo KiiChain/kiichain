@@ -15,6 +15,7 @@
 ## Removed
 
 - Removed dead code related to no gas consumption
+- Removed ICS precompile
 
 ## Fixed
 - Fix oracle weighted median threshold to require >50% instead of >=50% for majority
