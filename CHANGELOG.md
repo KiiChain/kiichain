@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v6.0.1 - 2026-01-22
+
+## Fix
+
+- Disabled ICS20 precompile
+
 ## v6.0.0 - 2025-11-13
 
 ## Added
