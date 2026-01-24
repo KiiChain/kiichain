@@ -269,7 +269,8 @@ func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) error {
 	for _, denom := range activesToClear {
 		err = k.ExchangeRate.Remove(ctx, denom)
 		if err != nil {
-			return nil
+			ctx.Logger().Error("failed to remove exchange rate", "denom", denom, "error", err)
+			continue
 		}
 	}
 

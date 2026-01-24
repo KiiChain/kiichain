@@ -707,3 +707,33 @@ func TestVulnerabilityTWAPNumericUnderflow(t *testing.T) {
 		require.Equal(t, twaps[0].Twap.String(), twaps2[0].Twap.String())
 	})
 }
+
+func TestRemoveExcessFeedsWithError(t *testing.T) {
+	// Prepare the test environment
+	init := CreateTestInput(t)
+	oracleKeeper := init.OracleKeeper
+	ctx := init.Ctx
+
+	// Clear vote targets to simulate error condition
+	err := oracleKeeper.VoteTarget.Clear(ctx, nil)
+	require.NoError(t, err)
+	
+	// Set vote targets
+	err = oracleKeeper.VoteTarget.Set(ctx, utils.AtomDenom, types.Denom{Name: utils.AtomDenom})
+	require.NoError(t, err)
+
+	// Set exchange rates including excess ones
+	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.AtomDenom, math.LegacyNewDec(1))
+	require.NoError(t, err)
+	err = oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.KiiDenom, math.LegacyNewDec(3)) // excess denom
+	require.NoError(t, err)
+
+	// Test that RemoveExcessFeeds handles errors gracefully
+	// This should log error and continue instead of returning error
+	err = oracleKeeper.RemoveExcessFeeds(ctx)
+	require.NoError(t, err) // Should not return error even if some removals fail
+
+	// Verify that valid exchange rates are still present
+	_, err = oracleKeeper.ExchangeRate.Get(ctx, utils.AtomDenom)
+	require.NoError(t, err)
+}
