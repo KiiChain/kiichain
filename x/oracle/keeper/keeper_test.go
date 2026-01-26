@@ -717,7 +717,7 @@ func TestRemoveExcessFeedsWithError(t *testing.T) {
 	// Clear vote targets to simulate error condition
 	err := oracleKeeper.VoteTarget.Clear(ctx, nil)
 	require.NoError(t, err)
-	
+
 	// Set vote targets
 	err = oracleKeeper.VoteTarget.Set(ctx, utils.AtomDenom, types.Denom{Name: utils.AtomDenom})
 	require.NoError(t, err)
