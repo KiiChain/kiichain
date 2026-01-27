@@ -18,6 +18,7 @@
 - Removed ICS precompile
 
 ## Fixed
+- Fixed oracle module ConsensusVersion constant not being used ([#256](https://github.com/KiiChain/kiichain/issues/256))
 - Fix oracle weighted median threshold to require >50% instead of >=50% for majority
 - Make ERC20 fee conversion rounding explicit by always rounding up to avoid underpayment
 - Handle ValAddressFromBech32 error in oracle EndBlocker [#234](https://github.com/KiiChain/kiichain/issues/234)
