@@ -181,7 +181,7 @@ func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, valAd
 	if err != nil {
 		return cosmoserrors.Wrapf(stakingtypes.ErrNoValidatorFound, "validator %s not found", valAddr.String())
 	}
-	if valAddr == nil || !validator.IsBonded() {
+	if validator == nil || !validator.IsBonded() {
 		return cosmoserrors.Wrapf(stakingtypes.ErrNoValidatorFound, "validator %s is not active set", valAddr.String())
 	}
 

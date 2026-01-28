@@ -19,9 +19,11 @@
 
 ## Fixed
 - Return error instead of nil in RemoveExcessFeeds to properly propagate storage errors
+- Fixed oracle module ConsensusVersion constant not being used ([#256](https://github.com/KiiChain/kiichain/issues/256))
 - Fix oracle weighted median threshold to require >50% instead of >=50% for majority
 - Make ERC20 fee conversion rounding explicit by always rounding up to avoid underpayment
 - Handle ValAddressFromBech32 error in oracle EndBlocker [#234](https://github.com/KiiChain/kiichain/issues/234)
+- Fix wrong nil check in ValidateFeeder function ([#250](https://github.com/KiiChain/kiichain/issues/250))
 - Handle ignored error from TotalBondedTokens in pickReferenceDenom [#230](https://github.com/KiiChain/kiichain/issues/230)
 - Handle error in pickReferenceDenom instead of panic to prevent consensus failure [#203](https://github.com/KiiChain/kiichain/issues/203)
 

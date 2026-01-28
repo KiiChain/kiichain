@@ -28,7 +28,7 @@ var (
 )
 
 // ConsensusVersion defines the current x/oracle module consensus version.
-const ConsensusVersion = 1
+const ConsensusVersion = 6
 
 // ----------------------------------------------------------------------------
 // AppModuleBasic
@@ -165,7 +165,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 // ConsensusVersion returns the version the module's version
-func (AppModule) ConsensusVersion() uint64 { return 6 }
+func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
 // BeginBlock returns the begin blocker for the oracle module.
 func (am AppModule) BeginBlock(ctx context.Context) error {
