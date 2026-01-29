@@ -11,6 +11,7 @@
 - Bump opencontainers/runc from 1.1.14 to 1.2.8
 - Bump Hashicorp/go-better to from v1.7.8 to v1.7.9
 - Bump docker from 27.1.1 to 28.0.0
+- Bump tendermint from v0.38.19 to v0.38.21
 
 ## Added
 - Added telemetry for reward distribution
