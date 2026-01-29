@@ -105,7 +105,6 @@ func (s *WasmdPrecompileTestSuite) TestRealWorldReentrancyAttack() {
 				successfulReentries++
 				s.T().Logf("    ⚠️  ALLOWED - Execution %d succeeded", attempt)
 				s.T().Logf("       (In real DeFi: this would be withdrawal #%d)", attempt)
-			//nolint:goconst
 			case err.Error() == "reentrant call" || err.Error() == "reentrancy detected":
 				s.T().Logf("    ✓ BLOCKED - Reentrancy guard detected: %v", err)
 				s.T().Log("")
