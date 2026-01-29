@@ -52,7 +52,7 @@ type KeeperTestHelper struct {
 func (s *KeeperTestHelper) Setup() {
 	t := s.T()
 	s.App = helpers.Setup(t)
-	s.Ctx = s.App.BaseApp.NewUncachedContext(true, tmtypes.Header{Height: 1, ChainID: "testing", Time: time.Now().UTC()})
+	s.Ctx = s.App.NewUncachedContext(true, tmtypes.Header{Height: 1, ChainID: "testing", Time: time.Now().UTC()})
 
 	s.QueryHelper = &baseapp.QueryServiceTestHelper{
 		GRPCQueryRouter: s.App.GRPCQueryRouter(),
@@ -60,7 +60,7 @@ func (s *KeeperTestHelper) Setup() {
 	}
 	s.TestAccs = CreateRandomAccounts(3)
 
-	s.StakingHelper = stakinghelper.NewHelper(s.Suite.T(), s.Ctx, s.App.StakingKeeper)
+	s.StakingHelper = stakinghelper.NewHelper(s.T(), s.Ctx, s.App.StakingKeeper)
 	s.StakingHelper.Denom = "stake"
 }
 
@@ -69,7 +69,7 @@ func (s *KeeperTestHelper) SetupTestForInitGenesis() {
 	t := s.T()
 	// Setting to True, leads to init genesis not running
 	s.App = helpers.Setup(t)
-	s.Ctx = s.App.BaseApp.NewContext(true)
+	s.Ctx = s.App.NewContext(true)
 	s.Ctx = s.Ctx.WithBlockHeader(tmtypes.Header{
 		ChainID: "testing",
 	})

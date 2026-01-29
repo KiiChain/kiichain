@@ -281,7 +281,7 @@ func NewKiichainApp(
 	// }
 
 	if manager := app.SnapshotManager(); manager != nil {
-		err = manager.RegisterExtensions(wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper))
+		err = manager.RegisterExtensions(wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.WasmKeeper))
 		if err != nil {
 			panic("failed to register snapshot extension: " + err.Error())
 		}
@@ -308,9 +308,9 @@ func NewKiichainApp(
 			tmos.Exit(fmt.Sprintf("failed to load latest version: %s", err))
 		}
 
-		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
+		ctx := app.NewUncachedContext(true, tmproto.Header{})
 
-		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
+		if err := app.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
 			tmos.Exit(fmt.Sprintf("WasmKeeper failed initialize pinned codes %s", err))
 		}
 	}
@@ -340,7 +340,7 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 		MaxTxGasWanted:         maxGasWanted,
 		DynamicFeeChecker:      true,
 		StakingKeeper:          app.StakingKeeper,
-		TXCounterStoreService:  runtime.NewKVStoreService(app.AppKeepers.GetKey(wasmtypes.StoreKey)),
+		TXCounterStoreService:  runtime.NewKVStoreService(app.GetKey(wasmtypes.StoreKey)),
 		WasmConfig:             &wasmConfig,
 		OracleKeeper:           &app.OracleKeeper,
 		PendingTxListener:      app.onPendingTx,
@@ -474,14 +474,14 @@ func (app *KiichainApp) RegisterNodeService(clientCtx client.Context, cfg config
 
 // RegisterTxService implements the Application.RegisterTxService method.
 func (app *KiichainApp) RegisterTxService(clientCtx client.Context) {
-	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
+	authtx.RegisterTxService(app.GRPCQueryRouter(), clientCtx, app.Simulate, app.interfaceRegistry)
 }
 
 // RegisterTendermintService implements the Application.RegisterTendermintService method.
 func (app *KiichainApp) RegisterTendermintService(clientCtx client.Context) {
 	cmtservice.RegisterTendermintService(
 		clientCtx,
-		app.BaseApp.GRPCQueryRouter(),
+		app.GRPCQueryRouter(),
 		app.interfaceRegistry,
 		app.Query,
 	)
@@ -577,7 +577,7 @@ func (app *KiichainApp) GetTxConfig() client.TxConfig {
 
 // GetTestGovKeeper implements the TestingApp interface.
 func (app *KiichainApp) GetTestGovKeeper() *govkeeper.Keeper {
-	return app.AppKeepers.GovKeeper
+	return app.GovKeeper
 }
 
 // EmptyAppOptions is a stub implementing AppOptions

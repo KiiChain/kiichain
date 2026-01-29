@@ -58,7 +58,7 @@ func (k msgServer) FundPool(ctx context.Context, msg *types.MsgFundPool) (*types
 		return nil, fmt.Errorf("denom %s does not match expected denom: %s", msg.Amount.Denom, params.TokenDenom)
 	}
 
-	if err := k.Keeper.FundCommunityPool(ctx, msg.Amount, depositor); err != nil {
+	if err := k.FundCommunityPool(ctx, msg.Amount, depositor); err != nil {
 		return nil, err
 	}
 
@@ -87,7 +87,7 @@ func (k msgServer) ChangeSchedule(ctx context.Context, msg *types.MsgChangeSched
 	}
 
 	// Save the new schedule
-	if err := k.Keeper.ReleaseSchedule.Set(sdkCtx, schedule); err != nil {
+	if err := k.ReleaseSchedule.Set(sdkCtx, schedule); err != nil {
 		return nil, fmt.Errorf("failed to set release schedule: %w", err)
 	}
 

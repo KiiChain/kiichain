@@ -40,7 +40,7 @@ func (ms MsgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams
 	}
 
 	// Validate the twap lookback window
-	if err := ms.Keeper.oracleKeeper.ValidateLookBackSeconds(sdk.UnwrapSDKContext(ctx), msg.Params.TwapLookbackWindow); err != nil {
+	if err := ms.oracleKeeper.ValidateLookBackSeconds(sdk.UnwrapSDKContext(ctx), msg.Params.TwapLookbackWindow); err != nil {
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid twap lookback window: %s", err)
 	}
 

@@ -55,10 +55,7 @@ func (k Keeper) OrganizeBallotByDenom(ctx sdk.Context, validatorClaimMap map[str
 // for the new denoms on the whitelist creaste its mili and micro version
 func (k Keeper) ApplyWhitelist(ctx sdk.Context, whitelist types.DenomList, voteTargets map[string]types.Denom) error {
 	// Check if there is an update in whitelist
-	updateRequire := false
-	if len(voteTargets) != len(whitelist) {
-		updateRequire = true
-	}
+	updateRequire := len(voteTargets) != len(whitelist)
 
 	// iterate whitelist and check for an item on the whitelist but no on the vote target list
 	for _, item := range whitelist {
