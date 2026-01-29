@@ -252,3 +252,31 @@ func (suite *KeeperTestSuite) TestSetDenomMetaDataMsg() {
 		})
 	}
 }
+
+// TestMintToBlockedAddr tests that minting to a blocked address (module account) fails
+func (suite *KeeperTestSuite) TestMintToBlockedAddr() {
+	// Setup test
+	suite.SetupTest()
+	suite.CreateDefaultDenom()
+
+	// Get a module account address which should be blocked
+	// Common module accounts like distribution, staking, gov are blocked
+	distributionModuleAddr := suite.App.AccountKeeper.GetModuleAddress("distribution")
+	suite.Require().NotNil(distributionModuleAddr)
+
+	// Verify the address is actually blocked
+	suite.Require().True(suite.App.BankKeeper.BlockedAddr(distributionModuleAddr))
+
+	ctx := suite.Ctx.WithEventManager(sdk.NewEventManager())
+
+	// Attempt to mint to the blocked address
+	_, err := suite.msgServer.Mint(ctx, types.NewMsgMintTo(
+		suite.TestAccs[0].String(),
+		sdk.NewInt64Coin(suite.defaultDenom, 100),
+		distributionModuleAddr.String(),
+	))
+
+	// Should fail with blocked address error
+	suite.Require().Error(err)
+	suite.Require().Contains(err.Error(), "failed to mint to blocked address")
+}
