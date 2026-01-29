@@ -36,7 +36,8 @@ jobs:
             **/Makefile
             Makefile
 
-      - name: run linting
-        if: env.GIT_DIFF
-        run: |
-          make lint
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          args: --timeout=30m
+          version: 2.7.2
