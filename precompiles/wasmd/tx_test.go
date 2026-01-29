@@ -153,7 +153,7 @@ func (s *WasmdPrecompileTestSuite) TestInstantiate() {
 
 				// Check if events were emitted
 				log := stateDB.Logs()[0] // Always zero index, since the db is initialized per test
-				event := s.Precompile.ABI.Events[wasmdprecompile.EventTypeContractInstantiated]
+				event := s.Precompile.Events[wasmdprecompile.EventTypeContractInstantiated]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
 				s.Require().Equal(log.BlockNumber, uint64(s.Ctx.BlockHeight()))
 
@@ -309,7 +309,7 @@ func (s *WasmdPrecompileTestSuite) TestExecute() {
 
 				// Check if events were emitted
 				log := stateDB.Logs()[0] // Always zero index, since the db is initialized per test
-				event := s.Precompile.ABI.Events[wasmdprecompile.EventTypeContractExecuted]
+				event := s.Precompile.Events[wasmdprecompile.EventTypeContractExecuted]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
 				s.Require().Equal(log.BlockNumber, uint64(s.Ctx.BlockHeight()))
 

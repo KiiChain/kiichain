@@ -14,6 +14,10 @@ import (
 	wasmdprecompile "github.com/kiichain/kiichain/v7/precompiles/wasmd"
 )
 
+const (
+	reentrancyCallError = "reentrant call"
+)
+
 // TestInvalidCodeIDValidation tests if the precompile properly validates code_id
 // Bug Report Issue #4: No Input Validation
 func (s *WasmdPrecompileTestSuite) TestInvalidCodeIDValidation() {
@@ -255,7 +259,7 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 			s.T().Log("⚠️  VULNERABILITY: No reentrancy protection detected!")
 			s.T().Log("    Second execution succeeded without any guard")
 			s.T().Log("    A malicious contract could exploit this")
-		} else if err2.Error() == "reentrant call" || err2.Error() == "reentrancy detected" {
+		} else if err2.Error() == reentrancyCallError || err2.Error() == "reentrancy detected" {
 			s.T().Log("✓ PROTECTED: Reentrancy guard is working")
 		}
 	})
@@ -300,7 +304,7 @@ func (s *WasmdPrecompileTestSuite) TestReentrancy() {
 			_, err := s.Precompile.Run(s.NewVMInstance(ctx), contract, false)
 			if err != nil {
 				s.T().Logf("  Depth %d: BLOCKED - %v", i, err)
-				if err.Error() == "reentrant call" {
+				if err.Error() == reentrancyCallError {
 					s.T().Log("✓ Reentrancy guard successfully prevented nested execution")
 					return
 				}

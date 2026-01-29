@@ -118,7 +118,7 @@ func (app *KiichainApp) GetMempool() sdkmempool.ExtMempool {
 }
 
 func (app *KiichainApp) GetAnteHandler() sdk.AnteHandler {
-	return app.BaseApp.AnteHandler()
+	return app.AnteHandler()
 }
 
 // DefaultGenesis returns a default genesis from the registered ModuleBasics's.

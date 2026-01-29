@@ -42,7 +42,7 @@ func (s *OraclePrecompileTestSuite) SetupSuite() {
 
 	// Create the app and the context
 	s.App = helpers.Setup(t)
-	s.Ctx = s.App.BaseApp.NewUncachedContext(true, tmtypes.Header{Height: 1, ChainID: "test_1010-1", Time: time.Now().UTC()})
+	s.Ctx = s.App.NewUncachedContext(true, tmtypes.Header{Height: 1, ChainID: "test_1010-1", Time: time.Now().UTC()})
 
 	// Start a new keyring
 	keyring := testkeyring.New(2)

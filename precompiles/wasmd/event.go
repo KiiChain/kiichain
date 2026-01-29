@@ -20,7 +20,7 @@ const (
 // EmitEventContractInstantiated emits the ContractInstantiated event
 func (p *Precompile) EmitEventContractInstantiated(ctx sdk.Context, stateDB vm.StateDB, caller common.Address, codeID uint64, contractAddress string, data []byte) (err error) {
 	// Prepare the event topics
-	event := p.ABI.Events[EventTypeContractInstantiated]
+	event := p.Events[EventTypeContractInstantiated]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is the signature of the event
@@ -58,7 +58,7 @@ func (p *Precompile) EmitEventContractInstantiated(ctx sdk.Context, stateDB vm.S
 // EmitEventContractExecuted emits the ContractExecuted event
 func (p *Precompile) EmitEventContractExecuted(ctx sdk.Context, stateDB vm.StateDB, contractAddress string, caller common.Address, data []byte) (err error) {
 	// Prepare the event topics
-	event := p.ABI.Events[EventTypeContractExecuted]
+	event := p.Events[EventTypeContractExecuted]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is the signature of the event

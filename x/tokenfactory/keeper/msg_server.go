@@ -58,7 +58,7 @@ func (server msgServer) Mint(goCtx context.Context, msg *types.MsgMint) (*types.
 		return nil, types.ErrDenomDoesNotExist.Wrapf("denom: %s", msg.Amount.Denom)
 	}
 
-	authorityMetadata, err := server.Keeper.GetAuthorityMetadata(ctx, msg.Amount.GetDenom())
+	authorityMetadata, err := server.GetAuthorityMetadata(ctx, msg.Amount.GetDenom())
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (server msgServer) Mint(goCtx context.Context, msg *types.MsgMint) (*types.
 		msg.MintToAddress = msg.Sender
 	}
 
-	err = server.Keeper.mintTo(ctx, msg.Amount, msg.MintToAddress)
+	err = server.mintTo(ctx, msg.Amount, msg.MintToAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func (server msgServer) Mint(goCtx context.Context, msg *types.MsgMint) (*types.
 func (server msgServer) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.MsgBurnResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	authorityMetadata, err := server.Keeper.GetAuthorityMetadata(ctx, msg.Amount.GetDenom())
+	authorityMetadata, err := server.GetAuthorityMetadata(ctx, msg.Amount.GetDenom())
 	if err != nil {
 		return nil, err
 	}
@@ -101,11 +101,11 @@ func (server msgServer) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.
 
 	if msg.BurnFromAddress == "" {
 		msg.BurnFromAddress = msg.Sender
-	} else if !types.IsCapabilityEnabled(server.Keeper.enabledCapabilities, types.EnableBurnFrom) {
+	} else if !types.IsCapabilityEnabled(server.enabledCapabilities, types.EnableBurnFrom) {
 		return nil, types.ErrCapabilityNotEnabled
 	}
 
-	err = server.Keeper.burnFrom(ctx, msg.Amount, msg.BurnFromAddress)
+	err = server.burnFrom(ctx, msg.Amount, msg.BurnFromAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -124,11 +124,11 @@ func (server msgServer) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.
 func (server msgServer) ForceTransfer(goCtx context.Context, msg *types.MsgForceTransfer) (*types.MsgForceTransferResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if !types.IsCapabilityEnabled(server.Keeper.enabledCapabilities, types.EnableForceTransfer) {
+	if !types.IsCapabilityEnabled(server.enabledCapabilities, types.EnableForceTransfer) {
 		return nil, types.ErrCapabilityNotEnabled
 	}
 
-	authorityMetadata, err := server.Keeper.GetAuthorityMetadata(ctx, msg.Amount.GetDenom())
+	authorityMetadata, err := server.GetAuthorityMetadata(ctx, msg.Amount.GetDenom())
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func (server msgServer) ForceTransfer(goCtx context.Context, msg *types.MsgForce
 		return nil, types.ErrUnauthorized
 	}
 
-	err = server.Keeper.forceTransfer(ctx, msg.Amount, msg.TransferFromAddress, msg.TransferToAddress)
+	err = server.forceTransfer(ctx, msg.Amount, msg.TransferFromAddress, msg.TransferToAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +157,7 @@ func (server msgServer) ForceTransfer(goCtx context.Context, msg *types.MsgForce
 func (server msgServer) ChangeAdmin(goCtx context.Context, msg *types.MsgChangeAdmin) (*types.MsgChangeAdminResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	authorityMetadata, err := server.Keeper.GetAuthorityMetadata(ctx, msg.Denom)
+	authorityMetadata, err := server.GetAuthorityMetadata(ctx, msg.Denom)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +166,7 @@ func (server msgServer) ChangeAdmin(goCtx context.Context, msg *types.MsgChangeA
 		return nil, types.ErrUnauthorized
 	}
 
-	err = server.Keeper.setAdmin(ctx, authorityMetadata, msg.Denom, msg.NewAdmin)
+	err = server.setAdmin(ctx, authorityMetadata, msg.Denom, msg.NewAdmin)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func (server msgServer) ChangeAdmin(goCtx context.Context, msg *types.MsgChangeA
 func (server msgServer) SetDenomMetadata(goCtx context.Context, msg *types.MsgSetDenomMetadata) (*types.MsgSetDenomMetadataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if !types.IsCapabilityEnabled(server.Keeper.enabledCapabilities, types.EnableSetMetadata) {
+	if !types.IsCapabilityEnabled(server.enabledCapabilities, types.EnableSetMetadata) {
 		return nil, types.ErrCapabilityNotEnabled
 	}
 
@@ -194,7 +194,7 @@ func (server msgServer) SetDenomMetadata(goCtx context.Context, msg *types.MsgSe
 		return nil, err
 	}
 
-	authorityMetadata, err := server.Keeper.GetAuthorityMetadata(ctx, msg.Metadata.Base)
+	authorityMetadata, err := server.GetAuthorityMetadata(ctx, msg.Metadata.Base)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +203,7 @@ func (server msgServer) SetDenomMetadata(goCtx context.Context, msg *types.MsgSe
 		return nil, types.ErrUnauthorized
 	}
 
-	server.Keeper.bankKeeper.SetDenomMetaData(ctx, msg.Metadata)
+	server.bankKeeper.SetDenomMetaData(ctx, msg.Metadata)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(

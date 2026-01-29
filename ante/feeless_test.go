@@ -33,7 +33,7 @@ var feeCoin = sdk.Coin{
 func TestFeelessDecorator(t *testing.T) {
 	// Start the app
 	app := helpers.Setup(t)
-	ctx := app.BaseApp.NewUncachedContext(true, tenderminttypes.Header{Height: 1, ChainID: "testing_1010-1", Time: time.Now().UTC()})
+	ctx := app.NewUncachedContext(true, tenderminttypes.Header{Height: 1, ChainID: "testing_1010-1", Time: time.Now().UTC()})
 
 	// Create a fee payer
 	funder := apptesting.RandomAccountAddress()
@@ -218,7 +218,7 @@ func TestFeelessDecorator(t *testing.T) {
 func TestVulnerabilityFeelessDoubleVoting(t *testing.T) {
 	// Start the app
 	app := helpers.Setup(t)
-	ctx := app.BaseApp.NewUncachedContext(true, tenderminttypes.Header{Height: 1, ChainID: "testing_1010-1", Time: time.Now().UTC()})
+	ctx := app.NewUncachedContext(true, tenderminttypes.Header{Height: 1, ChainID: "testing_1010-1", Time: time.Now().UTC()})
 
 	// Create feeder
 	feeder := apptesting.RandomAccountAddress()

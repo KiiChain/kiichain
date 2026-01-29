@@ -58,7 +58,7 @@ func (ms msgServer) AggregateExchangeRateVote(ctx context.Context, msg *types.Ms
 
 	// Check all denoms are in the vote target
 	for _, exchangeRate := range exchangeRates {
-		found, err := ms.Keeper.VoteTarget.Has(ctx, exchangeRate.Denom)
+		found, err := ms.VoteTarget.Has(ctx, exchangeRate.Denom)
 		if err != nil {
 			return nil, err
 		}
@@ -148,7 +148,7 @@ func (ms msgServer) DelegateFeedConsent(ctx context.Context, msg *types.MsgDeleg
 // UpdateParams updates the oracle module parameters
 func (ms msgServer) UpdateParams(ctx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
 	// Check the authority
-	if ms.Keeper.GetAuthority() != req.Authority {
+	if ms.GetAuthority() != req.Authority {
 		return nil, errors.Wrapf(sdkerrors.ErrUnauthorized, "invalid authority %s, expected %s", req.Authority, ms.GetAuthority())
 	}
 
