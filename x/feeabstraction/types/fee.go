@@ -56,17 +56,17 @@ func ClampPrice(prevPrice, newPrice, clampFactor math.LegacyDec) math.LegacyDec 
 		return newPrice
 	}
 
-	// Get the max and min bounds based on the clamp factor
-	min := prevPrice.Mul(math.LegacyOneDec().Sub(clampFactor))
-	max := prevPrice.Mul(math.LegacyOneDec().Add(clampFactor))
+	// Get the max and minClamp bounds based on the clamp factor
+	minClamp := prevPrice.Mul(math.LegacyOneDec().Sub(clampFactor))
+	maxClamp := prevPrice.Mul(math.LegacyOneDec().Add(clampFactor))
 
 	// Clamp the new price within the bounds
-	if newPrice.LT(min) {
-		return min
+	if newPrice.LT(minClamp) {
+		return minClamp
 	}
 	// If newPrice is greater than max, return max
-	if newPrice.GT(max) {
-		return max
+	if newPrice.GT(maxClamp) {
+		return maxClamp
 	}
 	// Return the new price as it is within bounds
 	return newPrice
