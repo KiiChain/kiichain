@@ -1,6 +1,7 @@
 module github.com/kiichain/kiichain/v7
 
-go 1.24.11
+go 1.24.0
+toolchain go1.24.11
 
 require (
 	cosmossdk.io/api v0.9.2
