@@ -147,8 +147,7 @@ func (s *IntegrationTestSuite) checkAndUpdateOracleParams() {
 	s.Require().NoError(err, "failed to query oracle parameters")
 
 	// Check if the parameters are set under the expected values
-	expectedWhitelist := []string{"akii"}
-	if len(params.Params.Whitelist) == 1 && params.Params.Whitelist[0].Name == expectedWhitelist[0] {
+	if len(params.Params.Whitelist) == 1 && params.Params.Whitelist[0].Name == "akii" {
 		s.T().Log("Oracle parameters are already set correctly, skipping update")
 		return
 	}
