@@ -32,7 +32,9 @@
 - Handle ignored error from TotalBondedTokens in pickReferenceDenom [#230](https://github.com/KiiChain/kiichain/issues/230)
 - Handle error in pickReferenceDenom instead of panic to prevent consensus failure [#203](https://github.com/KiiChain/kiichain/issues/203)
 
-- Disable EVM mempool due to bug on public nodes broadcast
+- Fixed EVM mempool public nodes broadcast bug
+- Fixed Ledger failure on linux nano
+- Fixed ledger usage of default chain ID
 - Remove references to time.Now() on release schedule validation
 - Fix Oracle precompile ParseGetTwapsArgs missing validation for lookbackPeriod [#204](https://github.com/KiiChain/kiichain/issues/204)
 - Remove unsafe math.Sqrt usage in oracle ballot standard deviation calculation
