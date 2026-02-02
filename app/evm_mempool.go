@@ -33,7 +33,6 @@ func (app *KiichainApp) configureEVMMempool(appOpts servertypes.AppOptions, logg
 		app.EVMKeeper,
 		app.FeeMarketKeeper,
 		app.txConfig,
-		app.clientCtx,
 		mempoolConfig,
 		cosmosPoolMaxTx,
 	)

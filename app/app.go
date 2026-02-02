@@ -273,12 +273,9 @@ func NewKiichainApp(
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 	app.setAnteHandler(app.txConfig, maxGasWanted, appOpts)
 
-	// set the EVM priority nonce mempool
-	// Mempool is currently disabled due to a bug in EVM mempool on public nodes
-	// It will be enabled again once the bug is fixed on EVM
-	// if evmtypes.GetChainConfig() != nil {
-	// 	app.SetupEVMMempool(appOpts, logger)
-	// }
+	if evmtypes.GetChainConfig() != nil {
+		app.configureEVMMempool(appOpts, logger)
+	}
 
 	if manager := app.SnapshotManager(); manager != nil {
 		err = manager.RegisterExtensions(wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.WasmKeeper))
