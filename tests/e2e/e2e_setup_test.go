@@ -561,6 +561,7 @@ func (s *IntegrationTestSuite) initValidatorConfigs(c *chain) {
 		appConfig.API.Address = "tcp://0.0.0.0:1317"
 		appConfig.MinGasPrices = fmt.Sprintf("%s%s", minGasPrice, akiiDenom)
 		appConfig.GRPC.Address = "0.0.0.0:9090"
+		appConfig.Mempool.MaxTxs = 0
 
 		// Setup EVM related
 		evmConfig := evmconfig.DefaultConfig()
