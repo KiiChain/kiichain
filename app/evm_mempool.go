@@ -13,7 +13,7 @@ import (
 )
 
 // configureEVMMempool sets up the EVM mempool and related handlers using viper configuration.
-func (app *KiichainApp) configureEVMMempool(appOpts servertypes.AppOptions, logger log.Logger) { //nolint:unused
+func (app *KiichainApp) configureEVMMempool(appOpts servertypes.AppOptions, logger log.Logger) {
 	if evmtypes.GetChainConfig() == nil {
 		logger.Debug("evm chain config is not set, skipping mempool configuration")
 		return
@@ -33,7 +33,6 @@ func (app *KiichainApp) configureEVMMempool(appOpts servertypes.AppOptions, logg
 		app.EVMKeeper,
 		app.FeeMarketKeeper,
 		app.txConfig,
-		app.clientCtx,
 		mempoolConfig,
 		cosmosPoolMaxTx,
 	)
@@ -53,7 +52,7 @@ func (app *KiichainApp) configureEVMMempool(appOpts servertypes.AppOptions, logg
 
 // createMempoolConfig creates a new EVMMempoolConfig with the default configuration
 // and overrides it with values from appOpts if they exist and are non-zero.
-func (app *KiichainApp) createMempoolConfig(appOpts servertypes.AppOptions, logger log.Logger) *evmmempool.EVMMempoolConfig { //nolint:unused
+func (app *KiichainApp) createMempoolConfig(appOpts servertypes.AppOptions, logger log.Logger) *evmmempool.EVMMempoolConfig {
 	return &evmmempool.EVMMempoolConfig{
 		AnteHandler:      app.GetAnteHandler(),
 		LegacyPoolConfig: evmconfig.GetLegacyPoolConfig(appOpts, logger),
