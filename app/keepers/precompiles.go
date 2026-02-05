@@ -37,7 +37,6 @@ import (
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 
 	"github.com/kiichain/kiichain/v7/precompiles/oracle"
-	"github.com/kiichain/kiichain/v7/precompiles/wasmd"
 	oraclekeeper "github.com/kiichain/kiichain/v7/x/oracle/keeper"
 )
 
@@ -163,9 +162,6 @@ func NewAvailableStaticPrecompiles(
 		options.ConsensusAddrCodec,
 	)
 
-	// Prepare the wasmd precompile
-	wasmdPrecompile := wasmd.NewPrecompile(wasmdKeeper)
-
 	// Prepare the oracle precompile
 	oraclePrecompile := oracle.NewPrecompile(oracleKeeper)
 
@@ -179,7 +175,6 @@ func NewAvailableStaticPrecompiles(
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
 	precompiles[slashingPrecompile.Address()] = slashingPrecompile
-	precompiles[wasmdPrecompile.Address()] = wasmdPrecompile
 	precompiles[oraclePrecompile.Address()] = oraclePrecompile
 
 	// Return the precompiles
