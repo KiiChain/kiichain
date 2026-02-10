@@ -1,8 +1,8 @@
 package oracle
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -104,8 +104,8 @@ func TestCircuitBreaker100PercentValidation(t *testing.T) {
 		t.Log("\n--- IMPACT ON DEPENDENT SYSTEMS ---")
 
 		type SystemImpact struct {
-			system string
-			impact string
+			system   string
+			impact   string
 			severity string
 		}
 
@@ -245,40 +245,40 @@ func TestCircuitBreaker100PercentValidation(t *testing.T) {
 		t.Log("\n--- COMPARISON WITH OTHER PROTOCOLS ---")
 
 		protocols := []struct {
-			name            string
-			circuitBreaker  string
-			maxPriceChange  string
-			emergencyPause  bool
+			name           string
+			circuitBreaker string
+			maxPriceChange string
+			emergencyPause bool
 		}{
 			{
-				name:            "Compound",
-				circuitBreaker:  "Guardian can pause markets",
-				maxPriceChange:  "10% per hour",
-				emergencyPause:  true,
+				name:           "Compound",
+				circuitBreaker: "Guardian can pause markets",
+				maxPriceChange: "10% per hour",
+				emergencyPause: true,
 			},
 			{
-				name:            "Aave",
-				circuitBreaker:  "Emergency freeze mechanism",
-				maxPriceChange:  "Variable based on volatility",
-				emergencyPause:  true,
+				name:           "Aave",
+				circuitBreaker: "Emergency freeze mechanism",
+				maxPriceChange: "Variable based on volatility",
+				emergencyPause: true,
 			},
 			{
-				name:            "MakerDAO",
-				circuitBreaker:  "Emergency shutdown",
-				maxPriceChange:  "OSM delay provides buffer",
-				emergencyPause:  true,
+				name:           "MakerDAO",
+				circuitBreaker: "Emergency shutdown",
+				maxPriceChange: "OSM delay provides buffer",
+				emergencyPause: true,
 			},
 			{
-				name:            "Terra (before crash)",
-				circuitBreaker:  "None",
-				maxPriceChange:  "Unlimited",
-				emergencyPause:  false,
+				name:           "Terra (before crash)",
+				circuitBreaker: "None",
+				maxPriceChange: "Unlimited",
+				emergencyPause: false,
 			},
 			{
-				name:            "KiiChain",
-				circuitBreaker:  "None",
-				maxPriceChange:  "Unlimited (ClampFactor ~10% per block)",
-				emergencyPause:  false,
+				name:           "KiiChain",
+				circuitBreaker: "None",
+				maxPriceChange: "Unlimited (ClampFactor ~10% per block)",
+				emergencyPause: false,
 			},
 		}
 

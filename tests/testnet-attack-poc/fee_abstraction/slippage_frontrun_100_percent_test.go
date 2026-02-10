@@ -1,8 +1,8 @@
 package fee_abstraction
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -29,37 +29,37 @@ func TestSlippageFrontrun100PercentValidation(t *testing.T) {
 
 		// Simulate attack
 		type Transaction struct {
-			user                string
-			calculationPrice    float64
-			executionPrice      float64
-			expectedFeeTokens   float64
-			actualFeeTokens     float64
-			overpaymentPercent  float64
+			user               string
+			calculationPrice   float64
+			executionPrice     float64
+			expectedFeeTokens  float64
+			actualFeeTokens    float64
+			overpaymentPercent float64
 		}
 
 		attacks := []Transaction{
 			{
-				user:              "Alice",
-				calculationPrice:  5.00,
-				executionPrice:    6.00, // 20% increase
-				expectedFeeTokens: 20.0,
-				actualFeeTokens:   24.0,
+				user:               "Alice",
+				calculationPrice:   5.00,
+				executionPrice:     6.00, // 20% increase
+				expectedFeeTokens:  20.0,
+				actualFeeTokens:    24.0,
 				overpaymentPercent: 20.0,
 			},
 			{
-				user:              "Bob",
-				calculationPrice:  5.00,
-				executionPrice:    7.50, // 50% increase
-				expectedFeeTokens: 20.0,
-				actualFeeTokens:   30.0,
+				user:               "Bob",
+				calculationPrice:   5.00,
+				executionPrice:     7.50, // 50% increase
+				expectedFeeTokens:  20.0,
+				actualFeeTokens:    30.0,
 				overpaymentPercent: 50.0,
 			},
 			{
-				user:              "Charlie",
-				calculationPrice:  5.00,
-				executionPrice:    10.00, // 100% increase (2x)
-				expectedFeeTokens: 20.0,
-				actualFeeTokens:   40.0,
+				user:               "Charlie",
+				calculationPrice:   5.00,
+				executionPrice:     10.00, // 100% increase (2x)
+				expectedFeeTokens:  20.0,
+				actualFeeTokens:    40.0,
 				overpaymentPercent: 100.0,
 			},
 		}
@@ -134,8 +134,8 @@ func TestSlippageFrontrun100PercentValidation(t *testing.T) {
 		t.Log("")
 
 		// Calculate MEV profit
-		userFeeUSD := 100.0     // User needs to pay $100 in fees
-		originalPrice := 5.00   // Token price when user calculated
+		userFeeUSD := 100.0      // User needs to pay $100 in fees
+		originalPrice := 5.00    // Token price when user calculated
 		manipulatedPrice := 6.00 // Validator manipulates to this
 
 		originalTokens := userFeeUSD / originalPrice
@@ -144,6 +144,7 @@ func TestSlippageFrontrun100PercentValidation(t *testing.T) {
 		// Validator receives the difference
 		extraTokens := originalTokens - manipulatedTokens
 		validatorProfit := extraTokens * originalPrice
+		t.Logf("  Validator profi: %.0f", validatorProfit)
 
 		// But wait, user has to pay MORE tokens, not less!
 		// Let me recalculate correctly
@@ -158,8 +159,8 @@ func TestSlippageFrontrun100PercentValidation(t *testing.T) {
 
 		// The slippage attack is different - it's about user expecting one fee but paying another
 
-		userExpectedTokens := 20.0      // User calculated they need 20 tokens
-		actualTokensNeeded := 24.0      // After price manipulation, need 24 tokens
+		userExpectedTokens := 20.0 // User calculated they need 20 tokens
+		actualTokensNeeded := 24.0 // After price manipulation, need 24 tokens
 		extraTokensPaid := actualTokensNeeded - userExpectedTokens
 		userLoss := extraTokensPaid * manipulatedPrice
 
@@ -189,34 +190,34 @@ func TestSlippageFrontrun100PercentValidation(t *testing.T) {
 		t.Log("\n--- USER EXPERIENCE IMPACT ---")
 
 		scenarios := []struct {
-			name              string
-			expectedCost      float64
-			actualCost        float64
-			userReaction      string
+			name         string
+			expectedCost float64
+			actualCost   float64
+			userReaction string
 		}{
 			{
-				name:          "Small transaction",
-				expectedCost:  1.00,
-				actualCost:    1.20,
-				userReaction:  "Annoyed but accepts",
+				name:         "Small transaction",
+				expectedCost: 1.00,
+				actualCost:   1.20,
+				userReaction: "Annoyed but accepts",
 			},
 			{
-				name:          "Medium transaction",
-				expectedCost:  50.00,
-				actualCost:    60.00,
-				userReaction:  "Frustrated, submits complaint",
+				name:         "Medium transaction",
+				expectedCost: 50.00,
+				actualCost:   60.00,
+				userReaction: "Frustrated, submits complaint",
 			},
 			{
-				name:          "Large transaction",
-				expectedCost:  1000.00,
-				actualCost:    1200.00,
-				userReaction:  "Stops using platform, posts negative review",
+				name:         "Large transaction",
+				expectedCost: 1000.00,
+				actualCost:   1200.00,
+				userReaction: "Stops using platform, posts negative review",
 			},
 		}
 
 		t.Log("User Experience Scenarios:")
 		for i, s := range scenarios {
-			overpayment := actualCost - s.expectedCost
+			overpayment := s.actualCost - s.expectedCost
 			percent := (overpayment / s.expectedCost) * 100
 
 			t.Logf("\n%d. %s:", i+1, s.name)

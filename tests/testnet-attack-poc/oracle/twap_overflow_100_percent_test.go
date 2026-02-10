@@ -1,9 +1,9 @@
 package oracle
 
 import (
-	"strings"
 	"fmt"
 	"math"
+	"strings"
 	"testing"
 )
 
@@ -22,46 +22,46 @@ func TestTWAPOverflow100PercentValidation(t *testing.T) {
 		// If denomDuration < timeTraversed, this underflows
 
 		type ScenarioSint64 struct {
-			name            string
-			denomDuration   int64
-			timeTraversed   int64
-			expectedResult  int64
-			actualResult    int64
-			corrupted       bool
+			name           string
+			denomDuration  int64
+			timeTraversed  int64
+			expectedResult int64
+			actualResult   int64
+			corrupted      bool
 		}
 
 		scenarios := []Scenario{
 			{
-				name:            "Normal case",
-				denomDuration:   100,
-				timeTraversed:   50,
-				expectedResult:  50,
-				actualResult:    50,
-				corrupted:       false,
+				name:           "Normal case",
+				denomDuration:  100,
+				timeTraversed:  50,
+				expectedResult: 50,
+				actualResult:   50,
+				corrupted:      false,
 			},
 			{
-				name:            "Edge case - equal durations",
-				denomDuration:   100,
-				timeTraversed:   100,
-				expectedResult:  0,
-				actualResult:    0,
-				corrupted:       false,
+				name:           "Edge case - equal durations",
+				denomDuration:  100,
+				timeTraversed:  100,
+				expectedResult: 0,
+				actualResult:   0,
+				corrupted:      false,
 			},
 			{
-				name:            "BUG: Underflow - traversed > duration",
-				denomDuration:   100,
-				timeTraversed:   150,
-				expectedResult:  0, // Should be clamped to 0
-				actualResult:    -50, // Actually negative!
-				corrupted:       true,
+				name:           "BUG: Underflow - traversed > duration",
+				denomDuration:  100,
+				timeTraversed:  150,
+				expectedResult: 0,   // Should be clamped to 0
+				actualResult:   -50, // Actually negative!
+				corrupted:      true,
 			},
 			{
-				name:            "BUG: Large underflow",
-				denomDuration:   1000,
-				timeTraversed:   5000,
-				expectedResult:  0,
-				actualResult:    -4000,
-				corrupted:       true,
+				name:           "BUG: Large underflow",
+				denomDuration:  1000,
+				timeTraversed:  5000,
+				expectedResult: 0,
+				actualResult:   -4000,
+				corrupted:      true,
 			},
 		}
 
@@ -321,7 +321,7 @@ func TestNumericPrecisionIssues(t *testing.T) {
 
 		// Simulate multiplication that could overflow
 		largePrice := float64(1000000.0) // $1M per token (extreme but possible)
-		largeDuration := int64(86400)     // 1 day in seconds
+		largeDuration := int64(86400)    // 1 day in seconds
 
 		product := largePrice * float64(largeDuration)
 		t.Logf("Large calculation:")

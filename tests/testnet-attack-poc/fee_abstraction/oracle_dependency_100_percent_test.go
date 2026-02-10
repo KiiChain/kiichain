@@ -1,8 +1,8 @@
 package fee_abstraction
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -63,9 +63,9 @@ func TestOracleDependency100PercentValidation(t *testing.T) {
 		t.Log("Analyzing additional validation in fee abstraction module...")
 
 		missingValidations := []struct {
-			validation   string
-			why_needed   string
-			severity     string
+			validation string
+			why_needed string
+			severity   string
 		}{
 			{
 				validation: "Price deviation limit from previous block",
@@ -252,7 +252,7 @@ func TestOracleDependency100PercentValidation(t *testing.T) {
 		dailyTxVolume := 1000000.0
 		avgFeePerTx := 0.10
 		manipulationFactor := 0.9 // 90% fee reduction
-		attackDurationDays := 7.0  // 1 week before detected
+		attackDurationDays := 7.0 // 1 week before detected
 
 		dailyRevenueLoss := dailyTxVolume * avgFeePerTx * manipulationFactor
 		totalRevenueLoss := dailyRevenueLoss * attackDurationDays
@@ -284,34 +284,34 @@ func TestOracleDependency100PercentValidation(t *testing.T) {
 		t.Log("\n--- HOW OTHER PROTOCOLS HANDLE THIS ---")
 
 		protocols := []struct {
-			name               string
+			name                 string
 			additionalValidation string
-			rating             string
+			rating               string
 		}{
 			{
-				name:               "Compound Finance",
+				name:                 "Compound Finance",
 				additionalValidation: "Price deviation checks + circuit breakers + guardian pause",
-				rating:             "EXCELLENT",
+				rating:               "EXCELLENT",
 			},
 			{
-				name:               "Aave",
+				name:                 "Aave",
 				additionalValidation: "Multiple oracle sources + sanity bounds + emergency freeze",
-				rating:             "EXCELLENT",
+				rating:               "EXCELLENT",
 			},
 			{
-				name:               "MakerDAO",
+				name:                 "MakerDAO",
 				additionalValidation: "OSM delay + median calculation + emergency shutdown",
-				rating:             "EXCELLENT",
+				rating:               "EXCELLENT",
 			},
 			{
-				name:               "Osmosis",
+				name:                 "Osmosis",
 				additionalValidation: "TWAP + slippage limits + pool bounds",
-				rating:             "GOOD",
+				rating:               "GOOD",
 			},
 			{
-				name:               "KiiChain",
+				name:                 "KiiChain",
 				additionalValidation: "ClampFactor only",
-				rating:             "POOR",
+				rating:               "POOR",
 			},
 		}
 

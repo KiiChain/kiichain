@@ -1,8 +1,8 @@
 package race_conditions
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -132,12 +132,12 @@ func TestERC20ConversionRace100PercentValidation(t *testing.T) {
 
 		// Simulate the attack
 		type AccountState struct {
-			erc20Balance float64
+			erc20Balance  float64
 			nativeBalance float64
 		}
 
 		state := AccountState{
-			erc20Balance: 100.0,
+			erc20Balance:  100.0,
 			nativeBalance: 0.0,
 		}
 
@@ -168,32 +168,32 @@ func TestERC20ConversionRace100PercentValidation(t *testing.T) {
 		t.Log("\n--- USER IMPACT ANALYSIS ---")
 
 		impacts := []struct {
-			scenario string
-			userAction string
+			scenario       string
+			userAction     string
 			systemBehavior string
 			userExperience string
-			severity string
+			severity       string
 		}{
 			{
-				scenario: "Double conversion attempt",
-				userAction: "Submit two fee abstraction txs quickly",
+				scenario:       "Double conversion attempt",
+				userAction:     "Submit two fee abstraction txs quickly",
 				systemBehavior: "Second fails due to insufficient balance after first conversion",
 				userExperience: "Confusing error message, doesn't understand why balance insufficient",
-				severity: "MEDIUM",
+				severity:       "MEDIUM",
 			},
 			{
-				scenario: "Conversion + transfer race",
-				userAction: "Transfer ERC20 while fee conversion pending",
+				scenario:       "Conversion + transfer race",
+				userAction:     "Transfer ERC20 while fee conversion pending",
 				systemBehavior: "Fee conversion fails, original tx also fails",
 				userExperience: "Both transactions fail, very poor UX",
-				severity: "HIGH",
+				severity:       "HIGH",
 			},
 			{
-				scenario: "Partial conversion",
-				userAction: "Normal fee payment",
+				scenario:       "Partial conversion",
+				userAction:     "Normal fee payment",
 				systemBehavior: "Conversion partially succeeds, state becomes inconsistent",
 				userExperience: "Funds stuck, balance inconsistencies",
-				severity: "CRITICAL",
+				severity:       "CRITICAL",
 			},
 		}
 

@@ -247,10 +247,8 @@ func TestRealCodeLocations(t *testing.T) {
 		t.Logf("   🔗 Full path: /Users/utkarshvarma/lab/kii-chain/kiichain/%s", vuln.file)
 	}
 
-	t.Log("\n" + "="*80)
 	t.Log("ALL VULNERABILITIES LINKED TO REAL KIICHAIN CODE")
 	t.Log("Not simulations - these are the actual files that run on mainnet")
-	t.Log("="*80)
 }
 
 // TestImportRealTypes verifies we're using actual KiiChain types

@@ -384,9 +384,7 @@ func TestClientMisunderstanding(t *testing.T) {
 // Test100PercentValidationAHFL002 provides 100% confidence validation
 // Upgrades AH-FL-002 from 90% to 100% confidence
 func Test100PercentValidationAHFL002(t *testing.T) {
-	fmt.Println("\n" + "="*80)
 	fmt.Println("AH-FL-002: VOTE STATE RACE CONDITION - 100% VALIDATED")
-	fmt.Println("=" * 80)
 	fmt.Println()
 	fmt.Println("CONFIDENCE LEVEL: 100% (upgraded from 90%)")
 	fmt.Println()
@@ -418,7 +416,6 @@ func Test100PercentValidationAHFL002(t *testing.T) {
 	fmt.Println("IMPACT: Double voting + MEV extraction")
 	fmt.Println()
 	fmt.Println("VALIDATION STATUS: CONFIRMED (100%)")
-	fmt.Println("=" * 80)
 }
 
 // TestFeelessEconomicAttack demonstrates economic impact at 100% confidence

@@ -16,7 +16,7 @@ func TestTokenfactoryRaceCondition(t *testing.T) {
 
 	type BlockedAddressChecker struct {
 		blockedAddrs map[string]bool
-		mu          sync.RWMutex
+		mu           sync.RWMutex
 	}
 
 	type TokenMinter struct {

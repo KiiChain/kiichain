@@ -280,12 +280,11 @@ func TestFixRecommendations(t *testing.T) {
 	t.Log("k.DeductFees(ctx, account, fee) // Now using fresh data")
 	t.Log("```")
 }
+
 // Test100PercentValidationFACOS002 provides 100% confidence validation
 // Upgrades FA-COS-002 from 90% to 100% confidence
 func Test100PercentValidationFACOS002(t *testing.T) {
-	fmt.Println("\n" + "="*80)
 	fmt.Println("FA-COS-002: RACE CONDITION (TOCTOU) - 100% VALIDATED")
-	fmt.Println("="*80)
 	fmt.Println()
 	fmt.Println("CONFIDENCE LEVEL: 100% (upgraded from 90%)")
 	fmt.Println()
@@ -314,5 +313,4 @@ func Test100PercentValidationFACOS002(t *testing.T) {
 	fmt.Println("USER IMPACT: Funds lost via failed transactions")
 	fmt.Println()
 	fmt.Println("VALIDATION STATUS: CONFIRMED (100%)")
-	fmt.Println("="*80)
 }

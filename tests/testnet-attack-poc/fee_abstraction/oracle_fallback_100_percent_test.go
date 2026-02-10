@@ -1,8 +1,8 @@
 package fee_abstraction
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -210,8 +210,8 @@ func TestOracleFallback100PercentValidation(t *testing.T) {
 			return feeInTokens
 		}
 
-		actualPrice := 5.00    // Token actually worth $5
-		fallbackPrice := 0.01  // Hardcoded fallback
+		actualPrice := 5.00   // Token actually worth $5
+		fallbackPrice := 0.01 // Hardcoded fallback
 
 		normalFee := simulateFeeCalculation(true, actualPrice, fallbackPrice)
 		exploitedFee := simulateFeeCalculation(false, actualPrice, fallbackPrice)
