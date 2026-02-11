@@ -1,0 +1,124 @@
+name: Interchain E2E Tests
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - 'feature/**'
+  pull_request:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  GO_VERSION: 1.23
+  TAR_PATH: /tmp/docker-image.tar
+  IMAGE_NAME: docker-image
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - id: go-cache-paths
+        run: |
+          echo "go-build=$(go env GOCACHE)" >> $GITHUB_OUTPUT
+          echo "go-mod=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go ${{ env.GO_VERSION }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: |
+            go.sum
+            tests/interchaintest/go.sum
+
+      # Use go clean instead of manual deletion to avoid permission errors
+      - name: Cleanup Go caches
+        run: |
+          go clean -cache
+
+      - name: Download Go Dependencies
+        run: |
+          go mod download
+          cd tests/interchaintest && go mod download
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and export
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          tags: kiichain:local
+          outputs: type=docker,dest=${{ env.TAR_PATH }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.IMAGE_NAME }}
+          path: ${{ env.TAR_PATH }}
+
+  interchain-tests:
+    needs: build-docker
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # names of `make` commands to run tests
+        test:
+          - "ictest-basic"
+          - "ictest-ibc"
+          - "ictest-wasm"
+          - "ictest-packetforward"
+          - "ictest-tokenfactory"
+          - "ictest-ratelimit"
+      fail-fast: false
+
+    steps:
+      - id: go-cache-paths
+        run: |
+          echo "go-build=$(go env GOCACHE)" >> $GITHUB_OUTPUT
+          echo "go-mod=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
+
+      - name: checkout chain
+        uses: actions/checkout@v4
+
+      - name: Set up Go ${{ env.GO_VERSION }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: |
+            go.sum
+            tests/interchaintest/go.sum
+
+      # Use go clean instead of manual deletion to avoid permission errors
+      - name: Cleanup Go caches
+        run: |
+          go clean -cache
+
+      - name: Download Tarball Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.IMAGE_NAME }}
+          path: /tmp
+
+      - name: Load Docker Image
+        run: |
+          docker image load -i ${{ env.TAR_PATH }}
+          docker image ls -a
+
+      - name: Run Test
+        run: make ${{ matrix.test }}

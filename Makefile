@@ -307,6 +307,38 @@ docker-build-hermes:
 docker-build-all: docker-build-debug docker-build-hermes
 
 ###############################################################################
+###                           Interchain Tests                              ###
+###############################################################################
+
+ictest-basic:
+	@echo "Running basic interchain e2e test"
+	@cd tests/interchaintest && go test -race -v -run TestBasicChain .
+
+ictest-ibc:
+	@echo "Running IBC interchain e2e test"
+	@cd tests/interchaintest && go test -race -v -run TestIBCBasic .
+
+ictest-wasm:
+	@echo "Running cosmwasm interchain e2e test"
+	@cd tests/interchaintest && go test -race -v -run TestCosmWasmIntegration .
+
+ictest-packetforward:
+	@echo "Running packet forward middleware interchain e2e test"
+	@cd tests/interchaintest && go test -race -v -run TestPacketForwardMiddleware .
+
+ictest-tokenfactory:
+	@echo "Running token factory interchain e2e test"
+	@cd tests/interchaintest && go test -race -v -run TestTokenFactory .
+
+ictest-ratelimit:
+	@echo "Running rate limit interchain e2e test"
+	@cd tests/interchaintest && go test -race -v -run TestIBCRateLimit .
+
+ictest-all: ictest-basic ictest-ibc ictest-wasm ictest-packetforward ictest-tokenfactory ictest-ratelimit
+
+.PHONY: ictest-basic ictest-ibc ictest-wasm ictest-packetforward ictest-tokenfactory ictest-ratelimit ictest-all
+
+###############################################################################
 ###                                Linting                                  ###
 ###############################################################################
 golangci_lint_cmd=golangci-lint
