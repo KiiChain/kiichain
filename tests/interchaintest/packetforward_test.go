@@ -75,13 +75,13 @@ func TestPacketForwardMiddleware(t *testing.T) {
 			NumFullNodes:  &numFullNodes,
 		},
 		{
-			Name:          configA.Name,
+			Name:          configB.Name,
 			ChainConfig:   configB,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
 		},
 		{
-			Name:          configA.Name,
+			Name:          configC.Name,
 			ChainConfig:   configC,
 			NumValidators: &numVals,
 			NumFullNodes:  &numFullNodes,
