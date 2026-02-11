@@ -115,13 +115,6 @@ message Params {
   ];
   // TwapLookbackWindow is the lookback window for calculating TWAPs
   uint64 twap_lookback_window = 5;
-  // FallbackNativePrice is the fallback price for the native token if the
-  // oracle price is not available (in USD)
-  string fallback_native_price = 6 [
-    (gogoproto.moretags) = "yaml:\"fallback_native_price\"",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
 }
 ```
 

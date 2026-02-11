@@ -54,7 +54,6 @@ var (
 		cosmos.NewGenesisKV("app_state.feeabstraction.params.enabled", false), // disable for testing
 		cosmos.NewGenesisKV("app_state.feeabstraction.params.clamp_factor", "1.0"),
 		cosmos.NewGenesisKV("app_state.feeabstraction.params.twap_lookback_window", "1"),
-		cosmos.NewGenesisKV("app_state.feeabstraction.params.fallback_native_price", "1.0"),
 	}
 
 	DefaultChainConfig = ibc.ChainConfig{
