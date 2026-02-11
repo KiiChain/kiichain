@@ -418,11 +418,7 @@ func (a appCreator) newApp(
 		panic("appOpts is not viper.Viper")
 	}
 
-	existingValue := viperAppOpts.Get(srvflags.EVMChainID)
-	// Check if value exists
-	if existingValue == nil || existingValue == "" {
-		viperAppOpts.Set(srvflags.EVMChainID, kiichain.KiichainID)
-	}
+	viperAppOpts.Set(srvflags.EVMChainID, kiichain.KiichainID)
 
 	return kiichain.NewKiichainApp(
 		logger,
