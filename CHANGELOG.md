@@ -2,6 +2,9 @@
 
 ## UNRELEASED
 
+## Added
+- Added interchain testing 
+
 ## Removed
 
 - Stripped out wasmd precompile
