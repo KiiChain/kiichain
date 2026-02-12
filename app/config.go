@@ -8,8 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/viper"
-
 	clienthelpers "cosmossdk.io/client/v2/helpers"
 
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
@@ -72,28 +70,6 @@ func init() {
 					KiichainID = evmChainID
 					return
 				}
-				// If parsing fails, continue to check app.toml
-			}
-		}
-	}
-	if err != nil && !os.IsNotExist(err) {
-		panic(err)
-	}
-
-	// If genesis file does not exist or chain ID is not found, check app.toml
-	// to get the EVM chain ID
-	appTomlPath := filepath.Join(nodeHome, "config", "app.toml")
-	if _, err = os.Stat(appTomlPath); err == nil {
-		// File exists
-		v := viper.New()
-		v.SetConfigFile(appTomlPath)
-		v.SetConfigType("toml")
-
-		if err = v.ReadInConfig(); err == nil {
-			evmChainIDKey := "evm.evm-chain-id"
-			if v.IsSet(evmChainIDKey) {
-				evmChainID := v.GetUint64(evmChainIDKey)
-				KiichainID = evmChainID
 			}
 		}
 	}
