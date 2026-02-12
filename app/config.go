@@ -88,7 +88,7 @@ func ParseChainID(chainID string) (uint64, error) {
 
 	matches := fullChainID.FindStringSubmatch(chainID)
 	if matches == nil || len(matches) != 4 || matches[1] == "" {
-		return 0, fmt.Errorf("chain-id '%s' does not match expected chain ID format: %s_%s-%s", chainID, regexChainID, regexEIP155, regexEpoch)
+		return 0, fmt.Errorf("chain-id '%s' does not match expected chain ID format: <chain name>_<evm chain id>-<epoch separator>, like localhost_1010-1", chainID)
 	}
 
 	// verify that the EIP155 part (matches[2]) is a base 10 integer
