@@ -4,7 +4,7 @@
 
 ### Fixed
 
-- Pick evm-chaind-id from genesis instead of config / flag
+- Pick evm-chain-id from genesis instead of config / flag
 
 ## v7.0.0 - 2026-02-03
 

@@ -427,7 +427,7 @@ func (a appCreator) newApp(
 	evmChainIdFlag := cast.ToUint64(viperAppOpts.Get(srvflags.EVMChainID))
 	// Warn if flag is not default
 	if evmChainIdFlag != evmserverconfig.DefaultEVMChainID {
-		logger.Warn(fmt.Sprintf("WARNING: The --%s flag is depecrated. The evm chain ID is being overridden to %d. Remove it from the start command and the from '.kiichaind/config/app.toml' to remove warning.",
+		logger.Warn(fmt.Sprintf("WARNING: The --%s flag is deprecrated. The evm chain ID is being overridden to %d. Remove it from the start command and the from '.kiichaind/config/app.toml' to remove warning.",
 			srvflags.EVMChainID, kiichain.KiichainID))
 	}
 
