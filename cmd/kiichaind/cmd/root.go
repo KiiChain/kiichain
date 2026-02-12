@@ -384,6 +384,12 @@ func (a appCreator) newApp(
 		panic(err)
 	}
 
+	// Validate chain ID has evm counterpart
+	_, err = kiichain.ParseChainID(chainID)
+	if err != nil {
+		panic(err)
+	}
+
 	snapshotDir := filepath.Join(homeDir, "data", "snapshots")
 	snapshotDB, err := dbm.NewDB("metadata", server.GetAppDBBackend(appOpts), snapshotDir)
 	if err != nil {
