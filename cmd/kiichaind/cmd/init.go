@@ -28,6 +28,7 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/genutil/types"
 
+	kiichain "github.com/kiichain/kiichain/v7/app"
 	"github.com/kiichain/kiichain/v7/app/params"
 )
 
@@ -92,6 +93,12 @@ func initCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			default:
 				// This has a custom configuration to respect the Eth chains
 				chainID = fmt.Sprintf("test_1234-%d", unsafe.Int())
+			}
+
+			// Validate chain ID has evm counterpart
+			_, err := kiichain.ParseChainID(chainID)
+			if err != nil {
+				return err
 			}
 
 			// Get bip39 mnemonic and recover

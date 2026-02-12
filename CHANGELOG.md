@@ -1,6 +1,12 @@
 # CHANGELOG
 
-## UNRELEASED
+## v7.0.1 - 2026-02-11
+
+### Fixed
+
+- Pick evm-chaind-id from genesis instead of config / flag
+
+## v7.0.0 - 2026-02-03
 
 ## Dependencies
 - Bump Go version from 1.23 to 1.24

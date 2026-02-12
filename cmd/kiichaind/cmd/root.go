@@ -384,6 +384,12 @@ func (a appCreator) newApp(
 		panic(err)
 	}
 
+	// Validate chain ID has evm counterpart
+	_, err = kiichain.ParseChainID(chainID)
+	if err != nil {
+		panic(err)
+	}
+
 	snapshotDir := filepath.Join(homeDir, "data", "snapshots")
 	snapshotDB, err := dbm.NewDB("metadata", server.GetAppDBBackend(appOpts), snapshotDir)
 	if err != nil {
@@ -418,11 +424,14 @@ func (a appCreator) newApp(
 		panic("appOpts is not viper.Viper")
 	}
 
-	existingValue := viperAppOpts.Get(srvflags.EVMChainID)
-	// Check if value exists
-	if existingValue == nil || existingValue == "" {
-		viperAppOpts.Set(srvflags.EVMChainID, kiichain.KiichainID)
+	evmChainIdFlag := cast.ToUint64(viperAppOpts.Get(srvflags.EVMChainID))
+	// Warn if flag is not default
+	if evmChainIdFlag != evmserverconfig.DefaultEVMChainID {
+		logger.Warn(fmt.Sprintf("WARNING: The --%s flag is depecrated. The evm chain ID is being overridden to %d. Remove it from the start command and the from '.kiichaind/config/app.toml' to remove warning.",
+			srvflags.EVMChainID, kiichain.KiichainID))
 	}
+
+	viperAppOpts.Set(srvflags.EVMChainID, kiichain.KiichainID)
 
 	return kiichain.NewKiichainApp(
 		logger,
