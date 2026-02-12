@@ -421,8 +421,8 @@ func (a appCreator) newApp(
 	evmChainIdFlag := cast.ToUint64(viperAppOpts.Get(srvflags.EVMChainID))
 	// Warn if flag is not default
 	if evmChainIdFlag != 262144 {
-		fmt.Fprintf(os.Stderr, "WARNING: The --%s flag is depecrated. The evm chain ID is being overridden to %d.\n",
-			srvflags.EVMChainID, kiichain.KiichainID)
+		logger.Warn(fmt.Sprintf("WARNING: The --%s flag is depecrated. The evm chain ID is being overridden to %d.\n",
+			srvflags.EVMChainID, kiichain.KiichainID))
 	}
 
 	viperAppOpts.Set(srvflags.EVMChainID, kiichain.KiichainID)
