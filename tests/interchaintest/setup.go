@@ -38,8 +38,6 @@ var (
 
 	ChainImage = ibc.NewDockerImage("kiichain", "local", "1025:1025")
 
-	bankMetadataJSON = `[{"description":"The native staking token of the kiichain network","denomUnits":[{"denom":"akii","exponent":"0"},{"denom":"kii","exponent":"18"}],"base":"akii","display":"kii","name":"kii","symbol":"KII"}]`
-
 	DefaultGenesis = []cosmos.GenesisKV{
 		// default
 		cosmos.NewGenesisKV("app_state.gov.params.voting_period", VotingPeriod),
@@ -48,7 +46,15 @@ var (
 		cosmos.NewGenesisKV("app_state.gov.params.min_deposit.0.amount", "1"),
 		// evm reqs
 		cosmos.NewGenesisKV("app_state.evm.params.evm_denom", Denom),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata", bankMetadataJSON),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.description", "The native staking token of the kiichain network"),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denomUnits.0.denom", "akii"),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denomUnits.0.exponent", "0"),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denomUnits.1.denom", "kii"),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denomUnits.1.exponent", "18"),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.base", "akii"),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.display", "kii"),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.name", "kii"),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.symbol", "KII"),
 		// tokenfactory: set create cost in set denom or in gas usage.
 		cosmos.NewGenesisKV("app_state.tokenfactory.params.denom_creation_fee", nil),
 		cosmos.NewGenesisKV("app_state.tokenfactory.params.denom_creation_gas_consume", "1"), // cost 1 gas to create a new denom
