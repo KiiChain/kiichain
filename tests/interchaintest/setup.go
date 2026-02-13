@@ -28,7 +28,7 @@ var (
 	Denom        = "akii"
 	DisplayDenom = "kii"
 	Name         = "kiichain"
-	ChainID      = "localchain-1"
+	ChainID      = "localchain_1010-1"
 	Binary       = "kiichaind"
 	Bech32       = "kii"
 
