@@ -216,9 +216,9 @@ func TestPacketForwardMiddleware(t *testing.T) {
 		chainCBalance, err := chainC.GetBalance(ctx, userC.FormattedAddress(), secondHopIBCDenom)
 		require.NoError(t, err)
 
-		require.Equal(t, GenesisFundsAmount.Sub(transferAmount).Int64(), chainABalance.Int64())
-		require.Equal(t, int64(0), chainBBalance.Int64())
-		require.Equal(t, int64(100000), chainCBalance.Int64())
+		require.Equal(t, GenesisFundsAmount.Sub(transferAmount), chainABalance)
+		require.Equal(t, 0, chainBBalance)
+		require.Equal(t, 100000, chainCBalance)
 
 		firstHopEscrowBalance, err := chainA.GetBalance(ctx, firstHopEscrowAccount, chainA.Config().Denom)
 		require.NoError(t, err)
