@@ -31,6 +31,8 @@ var (
 	ChainID      = "localchain_1010-1"
 	Binary       = "kiichaind"
 	Bech32       = "kii"
+	kiiExponent  = "18"
+	akiiExponent = "0"
 
 	NumberVals         = 1
 	NumberFullNodes    = 0
@@ -47,13 +49,13 @@ var (
 		// evm reqs
 		cosmos.NewGenesisKV("app_state.evm.params.evm_denom", Denom),
 		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.description", "The native staking token of the kiichain network"),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denomUnits.0.denom", "akii"),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denomUnits.0.exponent", "0"),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denomUnits.1.denom", "kii"),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denomUnits.1.exponent", "18"),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.base", "akii"),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.display", "kii"),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.name", "kii"),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denomUnits.0.denom", Denom),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denomUnits.0.exponent", akiiExponent),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denomUnits.1.denom", DisplayDenom),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denomUnits.1.exponent", kiiExponent),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.base", Denom),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.display", DisplayDenom),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.name", DisplayDenom),
 		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.symbol", "KII"),
 		// tokenfactory: set create cost in set denom or in gas usage.
 		cosmos.NewGenesisKV("app_state.tokenfactory.params.denom_creation_fee", nil),
