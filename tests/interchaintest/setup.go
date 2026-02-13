@@ -25,11 +25,12 @@ var (
 	VotingPeriod     = "15s"
 	MaxDepositPeriod = "10s"
 
-	Denom   = "akii"
-	Name    = "kiichain"
-	ChainID = "localchain-1"
-	Binary  = "kiichaind"
-	Bech32  = "kii"
+	Denom        = "akii"
+	DisplayDenom = "kii"
+	Name         = "kiichain"
+	ChainID      = "localchain-1"
+	Binary       = "kiichaind"
+	Bech32       = "kii"
 
 	NumberVals         = 1
 	NumberFullNodes    = 0
@@ -37,12 +38,17 @@ var (
 
 	ChainImage = ibc.NewDockerImage("kiichain", "local", "1025:1025")
 
+	bankMetadataJSON = `[{"description":"The native staking token of the kiichain network","denomUnits":[{"denom":"akii","exponent":"0"},{"denom":"kii","exponent":"18"}],"base":"akii","display":"kii","name":"kii","symbol":"KII"}]`
+
 	DefaultGenesis = []cosmos.GenesisKV{
 		// default
 		cosmos.NewGenesisKV("app_state.gov.params.voting_period", VotingPeriod),
 		cosmos.NewGenesisKV("app_state.gov.params.max_deposit_period", MaxDepositPeriod),
 		cosmos.NewGenesisKV("app_state.gov.params.min_deposit.0.denom", Denom),
 		cosmos.NewGenesisKV("app_state.gov.params.min_deposit.0.amount", "1"),
+		// evm reqs
+		cosmos.NewGenesisKV("app_state.evm.params.evm_denom", Denom),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata", bankMetadataJSON),
 		// tokenfactory: set create cost in set denom or in gas usage.
 		cosmos.NewGenesisKV("app_state.tokenfactory.params.denom_creation_fee", nil),
 		cosmos.NewGenesisKV("app_state.tokenfactory.params.denom_creation_gas_consume", "1"), // cost 1 gas to create a new denom
