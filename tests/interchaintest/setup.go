@@ -48,15 +48,27 @@ var (
 		cosmos.NewGenesisKV("app_state.gov.params.min_deposit.0.amount", "1"),
 		// evm reqs
 		cosmos.NewGenesisKV("app_state.evm.params.evm_denom", Denom),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.description", "The native staking token of the kiichain network"),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denom_units.0.denom", Denom),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denom_units.0.exponent", akiiExponent),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denom_units.1.denom", DisplayDenom),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.denom_units.1.exponent", kiiExponent),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.base", Denom),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.display", DisplayDenom),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.name", DisplayDenom),
-		cosmos.NewGenesisKV("app_state.bank.denom_metadata.0.symbol", "KII"),
+		cosmos.NewGenesisKV("app_state.bank.denom_metadata", []interface{}{
+			map[string]interface{}{
+				"description": "The native staking token of the kiichain network",
+				"denom_units": []interface{}{
+					map[string]interface{}{
+						"denom":    Denom,
+						"exponent": akiiExponent,
+						"aliases":  []string{},
+					},
+					map[string]interface{}{
+						"denom":    DisplayDenom,
+						"exponent": kiiExponent,
+						"aliases":  []string{},
+					},
+				},
+				"base":    Denom,
+				"display": DisplayDenom,
+				"name":    DisplayDenom,
+				"symbol":  "KII",
+			},
+		}),
 		// tokenfactory: set create cost in set denom or in gas usage.
 		cosmos.NewGenesisKV("app_state.tokenfactory.params.denom_creation_fee", nil),
 		cosmos.NewGenesisKV("app_state.tokenfactory.params.denom_creation_gas_consume", "1"), // cost 1 gas to create a new denom
