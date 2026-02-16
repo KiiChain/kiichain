@@ -44,7 +44,7 @@ func TestBasicChain(t *testing.T) {
 	})
 
 	// Use amount that faucet can afford with zero gas fees
-	amt := sdkmath.NewInt(50_000_000_000_000) // 50T akii
+	amt := sdkmath.NewInt(50_000_000_000_000_000) //
 	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", amt,
 		chain,
 	)
