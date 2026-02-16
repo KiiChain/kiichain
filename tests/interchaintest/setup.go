@@ -104,7 +104,7 @@ var (
 		Bech32Prefix:   Bech32,
 		Denom:          Denom,
 		CoinType:       "118",
-		GasPrices:      "600000000" + Denom, // Use zero gas price since fee abstraction is disabled
+		GasPrices:      "600000000" + Denom,
 		TrustingPeriod: "504h",
 	}
 
