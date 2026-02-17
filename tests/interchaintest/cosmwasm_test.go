@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/interchaintest/v10"
 	"github.com/cosmos/interchaintest/v10/chain/cosmos"
 	"github.com/cosmos/interchaintest/v10/ibc"
@@ -55,7 +56,8 @@ func TestCosmWasmIntegration(t *testing.T) {
 	err = FundFaucet(ctx, chain)
 	require.NoError(t, err)
 
-	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), GenesisFundsAmount, chain)
+	amt := sdkmath.NewInt(50_000_000_000_000_000)
+	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), amt, chain)
 	user := users[0]
 
 	StdExecute(t, ctx, chain, user)
