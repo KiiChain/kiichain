@@ -86,7 +86,7 @@ var (
 		Images: []ibc.DockerImage{
 			ChainImage,
 		},
-		GasAdjustment: 1.0,
+		GasAdjustment: 1.5,
 		ModifyGenesis: cosmos.ModifyGenesis(DefaultGenesis),
 		ModifyGenesisAmounts: func(i int) (sdk.Coin, sdk.Coin) {
 			// Set genesis amount and self-delegation for validators
