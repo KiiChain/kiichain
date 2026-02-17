@@ -136,8 +136,6 @@ var (
 	fNodes = 0
 )
 
-func FundFaucets(ctx context.Context)
-
 // FundFaucet sends tokens from validator to faucet
 func FundFaucet(ctx context.Context, chain *cosmos.CosmosChain) error {
 	faucetAddr, err := chain.Validators[0].KeyBech32(ctx, interchaintest.FaucetAccountKeyName, "acc")
