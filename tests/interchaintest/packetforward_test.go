@@ -134,6 +134,14 @@ func TestPacketForwardMiddleware(t *testing.T) {
 		_ = ic.Close()
 	})
 
+	// Fund faucet
+	err = FundFaucet(ctx, chainA)
+	require.NoError(t, err)
+	err = FundFaucet(ctx, chainB)
+	require.NoError(t, err)
+	err = FundFaucet(ctx, chainC)
+	require.NoError(t, err)
+
 	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), GenesisFundsAmount, chainA, chainB, chainC)
 
 	abChan, err := ibc.GetTransferChannel(ctx, r, eRep, chainID_A, chainID_B)

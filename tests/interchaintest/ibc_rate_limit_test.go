@@ -69,6 +69,10 @@ func TestIBCRateLimit(t *testing.T) {
 		SkipPathCreation: false,
 	}))
 
+	// Fund faucet
+	err = FundFaucet(ctx, chain)
+	require.NoError(t, err)
+
 	// Create and Fund User Wallets
 	fundAmount := math.NewInt(10_000_000)
 	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", fundAmount, chain, secondary)

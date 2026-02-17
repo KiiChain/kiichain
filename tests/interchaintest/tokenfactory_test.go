@@ -39,6 +39,8 @@ func TestTokenFactory(t *testing.T) {
 		SkipPathCreation: false,
 	}))
 
+	err = FundFaucet(ctx, chain)
+	require.NoError(t, err)
 	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", GenesisFundsAmount, chain, chain)
 	user := users[0]
 	user2 := users[1]

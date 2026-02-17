@@ -72,6 +72,12 @@ func TestIBCBasic(t *testing.T) {
 
 	require.NoError(t, testutil.WaitForBlocks(ctx, 5, chainA))
 
+	// Fund faucet
+	err = FundFaucet(ctx, chainA)
+	require.NoError(t, err)
+	err = FundFaucet(ctx, chainB)
+	require.NoError(t, err)
+
 	// Create and Fund User Wallets
 	fundAmount := math.NewInt(10_000_000)
 	users := interchaintest.GetAndFundTestUsers(t, ctx, "default", fundAmount, chainA, chainB)

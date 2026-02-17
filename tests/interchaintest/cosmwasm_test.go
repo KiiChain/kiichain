@@ -51,6 +51,10 @@ func TestCosmWasmIntegration(t *testing.T) {
 		_ = ic.Close()
 	})
 
+	// Fund faucet
+	err = FundFaucet(ctx, chain)
+	require.NoError(t, err)
+
 	users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), GenesisFundsAmount, chain)
 	user := users[0]
 

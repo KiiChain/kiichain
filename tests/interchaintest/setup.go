@@ -136,6 +136,33 @@ var (
 	fNodes = 0
 )
 
+func FundFaucets(ctx context.Context)
+
+// FundFaucet sends tokens from validator to faucet
+func FundFaucet(ctx context.Context, chain *cosmos.CosmosChain) error {
+	faucetAddr, err := chain.Validators[0].KeyBech32(ctx, interchaintest.FaucetAccountKeyName, "acc")
+
+	if err != nil {
+		return err
+	}
+
+	// Fund the faucet from validator
+	err = chain.Validators[0].BankSend(ctx, "validator", ibc.WalletAmount{
+		Address: faucetAddr,
+		Amount: sdkmath.NewIntFromBigInt(new(big.Int).Mul(
+			big.NewInt(100_000_000_000), // 100B tokens
+			new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil),
+		)),
+		Denom: Denom,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Wait for transaction to process
+	return testutil.WaitForBlocks(ctx, 2, chain)
+}
+
 func GetEncodingConfig() *moduletestutil.TestEncodingConfig {
 	cfg := cosmos.DefaultEncoding()
 	// TODO: add encoding types here for the modules you want to use
