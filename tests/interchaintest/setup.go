@@ -28,7 +28,9 @@ var (
 	Denom        = "akii"
 	DisplayDenom = "kii"
 	Name         = "kiichain"
+	Name2        = "kiichain2"
 	ChainID      = "localchain_1010-1"
+	ChaindID2    = "localchain_1010-12"
 	Binary       = "kiichaind"
 	Bech32       = "kii"
 	kiiExponent  = "18"
@@ -117,13 +119,40 @@ var (
 		NumFullNodes:  &NumberFullNodes,
 	}
 
-	SecondDefaultChainSpec = func() interchaintest.ChainSpec {
-		SecondChainSpec := DefaultChainSpec
-		SecondChainSpec.ChainID += "2"
-		SecondChainSpec.Name += "2"
-		SecondChainSpec.ChainName += "2"
-		return SecondChainSpec
-	}()
+	SecondChainConfig = ibc.ChainConfig{
+		Images: []ibc.DockerImage{
+			ChainImage,
+		},
+		GasAdjustment: 1.5,
+		ModifyGenesis: cosmos.ModifyGenesis(DefaultGenesis),
+		ModifyGenesisAmounts: func(i int) (sdk.Coin, sdk.Coin) {
+			// Set genesis amount and self-delegation for validators
+			// Need to account for 18 decimal places (AttoPowerReduction = 10^18)
+			genesisAmount := sdk.NewCoin(Denom, GenesisFundsAmount)
+			// Self-delegation needs to be at least 275B * 10^18 to meet minimum validator power
+			selfDelegation := sdk.NewCoin(Denom, sdkmath.NewIntFromBigInt(new(big.Int).Mul(big.NewInt(300_000_000_000), new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil))))
+			return genesisAmount, selfDelegation
+		},
+		EncodingConfig: GetEncodingConfig(),
+		Type:           "cosmos",
+		Name:           Name,
+		ChainID:        ChaindID2,
+		Bin:            Binary,
+		Bech32Prefix:   Bech32,
+		Denom:          Denom,
+		CoinType:       "118",
+		GasPrices:      "600000000" + Denom,
+		TrustingPeriod: "504h",
+	}
+
+	SecondDefaultChainSpec = interchaintest.ChainSpec{
+		Name:          Name2,
+		ChainName:     Name2,
+		Version:       ChainImage.Version,
+		ChainConfig:   SecondChainConfig,
+		NumValidators: &NumberVals,
+		NumFullNodes:  &NumberFullNodes,
+	}
 
 	// cosmos1hj5fveer5cjtn4wd6wstzugjfdxzl0xpxvjjvr - test_node.sh
 	AccMnemonic  = "decorate bright ozone fork gallery riot bus exhaust worth way bone indoor calm squirrel merry zero scheme cotton until shop any excess stage laundry"
