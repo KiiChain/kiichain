@@ -67,7 +67,17 @@ func (spd SpammingPreventionDecorator) CheckOracleSpamming(ctx sdk.Context, msgs
 				return err
 			}
 
-			// check if the validator has voted on that block height
+			// SECURITY FIX: Check voting period instead of just block height
+			// Get oracle parameters to determine voting period
+			params, err := spd.oracleKeeper.Params.Get(ctx)
+			if err != nil {
+				return err
+			}
+			
+			// Calculate current voting period
+			currentVotingPeriod := currentHeight / int64(params.VotePeriod)
+			
+			// Check if validator has voted in this voting period
 			spamPreventionHeight, err := spd.oracleKeeper.SpamPreventionCounter.Get(ctx, valAddr)
 			if err != nil {
 				// If the error is not found, its because the validator has not voted before
@@ -77,8 +87,12 @@ func (spd SpammingPreventionDecorator) CheckOracleSpamming(ctx sdk.Context, msgs
 					return err
 				}
 			}
-			if spamPreventionHeight == currentHeight {
-				return errors.Wrap(sdkerrors.ErrConflict, fmt.Sprintf("the validator has already submitted a vote at the current height=%d", currentHeight))
+			
+			// Calculate voting period of last vote
+			lastVotingPeriod := spamPreventionHeight / int64(params.VotePeriod)
+			
+			if spamPreventionHeight != -1 && lastVotingPeriod == currentVotingPeriod {
+				return errors.Wrap(sdkerrors.ErrConflict, fmt.Sprintf("the validator has already submitted a vote in voting period=%d (current height=%d)", currentVotingPeriod, currentHeight))
 			}
 
 			// set the anti spam block height
