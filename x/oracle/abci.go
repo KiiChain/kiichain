@@ -111,13 +111,18 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 				exchangeRate := Tally(ctx, votingTally, params.RewardBand, validatorClaimMap)
 
 				// Validate invalid exchangeRate - SECURITY FIX: Enhanced validation
-				if exchangeRate.IsZero() || !k.isValidExchangeRate(exchangeRate) {
+				if exchangeRate.IsZero() || !k.IsValidExchangeRate(exchangeRate) {
 					continue // skip this denom - invalid or potentially manipulated rate
 				}
 
 				// transform into the original form base/quote
 				if denom != referenceDenom {
 					exchangeRate = exchangeRateRD.Quo(exchangeRate)
+				}
+
+				// SECURITY FIX: Validate final exchange rate after cross-rate transformation
+				if exchangeRate.IsZero() || !k.IsValidExchangeRate(exchangeRate) {
+					continue // skip this denom - final rate invalid after transformation
 				}
 
 				// set the exchange rate with event

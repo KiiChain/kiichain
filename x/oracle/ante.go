@@ -74,6 +74,11 @@ func (spd SpammingPreventionDecorator) CheckOracleSpamming(ctx sdk.Context, msgs
 				return err
 			}
 			
+			// SECURITY FIX: Prevent panic if VotePeriod is 0
+			if params.VotePeriod == 0 {
+				return errors.Wrap(sdkerrors.ErrInvalidRequest, "oracle vote period cannot be zero")
+			}
+			
 			// Calculate current voting period
 			currentVotingPeriod := currentHeight / int64(params.VotePeriod)
 			

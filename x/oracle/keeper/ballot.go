@@ -26,7 +26,7 @@ func (k Keeper) OrganizeBallotByDenom(ctx sdk.Context, validatorClaimMap map[str
 				tmpPower := power
 
 				// Validate exchange rates - SECURITY FIX: Added range validation
-				if !k.isValidExchangeRate(tuple.ExchangeRate) {
+				if !k.IsValidExchangeRate(tuple.ExchangeRate) {
 					tmpPower = 0
 				}
 
@@ -109,9 +109,9 @@ func (k Keeper) ApplyWhitelist(ctx sdk.Context, whitelist types.DenomList, voteT
 	return nil
 }
 
-// isValidExchangeRate validates exchange rates to prevent price manipulation attacks
+// IsValidExchangeRate validates exchange rates to prevent price manipulation attacks
 // SECURITY FIX: Implements comprehensive price validation beyond simple positive check
-func (k Keeper) isValidExchangeRate(rate sdk.Dec) bool {
+func (k Keeper) IsValidExchangeRate(rate sdk.Dec) bool {
 	// Basic positive validation (existing check)
 	if !rate.IsPositive() {
 		return false
