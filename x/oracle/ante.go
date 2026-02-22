@@ -99,7 +99,6 @@ func (spd SpammingPreventionDecorator) CheckOracleSpamming(ctx sdk.Context, msgs
 					return errors.Wrap(sdkerrors.ErrConflict, fmt.Sprintf("the validator has already submitted a vote in voting period=%d (current height=%d)", currentVotingPeriod, currentHeight))
 				}
 			}
-			}
 
 			// set the anti spam block height
 			err = spd.oracleKeeper.SetSpamPreventionCounterWithDefault(ctx, valAddr)

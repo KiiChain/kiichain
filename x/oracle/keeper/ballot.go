@@ -109,16 +109,20 @@ func (k Keeper) ApplyWhitelist(ctx sdk.Context, whitelist types.DenomList, voteT
 	return nil
 }
 
-// Package-level constants for price validation - SECURITY FIX: Performance optimization
-var (
-	maxExchangeRate = sdk.NewDecFromInt(sdk.NewIntFromUint64(1_000_000_000)) // 1 billion max
-	minExchangeRate = sdk.NewDecWithPrec(1, 8)                              // 0.00000001 min
-)
+// getMaxExchangeRate returns the maximum allowed exchange rate - immutable
+func getMaxExchangeRate() sdk.Dec {
+	return sdk.NewDecFromInt(sdk.NewIntFromUint64(1_000_000_000)) // 1 billion max
+}
+
+// getMinExchangeRate returns the minimum allowed exchange rate - immutable
+func getMinExchangeRate() sdk.Dec {
+	return sdk.NewDecWithPrec(1, 8) // 0.00000001 min
+}
 
 // IsValidExchangeRate validates exchange rates to prevent price manipulation attacks  
 // SECURITY FIX: Implements comprehensive price validation beyond simple positive check
 func (k Keeper) IsValidExchangeRate(rate sdk.Dec) bool {
 	return rate.IsPositive() && 
-		   rate.LTE(maxExchangeRate) && 
-		   rate.GTE(minExchangeRate)
+		   rate.LTE(getMaxExchangeRate()) && 
+		   rate.GTE(getMinExchangeRate())
 }
