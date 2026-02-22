@@ -3,42 +3,40 @@
 ## Vulnerabilities Addressed
 
 ### CRITICAL: Oracle Price Manipulation Vulnerability
-- **Severity:** CRITICAL (CVSS 9.1)
-- **Impact:** $2.8B+ TVL at risk
+- **Severity:** CRITICAL  
+- **Issue:** Validators could submit extreme exchange rate values that bypass validation
 - **Files Modified:** 
-  - `x/oracle/keeper/ballot.go`
-  - `x/oracle/abci.go`
-  - `x/oracle/ante.go`
+  - `x/oracle/keeper/ballot.go` - Price validation logic
+  - `x/oracle/abci.go` - Final rate validation  
+  - `x/oracle/ante.go` - Anti-spam protection
 
-## Summary of Changes
+## Technical Changes
 
-### 1. Enhanced Price Validation (`ballot.go`)
-- Added upper and lower bound validation for exchange rates
-- Implemented configurable price deviation limits
-- Added minimum price floor to prevent zero-value attacks
+### 1. Price Range Validation (`ballot.go`)
+- Added upper bound validation (1 billion max)
+- Added minimum price floor (0.00000001 min) 
+- Optimized with package-level constants for performance
+- Applied to all validator vote submissions
 
-### 2. Improved Final Rate Validation (`abci.go`)
-- Added maximum price ceiling validation
-- Enhanced exchangeRate validation beyond zero-check
-- Implemented outlier detection for extreme values
+### 2. Final Rate Validation (`abci.go`) 
+- Validates final computed exchange rates after cross-rate transformation
+- Ensures both reference and non-reference denoms are properly validated
+- Prevents manipulation through cross-rate calculation bypass
 
-### 3. Enhanced Anti-Spam Protection (`ante.go`)
-- Fixed voting period tracking (was only checking block height)
-- Implemented proper per-period vote limiting
-- Added validator voting period storage
+### 3. Anti-Spam Improvements (`ante.go`)
+- Fixed voting period tracking (was only per-block, now per-voting-period)  
+- Added VotePeriod=0 panic protection
+- Optimized parameter fetching outside message loop
+- Improved validation logic for spam prevention height
 
 ## Risk Assessment
-- **Before Fix:** Validators can submit unlimited extreme prices ($999B+)
-- **After Fix:** Price submissions limited to reasonable ranges with configurable bounds
-- **Backward Compatibility:** Fully maintained
-- **Network Impact:** Minimal (only affects invalid extreme submissions)
+- **Before:** Extreme values like 999,999,999,999 could pass validation
+- **After:** Values constrained to reasonable economic ranges
+- **Compatibility:** Existing valid prices continue to work
+- **Performance:** Minimal impact, optimized constant usage
 
-## Testing Recommendations
-1. Unit tests for new validation functions
-2. Integration tests with extreme price scenarios
-3. Regression tests to ensure existing functionality works
-4. Load testing for performance impact of additional validations
-
----
-*Security fixes implemented by CABW.SECURITY*
-*Contact: security@cabw.dev*
+## Implementation Details
+- Package-level constants prevent repeated allocations
+- Cross-rate validation only applied to final computed prices  
+- Voting period calculation optimized for transaction efficiency
+- Maintains existing Oracle Module API compatibility

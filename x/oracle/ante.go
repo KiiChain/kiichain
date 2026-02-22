@@ -46,6 +46,20 @@ func (spd SpammingPreventionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, si
 func (spd SpammingPreventionDecorator) CheckOracleSpamming(ctx sdk.Context, msgs []sdk.Msg) error {
 	currentHeight := ctx.BlockHeight()
 
+	// SECURITY FIX: Get oracle parameters once per transaction
+	params, err := spd.oracleKeeper.Params.Get(ctx)
+	if err != nil {
+		return err
+	}
+	
+	// SECURITY FIX: Prevent panic if VotePeriod is 0
+	if params.VotePeriod == 0 {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "oracle vote period cannot be zero")
+	}
+	
+	// Calculate current voting period
+	currentVotingPeriod := currentHeight / int64(params.VotePeriod)
+
 	for _, msg := range msgs {
 		switch msg := msg.(type) {
 		case *types.MsgAggregateExchangeRateVote:
@@ -67,21 +81,6 @@ func (spd SpammingPreventionDecorator) CheckOracleSpamming(ctx sdk.Context, msgs
 				return err
 			}
 
-			// SECURITY FIX: Check voting period instead of just block height
-			// Get oracle parameters to determine voting period
-			params, err := spd.oracleKeeper.Params.Get(ctx)
-			if err != nil {
-				return err
-			}
-			
-			// SECURITY FIX: Prevent panic if VotePeriod is 0
-			if params.VotePeriod == 0 {
-				return errors.Wrap(sdkerrors.ErrInvalidRequest, "oracle vote period cannot be zero")
-			}
-			
-			// Calculate current voting period
-			currentVotingPeriod := currentHeight / int64(params.VotePeriod)
-			
 			// Check if validator has voted in this voting period
 			spamPreventionHeight, err := spd.oracleKeeper.SpamPreventionCounter.Get(ctx, valAddr)
 			if err != nil {
@@ -93,11 +92,13 @@ func (spd SpammingPreventionDecorator) CheckOracleSpamming(ctx sdk.Context, msgs
 				}
 			}
 			
-			// Calculate voting period of last vote
-			lastVotingPeriod := spamPreventionHeight / int64(params.VotePeriod)
-			
-			if spamPreventionHeight != -1 && lastVotingPeriod == currentVotingPeriod {
-				return errors.Wrap(sdkerrors.ErrConflict, fmt.Sprintf("the validator has already submitted a vote in voting period=%d (current height=%d)", currentVotingPeriod, currentHeight))
+			// SECURITY FIX: Only calculate lastVotingPeriod when spamPreventionHeight is valid
+			if spamPreventionHeight != -1 {
+				lastVotingPeriod := spamPreventionHeight / int64(params.VotePeriod)
+				if lastVotingPeriod == currentVotingPeriod {
+					return errors.Wrap(sdkerrors.ErrConflict, fmt.Sprintf("the validator has already submitted a vote in voting period=%d (current height=%d)", currentVotingPeriod, currentHeight))
+				}
+			}
 			}
 
 			// set the anti spam block height
