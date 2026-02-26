@@ -141,6 +141,14 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 			Tally(ctx, ballot, params.RewardBand, validatorClaimMap)
 		}
 
+		// Remove any VoteTarget that did not have any vote
+		for denom := range voteTargets {
+			_, inVoteMap := voteMap[denom]
+			if !inVoteMap {
+				delete(voteTargets, denom)
+			}
+		}
+
 		// Validate miss voting process
 		for _, claim := range validatorClaimMap {
 			if int(claim.WinCount) == len(voteTargets) {
