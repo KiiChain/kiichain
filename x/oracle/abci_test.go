@@ -415,7 +415,7 @@ func TestEndblocker(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("No votes submitted - Exchange rate should not be stored", func(t *testing.T) {
+	t.Run("No votes submitted - Exchange rate should not be stored, no one should be penalized", func(t *testing.T) {
 		// Reset blockchain state
 		input, _ := SetUp(t)
 		ctx := input.Ctx
@@ -429,8 +429,7 @@ func TestEndblocker(t *testing.T) {
 
 		ctx = input.Ctx.WithBlockHeight(1)
 
-		// No validators submit votes — skip directly to end/begin blocker
-
+		// Run endblock
 		err = EndBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
@@ -438,21 +437,22 @@ func TestEndblocker(t *testing.T) {
 		_, err = oracleKeeper.ExchangeRate.Get(ctx, utils.AtomDenom)
 		require.Error(t, err)
 
-		// Check if all three are getting abstain counts
+		// Check if all three are not getting miss counts
 		for i := 0; i < 3; i++ {
 			counter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[i])
 			require.NoError(t, err)
-			require.EqualValues(t, uint64(1), counter.AbstainCount)
+			require.EqualValues(t, uint64(0), counter.AbstainCount)
+			require.EqualValues(t, uint64(0), counter.MissCount)
 		}
 	})
 
-	t.Run("All validators miss one out of four denom votes - Miss count should increase for all", func(t *testing.T) {
+	t.Run("All validators miss one out of four denom votes - no one gets penalized", func(t *testing.T) {
 		// Reset blockchain state
 		input, msgServer := SetUp(t)
 		ctx := input.Ctx
 		oracleKeeper := input.OracleKeeper
 
-		// Set four vote targets: atom, eth, kii and usdc
+		// Set four vote targets
 		err := oracleKeeper.VoteTarget.Clear(ctx, nil)
 		require.NoError(t, err)
 		err = oracleKeeper.VoteTarget.Set(ctx, utils.AtomDenom, types.Denom{Name: utils.AtomDenom})
@@ -466,7 +466,7 @@ func TestEndblocker(t *testing.T) {
 
 		ctx = input.Ctx.WithBlockHeight(1)
 
-		// All validators vote for atom, eth and kii — skipping usdc entirely
+		// All validators vote for atom, eth and kii but not usdc
 		partialRate := randomAExchangeRate.String() + utils.AtomDenom +
 			"," + randomAExchangeRate.String() + utils.EthDenom +
 			"," + randomAExchangeRate.String() + utils.KiiDenom
@@ -490,17 +490,16 @@ func TestEndblocker(t *testing.T) {
 		_, err = oracleKeeper.ExchangeRate.Get(ctx, utils.UsdcDenom)
 		require.Error(t, err)
 
-		// All validators should have a miss count of 1 since none of them
-		// achieved a WinCount equal to the total number of vote targets (4)
+		// No one should have miss or abstain count since no one had votes for the missing denom
 		for i := 0; i < 3; i++ {
 			counter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[i])
 			require.NoError(t, err)
-			require.EqualValues(t, uint64(1), counter.MissCount)
+			require.EqualValues(t, uint64(0), counter.MissCount)
 			require.EqualValues(t, uint64(0), counter.AbstainCount)
 		}
 	})
 
-	t.Run("One denom below threshold - validators who voted for it still miss", func(t *testing.T) {
+	t.Run("One denom below threshold - validators who voted for should not be penalized", func(t *testing.T) {
 		// Reset blockchain state
 		input, msgServer := SetUp(t)
 		ctx := input.Ctx
@@ -521,7 +520,7 @@ func TestEndblocker(t *testing.T) {
 		ctx = input.Ctx.WithBlockHeight(1)
 
 		// All 3 validators vote for atom, eth and kii (above threshold)
-		// Only validator 0 votes for usdc — keeping it below the ballot threshold
+		// Only validator 0 votes for usdc, keeping it below the ballot threshold
 		fullRate := randomAExchangeRate.String() + utils.AtomDenom +
 			"," + randomAExchangeRate.String() + utils.EthDenom +
 			"," + randomAExchangeRate.String() + utils.KiiDenom +
@@ -545,18 +544,18 @@ func TestEndblocker(t *testing.T) {
 		err = EndBlocker(ctx, oracleKeeper)
 		require.NoError(t, err)
 
-		// Atom, eth and kii should be stored — they passed the ballot threshold
+		// Atom, eth and kii should be stored, they passed the ballot threshold
 		for _, denom := range []string{utils.AtomDenom, utils.EthDenom, utils.KiiDenom} {
 			exchangeRateResponse, err := oracleKeeper.ExchangeRate.Get(ctx, denom)
 			require.NoError(t, err)
 			require.Equal(t, randomAExchangeRate, exchangeRateResponse.ExchangeRate)
 		}
 
-		// Usdc should not be stored — it failed the ballot threshold
+		// Usdc should not be stored, it failed the ballot threshold
 		_, err = oracleKeeper.ExchangeRate.Get(ctx, utils.UsdcDenom)
 		require.Error(t, err)
 
-		// Validators 1 and 2 voted for 3 out of 3 valid targets — their WinCount (3)
+		// Validators 1 and 2 voted for 3 out of 3 valid targets, their WinCount (3)
 		// will match len(voteTargets) (3), so they get a success
 		for i := 1; i < 3; i++ {
 			counter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[i])
@@ -567,10 +566,10 @@ func TestEndblocker(t *testing.T) {
 
 		// Validator 0 voted for all 4 denoms. Usdc went to belowThresholdVoteMap
 		// and still runs through Tally, so validator 0 gets WinCount=4 and
-		// does not matches len(voteTargets) — earning a miss
+		// should also get a success
 		counter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[0])
 		require.NoError(t, err)
-		require.EqualValues(t, uint64(1), counter.MissCount)
+		require.EqualValues(t, uint64(0), counter.MissCount)
 		require.EqualValues(t, uint64(0), counter.AbstainCount)
 	})
 
