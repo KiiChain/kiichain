@@ -135,7 +135,7 @@ func (s *IntegrationTestSuite) testSlash() {
 	// Success votes should be above zero
 	s.Require().Greater(queryPenaltyCounter.VotePenaltyCounter.SuccessCount, uint64(0), "success penalty counter should be greater than zero")
 	// Abstain should be zero since there is no voting
-	s.Require().Equal(queryPenaltyCounter.VotePenaltyCounter.AbstainCount, uint64(0), "abstain penalty counter should be greater than zero")
+	s.Require().Equal(queryPenaltyCounter.VotePenaltyCounter.AbstainCount, uint64(0), "abstain penalty counter should be zero")
 }
 
 // checkAndUpdateOracleParams checks if the oracle parameters are set correctly and updates them if necessary
