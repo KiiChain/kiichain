@@ -138,7 +138,12 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 		// Calculate tally for below threshold assets lists
 		for _, denom := range belowThresholdDenoms {
 			ballot := belowThresholdVoteMap[denom]
-			Tally(ctx, ballot, params.RewardBand, validatorClaimMap)
+			// Make a discardable map for belowThreshold votes, so tally changes don't affect scoring
+			discardableClaimMap := make(map[string]types.Claim, len(validatorClaimMap))
+			for k, v := range validatorClaimMap {
+				discardableClaimMap[k] = v
+			}
+			Tally(ctx, ballot, params.RewardBand, discardableClaimMap)
 		}
 
 		// Remove any VoteTarget that did not have any vote
@@ -230,6 +235,7 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Slash who did miss voting over threshold
 	// reset miss counter of all validators at the last block of slash window
 	if utils.IsPeriodLastBlock(ctx, params.SlashWindow) {
+		// Add jail back in repeated offence
 		err = k.SlashAndResetCounters(ctx) // slash validator and reset voting counter
 		if err != nil {
 			return err
