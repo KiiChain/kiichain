@@ -320,6 +320,10 @@ func TestEndblocker(t *testing.T) {
 		slashedPower := validator.GetConsensusPower(stakingKeeper.PowerReduction(ctx))
 		require.True(t, slashedPower < 10)
 
+		// Validator should now be jailed
+		require.NoError(t, err)
+		require.True(t, validator.IsJailed())
+
 		// Check voting info deleted
 		result, err := oracleKeeper.VotePenaltyCounter.Get(ctx, operator)
 		require.Empty(t, result)

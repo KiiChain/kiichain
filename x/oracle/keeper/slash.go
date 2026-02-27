@@ -75,6 +75,13 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) error {
 					k.Logger(ctx).Error("failed to slash validator", "operator", operator.String(), "error", err)
 					return true, err
 				}
+
+				// Jail validator
+				err = k.StakingKeeper.Jail(ctx, consAddr)
+				if err != nil {
+					k.Logger(ctx).Error("failed to jail validator", "operator", operator.String(), "error", err)
+					return true, err
+				}
 			}
 		}
 
