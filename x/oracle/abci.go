@@ -235,8 +235,7 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Slash who did miss voting over threshold
 	// reset miss counter of all validators at the last block of slash window
 	if utils.IsPeriodLastBlock(ctx, params.SlashWindow) {
-		// Add jail back in repeated offence
-		err = k.SlashAndResetCounters(ctx) // slash validator and reset voting counter
+		err = k.SlashAndResetCounters(ctx) // slash and jail validator then reset voting counter
 		if err != nil {
 			return err
 		}
