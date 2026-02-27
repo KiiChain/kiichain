@@ -132,9 +132,10 @@ func (s *IntegrationTestSuite) testSlash() {
 	queryPenaltyCounter, err := queryPenaltyCounter(chainEndpoint, validatorAddress)
 	s.Require().NoError(err, "failed to query penalty counter for validator %s", validatorAddress)
 
-	// Both the success and the abstain votes should be above zero
+	// Success votes should be above zero
 	s.Require().Greater(queryPenaltyCounter.VotePenaltyCounter.SuccessCount, uint64(0), "success penalty counter should be greater than zero")
-	s.Require().Greater(queryPenaltyCounter.VotePenaltyCounter.AbstainCount, uint64(0), "abstain penalty counter should be greater than zero")
+	// Abstain should be zero since there is no voting
+	s.Require().Equal(queryPenaltyCounter.VotePenaltyCounter.AbstainCount, uint64(0), "abstain penalty counter should be greater than zero")
 }
 
 // checkAndUpdateOracleParams checks if the oracle parameters are set correctly and updates them if necessary
