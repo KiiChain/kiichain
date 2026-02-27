@@ -630,13 +630,18 @@ func TestEndblocker(t *testing.T) {
 
 		// Validators 1 and 2 voted correctly on all 3 above-threshold denoms
 		// WinCount == 3 == len(voteTargets) → success
-		// Validator 0 voted incorrectly on Eth, but correctly on under threshold
-		// It should get a miss since it only got one success
-		for i := 0; i < 3; i++ {
+		for i := 1; i < 3; i++ {
 			counter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[i])
 			require.NoError(t, err)
-			require.EqualValues(t, uint64(1), counter.MissCount)
+			require.EqualValues(t, uint64(0), counter.MissCount)
 			require.EqualValues(t, uint64(0), counter.AbstainCount)
 		}
+
+		// Validator 0 voted incorrectly on Eth, but correctly on under threshold
+		// It should get a miss since it only got one success
+		counter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[0])
+		require.NoError(t, err)
+		require.EqualValues(t, uint64(1), counter.MissCount)
+		require.EqualValues(t, uint64(0), counter.AbstainCount)
 	})
 }
