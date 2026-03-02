@@ -248,6 +248,7 @@ func (k Keeper) RemoveExcessFeeds(ctx sdk.Context) error {
 		return err
 	}
 
+	// Comment to force analysis of code ql
 	// Get voting target
 	err = k.VoteTarget.Walk(ctx, nil, func(denom string, denomInfo types.Denom) (bool, error) {
 		// Remove vote targets from actives
