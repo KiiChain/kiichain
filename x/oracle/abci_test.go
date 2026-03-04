@@ -320,6 +320,10 @@ func TestEndblocker(t *testing.T) {
 		slashedPower := validator.GetConsensusPower(stakingKeeper.PowerReduction(ctx))
 		require.True(t, slashedPower < 10)
 
+		// Validator should now be jailed
+		require.NoError(t, err)
+		require.True(t, validator.IsJailed())
+
 		// Check voting info deleted
 		result, err := oracleKeeper.VotePenaltyCounter.Get(ctx, operator)
 		require.Empty(t, result)
@@ -413,5 +417,235 @@ func TestEndblocker(t *testing.T) {
 			return false, nil
 		})
 		require.NoError(t, err)
+	})
+
+	t.Run("No votes submitted - Exchange rate should not be stored, no one should be penalized", func(t *testing.T) {
+		// Reset blockchain state
+		input, _ := SetUp(t)
+		ctx := input.Ctx
+		oracleKeeper := input.OracleKeeper
+
+		// Set a single vote target
+		err := oracleKeeper.VoteTarget.Clear(ctx, nil)
+		require.NoError(t, err)
+		err = oracleKeeper.VoteTarget.Set(ctx, utils.AtomDenom, types.Denom{Name: utils.AtomDenom})
+		require.NoError(t, err)
+
+		ctx = input.Ctx.WithBlockHeight(1)
+
+		// Run endblock
+		err = EndBlocker(ctx, oracleKeeper)
+		require.NoError(t, err)
+
+		// No exchange rate should have been stored since nobody voted
+		_, err = oracleKeeper.ExchangeRate.Get(ctx, utils.AtomDenom)
+		require.Error(t, err)
+
+		// Check if all three are not getting miss counts
+		for i := 0; i < 3; i++ {
+			counter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[i])
+			require.NoError(t, err)
+			require.EqualValues(t, uint64(0), counter.AbstainCount)
+			require.EqualValues(t, uint64(0), counter.MissCount)
+		}
+	})
+
+	t.Run("All validators miss one out of four denom votes - no one gets penalized", func(t *testing.T) {
+		// Reset blockchain state
+		input, msgServer := SetUp(t)
+		ctx := input.Ctx
+		oracleKeeper := input.OracleKeeper
+
+		// Set four vote targets
+		err := oracleKeeper.VoteTarget.Clear(ctx, nil)
+		require.NoError(t, err)
+		err = oracleKeeper.VoteTarget.Set(ctx, utils.AtomDenom, types.Denom{Name: utils.AtomDenom})
+		require.NoError(t, err)
+		err = oracleKeeper.VoteTarget.Set(ctx, utils.EthDenom, types.Denom{Name: utils.EthDenom})
+		require.NoError(t, err)
+		err = oracleKeeper.VoteTarget.Set(ctx, utils.KiiDenom, types.Denom{Name: utils.KiiDenom})
+		require.NoError(t, err)
+		err = oracleKeeper.VoteTarget.Set(ctx, utils.UsdcDenom, types.Denom{Name: utils.UsdcDenom})
+		require.NoError(t, err)
+
+		ctx = input.Ctx.WithBlockHeight(1)
+
+		// All validators vote for atom, eth and kii but not usdc
+		partialRate := randomAExchangeRate.String() + utils.AtomDenom +
+			"," + randomAExchangeRate.String() + utils.EthDenom +
+			"," + randomAExchangeRate.String() + utils.KiiDenom
+		for i := 0; i < 3; i++ {
+			voteMsg := types.NewMsgAggregateExchangeRateVote(partialRate, keeper.Addrs[i], keeper.ValAddrs[i])
+			_, err := msgServer.AggregateExchangeRateVote(ctx, voteMsg)
+			require.NoError(t, err)
+		}
+
+		err = EndBlocker(ctx, oracleKeeper)
+		require.NoError(t, err)
+
+		// Atom, eth and kii should be stored normally since all validators voted for them
+		for _, denom := range []string{utils.AtomDenom, utils.EthDenom, utils.KiiDenom} {
+			exchangeRateResponse, err := oracleKeeper.ExchangeRate.Get(ctx, denom)
+			require.NoError(t, err)
+			require.Equal(t, randomAExchangeRate, exchangeRateResponse.ExchangeRate)
+		}
+
+		// Usdc should not be stored since nobody voted for it
+		_, err = oracleKeeper.ExchangeRate.Get(ctx, utils.UsdcDenom)
+		require.Error(t, err)
+
+		// No one should have miss or abstain count since no one had votes for the missing denom
+		for i := 0; i < 3; i++ {
+			counter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[i])
+			require.NoError(t, err)
+			require.EqualValues(t, uint64(0), counter.MissCount)
+			require.EqualValues(t, uint64(0), counter.AbstainCount)
+		}
+	})
+
+	t.Run("One denom below threshold - validators who voted for should not be penalized", func(t *testing.T) {
+		// Reset blockchain state
+		input, msgServer := SetUp(t)
+		ctx := input.Ctx
+		oracleKeeper := input.OracleKeeper
+
+		// Set four vote targets: atom, eth, kii and usdc
+		err := oracleKeeper.VoteTarget.Clear(ctx, nil)
+		require.NoError(t, err)
+		err = oracleKeeper.VoteTarget.Set(ctx, utils.AtomDenom, types.Denom{Name: utils.AtomDenom})
+		require.NoError(t, err)
+		err = oracleKeeper.VoteTarget.Set(ctx, utils.EthDenom, types.Denom{Name: utils.EthDenom})
+		require.NoError(t, err)
+		err = oracleKeeper.VoteTarget.Set(ctx, utils.KiiDenom, types.Denom{Name: utils.KiiDenom})
+		require.NoError(t, err)
+		err = oracleKeeper.VoteTarget.Set(ctx, utils.UsdcDenom, types.Denom{Name: utils.UsdcDenom})
+		require.NoError(t, err)
+
+		ctx = input.Ctx.WithBlockHeight(1)
+
+		// All 3 validators vote for atom, eth and kii (above threshold)
+		// Only validator 0 votes for usdc, keeping it below the ballot threshold
+		fullRate := randomAExchangeRate.String() + utils.AtomDenom +
+			"," + randomAExchangeRate.String() + utils.EthDenom +
+			"," + randomAExchangeRate.String() + utils.KiiDenom +
+			"," + randomAExchangeRate.String() + utils.UsdcDenom
+		partialRate := randomAExchangeRate.String() + utils.AtomDenom +
+			"," + randomAExchangeRate.String() + utils.EthDenom +
+			"," + randomAExchangeRate.String() + utils.KiiDenom
+
+		// Validator 0 votes for all four denoms (including usdc)
+		voteMsg := types.NewMsgAggregateExchangeRateVote(fullRate, keeper.Addrs[0], keeper.ValAddrs[0])
+		_, err = msgServer.AggregateExchangeRateVote(ctx, voteMsg)
+		require.NoError(t, err)
+
+		// Validators 1 and 2 skip usdc, keeping it below threshold
+		for i := 1; i < 3; i++ {
+			voteMsg := types.NewMsgAggregateExchangeRateVote(partialRate, keeper.Addrs[i], keeper.ValAddrs[i])
+			_, err := msgServer.AggregateExchangeRateVote(ctx, voteMsg)
+			require.NoError(t, err)
+		}
+
+		err = EndBlocker(ctx, oracleKeeper)
+		require.NoError(t, err)
+
+		// Atom, eth and kii should be stored, they passed the ballot threshold
+		for _, denom := range []string{utils.AtomDenom, utils.EthDenom, utils.KiiDenom} {
+			exchangeRateResponse, err := oracleKeeper.ExchangeRate.Get(ctx, denom)
+			require.NoError(t, err)
+			require.Equal(t, randomAExchangeRate, exchangeRateResponse.ExchangeRate)
+		}
+
+		// Usdc should not be stored, it failed the ballot threshold
+		_, err = oracleKeeper.ExchangeRate.Get(ctx, utils.UsdcDenom)
+		require.Error(t, err)
+
+		// Validators 1 and 2 voted for 3 out of 3 valid targets, their WinCount (3)
+		// will match len(voteTargets) (3), so they get a success
+		for i := 1; i < 3; i++ {
+			counter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[i])
+			require.NoError(t, err)
+			require.EqualValues(t, uint64(0), counter.MissCount)
+			require.EqualValues(t, uint64(0), counter.AbstainCount)
+		}
+
+		// Validator 0 voted for all 4 denoms. Usdc went to belowThresholdVoteMap
+		// and still runs through Tally, so validator 0 gets WinCount=4 and
+		// should also get a success
+		counter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[0])
+		require.NoError(t, err)
+		require.EqualValues(t, uint64(0), counter.MissCount)
+		require.EqualValues(t, uint64(0), counter.AbstainCount)
+	})
+
+	t.Run("Validator hits below-threshold denom but deviates on an above-threshold one - should miss", func(t *testing.T) {
+		// Reset blockchain state
+		input, msgServer := SetUp(t)
+		ctx := input.Ctx
+		oracleKeeper := input.OracleKeeper
+
+		// Set four vote targets: atom, eth, kii and usdc
+		err := oracleKeeper.VoteTarget.Clear(ctx, nil)
+		require.NoError(t, err)
+		err = oracleKeeper.VoteTarget.Set(ctx, utils.AtomDenom, types.Denom{Name: utils.AtomDenom})
+		require.NoError(t, err)
+		err = oracleKeeper.VoteTarget.Set(ctx, utils.EthDenom, types.Denom{Name: utils.EthDenom})
+		require.NoError(t, err)
+		err = oracleKeeper.VoteTarget.Set(ctx, utils.KiiDenom, types.Denom{Name: utils.KiiDenom})
+		require.NoError(t, err)
+		err = oracleKeeper.VoteTarget.Set(ctx, utils.UsdcDenom, types.Denom{Name: utils.UsdcDenom})
+		require.NoError(t, err)
+
+		ctx = input.Ctx.WithBlockHeight(1)
+
+		// Validators 1 and 2 vote correctly on atom, eth and kii — skipping usdc
+		// keeping it below threshold
+		partialRate := randomAExchangeRate.String() + utils.AtomDenom +
+			"," + randomAExchangeRate.String() + utils.EthDenom +
+			"," + randomAExchangeRate.String() + utils.KiiDenom
+		for i := 1; i < 3; i++ {
+			voteMsg := types.NewMsgAggregateExchangeRateVote(partialRate, keeper.Addrs[i], keeper.ValAddrs[i])
+			_, err := msgServer.AggregateExchangeRateVote(ctx, voteMsg)
+			require.NoError(t, err)
+		}
+
+		// Validator 0 deviates heavily on eth but votes correctly on usdc
+		// (which will land in belowThresholdVoteMap since only val 0 voted for it)
+		deviatedRate := randomAExchangeRate.String() + utils.AtomDenom +
+			"," + aboveExchangeRate.String() + utils.EthDenom +
+			"," + randomAExchangeRate.String() + utils.KiiDenom +
+			"," + randomAExchangeRate.String() + utils.UsdcDenom
+		voteMsg := types.NewMsgAggregateExchangeRateVote(deviatedRate, keeper.Addrs[0], keeper.ValAddrs[0])
+		_, err = msgServer.AggregateExchangeRateVote(ctx, voteMsg)
+		require.NoError(t, err)
+
+		err = EndBlocker(ctx, oracleKeeper)
+		require.NoError(t, err)
+
+		// Atom, eth and kii should be stored based on validators 1 and 2 votes
+		for _, denom := range []string{utils.AtomDenom, utils.EthDenom, utils.KiiDenom} {
+			exchangeRateResponse, err := oracleKeeper.ExchangeRate.Get(ctx, denom)
+			require.NoError(t, err)
+			require.Equal(t, randomAExchangeRate, exchangeRateResponse.ExchangeRate)
+		}
+
+		// Usdc should not be stored, only validator 0 voted, below threshold
+		_, err = oracleKeeper.ExchangeRate.Get(ctx, utils.UsdcDenom)
+		require.Error(t, err)
+
+		// Validators 1 and 2 voted correctly on all 3 above-threshold denoms
+		// WinCount == 3 == len(voteTargets) → success
+		for i := 1; i < 3; i++ {
+			counter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[i])
+			require.NoError(t, err)
+			require.EqualValues(t, uint64(0), counter.MissCount)
+			require.EqualValues(t, uint64(0), counter.AbstainCount)
+		}
+
+		// Validator 0 voted incorrectly on Eth, but correctly on under threshold
+		// It should get a miss since it only got one success
+		counter, err := oracleKeeper.VotePenaltyCounter.Get(ctx, keeper.ValAddrs[0])
+		require.NoError(t, err)
+		require.EqualValues(t, uint64(1), counter.MissCount)
+		require.EqualValues(t, uint64(0), counter.AbstainCount)
 	})
 }

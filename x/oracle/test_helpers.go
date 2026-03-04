@@ -18,6 +18,7 @@ import (
 var (
 	stakingAmount       = sdk.TokensFromConsensusPower(10, sdk.DefaultPowerReduction)
 	randomAExchangeRate = math.LegacyNewDec(1700)
+	aboveExchangeRate   = math.LegacyNewDec(100000000)
 )
 
 // SetUp returns the message server

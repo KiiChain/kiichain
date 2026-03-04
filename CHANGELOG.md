@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## UNRELEASED
+
+### Added
+
+- Re enabled jailing on oracle module
+
+### Fixed
+
+- Fixed misbehaviors on oracle module slashing
+
 ## v7.0.1 - 2026-02-11
 
 ### Fixed

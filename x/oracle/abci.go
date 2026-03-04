@@ -3,6 +3,8 @@ package oracle
 import (
 	"sort"
 
+	metrics "github.com/hashicorp/go-metrics"
+
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -128,17 +130,29 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 			}
 		}
 
-		// Extract the denoms stored on belowThresholdVote map
-		belowThresholdDenoms := make([]string, 0, len(belowThresholdVoteMap))
+		// Collect all denoms excluded from aggregation: below threshold and no votes
+		excludedDenoms := make([]string, 0, len(belowThresholdVoteMap))
 		for denom := range belowThresholdVoteMap {
-			belowThresholdDenoms = append(belowThresholdDenoms, denom)
+			excludedDenoms = append(excludedDenoms, denom)
 		}
-		sort.Strings(belowThresholdDenoms) // sort by denom name
 
-		// Calculate tally for below threshold assets lists
-		for _, denom := range belowThresholdDenoms {
-			ballot := belowThresholdVoteMap[denom]
-			Tally(ctx, ballot, params.RewardBand, validatorClaimMap)
+		// Remove any VoteTarget that did not have any vote, collecting them as well
+		for denom := range voteTargets {
+			_, inVoteMap := voteMap[denom]
+			if !inVoteMap {
+				excludedDenoms = append(excludedDenoms, denom)
+				delete(voteTargets, denom)
+			}
+		}
+
+		// Emit telemetry for all denoms excluded from price aggregation
+		sort.Strings(excludedDenoms)
+		for _, denom := range excludedDenoms {
+			telemetry.SetGaugeWithLabels(
+				[]string{types.ModuleName, "excluded_denom"},
+				1,
+				[]metrics.Label{telemetry.NewLabel("denom", denom)},
+			)
 		}
 
 		// Validate miss voting process
@@ -208,6 +222,18 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	return nil
 }
 
+// writeValidatorPenaltyMetrics emits telemetry gauges for each validator's miss,
+// abstain, and success counts before the slash window resets them.
+func writeValidatorPenaltyMetrics(ctx sdk.Context, k keeper.Keeper) error {
+	return k.VotePenaltyCounter.Walk(ctx, nil, func(operator sdk.ValAddress, counter types.VotePenaltyCounter) (bool, error) {
+		labels := []metrics.Label{telemetry.NewLabel("validator", operator.String())}
+		telemetry.SetGaugeWithLabels([]string{types.ModuleName, "miss_count"}, float32(counter.MissCount), labels)
+		telemetry.SetGaugeWithLabels([]string{types.ModuleName, "abstain_count"}, float32(counter.AbstainCount), labels)
+		telemetry.SetGaugeWithLabels([]string{types.ModuleName, "success_count"}, float32(counter.SuccessCount), labels)
+		return false, nil
+	})
+}
+
 // BeginBlocker is the function that slashes the validators and resets the miss counters
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Apply telemetry metrics
@@ -219,10 +245,15 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 		return err
 	}
 
-	// Slash who did miss voting over threshold
+	// Slash and jail who did miss voting over threshold
 	// reset miss counter of all validators at the last block of slash window
 	if utils.IsPeriodLastBlock(ctx, params.SlashWindow) {
-		err = k.SlashAndResetCounters(ctx) // slash validator and reset voting counter
+		err = writeValidatorPenaltyMetrics(ctx, k) // emit telemetry for successes and misses
+		if err != nil {
+			return err
+		}
+
+		err = k.SlashAndResetCounters(ctx) // slash and jail validator then reset voting counter
 		if err != nil {
 			return err
 		}
