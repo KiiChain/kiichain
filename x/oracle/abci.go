@@ -157,7 +157,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 
 		// Validate miss voting process
 		for _, claim := range validatorClaimMap {
-			if int(claim.WinCount) >= len(voteTargets) {
+			if int(claim.WinCount) == len(voteTargets) {
 				err = k.IncrementSuccessCount(ctx, claim.Recipient)
 				if err != nil {
 					return err
