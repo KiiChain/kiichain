@@ -3,6 +3,8 @@ package oracle
 import (
 	"sort"
 
+	metrics "github.com/hashicorp/go-metrics"
+
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -143,6 +145,16 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 			}
 		}
 
+		// Emit telemetry for all denoms excluded from price aggregation
+		sort.Strings(excludedDenoms)
+		for _, denom := range excludedDenoms {
+			telemetry.SetGaugeWithLabels(
+				[]string{types.ModuleName, "excluded_denom"},
+				1,
+				[]metrics.Label{telemetry.NewLabel("denom", denom)},
+			)
+		}
+
 		// Validate miss voting process
 		for _, claim := range validatorClaimMap {
 			if int(claim.WinCount) >= len(voteTargets) {
@@ -210,6 +222,18 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	return nil
 }
 
+// writeValidatorPenaltyMetrics emits telemetry gauges for each validator's miss,
+// abstain, and success counts before the slash window resets them.
+func writeValidatorPenaltyMetrics(ctx sdk.Context, k keeper.Keeper) error {
+	return k.VotePenaltyCounter.Walk(ctx, nil, func(operator sdk.ValAddress, counter types.VotePenaltyCounter) (bool, error) {
+		labels := []metrics.Label{telemetry.NewLabel("validator", operator.String())}
+		telemetry.SetGaugeWithLabels([]string{types.ModuleName, "miss_count"}, float32(counter.MissCount), labels)
+		telemetry.SetGaugeWithLabels([]string{types.ModuleName, "abstain_count"}, float32(counter.AbstainCount), labels)
+		telemetry.SetGaugeWithLabels([]string{types.ModuleName, "success_count"}, float32(counter.SuccessCount), labels)
+		return false, nil
+	})
+}
+
 // BeginBlocker is the function that slashes the validators and resets the miss counters
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Apply telemetry metrics
@@ -224,6 +248,11 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Slash and jail who did miss voting over threshold
 	// reset miss counter of all validators at the last block of slash window
 	if utils.IsPeriodLastBlock(ctx, params.SlashWindow) {
+		err = writeValidatorPenaltyMetrics(ctx, k) // emit telemetry for successes and misses
+		if err != nil {
+			return err
+		}
+
 		err = k.SlashAndResetCounters(ctx) // slash and jail validator then reset voting counter
 		if err != nil {
 			return err
