@@ -128,28 +128,17 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 			}
 		}
 
-		// Extract the denoms stored on belowThresholdVote map
-		belowThresholdDenoms := make([]string, 0, len(belowThresholdVoteMap))
+		// Collect all denoms excluded from aggregation: below threshold and no votes
+		excludedDenoms := make([]string, 0, len(belowThresholdVoteMap))
 		for denom := range belowThresholdVoteMap {
-			belowThresholdDenoms = append(belowThresholdDenoms, denom)
-		}
-		sort.Strings(belowThresholdDenoms) // sort by denom name
-
-		// Calculate tally for below threshold assets lists
-		for _, denom := range belowThresholdDenoms {
-			ballot := belowThresholdVoteMap[denom]
-			// Make a discardable map for belowThreshold votes, so tally changes don't affect scoring
-			discardableClaimMap := make(map[string]types.Claim, len(validatorClaimMap))
-			for k, v := range validatorClaimMap {
-				discardableClaimMap[k] = v
-			}
-			Tally(ctx, ballot, params.RewardBand, discardableClaimMap)
+			excludedDenoms = append(excludedDenoms, denom)
 		}
 
-		// Remove any VoteTarget that did not have any vote
+		// Remove any VoteTarget that did not have any vote, collecting them as well
 		for denom := range voteTargets {
 			_, inVoteMap := voteMap[denom]
 			if !inVoteMap {
+				excludedDenoms = append(excludedDenoms, denom)
 				delete(voteTargets, denom)
 			}
 		}
