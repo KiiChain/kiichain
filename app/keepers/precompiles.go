@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
+	transferkeeper "github.com/cosmos/ibc-go/v10/modules/apps/transfer/keeper"
 	clientkeeper "github.com/cosmos/ibc-go/v10/modules/core/02-client/keeper"
 	connectionkeeper "github.com/cosmos/ibc-go/v10/modules/core/03-connection/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v10/modules/core/04-channel/keeper"
@@ -35,7 +36,6 @@ import (
 	stakingprecompile "github.com/cosmos/evm/precompiles/staking"
 	erc20Keeper "github.com/cosmos/evm/x/erc20/keeper"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
-	transferkeeper "github.com/cosmos/ibc-go/v10/modules/apps/transfer/keeper"
 
 	"github.com/kiichain/kiichain/v7/precompiles/oracle"
 	oraclekeeper "github.com/kiichain/kiichain/v7/x/oracle/keeper"
