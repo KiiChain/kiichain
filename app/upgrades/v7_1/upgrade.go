@@ -35,6 +35,9 @@ func CreateUpgradeHandler(
 			}
 		}
 
+		// Add ICS precompile back
+		newPrecompiles = append(newPrecompiles, "0x0000000000000000000000000000000000000802")
+
 		// Update params
 		evmParams.ActiveStaticPrecompiles = newPrecompiles
 		err := keepers.EVMKeeper.SetParams(ctx, evmParams)
