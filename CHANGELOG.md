@@ -2,9 +2,13 @@
 
 ## UNRELEASED
 
+### Dependencies
+- [EVM](https://github.com/cosmos/evm) from v0.5.1 to [v0.6.0](https://github.com/cosmos/evm/releases/tag/v0.6.0)
+
 ### Added
 
 - Re enabled jailing on oracle module
+- Re enabled ICS precompile
 
 ### Fixed
 
