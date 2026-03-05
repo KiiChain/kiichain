@@ -25,10 +25,10 @@ import (
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
 	ibccallbackskeeper "github.com/cosmos/evm/x/ibc/callbacks/keeper"
-	transferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 	precisebankkeeper "github.com/cosmos/evm/x/precisebank/keeper"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
+	transferkeeper "github.com/cosmos/ibc-go/v10/modules/apps/transfer/keeper"
 )
 
 // GetStakingKeeper implements the TestingApp interface. Needed for ICS.

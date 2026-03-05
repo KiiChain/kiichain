@@ -29,12 +29,13 @@ import (
 	"github.com/cosmos/evm/precompiles/bech32"
 	distprecompile "github.com/cosmos/evm/precompiles/distribution"
 	govprecompile "github.com/cosmos/evm/precompiles/gov"
+	ics20precompile "github.com/cosmos/evm/precompiles/ics20"
 	"github.com/cosmos/evm/precompiles/p256"
 	slashingprecompile "github.com/cosmos/evm/precompiles/slashing"
 	stakingprecompile "github.com/cosmos/evm/precompiles/staking"
 	erc20Keeper "github.com/cosmos/evm/x/erc20/keeper"
-	transferkeeper "github.com/cosmos/evm/x/ibc/transfer/keeper"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
+	transferkeeper "github.com/cosmos/ibc-go/v10/modules/apps/transfer/keeper"
 
 	"github.com/kiichain/kiichain/v7/precompiles/oracle"
 	oraclekeeper "github.com/kiichain/kiichain/v7/x/oracle/keeper"
@@ -145,6 +146,14 @@ func NewAvailableStaticPrecompiles(
 	// Prepare the bank precompile
 	bankPrecompile := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
 
+	ics20precompile := ics20precompile.NewPrecompile(
+		bankKeeper,
+		stakingKeeper,
+		transferKeeper,
+		channelKeeper,
+		erc20Keeper,
+	)
+
 	// Prepare the gov precompile
 	govPrecompile := govprecompile.NewPrecompile(
 		govkeeper.NewMsgServerImpl(&govKeeper),
@@ -172,6 +181,7 @@ func NewAvailableStaticPrecompiles(
 	// Stateful precompiles
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
+	precompiles[ics20precompile.Address()] = ics20precompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
 	precompiles[slashingPrecompile.Address()] = slashingPrecompile
