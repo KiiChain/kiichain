@@ -13,6 +13,7 @@ import (
 
 	"github.com/cosmos/evm/contracts"
 	erc20types "github.com/cosmos/evm/x/erc20/types"
+	"github.com/cosmos/evm/x/vm/statedb"
 
 	app "github.com/kiichain/kiichain/v7/app"
 )
@@ -31,7 +32,8 @@ func DeployERC20(ctx sdk.Context, app *app.KiichainApp) (common.Address, error) 
 	deployData := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 
 	// Deploy the contract
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, nil, deployData, true, nil)
+	stateDB := statedb.New(ctx, app.EVMKeeper, statedb.NewEmptyTxConfig())
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, stateDB, from, nil, deployData, true, false, nil)
 	if err != nil {
 		return common.Address{}, err
 	}
@@ -58,7 +60,8 @@ func MintERC20(ctx sdk.Context, app *app.KiichainApp, contractAddr common.Addres
 	}
 
 	// Send transaction to call mint
-	_, err = app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true, nil)
+	stateDB := statedb.New(ctx, app.EVMKeeper, statedb.NewEmptyTxConfig())
+	_, err = app.EVMKeeper.CallEVMWithData(ctx, stateDB, from, &contractAddr, inputData, true, false, nil)
 	if err != nil {
 		return err
 	}
@@ -76,7 +79,8 @@ func CreateERC20Allowance(ctx sdk.Context, app *app.KiichainApp, contractAddr co
 	}
 
 	// Send transaction to call mint
-	_, err = app.EVMKeeper.CallEVMWithData(ctx, owner, &contractAddr, inputData, true, nil)
+	stateDB := statedb.New(ctx, app.EVMKeeper, statedb.NewEmptyTxConfig())
+	_, err = app.EVMKeeper.CallEVMWithData(ctx, stateDB, owner, &contractAddr, inputData, true, false, nil)
 	if err != nil {
 		return err
 	}

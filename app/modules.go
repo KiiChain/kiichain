@@ -91,8 +91,8 @@ func appModules(
 	appCodec codec.Codec,
 	txConfig client.TxEncodingConfig,
 	tmLightClientModule ibctm.LightClientModule,
-) []module.AppModule {
-	return []module.AppModule{
+) []module.AppModule { //nolint:staticcheck
+	return []module.AppModule{ //nolint:staticcheck
 		genutil.NewAppModule(
 			app.AccountKeeper,
 			app.StakingKeeper,

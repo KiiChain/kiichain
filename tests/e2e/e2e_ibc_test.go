@@ -355,8 +355,10 @@ func (s *IntegrationTestSuite) testMultihopIBCTokenTransfer() {
 				afterRecipientAKiiBalance, err := getSpecificBalance(chainAAPIEndpoint, recipient, akiiDenom)
 				s.Require().NoError(err)
 
-				decremented := beforeSenderAKiiBalance.Sub(tokenAmount).Sub(standardFees).IsEqual(afterSenderAKiiBalance)
-				incremented := beforeRecipientAKiiBalance.Add(tokenAmount).IsEqual(afterRecipientAKiiBalance)
+				expectedSender := beforeSenderAKiiBalance.Sub(tokenAmount).Sub(standardFees)
+				decremented := expectedSender.Equal(afterSenderAKiiBalance)
+				expectedRecipient := beforeRecipientAKiiBalance.Add(tokenAmount)
+				incremented := expectedRecipient.Equal(afterRecipientAKiiBalance)
 
 				return decremented && incremented
 			},
@@ -425,7 +427,8 @@ func (s *IntegrationTestSuite) testFailedMultihopIBCTokenTransfer() {
 				afterSenderAKiiBalance, err := getSpecificBalance(chainAAPIEndpoint, sender, akiiDenom)
 				s.Require().NoError(err)
 
-				returned := beforeSenderAKiiBalance.Sub(tokenAmount).Sub(standardFees).IsEqual(afterSenderAKiiBalance)
+				expectedSender2 := beforeSenderAKiiBalance.Sub(tokenAmount).Sub(standardFees)
+				returned := expectedSender2.Equal(afterSenderAKiiBalance)
 
 				return returned
 			},
@@ -441,7 +444,8 @@ func (s *IntegrationTestSuite) testFailedMultihopIBCTokenTransfer() {
 
 				afterSenderAKiiBalance, err := getSpecificBalance(chainAAPIEndpoint, sender, akiiDenom)
 				s.Require().NoError(err)
-				returned := beforeSenderAKiiBalance.Sub(standardFees).IsEqual(afterSenderAKiiBalance)
+				expectedSender3 := beforeSenderAKiiBalance.Sub(standardFees)
+				returned := expectedSender3.Equal(afterSenderAKiiBalance)
 				return returned
 			},
 			1*time.Minute,

@@ -28,7 +28,7 @@ var (
 	_ module.AppModuleBasic     = AppModuleBasic{}
 	_ module.HasGenesisBasics   = AppModuleBasic{}
 	_ appmodule.HasBeginBlocker = AppModule{}
-	_ module.AppModule          = AppModule{}
+	_ module.AppModule          = AppModule{} //nolint:staticcheck
 	_ module.HasABCIGenesis     = AppModule{}
 )
 

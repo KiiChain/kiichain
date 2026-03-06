@@ -15,6 +15,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	erc20types "github.com/cosmos/evm/x/erc20/types"
+	"github.com/cosmos/evm/x/vm/statedb"
 
 	app "github.com/kiichain/kiichain/v7/app"
 	"github.com/kiichain/kiichain/v7/app/apptesting"
@@ -215,7 +216,8 @@ func deployCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.A
 	deployData := append(common.FromHex(mock.CounterBin), ctorArgs...)
 
 	// Deploy the contract
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, nil, deployData, true, nil)
+	stateDB := statedb.New(ctx, app.EVMKeeper, statedb.NewEmptyTxConfig())
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, stateDB, from, nil, deployData, true, false, nil)
 	require.NoError(t, err)
 	require.NotNil(t, res.Ret)
 
@@ -238,7 +240,8 @@ func incrementCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contr
 	require.NoError(t, err)
 
 	// Send transaction to call increment
-	res, err := app.EVMKeeper.CallEVMWithData(ctx, from, &contractAddr, inputData, true, nil)
+	stateDB := statedb.New(ctx, app.EVMKeeper, statedb.NewEmptyTxConfig())
+	res, err := app.EVMKeeper.CallEVMWithData(ctx, stateDB, from, &contractAddr, inputData, true, false, nil)
 	require.NoError(t, err)
 	require.NotNil(t, res)
 }
