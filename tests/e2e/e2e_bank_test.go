@@ -58,8 +58,8 @@ func (s *IntegrationTestSuite) testBankTokenTransfer() {
 				afterBobUAKiiBalance, err = getSpecificBalance(chainEndpoint, bob.String(), akiiDenom)
 				s.Require().NoError(err)
 
-				decremented := beforeAliceAKiiBalance.Sub(tokenAmount).Sub(standardFees).IsEqual(afterAliceAKiiBalance) //nolint:staticcheck
-				incremented := beforeBobAkiiBalance.Add(tokenAmount).IsEqual(afterBobUAKiiBalance) //nolint:staticcheck
+				decremented := beforeAliceAKiiBalance.Sub(tokenAmount).Sub(standardFees).IsEqual(afterAliceAKiiBalance)
+				incremented := beforeBobAkiiBalance.Add(tokenAmount).IsEqual(afterBobUAKiiBalance)
 
 				return decremented && incremented
 			},
@@ -84,9 +84,9 @@ func (s *IntegrationTestSuite) testBankTokenTransfer() {
 				afterCharlieAKiiBalance, err = getSpecificBalance(chainEndpoint, charlie.String(), akiiDenom)
 				s.Require().NoError(err)
 
-				decremented := beforeAliceAKiiBalance.Sub(tokenAmount).Sub(tokenAmount).Sub(standardFees).IsEqual(afterAliceAKiiBalance) //nolint:staticcheck
-				incremented := beforeBobAkiiBalance.Add(tokenAmount).IsEqual(afterBobUAKiiBalance) &&                              //nolint:staticcheck
-					beforeCharlieAKiiBalance.Add(tokenAmount).IsEqual(afterCharlieAKiiBalance) //nolint:staticcheck
+				decremented := beforeAliceAKiiBalance.Sub(tokenAmount).Sub(tokenAmount).Sub(standardFees).IsEqual(afterAliceAKiiBalance)
+				incremented := beforeBobAkiiBalance.Add(tokenAmount).IsEqual(afterBobUAKiiBalance) &&
+					beforeCharlieAKiiBalance.Add(tokenAmount).IsEqual(afterCharlieAKiiBalance)
 
 				return decremented && incremented
 			},
