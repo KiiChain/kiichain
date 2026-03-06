@@ -145,7 +145,8 @@ func (suite *KeeperTestSuite) TestCreateDenom() {
 			if tc.valid {
 				suite.Require().NoError(err)
 				if denomCreationFee != nil {
-					suite.Require().True(preCreateBalance.Sub(postCreateBalance).IsEqual(denomCreationFee[0]))
+					balanceDiff := preCreateBalance.Sub(postCreateBalance)
+					suite.Require().True(balanceDiff.Equal(denomCreationFee[0]))
 				}
 
 				// Make sure that the admin is set correctly
@@ -159,7 +160,7 @@ func (suite *KeeperTestSuite) TestCreateDenom() {
 			} else {
 				suite.Require().Error(err)
 				// Ensure we don't charge if we expect an error
-				suite.Require().True(preCreateBalance.IsEqual(postCreateBalance))
+				suite.Require().True(preCreateBalance.Equal(postCreateBalance))
 			}
 		})
 	}

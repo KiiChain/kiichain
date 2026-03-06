@@ -23,7 +23,7 @@ import (
 )
 
 var (
-	_ module.AppModule      = AppModule{}
+	_ module.AppModule      = AppModule{}      //nolint:staticcheck
 	_ module.AppModuleBasic = AppModuleBasic{} // Indirect implement the AppModuleBasic interface
 )
 
