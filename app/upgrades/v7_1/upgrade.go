@@ -11,6 +11,10 @@ import (
 	"github.com/kiichain/kiichain/v7/app/keepers"
 )
 
+const (
+	ics20precompileAddress = "0x0000000000000000000000000000000000000802"
+)
+
 // CreateUpgradeHandler creates the upgrade handler for the v7.1.0 upgrade
 // Its only purpose is to run the module migrations
 func CreateUpgradeHandler(
@@ -29,14 +33,20 @@ func CreateUpgradeHandler(
 
 		// Remove wasmd precompile
 		newPrecompiles := []string{}
+		icsExists := false
 		for _, precompile := range evmParams.ActiveStaticPrecompiles {
 			if precompile != "0x0000000000000000000000000000000000001001" {
 				newPrecompiles = append(newPrecompiles, precompile)
 			}
+			if precompile == ics20precompileAddress {
+				icsExists = true
+			}
 		}
 
-		// Add ICS precompile back
-		newPrecompiles = append(newPrecompiles, "0x0000000000000000000000000000000000000802")
+		// Add ICS precompile back if it's not there
+		if !icsExists {
+			newPrecompiles = append(newPrecompiles, ics20precompileAddress)
+		}
 
 		// Update params
 		evmParams.ActiveStaticPrecompiles = newPrecompiles
