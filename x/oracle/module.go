@@ -23,7 +23,7 @@ import (
 )
 
 var (
-	_ module.AppModule      = AppModule{}      // Indirect implement the AppModule interface
+	_ module.AppModule      = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{} // Indirect implement the AppModuleBasic interface
 )
 
