@@ -33,7 +33,7 @@ import (
 )
 
 var (
-	_ module.AppModule      = AppModule{}
+	_ module.AppModule      = AppModule{} //nolint:staticcheck
 	_ module.AppModuleBasic = AppModuleBasic{}
 
 	_ appmodule.AppModule       = AppModule{}
