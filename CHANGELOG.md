@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## UNRELEASED
+## v7.1.0 - 2026-03-10
 
 ### Dependencies
 - [EVM](https://github.com/cosmos/evm) from v0.5.1 to [v0.6.0](https://github.com/cosmos/evm/releases/tag/v0.6.0)
