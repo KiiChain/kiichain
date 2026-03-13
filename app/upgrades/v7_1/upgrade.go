@@ -7,8 +7,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/evm/x/vm/types"
 
 	"github.com/kiichain/kiichain/v7/app/keepers"
+	"github.com/kiichain/kiichain/v7/app/params"
 )
 
 const (
@@ -25,6 +28,13 @@ func CreateUpgradeHandler(
 	return func(c context.Context, plan upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		// State the context and log
 		ctx := sdk.UnwrapSDKContext(c)
+
+		ctx.Logger().Info("Starting EVM upgrade...")
+
+		err := EVMUpgrade(ctx, keepers)
+		if err != nil {
+			return vm, err
+		}
 
 		ctx.Logger().Info("Removing wasmd precompile...")
 
@@ -50,7 +60,7 @@ func CreateUpgradeHandler(
 
 		// Update params
 		evmParams.ActiveStaticPrecompiles = newPrecompiles
-		err := keepers.EVMKeeper.SetParams(ctx, evmParams)
+		err = keepers.EVMKeeper.SetParams(ctx, evmParams)
 		if err != nil {
 			return vm, err
 		}
@@ -67,4 +77,44 @@ func CreateUpgradeHandler(
 		ctx.Logger().Info("Upgrade v7.1.0 complete")
 		return vm, nil
 	}
+}
+
+// EVMUpgrade adds missing bank and evm denom metadata as well as
+// it initializes the EVM coin info
+func EVMUpgrade(
+	ctx sdk.Context,
+	keepers *keepers.AppKeepers,
+) error {
+	keepers.BankKeeper.SetDenomMetaData(ctx, banktypes.Metadata{
+		Description: "Kiichain's native token",
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    params.BaseDenom,
+				Exponent: 0,
+				Aliases:  nil,
+			},
+			{
+				Denom:    params.DisplayDenom,
+				Exponent: 18,
+				Aliases:  nil,
+			},
+		},
+		Base:    params.BaseDenom,
+		Display: params.DisplayDenom,
+		Name:    "Kii",
+		Symbol:  "KII",
+	})
+
+	// Update EVM params to add Extended denom options
+	evmParams := keepers.EVMKeeper.GetParams(ctx)
+	evmParams.ExtendedDenomOptions = &types.ExtendedDenomOptions{ExtendedDenom: params.BaseDenom}
+	err := keepers.EVMKeeper.SetParams(ctx, evmParams)
+	if err != nil {
+		return err
+	}
+
+	// Initialize EvmCoinInfo in the module store. Chains bootstrapped before v0.5.0
+	// binaries never stored this information (it lived only in process globals),
+	// so migrating nodes would otherwise see an empty EvmCoinInfo on upgrade.
+	return keepers.EVMKeeper.InitEvmCoinInfo(ctx)
 }
