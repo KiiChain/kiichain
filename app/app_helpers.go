@@ -11,6 +11,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -30,6 +31,16 @@ import (
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
+
+// GetModuleManager returns the app's module manager.
+func (app *KiichainApp) GetModuleManager() *module.Manager {
+	return app.mm
+}
+
+// GetConfigurator returns the app's module configurator.
+func (app *KiichainApp) GetConfigurator() module.Configurator {
+	return app.configurator
+}
 
 // GetStakingKeeper implements the TestingApp interface. Needed for ICS.
 func (app *KiichainApp) GetStakingKeeper() *stakingkeeper.Keeper { //nolint:nolintlint
