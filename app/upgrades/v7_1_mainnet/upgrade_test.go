@@ -1,4 +1,4 @@
-package v710_test
+package v710mainnet_test
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 
 	kiihelpers "github.com/kiichain/kiichain/v7/app/helpers"
 	"github.com/kiichain/kiichain/v7/app/params"
-	v710 "github.com/kiichain/kiichain/v7/app/upgrades/v7_1"
+	v710_mainnet "github.com/kiichain/kiichain/v7/app/upgrades/v7_1_mainnet"
 )
 
 const (
@@ -23,7 +23,7 @@ const (
 func TestEVMUpgrade(t *testing.T) {
 	app, ctx := kiihelpers.SetupWithContext(t)
 
-	err := v710.EVMUpgrade(ctx, &app.AppKeepers)
+	err := v710_mainnet.EVMUpgrade(ctx, &app.AppKeepers)
 	require.NoError(t, err)
 
 	// Verify bank denom metadata is set for the base denom
@@ -61,8 +61,8 @@ func TestCreateUpgradeHandler_Precompiles(t *testing.T) {
 
 	// Run the upgrade handler
 	mm := app.GetModuleManager()
-	handler := v710.CreateUpgradeHandler(mm, app.GetConfigurator(), &app.AppKeepers)
-	vm, err := handler(ctx, upgradetypes.Plan{Name: v710.UpgradeName}, mm.GetVersionMap())
+	handler := v710_mainnet.CreateUpgradeHandler(mm, app.GetConfigurator(), &app.AppKeepers)
+	vm, err := handler(ctx, upgradetypes.Plan{Name: v710_mainnet.UpgradeName}, mm.GetVersionMap())
 	require.NoError(t, err)
 	require.NotNil(t, vm)
 
