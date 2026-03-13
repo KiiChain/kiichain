@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v7.1.0-mainnet - 2026-03-13
+
+### Fixed
+- Merged v7.0.0 and v7.1.0 in one upgrade for mainnet
+
 ## v7.1.0 - 2026-03-10
 
 ### Dependencies
