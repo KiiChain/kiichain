@@ -64,14 +64,21 @@ func (qs QueryServer) ExchangeRate(ctx context.Context, req *types.QueryExchange
 	return response, nil
 }
 
+// MaxQueryResults is the maximum number of results returned by list queries
+// This prevents memory exhaustion from unbounded iteration
+const MaxQueryResults = 1000
+
 // ExchangeRates returns all exchange rates
 func (qs QueryServer) ExchangeRates(ctx context.Context, req *types.QueryExchangeRatesRequest) (*types.QueryExchangeRatesResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	exchangeRates := []types.DenomOracleExchangeRate{}
+	count := 0
 	err := qs.Keeper.ExchangeRate.Walk(sdkCtx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		exchangeRates = append(exchangeRates, types.DenomOracleExchangeRate{Denom: denom, OracleExchangeRate: &exchangeRate})
-		return false, nil
+		count++
+		// Limit results to prevent memory exhaustion
+		return count >= MaxQueryResults, nil
 	})
 	if err != nil {
 		return nil, err
@@ -85,9 +92,12 @@ func (qs QueryServer) Actives(ctx context.Context, req *types.QueryActivesReques
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	denomsActive := []string{}
+	count := 0
 	err := qs.Keeper.ExchangeRate.Walk(sdkCtx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		denomsActive = append(denomsActive, denom)
-		return false, nil
+		count++
+		// Limit results to prevent memory exhaustion
+		return count >= MaxQueryResults, nil
 	})
 	if err != nil {
 		return nil, err
@@ -106,15 +116,21 @@ func (qs QueryServer) VoteTargets(ctx context.Context, req *types.QueryVoteTarge
 	return &types.QueryVoteTargetsResponse{VoteTargets: voteTargets}, err
 }
 
+// MaxSnapshotResults is the maximum number of snapshots returned
+const MaxSnapshotResults = 500
+
 // PriceSnapshotHistory queries all snapshots
 func (qs QueryServer) PriceSnapshotHistory(ctx context.Context, req *types.QueryPriceSnapshotHistoryRequest) (*types.QueryPriceSnapshotHistoryResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// Get the snapshots available on the KVStore
 	priceSnapshots := []types.PriceSnapshot{}
+	count := 0
 	err := qs.Keeper.PriceSnapshot.Walk(sdkCtx, nil, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
 		priceSnapshots = append(priceSnapshots, snapshot)
-		return false, nil
+		count++
+		// Limit results to prevent memory exhaustion
+		return count >= MaxSnapshotResults, nil
 	})
 	if err != nil {
 		return nil, err
