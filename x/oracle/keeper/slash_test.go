@@ -236,3 +236,75 @@ func TestSlashAndResetCounters_MultipleValidatorsNotFound(t *testing.T) {
 		require.Equal(t, expectedTokens, validator.Tokens)
 	}
 }
+
+// TestSlashToPool_SupplyPreserved is the core regression test for the supply-burn bug.
+//
+// Previous behavior: oracle slash called StakingKeeper.Slash which burned tokens from the
+// bonded pool, permanently reducing total supply. 
+//
+// Current behavior: slashToPool redirects those tokens to the community pool instead.
+// Total supply is unchanged; only ownership shifts (bonded pool → community pool).
+func TestSlashToPool_SupplyPreserved(t *testing.T) {
+	input := CreateTestInput(t)
+	ctx := input.Ctx
+	bankKeeper := input.BankKeeper
+	stakingKeeper := input.StakingKeeper
+	oracleKeeper := input.OracleKeeper
+	distKeeper := input.DistKeeper
+
+	// Create a validator with 100 units of staked tokens
+	stakedAmount := sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction)
+	msgServer := stakingkeeper.NewMsgServerImpl(&stakingKeeper)
+	_, err := msgServer.CreateValidator(ctx, NewTestMsgCreateValidator(ValAddrs[0], ValPubKeys[0], stakedAmount))
+	require.NoError(t, err)
+	_, err = stakingKeeper.EndBlocker(ctx)
+	require.NoError(t, err)
+
+	// Fetch oracle params and set a non-zero slash fraction so the slash fires
+	params, err := oracleKeeper.Params.Get(ctx)
+	require.NoError(t, err)
+	params.SlashFraction = math.LegacyNewDecWithPrec(1, 2) // 1%
+	require.NoError(t, oracleKeeper.Params.Set(ctx, params))
+
+	bondDenom := utils.KiiDenom
+	expectedSlash := params.SlashFraction.MulInt(stakedAmount).TruncateInt()
+
+	// Snapshot state before the slash
+	totalSupplyBefore := bankKeeper.GetSupply(ctx, bondDenom).Amount
+	feePoolBefore, err := distKeeper.FeePool.Get(ctx)
+	require.NoError(t, err)
+	communityPoolBefore := feePoolBefore.CommunityPool.AmountOf(bondDenom)
+	bondedPoolBefore := bankKeeper.GetBalance(ctx, authtypes.NewModuleAddress(stakingtypes.BondedPoolName), bondDenom).Amount
+
+	// Trigger the oracle slash: miss enough votes to fall below MinValidPerWindow
+	votePeriodsPerWindow := math.LegacyNewDec(int64(params.SlashWindow)).QuoInt64(int64(params.VotePeriod)).TruncateInt64()
+	minValidVotes := params.MinValidPerWindow.MulInt64(votePeriodsPerWindow).TruncateInt64()
+	require.NoError(t, oracleKeeper.VotePenaltyCounter.Set(ctx, ValAddrs[0], types.NewVotePenaltyCounter(
+		uint64(votePeriodsPerWindow-minValidVotes+1), // misses
+		0,
+		uint64(minValidVotes-1), // successes (below threshold)
+	)))
+	require.NoError(t, oracleKeeper.SlashAndResetCounters(ctx))
+
+	// Snapshot state after the slash
+	totalSupplyAfter := bankKeeper.GetSupply(ctx, bondDenom).Amount
+	feePoolAfter, err := distKeeper.FeePool.Get(ctx)
+	require.NoError(t, err)
+	communityPoolAfter := feePoolAfter.CommunityPool.AmountOf(bondDenom)
+	bondedPoolAfter := bankKeeper.GetBalance(ctx, authtypes.NewModuleAddress(stakingtypes.BondedPoolName), bondDenom).Amount
+
+	// Previous behavior would have reduced supply by expectedSlash:
+	//   require.Equal(t, totalSupplyBefore.Sub(expectedSlash), totalSupplyAfter) // BURNS
+	//
+	// Current behavior: supply is unchanged
+	require.Equal(t, totalSupplyBefore, totalSupplyAfter, "total supply must not change after oracle slash")
+
+	// The slashed tokens moved from the bonded pool to the community pool
+	require.Equal(t, bondedPoolBefore.Sub(expectedSlash), bondedPoolAfter, "bonded pool must decrease by slash amount")
+	require.Equal(t, communityPoolBefore.Add(math.LegacyNewDecFromInt(expectedSlash)), communityPoolAfter, "community pool must increase by slash amount")
+
+	// The validator's bonded token count is reduced
+	validator, err := stakingKeeper.GetValidator(ctx, ValAddrs[0])
+	require.NoError(t, err)
+	require.Equal(t, stakedAmount.Sub(expectedSlash), validator.GetBondedTokens())
+}
