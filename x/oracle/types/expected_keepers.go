@@ -15,16 +15,16 @@ import (
 // StakingKeeper is expected keeper for staking module, because I need to handle
 // reward and slashink on my oracle module
 type StakingKeeper interface {
-	Validator(ctx context.Context, address sdk.ValAddress) (stakingtypes.ValidatorI, error)                                                                    // Retrieves a validator's information
-	TotalBondedTokens(ctx context.Context) (math.Int, error)                                                                                                   // Retrieves total staked tokens (useful for slashing calculations)
-	Jail(ctx context.Context, consAddr sdk.ConsAddress) error                                                                                                   // Jail validators
-	ValidatorsPowerStoreIterator(ctx context.Context) (corestore.Iterator, error)                                                                              // Used to computing validator rankings or total power
-	MaxValidators(ctx context.Context) (uint32, error)                                                                                                         // Return the maximum amount of bonded validators
-	PowerReduction(ctx context.Context) (res math.Int)                                                                                                         // Returns the power reduction factor
-	GetValidatorByConsAddr(ctx context.Context, consAddr sdk.ConsAddress) (stakingtypes.Validator, error)                                                      // Retrieves a validator by consensus address
-	RemoveValidatorTokens(ctx context.Context, validator stakingtypes.Validator, tokensToRemove math.Int) (stakingtypes.Validator, error)                      // Removes tokens from a validator without burning
-	TokensFromConsensusPower(ctx context.Context, power int64) math.Int                                                                                        // Converts consensus power to token amount
-	BondDenom(ctx context.Context) (string, error)                                                                                                             // Returns the bond denomination
+	Validator(ctx context.Context, address sdk.ValAddress) (stakingtypes.ValidatorI, error)                                               // Retrieves a validator's information
+	TotalBondedTokens(ctx context.Context) (math.Int, error)                                                                              // Retrieves total staked tokens (useful for slashing calculations)
+	Jail(ctx context.Context, consAddr sdk.ConsAddress) error                                                                             // Jail validators
+	ValidatorsPowerStoreIterator(ctx context.Context) (corestore.Iterator, error)                                                         // Used to computing validator rankings or total power
+	MaxValidators(ctx context.Context) (uint32, error)                                                                                    // Return the maximum amount of bonded validators
+	PowerReduction(ctx context.Context) (res math.Int)                                                                                    // Returns the power reduction factor
+	GetValidatorByConsAddr(ctx context.Context, consAddr sdk.ConsAddress) (stakingtypes.Validator, error)                                 // Retrieves a validator by consensus address
+	RemoveValidatorTokens(ctx context.Context, validator stakingtypes.Validator, tokensToRemove math.Int) (stakingtypes.Validator, error) // Removes tokens from a validator without burning
+	TokensFromConsensusPower(ctx context.Context, power int64) math.Int                                                                   // Converts consensus power to token amount
+	BondDenom(ctx context.Context) (string, error)                                                                                        // Returns the bond denomination
 }
 
 // DistributionKeeper is the expected keeper for the distribution module
