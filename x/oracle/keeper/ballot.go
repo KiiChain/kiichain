@@ -10,6 +10,10 @@ import (
 	"github.com/kiichain/kiichain/v7/x/oracle/types"
 )
 
+// maxTuplesPerValidator is the maximum exchange rate tuples processed per validator vote.
+// fix(oracle): prevents processing of excessive tuples per validator in OrganizeBallotByDenom (issue #269)
+const maxTuplesPerValidator = types.MaxExchangeRateTuples
+
 // OrganizeBallotByDenom iterates over the map with validators and create its voting tally.
 // returns a map with the denom and its ballot (denom alphabetical ordered)
 func (k Keeper) OrganizeBallotByDenom(ctx sdk.Context, validatorClaimMap map[string]types.Claim) (map[string]types.ExchangeRateBallot, error) {
@@ -22,7 +26,15 @@ func (k Keeper) OrganizeBallotByDenom(ctx sdk.Context, validatorClaimMap map[str
 
 		if ok {
 			power := claim.Power
+			tupleCount := 0
 			for _, tuple := range aggregateVote.ExchangeRateTuples {
+				// fix(oracle): enforce per-validator tuple limit to match ValidateBasic constraint (issue #269)
+				// Prevents processing unbounded tuples that may have slipped through or were stored before the limit.
+				if tupleCount >= maxTuplesPerValidator {
+					break
+				}
+				tupleCount++
+
 				tmpPower := power
 
 				// Validate invalids exchange rates
