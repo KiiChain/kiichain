@@ -26,6 +26,10 @@ func NewQueryServer(keeper Keeper) QueryServer {
 	}
 }
 
+// maxQueryResults is the maximum number of results returned by unbounded gRPC list queries.
+// fix(oracle): prevents OOM from unbounded iteration over large collections (issue #291)
+const maxQueryResults = 1000
+
 // Params returns the oracle's params
 func (qs QueryServer) Params(ctx context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	// Get the module's params from the keeper
@@ -65,13 +69,17 @@ func (qs QueryServer) ExchangeRate(ctx context.Context, req *types.QueryExchange
 }
 
 // ExchangeRates returns all exchange rates
+// fix(oracle): capped at maxQueryResults to prevent OOM from unbounded Walk (issue #291)
 func (qs QueryServer) ExchangeRates(ctx context.Context, req *types.QueryExchangeRatesRequest) (*types.QueryExchangeRatesResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	exchangeRates := []types.DenomOracleExchangeRate{}
+	count := 0
 	err := qs.Keeper.ExchangeRate.Walk(sdkCtx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		exchangeRates = append(exchangeRates, types.DenomOracleExchangeRate{Denom: denom, OracleExchangeRate: &exchangeRate})
-		return false, nil
+		count++
+		// Stop iteration once the result cap is reached to prevent OOM
+		return count >= maxQueryResults, nil
 	})
 	if err != nil {
 		return nil, err
@@ -81,13 +89,17 @@ func (qs QueryServer) ExchangeRates(ctx context.Context, req *types.QueryExchang
 }
 
 // Actives queries all denoms for which exchange rates exist
+// fix(oracle): capped at maxQueryResults to prevent OOM from unbounded Walk (issue #291)
 func (qs QueryServer) Actives(ctx context.Context, req *types.QueryActivesRequest) (*types.QueryActivesResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	denomsActive := []string{}
+	count := 0
 	err := qs.Keeper.ExchangeRate.Walk(sdkCtx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		denomsActive = append(denomsActive, denom)
-		return false, nil
+		count++
+		// Stop iteration once the result cap is reached to prevent OOM
+		return count >= maxQueryResults, nil
 	})
 	if err != nil {
 		return nil, err
@@ -107,14 +119,18 @@ func (qs QueryServer) VoteTargets(ctx context.Context, req *types.QueryVoteTarge
 }
 
 // PriceSnapshotHistory queries all snapshots
+// fix(oracle): capped at maxQueryResults to prevent OOM from unbounded Walk (issue #291)
 func (qs QueryServer) PriceSnapshotHistory(ctx context.Context, req *types.QueryPriceSnapshotHistoryRequest) (*types.QueryPriceSnapshotHistoryResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	// Get the snapshots available on the KVStore
 	priceSnapshots := []types.PriceSnapshot{}
+	count := 0
 	err := qs.Keeper.PriceSnapshot.Walk(sdkCtx, nil, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
 		priceSnapshots = append(priceSnapshots, snapshot)
-		return false, nil
+		count++
+		// Stop iteration once the result cap is reached to prevent OOM
+		return count >= maxQueryResults, nil
 	})
 	if err != nil {
 		return nil, err
