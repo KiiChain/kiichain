@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
@@ -14,6 +16,10 @@ var (
 	_ sdk.Msg = &MsgAggregateExchangeRateVote{}
 	_ sdk.Msg = &MsgUpdateParams{}
 )
+
+// MaxExchangeRateTuples is the maximum number of exchange rate tuples allowed per vote.
+// fix(oracle): prevents resource exhaustion DoS from unbounded tuple submissions (issue #269)
+const MaxExchangeRateTuples = 100
 
 // NewMsgAggregateExchangeRateVote creates a MsgAggregateExchangeRateVote instance
 func NewMsgAggregateExchangeRateVote(exchangeRate string, feeder sdk.AccAddress, validator sdk.ValAddress) *MsgAggregateExchangeRateVote {
@@ -52,6 +58,14 @@ func (msg MsgAggregateExchangeRateVote) ValidateBasic() error {
 	exchangeRates, err := ParseExchangeRateTuples(msg.ExchangeRates)
 	if err != nil {
 		return errors.Wrap(sdkerrors.ErrInvalidCoins, "failed to parse exchange rates string cause: "+err.Error())
+	}
+
+	// fix(oracle): enforce maximum tuple count to prevent resource exhaustion (issue #269)
+	// Without this limit, a validator could submit thousands of denoms in a single vote,
+	// causing unbounded iteration and potential DoS on the oracle module.
+	if len(exchangeRates) > MaxExchangeRateTuples {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest,
+			fmt.Sprintf("too many exchange rate tuples: %d exceeds maximum of %d", len(exchangeRates), MaxExchangeRateTuples))
 	}
 
 	for _, rate := range exchangeRates {
