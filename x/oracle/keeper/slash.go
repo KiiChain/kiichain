@@ -7,6 +7,7 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/kiichain/kiichain/v7/x/oracle/types"
@@ -15,9 +16,6 @@ import (
 // SlashAndResetCounters calculate if the validator must be slashed if success votes / total votes
 // is lower than MinValidPerWindow param. Then reset the vote penalty info
 func (k Keeper) SlashAndResetCounters(ctx sdk.Context) error {
-	height := ctx.BlockHeight()
-	distributionHeight := height - sdk.ValidatorUpdateDelay - 1
-
 	// Get the module params
 	params, err := k.Params.Get(ctx)
 	if err != nil {
@@ -69,8 +67,8 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) error {
 				// Calculate consensus power
 				consensusPower := validator.GetConsensusPower(powerReduction)
 
-				// Slash the validator
-				_, err = k.StakingKeeper.Slash(ctx, consAddr, distributionHeight, consensusPower, slashFraction)
+				// Redirect the slash amount to the community pool instead of burning
+				_, err = k.slashToPool(ctx, consAddr, consensusPower, slashFraction)
 				if err != nil {
 					k.Logger(ctx).Error("failed to slash validator", "operator", operator.String(), "error", err)
 					return true, err
@@ -102,4 +100,55 @@ func (k Keeper) SlashAndResetCounters(ctx sdk.Context) error {
 		return false, err
 	})
 	return err
+}
+
+// slashToPool removes tokens from a validator and sends them to the community pool
+// instead of burning, preserving total supply.
+func (k Keeper) slashToPool(ctx sdk.Context, consAddr sdk.ConsAddress, consensusPower int64, slashFactor math.LegacyDec) (math.Int, error) {
+	if slashFactor.IsZero() {
+		return math.ZeroInt(), nil
+	}
+
+	// Calculate slash amount: same math as the staking module
+	amount := k.StakingKeeper.TokensFromConsensusPower(ctx, consensusPower)
+	slashAmount := math.LegacyNewDecFromInt(amount).Mul(slashFactor).TruncateInt()
+
+	// Get the concrete validator (needed for RemoveValidatorTokens)
+	validator, err := k.StakingKeeper.GetValidatorByConsAddr(ctx, consAddr)
+	if err != nil {
+		return math.ZeroInt(), err
+	}
+
+	// Clamp slash amount to the validator's available tokens
+	tokensToBurn := math.MinInt(slashAmount, validator.Tokens)
+	if tokensToBurn.IsZero() {
+		return math.ZeroInt(), nil
+	}
+
+	// Remove tokens from the validator's bookkeeping without burning
+	_, err = k.StakingKeeper.RemoveValidatorTokens(ctx, validator, tokensToBurn)
+	if err != nil {
+		return math.ZeroInt(), err
+	}
+
+	// Create the coin (value but with akii)
+	bondDenom, err := k.StakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return math.ZeroInt(), err
+	}
+	coins := sdk.NewCoins(sdk.NewCoin(bondDenom, tokensToBurn))
+	// Send the slashed tokens from the bonded pool to the community pool
+	bondedPoolAddr := authtypes.NewModuleAddress(stakingtypes.BondedPoolName)
+	if err := k.distrKeeper.FundCommunityPool(ctx, coins, bondedPoolAddr); err != nil {
+		return math.ZeroInt(), err
+	}
+
+	k.Logger(ctx).Info(
+		"oracle slash redirected to community pool",
+		"validator", consAddr.String(),
+		"slash_factor", slashFactor.String(),
+		"amount", tokensToBurn.String(),
+	)
+
+	return tokensToBurn, nil
 }

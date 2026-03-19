@@ -25,6 +25,7 @@ type Keeper struct {
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	StakingKeeper types.StakingKeeper
+	distrKeeper   types.DistributionKeeper
 
 	// Schema of the module
 	Schema                    collections.Schema
@@ -44,7 +45,7 @@ type Keeper struct {
 // NewKeeper creates an oracle Keeper instance
 func NewKeeper(cdc codec.BinaryCodec, storeService corestoretypes.KVStoreService,
 	accountKeeper types.AccountKeeper, bankKeeper types.BankKeeper, stakingKeeper types.StakingKeeper,
-	authority string,
+	distrKeeper types.DistributionKeeper, authority string,
 ) Keeper {
 	// Ensure oracle module account is set
 	addr := accountKeeper.GetModuleAddress(types.ModuleName)
@@ -66,6 +67,7 @@ func NewKeeper(cdc codec.BinaryCodec, storeService corestoretypes.KVStoreService
 		accountKeeper:             accountKeeper,
 		bankKeeper:                bankKeeper,
 		StakingKeeper:             stakingKeeper,
+		distrKeeper:               distrKeeper,
 		Params:                    collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
 		ExchangeRate:              collections.NewMap(sb, types.ExchangeRateKey, "exchange_rate", collections.StringKey, codec.CollValue[types.OracleExchangeRate](cdc)),
 		FeederDelegation:          collections.NewMap(sb, types.FeederDelegationKey, "feeder_delegation", sdk.ValAddressKey, collections.StringValue),

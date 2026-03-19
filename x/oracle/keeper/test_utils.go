@@ -269,7 +269,7 @@ func CreateTestInput(t *testing.T) TestInput {
 
 	// Set Oracle module
 	oracleKeeper := NewKeeper(appCodec, runtime.NewKVStoreService(keys[types.StoreKey]),
-		accountKeeper, bankKeeper, stakingKeeper, authority.String())
+		accountKeeper, bankKeeper, stakingKeeper, distKeeper, authority.String())
 
 	oracleParams := types.DefaultParams()
 
