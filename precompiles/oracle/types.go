@@ -11,7 +11,8 @@ import (
 
 // MaxDenomLength is the maximum allowed length for denom strings
 // This prevents DoS attacks via extremely long strings
-const MaxDenomLength = 256
+// Aligned with SDK's maximum denom length (x/tokenfactory/types/denoms.go)
+const MaxDenomLength = 128
 
 // ParseGetExchangeRateArgs parses the arguments for the GetExchangeRate method
 func ParseGetExchangeRateArgs(args []interface{}) (*oracletypes.QueryExchangeRateRequest, error) {

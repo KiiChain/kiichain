@@ -40,7 +40,8 @@ func (qs QueryServer) Params(ctx context.Context, req *types.QueryParamsRequest)
 
 // MaxDenomLength is the maximum allowed length for denom strings
 // This prevents DoS attacks via extremely long strings in queries
-const MaxDenomLength = 256
+// Aligned with SDK's maximum denom length (x/tokenfactory/types/denoms.go)
+const MaxDenomLength = 128
 
 // ExchangeRate returns the exchange rate specific by denom
 func (qs QueryServer) ExchangeRate(ctx context.Context, req *types.QueryExchangeRateRequest) (*types.QueryExchangeRateResponse, error) {
@@ -117,11 +118,20 @@ func (qs QueryServer) Actives(ctx context.Context, req *types.QueryActivesReques
 // VoteTargets queries the voting target list on current vote period
 func (qs QueryServer) VoteTargets(ctx context.Context, req *types.QueryVoteTargetsRequest) (*types.QueryVoteTargetsResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	// Get the vote targets
-	voteTargets, err := qs.Keeper.GetVoteTargets(sdkCtx)
 
-	// Return the response and the error
-	return &types.QueryVoteTargetsResponse{VoteTargets: voteTargets}, err
+	voteTargets := []string{}
+	count := 0
+	err := qs.Keeper.VoteTarget.Walk(sdkCtx, nil, func(denom string, denomInfo types.Denom) (bool, error) {
+		voteTargets = append(voteTargets, denom)
+		count++
+		// Limit results to prevent memory exhaustion
+		return count >= MaxQueryResults, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryVoteTargetsResponse{VoteTargets: voteTargets}, nil
 }
 
 // MaxSnapshotResults is the maximum number of snapshots returned
