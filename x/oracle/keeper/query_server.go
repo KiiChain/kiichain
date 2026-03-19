@@ -38,6 +38,10 @@ func (qs QueryServer) Params(ctx context.Context, req *types.QueryParamsRequest)
 	return &types.QueryParamsResponse{Params: &params}, nil
 }
 
+// MaxDenomLength is the maximum allowed length for denom strings
+// This prevents DoS attacks via extremely long strings in queries
+const MaxDenomLength = 256
+
 // ExchangeRate returns the exchange rate specific by denom
 func (qs QueryServer) ExchangeRate(ctx context.Context, req *types.QueryExchangeRateRequest) (*types.QueryExchangeRateResponse, error) {
 	// Validate 544
@@ -47,6 +51,10 @@ func (qs QueryServer) ExchangeRate(ctx context.Context, req *types.QueryExchange
 
 	if len(req.Denom) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "empty denom")
+	}
+
+	if len(req.Denom) > MaxDenomLength {
+		return nil, status.Error(codes.InvalidArgument, "denom length exceeds maximum allowed length")
 	}
 
 	// Get exchange rate by denom
