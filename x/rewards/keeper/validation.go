@@ -94,6 +94,20 @@ func (k Keeper) validateSchedule(ctx sdk.Context, schedule types.ReleaseSchedule
 		}
 	}
 
+	// fix(rewards): Prevent ReleasedAmount from being reset to a lower value (issue #268)
+	// Without this check, governance could reset ReleasedAmount to 0 and re-distribute
+	// already-distributed tokens, causing double distribution / token inflation.
+	existingSchedule, getErr := k.ReleaseSchedule.Get(ctx)
+	if getErr == nil && !existingSchedule.ReleasedAmount.IsZero() {
+		if schedule.ReleasedAmount.Amount.LT(existingSchedule.ReleasedAmount.Amount) {
+			return fmt.Errorf(
+				"cannot decrease ReleasedAmount from %s to %s: tokens already distributed cannot be un-distributed",
+				existingSchedule.ReleasedAmount,
+				schedule.ReleasedAmount,
+			)
+		}
+	}
+
 	// Time validations
 	if schedule.EndTime.IsZero() {
 		return fmt.Errorf("end time cannot be zero")
