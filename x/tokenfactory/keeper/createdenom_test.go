@@ -58,6 +58,44 @@ func (suite *KeeperTestSuite) TestMsgCreateDenom() {
 	suite.Require().Error(err)
 }
 
+func (suite *KeeperTestSuite) TestCreateDenomCommunityPoolFunding() {
+	tokenFactoryKeeper := suite.App.TokenFactoryKeeper
+	bankKeeper := suite.App.BankKeeper
+	distrKeeper := suite.App.DistrKeeper
+
+	// Enable community pool fee funding capability
+	tokenFactoryKeeper.SetEnabledCapabilities(suite.Ctx, []string{types.EnableCommunityPoolFeeFunding})
+
+	// Set a non-zero denom creation fee
+	fee := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, sdkmath.NewInt(50000000)))
+	err := tokenFactoryKeeper.SetParams(suite.Ctx, types.Params{DenomCreationFee: fee})
+	suite.Require().NoError(err)
+
+	// Record community pool balance and total supply before creating denom
+	feePoolBefore, err := distrKeeper.FeePool.Get(suite.Ctx)
+	suite.Require().NoError(err)
+	communityPoolBefore := feePoolBefore.CommunityPool.AmountOf(fee[0].Denom)
+
+	totalSupplyBefore := bankKeeper.GetSupply(suite.Ctx, fee[0].Denom)
+
+	// Create a denom, paying the fee
+	_, err = suite.msgServer.CreateDenom(suite.Ctx, types.NewMsgCreateDenom(suite.TestAccs[0].String(), "poolcoin"))
+	suite.Require().NoError(err)
+
+	// Community pool should have increased by the fee amount
+	feePoolAfter, err := distrKeeper.FeePool.Get(suite.Ctx)
+	suite.Require().NoError(err)
+	communityPoolAfter := feePoolAfter.CommunityPool.AmountOf(fee[0].Denom)
+	suite.Require().Equal(communityPoolBefore.Add(sdkmath.LegacyNewDecFromInt(fee[0].Amount)), communityPoolAfter)
+
+	// Total supply must NOT have decreased (no tokens were burned)
+	totalSupplyAfter := bankKeeper.GetSupply(suite.Ctx, fee[0].Denom)
+	suite.Require().True(totalSupplyAfter.Amount.Equal(totalSupplyBefore.Amount),
+		"supply should not change when fee goes to community pool, got before=%s after=%s",
+		totalSupplyBefore, totalSupplyAfter,
+	)
+}
+
 func (suite *KeeperTestSuite) TestCreateDenom() {
 	var (
 		primaryDenom            = types.DefaultParams().DenomCreationFee[0].Denom
