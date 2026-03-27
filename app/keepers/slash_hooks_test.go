@@ -6,9 +6,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
+
 	"cosmossdk.io/math"
 
-	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
