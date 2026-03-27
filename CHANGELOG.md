@@ -4,6 +4,7 @@
 
 ### Fixed
 - Oracle slashing no longer burns coins but instead sends them to community pool
+- Slashing overall no longer burn coins, but instead sends them to community pool
 
 
 ## v7.1.0-mainnet - 2026-03-13
