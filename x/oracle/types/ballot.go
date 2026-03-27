@@ -22,7 +22,7 @@ type Claim struct {
 func NewClaim(power, weight, winCount int64, didVote bool, recipient sdk.ValAddress) Claim {
 	return Claim{
 		Power:     power,
-		Weight:    power,
+		Weight:    weight,
 		WinCount:  winCount,
 		DidVote:   didVote,
 		Recipient: recipient,

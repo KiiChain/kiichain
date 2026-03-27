@@ -38,6 +38,11 @@ func (qs QueryServer) Params(ctx context.Context, req *types.QueryParamsRequest)
 	return &types.QueryParamsResponse{Params: &params}, nil
 }
 
+// MaxDenomLength is the maximum allowed length for denom strings
+// This prevents DoS attacks via extremely long strings in queries
+// Aligned with SDK's maximum denom length (x/tokenfactory/types/denoms.go)
+const MaxDenomLength = 128
+
 // ExchangeRate returns the exchange rate specific by denom
 func (qs QueryServer) ExchangeRate(ctx context.Context, req *types.QueryExchangeRateRequest) (*types.QueryExchangeRateResponse, error) {
 	// Validate 544
@@ -47,6 +52,10 @@ func (qs QueryServer) ExchangeRate(ctx context.Context, req *types.QueryExchange
 
 	if len(req.Denom) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "empty denom")
+	}
+
+	if len(req.Denom) > MaxDenomLength {
+		return nil, status.Error(codes.InvalidArgument, "denom length exceeds maximum allowed length")
 	}
 
 	// Get exchange rate by denom
@@ -64,14 +73,21 @@ func (qs QueryServer) ExchangeRate(ctx context.Context, req *types.QueryExchange
 	return response, nil
 }
 
+// MaxQueryResults is the maximum number of results returned by list queries
+// This prevents memory exhaustion from unbounded iteration
+const MaxQueryResults = 1000
+
 // ExchangeRates returns all exchange rates
 func (qs QueryServer) ExchangeRates(ctx context.Context, req *types.QueryExchangeRatesRequest) (*types.QueryExchangeRatesResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	exchangeRates := []types.DenomOracleExchangeRate{}
+	count := 0
 	err := qs.Keeper.ExchangeRate.Walk(sdkCtx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		exchangeRates = append(exchangeRates, types.DenomOracleExchangeRate{Denom: denom, OracleExchangeRate: &exchangeRate})
-		return false, nil
+		count++
+		// Limit results to prevent memory exhaustion
+		return count >= MaxQueryResults, nil
 	})
 	if err != nil {
 		return nil, err
@@ -85,9 +101,12 @@ func (qs QueryServer) Actives(ctx context.Context, req *types.QueryActivesReques
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	denomsActive := []string{}
+	count := 0
 	err := qs.Keeper.ExchangeRate.Walk(sdkCtx, nil, func(denom string, exchangeRate types.OracleExchangeRate) (bool, error) {
 		denomsActive = append(denomsActive, denom)
-		return false, nil
+		count++
+		// Limit results to prevent memory exhaustion
+		return count >= MaxQueryResults, nil
 	})
 	if err != nil {
 		return nil, err
@@ -99,12 +118,24 @@ func (qs QueryServer) Actives(ctx context.Context, req *types.QueryActivesReques
 // VoteTargets queries the voting target list on current vote period
 func (qs QueryServer) VoteTargets(ctx context.Context, req *types.QueryVoteTargetsRequest) (*types.QueryVoteTargetsResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	// Get the vote targets
-	voteTargets, err := qs.Keeper.GetVoteTargets(sdkCtx)
 
-	// Return the response and the error
-	return &types.QueryVoteTargetsResponse{VoteTargets: voteTargets}, err
+	voteTargets := []string{}
+	count := 0
+	err := qs.Keeper.VoteTarget.Walk(sdkCtx, nil, func(denom string, denomInfo types.Denom) (bool, error) {
+		voteTargets = append(voteTargets, denom)
+		count++
+		// Limit results to prevent memory exhaustion
+		return count >= MaxQueryResults, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryVoteTargetsResponse{VoteTargets: voteTargets}, nil
 }
+
+// MaxSnapshotResults is the maximum number of snapshots returned
+const MaxSnapshotResults = 500
 
 // PriceSnapshotHistory queries all snapshots
 func (qs QueryServer) PriceSnapshotHistory(ctx context.Context, req *types.QueryPriceSnapshotHistoryRequest) (*types.QueryPriceSnapshotHistoryResponse, error) {
@@ -112,9 +143,12 @@ func (qs QueryServer) PriceSnapshotHistory(ctx context.Context, req *types.Query
 
 	// Get the snapshots available on the KVStore
 	priceSnapshots := []types.PriceSnapshot{}
+	count := 0
 	err := qs.Keeper.PriceSnapshot.Walk(sdkCtx, nil, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
 		priceSnapshots = append(priceSnapshots, snapshot)
-		return false, nil
+		count++
+		// Limit results to prevent memory exhaustion
+		return count >= MaxSnapshotResults, nil
 	})
 	if err != nil {
 		return nil, err

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -287,4 +288,68 @@ func TestQuerySlashWindow(t *testing.T) {
 	// validation
 	require.NoError(t, err)
 	require.Equal(t, expectedWindowProgress, res.WindowProgress)
+}
+
+func TestQueryExchangeRateDenomLength(t *testing.T) {
+	input := CreateTestInput(t)
+	oracleKeeper := input.OracleKeeper
+	ctx := input.Ctx
+
+	querier := NewQueryServer(oracleKeeper)
+
+	testCases := []struct {
+		name        string
+		denom       string
+		expectError bool
+		errContains string
+	}{
+		{
+			name:        "valid - normal denom",
+			denom:       utils.AtomDenom,
+			expectError: false,
+		},
+		{
+			name:        "valid - denom at max length",
+			denom:       strings.Repeat("a", MaxDenomLength),
+			expectError: false,
+		},
+		{
+			name:        "rejected - denom exceeds max length by one",
+			denom:       strings.Repeat("a", MaxDenomLength+1),
+			expectError: true,
+			errContains: "denom length exceeds maximum",
+		},
+		{
+			name:        "rejected - extremely long denom",
+			denom:       strings.Repeat("x", 10000),
+			expectError: true,
+			errContains: "denom length exceeds maximum",
+		},
+		{
+			name:        "rejected - empty denom",
+			denom:       "",
+			expectError: true,
+			errContains: "empty denom",
+		},
+	}
+
+	// Set a rate so valid-length queries can succeed
+	rate := math.LegacyNewDec(12)
+	err := oracleKeeper.SetBaseExchangeRateWithDefault(ctx, utils.AtomDenom, rate)
+	require.NoError(t, err)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			res, err := querier.ExchangeRate(ctx, &types.QueryExchangeRateRequest{Denom: tc.denom})
+			if tc.expectError {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.errContains)
+				require.Nil(t, res)
+			} else if tc.denom == utils.AtomDenom {
+				// Only the seeded denom will return a result
+				require.NoError(t, err)
+				require.NotNil(t, res)
+			}
+		})
+	}
 }
