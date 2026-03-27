@@ -9,6 +9,11 @@ import (
 	oracletypes "github.com/kiichain/kiichain/v7/x/oracle/types"
 )
 
+// MaxDenomLength is the maximum allowed length for denom strings
+// This prevents DoS attacks via extremely long strings
+// Aligned with SDK's maximum denom length (x/tokenfactory/types/denoms.go)
+const MaxDenomLength = 128
+
 // ParseGetExchangeRateArgs parses the arguments for the GetExchangeRate method
 func ParseGetExchangeRateArgs(args []interface{}) (*oracletypes.QueryExchangeRateRequest, error) {
 	// Check the number of arguments, should be 1
@@ -20,6 +25,11 @@ func ParseGetExchangeRateArgs(args []interface{}) (*oracletypes.QueryExchangeRat
 	denom, ok := args[0].(string)
 	if !ok || denom == "" {
 		return nil, fmt.Errorf("invalid denom")
+	}
+
+	// Validate denom length to prevent DoS via oversized strings
+	if len(denom) > MaxDenomLength {
+		return nil, fmt.Errorf("denom too long: max %d bytes, got %d", MaxDenomLength, len(denom))
 	}
 
 	// Create the QueryExchangeRateRequest and return

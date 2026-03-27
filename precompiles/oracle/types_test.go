@@ -2,6 +2,7 @@ package oracle
 
 import (
 	"math/big"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -67,6 +68,64 @@ func TestParseTwapsArgsValidation(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			result, err := ParseGetTwapsArgs(tc.args)
+			if tc.expectError {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.errContains)
+				require.Nil(t, result)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, result)
+			}
+		})
+	}
+}
+
+func TestParseGetExchangeRateArgsDenomLength(t *testing.T) {
+	testCases := []struct {
+		name        string
+		args        []interface{}
+		expectError bool
+		errContains string
+	}{
+		{
+			name:        "valid - normal denom",
+			args:        []interface{}{"uatom"},
+			expectError: false,
+		},
+		{
+			name:        "valid - denom at max length",
+			args:        []interface{}{strings.Repeat("a", MaxDenomLength)},
+			expectError: false,
+		},
+		{
+			name:        "invalid - denom exceeds max length",
+			args:        []interface{}{strings.Repeat("a", MaxDenomLength+1)},
+			expectError: true,
+			errContains: "denom too long",
+		},
+		{
+			name:        "invalid - extremely long denom",
+			args:        []interface{}{strings.Repeat("x", 10000)},
+			expectError: true,
+			errContains: "denom too long",
+		},
+		{
+			name:        "invalid - empty denom",
+			args:        []interface{}{""},
+			expectError: true,
+			errContains: "invalid denom",
+		},
+		{
+			name:        "invalid - wrong number of args",
+			args:        []interface{}{},
+			expectError: true,
+			errContains: "invalid number of arguments",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := ParseGetExchangeRateArgs(tc.args)
 			if tc.expectError {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.errContains)
