@@ -40,8 +40,31 @@ func (ms MsgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams
 	}
 
 	// Validate the twap lookback window
-	if err := ms.oracleKeeper.ValidateLookBackSeconds(sdk.UnwrapSDKContext(ctx), msg.Params.TwapLookbackWindow); err != nil {
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	if err := ms.oracleKeeper.ValidateLookBackSeconds(sdkCtx, msg.Params.TwapLookbackWindow); err != nil {
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("invalid twap lookback window: %s", err)
+	}
+
+	// Validate NativeOracleDenom is registered as an oracle vote target
+	voteTargets, err := ms.oracleKeeper.GetVoteTargets(sdkCtx)
+	if err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to get oracle vote targets: %s", err)
+	}
+	voteTargetSet := make(map[string]struct{}, len(voteTargets))
+	for _, denom := range voteTargets {
+		voteTargetSet[denom] = struct{}{}
+	}
+	if _, ok := voteTargetSet[msg.Params.NativeOracleDenom]; !ok {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("native oracle denom %s is not registered as an oracle vote target", msg.Params.NativeOracleDenom)
+	}
+
+	// Validate NativeOracleDenom is in the oracle whitelist
+	whitelist, err := ms.oracleKeeper.GetWhitelist(sdkCtx)
+	if err != nil {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to get oracle whitelist: %s", err)
+	}
+	if !whitelist.Contains(msg.Params.NativeOracleDenom) {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf("native oracle denom %s is not in the oracle whitelist", msg.Params.NativeOracleDenom)
 	}
 
 	// Set the params
