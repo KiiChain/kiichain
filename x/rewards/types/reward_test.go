@@ -13,6 +13,12 @@ import (
 	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
+// TestCalculateReward verifies the CalculateReward function across a comprehensive
+// set of scenarios: fully-exhausted schedules, linear proportional releases at
+// various elapsed fractions, partial prior releases, nanosecond-precision
+// sub-second durations (regression for issue #267), and the edge case where
+// EndTime equals LastReleaseTime, which must release the full remaining amount
+// immediately rather than returning an error.
 func TestCalculateReward(t *testing.T) {
 	now := time.Now()
 	denom := "akii"
