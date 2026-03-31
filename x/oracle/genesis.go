@@ -17,6 +17,13 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data *types.GenesisState
 		return err
 	}
 
+	// Populate VoteTarget from the whitelist so that validators can submit votes
+	// from block 0, matching the behavior of ApplyWhitelist in EndBlocker.
+	err = keeper.ApplyWhitelist(ctx, data.Params.Whitelist, map[string]types.Denom{})
+	if err != nil {
+		return err
+	}
+
 	// Iterate over the feeder delegation list to set the feeder
 	for _, feederDelegation := range data.FeederDelegations {
 		// Get the validator address
