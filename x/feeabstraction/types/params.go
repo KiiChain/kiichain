@@ -98,9 +98,9 @@ func (f FeeTokenMetadata) Validate() error {
 		return errorsmod.Wrap(ErrInvalidFeeTokenMetadata, "decimals must be between 1 and 18")
 	}
 
-	// Validate the price, must be greater than 0
-	if f.Price.IsNegative() || f.Price.IsZero() {
-		return errorsmod.Wrap(ErrInvalidFeeTokenMetadata, "price must be greater than 0")
+	// Validate the price, must be non-negative (0 is allowed to signal "adopt TWAP immediately")
+	if f.Price.IsNegative() {
+		return errorsmod.Wrap(ErrInvalidFeeTokenMetadata, "price must be non-negative")
 	}
 
 	return nil

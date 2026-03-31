@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -83,8 +84,17 @@ func (ms MsgServer) UpdateFeeTokens(ctx context.Context, msg *types.MsgUpdateFee
 		}
 	}
 
+	// Zero out all token prices so BeginBlocker adopts the current TWAP immediately
+	// rather than being clamped from a stale governance-submitted price.
+	resetItems := make([]types.FeeTokenMetadata, len(msg.FeeTokens.Items))
+	for i, token := range msg.FeeTokens.Items {
+		token.Price = math.LegacyZeroDec()
+		resetItems[i] = token
+	}
+	resetFeeTokens := types.NewFeeTokenMetadataCollection(resetItems...)
+
 	// Update the fee tokens
-	if err := ms.FeeTokens.Set(ctx, msg.FeeTokens); err != nil {
+	if err := ms.FeeTokens.Set(ctx, *resetFeeTokens); err != nil {
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to update fee tokens: %s", err)
 	}
 

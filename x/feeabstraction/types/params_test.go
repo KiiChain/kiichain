@@ -172,12 +172,11 @@ func TestFeeTokenMetadataValidate(t *testing.T) {
 		{
 			name:        "invalid - negative price",
 			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(-100)),
-			errContains: "price must be greater than 0",
+			errContains: "price must be non-negative",
 		},
 		{
-			name:        "invalid - zero price",
-			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(0)),
-			errContains: "price must be greater than 0",
+			name:     "valid - zero price (adopts TWAP immediately)",
+			metadata: types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(0)),
 		},
 	}
 

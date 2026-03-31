@@ -175,10 +175,16 @@ func (s *KeeperTestSuite) TestUpdateFeeTokens() {
 			} else {
 				s.Require().NoError(err)
 
-				// Verify the fee tokens were updated
+				// Verify the fee tokens were stored with prices reset to zero
 				tokens, err := s.keeper.FeeTokens.Get(cachedCtx)
 				s.Require().NoError(err)
-				s.Require().Equal(tc.msg.FeeTokens, tokens)
+				s.Require().Len(tokens.Items, len(tc.msg.FeeTokens.Items))
+				for i, token := range tokens.Items {
+					s.Require().Equal(tc.msg.FeeTokens.Items[i].Denom, token.Denom)
+					s.Require().Equal(tc.msg.FeeTokens.Items[i].OracleDenom, token.OracleDenom)
+					s.Require().Equal(tc.msg.FeeTokens.Items[i].Decimals, token.Decimals)
+					s.Require().True(token.Price.IsZero(), "expected price to be 0 for denom %s, got %s", token.Denom, token.Price)
+				}
 			}
 		})
 	}
