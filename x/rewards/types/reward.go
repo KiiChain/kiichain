@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"time"
 
 	"cosmossdk.io/math"
@@ -18,21 +17,22 @@ func CalculateReward(blockTime time.Time, schedule ReleaseSchedule) (sdk.Coin, e
 		return remaining, nil
 	}
 
-	// If total duration would be 0, there would be a div by 0
-	if schedule.EndTime.Equal(schedule.LastReleaseTime) {
-		return sdk.Coin{}, fmt.Errorf("end time is equal to last release and would do a division by 0. EndTime: %s", schedule.EndTime)
+	// If total duration is zero or negative, release the full remaining amount
+	totalDurationNs := schedule.EndTime.Sub(schedule.LastReleaseTime).Nanoseconds()
+	if totalDurationNs <= 0 {
+		return remaining, nil
 	}
 
 	// Get time parameters
 	timeElapsedStamp := blockTime.Sub(schedule.LastReleaseTime)          // Time since last release
 	totalDurationStamp := schedule.EndTime.Sub(schedule.LastReleaseTime) // Remaining release period
 
-	// Convert to big int, using truncated seconds
-	timeElapsed := math.NewInt(int64(timeElapsedStamp.Seconds())).BigInt()
-	totalDuration := math.NewInt(int64(totalDurationStamp.Seconds())).BigInt()
+	// Use nanoseconds for precise duration calculations
+	timeElapsedNs := math.NewInt(timeElapsedStamp.Nanoseconds()).BigInt()
+	totalDurationNsBig := math.NewInt(totalDurationStamp.Nanoseconds()).BigInt()
 
 	// Calculate linear release proportion between 0 and 1
-	releaseProportion := math.LegacyNewDecFromBigInt(timeElapsed).Quo(math.LegacyNewDecFromBigInt(totalDuration))
+	releaseProportion := math.LegacyNewDecFromBigInt(timeElapsedNs).Quo(math.LegacyNewDecFromBigInt(totalDurationNsBig))
 	// Truncate to int, it will be a coin amt after all
 	amountToRelease := math.LegacyNewDecFromInt(remaining.Amount).Mul(releaseProportion).TruncateInt()
 
