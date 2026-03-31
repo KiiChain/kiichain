@@ -13,6 +13,12 @@ import (
 	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
+// TestCalculateReward verifies the CalculateReward function across a comprehensive
+// set of scenarios: fully-exhausted schedules, linear proportional releases at
+// various elapsed fractions, partial prior releases, nanosecond-precision
+// sub-second durations (regression for issue #267), and the edge case where
+// EndTime equals LastReleaseTime, which must release the full remaining amount
+// immediately rather than returning an error.
 func TestCalculateReward(t *testing.T) {
 	now := time.Now()
 	denom := "akii"
@@ -104,7 +110,7 @@ func TestCalculateReward(t *testing.T) {
 			expectedError: false,
 		},
 		{
-			name:      "invalid - end time equal last release",
+			name:      "end time equal to last release releases full remaining amount",
 			blockTime: now.Add(time.Hour * 2),
 			schedule: types.ReleaseSchedule{
 				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
@@ -113,8 +119,21 @@ func TestCalculateReward(t *testing.T) {
 				EndTime:         now,
 				Active:          true,
 			},
-			expectedCoin:  sdk.Coin{},
-			expectedError: true,
+			expectedCoin:  sdk.NewCoin(denom, math.NewInt(200)), // full remaining released
+			expectedError: false,
+		},
+		{
+			name:      "sub-second duration does not divide by zero",
+			blockTime: now.Add(250 * time.Millisecond),
+			schedule: types.ReleaseSchedule{
+				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
+				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
+				LastReleaseTime: now,
+				EndTime:         now.Add(500 * time.Millisecond),
+				Active:          true,
+			},
+			expectedCoin:  sdk.NewCoin(denom, math.NewInt(500)), // 250ms / 500ms = 50%
+			expectedError: false,
 		},
 	}
 
