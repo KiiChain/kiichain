@@ -4,6 +4,7 @@
 
 ### Fixed
 
+- Fix division-by-zero chain halt in `CalculateReward` caused by sub-second schedule durations; replace `Seconds()` truncation with `Nanoseconds()` precision and release full remaining reward when `EndTime <= LastReleaseTime` ([#267](https://github.com/KiiChain/kiichain/issues/267))
 - Add denom string length validation (max 128 bytes) to oracle precompile and query server to prevent memory exhaustion via oversized inputs
 - Add result limits to oracle list queries (ExchangeRates, Actives, VoteTargets capped at 1000; PriceSnapshotHistory capped at 500) to prevent unbounded iteration
 - Fix NewClaim constructor assigning power to Weight field instead of the weight parameter (x/oracle/types/ballot.go)
