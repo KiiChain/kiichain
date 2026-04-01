@@ -53,9 +53,7 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 	// Set up coins
 	coinsToDistribute := sdk.NewCoins(amountToDistribute)
 
-	// Verify the CommunityPool has sufficient balance for the denom before transferring.
-	// This guards against bank balance / CommunityPool accounting divergence causing a
-	// panic in the subsequent subtract.
+	// Verify the CommunityPool has sufficient balance for the denom before transferring
 	poolAmount := rewardPool.CommunityPool.AmountOf(amountToDistribute.Denom)
 	if math.LegacyNewDecFromInt(amountToDistribute.Amount).GT(poolAmount) {
 		return fmt.Errorf("community pool has insufficient balance for %s: pool has %s, need %s",

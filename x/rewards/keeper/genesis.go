@@ -1,8 +1,8 @@
 package keeper
 
 import (
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
@@ -22,9 +22,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 	}
 
 	// Consistency check: warn if the module bank balance for the configured denom
-	// does not match the CommunityPool accounting. A mismatch means coins were
-	// moved without going through FundCommunityPool and will eventually cause
-	// BeginBlocker to return an error when it tries to distribute.
+	// does not match the CommunityPool accounting
 	denom := data.Params.TokenDenom
 	moduleAddr := authtypes.NewModuleAddress(types.ModuleName)
 	bankBalance := k.bankKeeper.GetBalance(ctx, moduleAddr, denom)
