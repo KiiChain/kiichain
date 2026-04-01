@@ -32,6 +32,27 @@ func TestParamsValidateBasic(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "invalid - denom with invalid characters",
+			fields: fields{
+				TokenDenom: "ak ii",
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid - denom too short",
+			fields: fields{
+				TokenDenom: "ak",
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid - denom starting with a number",
+			fields: fields{
+				TokenDenom: "1akii",
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
