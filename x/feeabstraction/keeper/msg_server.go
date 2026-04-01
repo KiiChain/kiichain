@@ -51,11 +51,11 @@ func (ms MsgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to get oracle vote targets: %s", err)
 	}
 	found := false
-    for _, denom := range voteTargets {
+	for _, denom := range voteTargets {
 		if denom == msg.Params.NativeOracleDenom {
-            found = true
-            break
-        }
+			found = true
+			break
+		}
 	}
 	if !found {
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("native oracle denom %s is not registered as an oracle vote target", msg.Params.NativeOracleDenom)
