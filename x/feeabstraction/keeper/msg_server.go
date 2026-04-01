@@ -50,11 +50,14 @@ func (ms MsgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams
 	if err != nil {
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to get oracle vote targets: %s", err)
 	}
-	voteTargetSet := make(map[string]struct{}, len(voteTargets))
-	for _, denom := range voteTargets {
-		voteTargetSet[denom] = struct{}{}
+	found := false
+    for _, denom := range voteTargets {
+		if denom == msg.Params.NativeOracleDenom {
+            found = true
+            break
+        }
 	}
-	if _, ok := voteTargetSet[msg.Params.NativeOracleDenom]; !ok {
+	if !found {
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("native oracle denom %s is not registered as an oracle vote target", msg.Params.NativeOracleDenom)
 	}
 
