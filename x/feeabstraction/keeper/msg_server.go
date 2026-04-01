@@ -85,7 +85,6 @@ func (ms MsgServer) UpdateFeeTokens(ctx context.Context, msg *types.MsgUpdateFee
 	}
 
 	// Zero out all token prices so BeginBlocker adopts the current TWAP immediately
-	// rather than being clamped from a stale governance-submitted price.
 	resetItems := make([]types.FeeTokenMetadata, len(msg.FeeTokens.Items))
 	for i, token := range msg.FeeTokens.Items {
 		token.Price = math.LegacyZeroDec()
