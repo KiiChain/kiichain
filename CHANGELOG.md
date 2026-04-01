@@ -9,6 +9,7 @@
 - Add result limits to oracle list queries (ExchangeRates, Actives, VoteTargets capped at 1000; PriceSnapshotHistory capped at 500) to prevent unbounded iteration
 - Fix NewClaim constructor assigning power to Weight field instead of the weight parameter (x/oracle/types/ballot.go)
 - Ensure native oracle denoms are always on whitelist and registered as vote targets when updating fee abstraction params
+- Validate rewards baseDenom using sdk.ValidateDenom to enforce proper denom format (min 3 chars, valid characters, no leading digits)
 
 ## v7.1.0-mainnet - 2026-03-13
 
