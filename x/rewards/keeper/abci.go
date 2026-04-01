@@ -1,6 +1,9 @@
 package keeper
 
 import (
+	"fmt"
+
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -50,13 +53,26 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 	// Set up coins
 	coinsToDistribute := sdk.NewCoins(amountToDistribute)
 
+	// Verify the CommunityPool has sufficient balance for the denom before transferring.
+	// This guards against bank balance / CommunityPool accounting divergence causing a
+	// panic in the subsequent subtract.
+	poolAmount := rewardPool.CommunityPool.AmountOf(amountToDistribute.Denom)
+	if math.LegacyNewDecFromInt(amountToDistribute.Amount).GT(poolAmount) {
+		return fmt.Errorf("community pool has insufficient balance for %s: pool has %s, need %s",
+			amountToDistribute.Denom, poolAmount, amountToDistribute.Amount)
+	}
+
 	// Send to distribution pool
 	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, k.feeCollectorName, coinsToDistribute); err != nil {
 		return err
 	}
 
-	// Deduct from RewardPool
-	rewardPool.CommunityPool = rewardPool.CommunityPool.Sub(sdk.NewDecCoinsFromCoins(coinsToDistribute...))
+	// Deduct from RewardPool using SafeSub so a divergence cannot panic the chain.
+	remaining, hasNeg := rewardPool.CommunityPool.SafeSub(sdk.NewDecCoinsFromCoins(coinsToDistribute...))
+	if hasNeg {
+		return fmt.Errorf("community pool subtraction resulted in negative balance for denom %s", amountToDistribute.Denom)
+	}
+	rewardPool.CommunityPool = remaining
 
 	// Save change
 	if err := k.RewardPool.Set(ctx, rewardPool); err != nil {
