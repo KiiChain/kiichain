@@ -16,10 +16,7 @@ import (
 func (k Keeper) haltSchedule(ctx sdk.Context, schedule types.ReleaseSchedule, err error) error {
 	k.Logger(ctx).Error("halting release schedule due to error", "error", err)
 	schedule.Active = false
-	if setErr := k.ReleaseSchedule.Set(ctx, schedule); setErr != nil {
-		return setErr
-	}
-	return nil
+	return k.ReleaseSchedule.Set(ctx, schedule)
 }
 
 // BeginBlocker calculates reward amt and sends it to the distribution pool
