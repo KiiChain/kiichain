@@ -18,8 +18,12 @@ func (k Keeper) InitGenesis(ctx sdk.Context, gs types.GenesisState) error {
 		return err
 	}
 
-	// Set the fee tokens
-	return k.FeeTokens.Set(ctx, *gs.FeeTokens)
+	// Set the fee tokens (treat nil as an empty collection)
+	feeTokens := types.FeeTokenMetadataCollection{}
+	if gs.FeeTokens != nil {
+		feeTokens = *gs.FeeTokens
+	}
+	return k.FeeTokens.Set(ctx, feeTokens)
 }
 
 // ExportGenesis reads the module collections and return the genesis state
