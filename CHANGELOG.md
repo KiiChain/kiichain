@@ -13,6 +13,7 @@
 - Disable fee abstraction when base token price is 0 to prevent incorrect fee conversions
 - Ensure native oracle denoms are always on whitelist and registered as vote targets when updating fee abstraction params
 - Validate rewards baseDenom using sdk.ValidateDenom to enforce proper denom format (min 3 chars, valid characters, no leading digits)
+- Ensure feeTokens is not nil at genesis
 
 ## v7.1.0-mainnet - 2026-03-13
 
