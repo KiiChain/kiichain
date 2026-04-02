@@ -13,6 +13,54 @@ import (
 	"github.com/kiichain/kiichain/v7/x/oracle/utils"
 )
 
+// TestInitGenesisPopulatesVoteTarget is a regression test for the first-period
+// lack of votes gap
+func TestInitGenesisPopulatesVoteTarget(t *testing.T) {
+	input := keeper.CreateTestInput(t)
+	oracleKeeper := input.OracleKeeper
+	ctx := input.Ctx
+
+	// Clear VoteTarget to reproduce the pre-fix state (empty at genesis).
+	err := oracleKeeper.VoteTarget.Clear(ctx, nil)
+	require.NoError(t, err)
+	targets, err := oracleKeeper.GetVoteTargets(ctx)
+	require.NoError(t, err)
+	require.Empty(t, targets, "precondition: VoteTarget must be empty before InitGenesis")
+
+	// Build a genesis state with a known whitelist.
+	whitelist := types.DenomList{
+		{Name: utils.BtcDenom},
+		{Name: utils.EthDenom},
+		{Name: utils.SolDenom},
+	}
+	params := types.DefaultParams()
+	params.Whitelist = whitelist
+	genesis := types.NewGenesisState(
+		params,
+		[]types.ExchangeRateTuple{},
+		[]types.FeederDelegation{},
+		[]types.PenaltyCounter{},
+		[]types.AggregateExchangeRateVote{},
+		types.PriceSnapshots{},
+		[]types.VotePenaltyCounter{},
+	)
+
+	err = oracle.InitGenesis(ctx, oracleKeeper, genesis)
+	require.NoError(t, err)
+
+	// Every whitelisted denom must be present in VoteTarget after InitGenesis.
+	for _, denom := range whitelist {
+		found, err := oracleKeeper.VoteTarget.Has(ctx, denom.Name)
+		require.NoError(t, err)
+		require.True(t, found, "VoteTarget missing denom %q after InitGenesis", denom.Name)
+	}
+
+	// VoteTarget must not contain extra entries.
+	targets, err = oracleKeeper.GetVoteTargets(ctx)
+	require.NoError(t, err)
+	require.Len(t, targets, len(whitelist))
+}
+
 func TestExportInitGenesis(t *testing.T) {
 	// Prepare env
 	input, _ := oracle.SetUp(t)

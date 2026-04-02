@@ -42,6 +42,21 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 			},
 		},
 		{
+			name: "module disabled when base token price is zero",
+			malleate: func(ctx sdk.Context) sdk.Context {
+				// Create TWAPs with zero price for the base token (kii)
+				startTime := ctx.BlockTime()
+				ctx = s.createTwaps(ctx, startTime, math.LegacyZeroDec(), 100, "kii")
+				return ctx
+			},
+			postCheck: func(ctx sdk.Context) {
+				// Module must be disabled when baseTokenPrice is zero
+				params, err := s.app.FeeAbstractionKeeper.Params.Get(ctx)
+				s.Require().NoError(err)
+				s.Require().False(params.Enabled)
+			},
+		},
+		{
 			name: "calculate fee token prices",
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Mock oracle twaps
