@@ -1,10 +1,11 @@
 # Contribution Guidelines
 
-Contributions to the Kiijs library are welcome. As a contributor, here are the guidelines we would like you to follow:
+Contributions to KiiChain are welcome. As a contributor, here are the guidelines we would like you to follow:
 
 - [Code of Conduct](#code-of-conduct)
 - [Issues and Bugs](#found-a-bug)
 - [Feature Requests](#missing-a-feature)
+- [Local Development Setup](#local-development-setup)
 - [Submission Guidelines](#submission-guidelines)
 - [Coding Rules](#coding-rules)
 - [Commit Message Guidelines](#commit-message-convention)
@@ -25,6 +26,112 @@ If you would like to *implement* a new feature:
 
 - For a **Major Feature**, first [open an issue](#submitting-an-issue) and outline your proposal so that it can be discussed.
 - **Small Features** can be crafted and directly [submitted as a Pull Request](#submitting-a-pull-request-pr).
+
+## Local Development Setup
+
+### Prerequisites
+
+| Tool | Version | Required |
+|------|---------|----------|
+| [Go](https://golang.org/dl/) | 1.24+ | Yes |
+| [Git](https://git-scm.com/) | any recent | Yes |
+| [GNU Make](https://www.gnu.org/software/make/) | any recent | Recommended |
+| [Docker](https://docs.docker.com/get-docker/) | any recent | For e2e tests only |
+
+Verify your setup:
+
+```bash
+go version       # Should show 1.24+
+git --version
+make --version   # Optional but recommended
+docker --version # Only needed for e2e tests
+```
+
+### Clone and Build
+
+```bash
+# 1. Fork the repository on GitHub, then clone your fork
+git clone https://github.com/<your-username>/kiichain.git
+cd kiichain
+
+# 2. Add the upstream remote
+git remote add upstream https://github.com/KiiChain/kiichain.git
+
+# 3. Create a feature branch
+git checkout -b feat/my-change
+
+# 4. Build the binary
+make build          # Output: ./build/kiichaind
+
+# Or install to $GOPATH/bin
+make install
+```
+
+If you don't have GNU Make:
+
+```bash
+go build -o ./build/kiichaind ./cmd/kiichaind
+```
+
+### Running Tests
+
+**Unit tests:**
+
+```bash
+make test-unit              # Run all unit tests (5 min timeout)
+make test-unit-cover        # Run with coverage report
+make test-unit-cover-html   # Generate HTML coverage report
+```
+
+Or directly with `go test`:
+
+```bash
+go test ./... -count=1 -timeout=5m
+```
+
+**Race condition detection:**
+
+```bash
+make test-race
+```
+
+**End-to-end tests** (requires Docker):
+
+```bash
+# Build the required Docker images first
+docker build -t kiichain/kiichaind-e2e -f Dockerfile .
+cd tests/e2e/docker && docker build -t kiichain/hermes-e2e:1.0.0 -f hermes.Dockerfile .
+cd ../../..
+
+# Run e2e tests
+make test-e2e
+```
+
+### Linting and Formatting
+
+```bash
+make lint       # Run golangci-lint
+make lint-fix   # Auto-fix lint issues where possible
+make format     # Format code
+```
+
+### Protobuf
+
+If you modify `.proto` files under `proto/`:
+
+```bash
+make proto-gen          # Regenerate Go code from proto definitions
+make proto-format       # Format .proto files
+make proto-lint         # Lint .proto files
+```
+
+### EVM Precompiles
+
+If you modify Solidity interfaces under `precompiles/`:
+
+```bash
+make compile-evm-precompiles
+```
 
 ## Submission Guidelines
 
@@ -111,8 +218,8 @@ Please follow the [Conventional Commits v1.0.0][convcommit]. The commit types mu
 - **test**: Adding missing tests or correcting existing tests
 
 [coc]: ./CODE_OF_CONDUCT.md
-[issues]: https://github.com/KiiChain/kiijs-sdk/issues
-[new-issue]: https://github.com/KiiChain/kiijs-sdk/issues/new/choose
-[prs]: https://github.com/KiiChain/kiijs-sdk/pulls
+[issues]: https://github.com/KiiChain/kiichain/issues
+[new-issue]: https://github.com/KiiChain/kiichain/issues/new/choose
+[prs]: https://github.com/KiiChain/kiichain/pulls
 [convcommit]: https://www.conventionalcommits.org/en/v1.0.0/
-[github]: https://github.com/KiiChain/kiijs-sdk
+[github]: https://github.com/KiiChain/kiichain

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Expand CONTRIBUTING.md with local development setup: prerequisites, clone/build steps, unit/e2e test commands, linting, protobuf, and precompile workflows; fix stale link references ([#64](https://github.com/KiiChain/kiichain/issues/64))
+
 ### Fixed
 
 - Fix division-by-zero chain halt in `CalculateReward` caused by sub-second schedule durations; replace `Seconds()` truncation with `Nanoseconds()` precision and release full remaining reward when `EndTime <= LastReleaseTime` ([#267](https://github.com/KiiChain/kiichain/issues/267))
