@@ -115,6 +115,48 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 			expectedChangeAmount: sdk.NewCoin(denom, math.NewInt(100)),
 		},
 		{
+			name: "end time equal to last release time - releases full remaining",
+			initialSchedule: types.ReleaseSchedule{
+				Active:          true,
+				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
+				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(800)),
+				LastReleaseTime: now,
+				EndTime:         now,
+			},
+			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(200))),
+			blockTime:   now.Add(time.Hour),
+			expectedSchedule: types.ReleaseSchedule{
+				Active:          true,
+				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
+				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(1000)),
+				LastReleaseTime: now.Add(time.Hour),
+				EndTime:         now,
+			},
+			expectedChange:       true,
+			expectedChangeAmount: sdk.NewCoin(denom, math.NewInt(200)),
+		},
+		{
+			name: "sub-second window - partial release without division by zero",
+			initialSchedule: types.ReleaseSchedule{
+				Active:          true,
+				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
+				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
+				LastReleaseTime: now,
+				EndTime:         now.Add(500 * time.Millisecond), // 500ms window
+			},
+			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(1000))),
+			blockTime:   now.Add(250 * time.Millisecond), // 250ms elapsed = 50%
+			expectedSchedule: types.ReleaseSchedule{
+				Active:          true,
+				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
+				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(500)),
+				LastReleaseTime: now.Add(250 * time.Millisecond),
+				EndTime:         now.Add(500 * time.Millisecond),
+			},
+			expectedChange:       true,
+			expectedChangeAmount: sdk.NewCoin(denom, math.NewInt(500)),
+		},
+		{
 			name: "no more distribution - set as inactive",
 			initialSchedule: types.ReleaseSchedule{
 				Active:          true,
