@@ -12,8 +12,8 @@ import (
 )
 
 // haltSchedule logs err, marks the release schedule inactive, and returns nil so
-// the error never reaches FinalizeBlock and halts the chain.
-func (k Keeper) haltSchedule(ctx sdk.Context, schedule types.ReleaseSchedule, err error) error {
+// the error never reaches FinalizeBlock and halts the chain
+func (k Keeper) haltSchedule(ctx sdk.Context, schedule types.ReleaseSchedule, err error) error { //nolint:unparam
 	k.Logger(ctx).Error("halting release schedule due to error", "error", err)
 	schedule.Active = false
 	if setErr := k.ReleaseSchedule.Set(ctx, schedule); setErr != nil {
