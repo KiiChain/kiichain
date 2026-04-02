@@ -265,12 +265,13 @@ sed -i.bak -e "/minimum-gas-prices =/ s^= .*^= \"1000000000akii\"^" ~/.kiichain/
 
 ## Repository Structure
 
-An overview of the top-level directories and their purposes:
+An overview of the top-level directories and custom modules under `x/`:
 
 | Directory | Description |
 |---|---|
 | `ante/` | Custom [AnteHandler](https://docs.cosmos.network/main/learn/beginner/tx-lifecycle#antehandler) decorators that run before every transaction — signature verification, fee deduction, EVM-specific checks, feeless transaction logic, and governance vote/expedited-proposal guards. |
 | `app/` | Main application wiring. Defines `KiichainApp`, registers all modules, configures keepers, and implements `InitChainer`/`BeginBlocker`/`EndBlocker`. Also contains test helpers (`helpers/`, `apptesting/`), simulation config, and upgrade handlers. |
+| `assets/` | Static assets such as images and logos used in documentation. |
 | `client/` | Client-side utilities and generated API documentation (Swagger/OpenAPI). |
 | `cmd/` | Entry point for the `kiichaind` binary — node startup, CLI commands, and configuration. |
 | `contrib/` | Developer tooling, scripts, and helper resources — local node setup, state-sync scripts, upgrade helpers, Docker test files, and sample contract artifacts. |
@@ -278,12 +279,12 @@ An overview of the top-level directories and their purposes:
 | `proto/` | Protobuf definitions for all custom modules. Used to generate Go types, gRPC services, and REST endpoints. |
 | `tests/` | End-to-end (`e2e/`) and integration tests that exercise the full chain stack. |
 | `wasmbinding/` | CosmWasm ↔ Cosmos SDK bindings — custom message and query plugins that let Wasm contracts interact with native modules (oracle price feeds, token factory, EVM, bech32 conversion). |
-| `x/` | Custom Cosmos SDK modules: |
-| | • `x/oracle/` — On-chain price feeds. Validators submit exchange rates that are aggregated into a canonical feed available to other modules and smart contracts. |
-| | • `x/feeabstraction/` — Allows transaction fees to be paid in tokens other than the native `akii` (e.g., stablecoins), using oracle exchange rates for pricing. |
-| | • `x/rewards/` — Community-pool reward distribution to validators on a configurable linear release schedule. |
-| | • `x/tokenfactory/` — Permissionless token creation (`factory/{creator}/{subdenom}`), with admin-level mint, burn, and metadata controls. |
-| | • `x/types/` — Shared types and constants used across custom modules. |
+| `x/` | Custom Cosmos SDK modules. |
+| `x/oracle/` | On-chain price feeds. Validators submit exchange rates that are aggregated into a canonical feed available to other modules and smart contracts. |
+| `x/feeabstraction/` | Allows transaction fees to be paid in tokens other than the native `akii` (e.g., stablecoins), using oracle exchange rates for pricing. |
+| `x/rewards/` | Community-pool reward distribution to validators on a configurable linear release schedule. |
+| `x/tokenfactory/` | Permissionless token creation (`factory/{creator}/{subdenom}`), with admin-level mint, burn, and metadata controls. |
+| `x/types/` | Shared types and constants used across custom modules. |
 
 ## Contributing
 
