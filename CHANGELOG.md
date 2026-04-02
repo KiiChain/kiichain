@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add spell-check CI workflow using cspell to catch typos in `.md`, `.go`, and `.proto` files with a custom dictionary for blockchain/Cosmos SDK terminology ([#67](https://github.com/KiiChain/kiichain/issues/67))
+
 ### Fixed
 
 - Fix division-by-zero chain halt in `CalculateReward` caused by sub-second schedule durations; replace `Seconds()` truncation with `Nanoseconds()` precision and release full remaining reward when `EndTime <= LastReleaseTime` ([#267](https://github.com/KiiChain/kiichain/issues/267))

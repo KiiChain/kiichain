@@ -1,0 +1,34 @@
+name: Spell Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "**/*.md"
+      - "**/*.go"
+      - "**/*.proto"
+      - ".github/workflows/spell-check.yml"
+      - "cspell.json"
+
+permissions:
+  contents: read
+
+jobs:
+  spell-check:
+    name: cspell
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run cspell
+        uses: streetsidesoftware/cspell-action@v6
+        with:
+          config: cspell.json
+          files: |
+            **/*.md
+            **/*.go
+            **/*.proto
+          incremental_files_only: true
+          strict: true
