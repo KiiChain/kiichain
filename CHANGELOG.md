@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add README documentation for oracle precompile and top-level precompiles overview ([#62](https://github.com/KiiChain/kiichain/issues/62))
+
 ### Fixed
 
 - Fix division-by-zero chain halt in `CalculateReward` caused by sub-second schedule durations; replace `Seconds()` truncation with `Nanoseconds()` precision and release full remaining reward when `EndTime <= LastReleaseTime` ([#267](https://github.com/KiiChain/kiichain/issues/267))
