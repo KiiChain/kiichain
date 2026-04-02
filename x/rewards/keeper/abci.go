@@ -42,7 +42,7 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 	// If active and there is no previous time stamp, set it as current block's and skip this time
 	if schedule.LastReleaseTime.IsZero() {
 		schedule.LastReleaseTime = ctx.BlockTime()
-		return k.haltSchedule(ctx, schedule, err)
+		return k.ReleaseSchedule.Set(ctx, schedule)
 	}
 
 	// Calculate the amount to distribute this block
