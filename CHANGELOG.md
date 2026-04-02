@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add "Repository Structure" section to README documenting all top-level directories and custom modules ([#60](https://github.com/KiiChain/kiichain/issues/60))
+
 ### Fixed
 
 - Fix division-by-zero chain halt in `CalculateReward` caused by sub-second schedule durations; replace `Seconds()` truncation with `Nanoseconds()` precision and release full remaining reward when `EndTime <= LastReleaseTime` ([#267](https://github.com/KiiChain/kiichain/issues/267))
