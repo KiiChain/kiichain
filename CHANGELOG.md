@@ -8,6 +8,7 @@
 - Add denom string length validation (max 128 bytes) to oracle precompile and query server to prevent memory exhaustion via oversized inputs
 - Add result limits to oracle list queries (ExchangeRates, Actives, VoteTargets capped at 1000; PriceSnapshotHistory capped at 500) to prevent unbounded iteration
 - Fix NewClaim constructor assigning power to Weight field instead of the weight parameter (x/oracle/types/ballot.go)
+- Enforce community pool has sufficient balance before distributing rewards, returning an error instead of panicking on accounting divergence
 - Apply whitelist bank denoms on oracle genesis so validators can submit votes from block 0
 - Disable fee abstraction when base token price is 0 to prevent incorrect fee conversions
 - Ensure native oracle denoms are always on whitelist and registered as vote targets when updating fee abstraction params

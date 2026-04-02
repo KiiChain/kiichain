@@ -115,6 +115,28 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 			expectedChangeAmount: sdk.NewCoin(denom, math.NewInt(100)),
 		},
 		{
+			name: "insufficient community pool - halts schedule without transfer",
+			initialSchedule: types.ReleaseSchedule{
+				Active:          true,
+				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
+				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
+				LastReleaseTime: now,
+				EndTime:         now.Add(time.Hour * 2),
+			},
+			// Pool has only 100 but 500 would be released (half of 1000 over 1 of 2 hours)
+			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(100))),
+			blockTime:   now.Add(time.Hour),
+			expectedSchedule: types.ReleaseSchedule{
+				Active:          false,
+				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
+				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
+				LastReleaseTime: now,
+				EndTime:         now.Add(time.Hour * 2),
+			},
+			expectedChange:       true,
+			expectedChangeAmount: sdk.NewCoin(denom, math.ZeroInt()),
+		},
+		{
 			name: "end time equal to last release time - releases full remaining",
 			initialSchedule: types.ReleaseSchedule{
 				Active:          true,
