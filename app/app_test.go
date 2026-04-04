@@ -58,10 +58,14 @@ func TestKiichainApp_InitChainerReturnsErrorForInvalidGenesisJSON(t *testing.T) 
 		AppStateBytes: []byte("{ invalid json }"),
 	}
 
-	var err error
+	var (
+		resp *abci.ResponseInitChain
+		err  error
+	)
 	require.NotPanics(t, func() {
-		_, err = app.InitChainer(app.NewContext(false), req)
+		resp, err = app.InitChainer(app.NewContext(false), req)
 	})
+	require.Nil(t, resp)
 	require.Error(t, err)
 	require.ErrorContains(t, err, "failed to unmarshal genesis state")
 }
