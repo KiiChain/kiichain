@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	db "github.com/cosmos/cosmos-db"
 
 	"cosmossdk.io/log"
@@ -48,4 +49,19 @@ func TestKiichainApp_Export(t *testing.T) {
 	app := kiihelpers.Setup(t)
 	_, err := app.ExportAppStateAndValidators(true, []string{}, []string{})
 	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
+}
+
+func TestKiichainApp_InitChainerReturnsErrorForInvalidGenesisJSON(t *testing.T) {
+	app := kiihelpers.Setup(t)
+
+	req := &abci.RequestInitChain{
+		AppStateBytes: []byte("{ invalid json }"),
+	}
+
+	var err error
+	require.NotPanics(t, func() {
+		_, err = app.InitChainer(app.NewContext(false), req)
+	})
+	require.Error(t, err)
+	require.ErrorContains(t, err, "failed to unmarshal genesis state")
 }
