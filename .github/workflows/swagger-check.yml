@@ -33,9 +33,10 @@ jobs:
         run: |
           # Override protoImage so the Docker container runs as the runner user,
           # avoiding "permission denied" on the mounted workspace volume.
+          # Set HOME to /tmp so buf can write its cache (default /.cache is root-only).
           PROTO_VER=$(grep '^protoVer=' Makefile | cut -d= -f2)
           make proto-swagger-gen \
-            "protoImage=docker run --rm --user $(id -u):$(id -g) -v $(pwd):/workspace --workdir /workspace ghcr.io/cosmos/proto-builder:${PROTO_VER}"
+            "protoImage=docker run --rm --user $(id -u):$(id -g) -e HOME=/tmp -v $(pwd):/workspace --workdir /workspace ghcr.io/cosmos/proto-builder:${PROTO_VER}"
 
       - name: Check for uncommitted changes
         run: |
