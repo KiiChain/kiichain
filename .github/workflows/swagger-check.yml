@@ -1,0 +1,47 @@
+name: Swagger Check
+
+on:
+  pull_request:
+    paths:
+      - "proto/**"
+      - "client/docs/**"
+      - "x/**/query.go"
+      - "x/**/tx.go"
+      - ".github/workflows/swagger-check.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "proto/**"
+      - "client/docs/**"
+
+permissions:
+  contents: read
+
+jobs:
+  swagger-diff:
+    name: Check Swagger is up to date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+
+      - name: Regenerate Swagger
+        run: make proto-swagger-gen
+
+      - name: Check for uncommitted changes
+        run: |
+          if ! git diff --quiet --exit-code client/docs/swagger-ui/swagger.yaml client/docs/swagger-ui/swagger.json; then
+            echo "::error::Swagger files are out of date. Please run 'make proto-swagger-gen' and commit the changes."
+            echo ""
+            echo "Changed files:"
+            git diff --stat client/docs/swagger-ui/swagger.yaml client/docs/swagger-ui/swagger.json
+            echo ""
+            echo "Diff:"
+            git diff client/docs/swagger-ui/swagger.yaml client/docs/swagger-ui/swagger.json
+            exit 1
+          fi
+          echo "Swagger files are up to date."

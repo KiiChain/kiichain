@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add CI workflow to verify Swagger files are up to date after `make proto-swagger-gen`; fails PR if generated files differ from committed ones ([#66](https://github.com/KiiChain/kiichain/issues/66))
+
 ### Fixed
 
 - Fix division-by-zero chain halt in `CalculateReward` caused by sub-second schedule durations; replace `Seconds()` truncation with `Nanoseconds()` precision and release full remaining reward when `EndTime <= LastReleaseTime` ([#267](https://github.com/KiiChain/kiichain/issues/267))
