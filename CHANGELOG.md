@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add Docker image publishing CI workflow that builds and pushes multi-platform images to GHCR on tagged releases (#61)
+
 ### Fixed
 
 - Fix division-by-zero chain halt in `CalculateReward` caused by sub-second schedule durations; replace `Seconds()` truncation with `Nanoseconds()` precision and release full remaining reward when `EndTime <= LastReleaseTime` ([#267](https://github.com/KiiChain/kiichain/issues/267))
