@@ -1,0 +1,31 @@
+name: Buf Publish
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  buf-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Buf
+        uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lint protos
+        working-directory: proto
+        run: buf lint
+
+      - name: Push to Buf Schema Registry
+        working-directory: proto
+        env:
+          BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
+        run: buf push --tag "${{ github.ref_name }}"
