@@ -71,13 +71,11 @@ func (p Params) Validate() error {
 func NewFeeTokenMetadata(
 	denom, oracleDenom string,
 	decimals uint32,
-	price math.LegacyDec,
 ) FeeTokenMetadata {
 	return FeeTokenMetadata{
 		Denom:       denom,
 		OracleDenom: oracleDenom,
 		Decimals:    decimals,
-		Price:       price,
 		Enabled:     true,
 	}
 }
@@ -96,11 +94,6 @@ func (f FeeTokenMetadata) Validate() error {
 	// Validate the decimals, must be between bigger than 0 and less than or equal to 18
 	if f.Decimals < 1 || f.Decimals > 18 {
 		return errorsmod.Wrap(ErrInvalidFeeTokenMetadata, "decimals must be between 1 and 18")
-	}
-
-	// Validate the price, must be non-negative (0 is allowed to signal "adopt TWAP immediately")
-	if f.Price.IsNegative() {
-		return errorsmod.Wrap(ErrInvalidFeeTokenMetadata, "price must be non-negative")
 	}
 
 	return nil

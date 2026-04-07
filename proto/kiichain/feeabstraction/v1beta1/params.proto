@@ -31,16 +31,8 @@ message FeeTokenMetadata {
   string oracle_denom = 2;
   // Decimals is the number of decimals for the token
   uint32 decimals = 3;
-  // Price is the price of the token in the native denom
-  // This price is paired against the native denom
-  // So, this equals to the token/native denom
-  string price = 4 [
-    (gogoproto.moretags) = "yaml:\"price\"",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
   // Enabled indicates if the token is enabled for fee abstraction
-  bool enabled = 6;
+  bool enabled = 4;
 }
 
 // Defines a collection of fee token metadata
