@@ -20,8 +20,14 @@ func (k Keeper) InitGenesis(ctx sdk.Context, gs types.GenesisState) error {
 		return err
 	}
 
+	// Set the fee tokens (treat nil as an empty collection)
+	feeTokens := types.FeeTokenMetadataCollection{}
+	if gs.FeeTokens != nil {
+		feeTokens = *gs.FeeTokens
+	}
+
 	// Set the fee tokens
-	if err := k.FeeTokens.Set(ctx, *gs.FeeTokens); err != nil {
+	if err := k.FeeTokens.Set(ctx, feeTokens); err != nil {
 		return err
 	}
 

@@ -27,6 +27,11 @@ func (gs *GenesisState) Validate() error {
 		return err
 	}
 
+	// FeeTokens must be at least empty
+	if gs.FeeTokens == nil {
+		return errorsmod.Wrap(ErrInvalidFeeTokenMetadata, "fee_tokens must not be nil; supply an empty collection")
+	}
+
 	// Validate each fee token metadata and check for duplicate denoms
 	denomSet := make(map[string]struct{})
 	for _, token := range gs.FeeTokens.Items {

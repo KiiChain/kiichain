@@ -32,6 +32,11 @@ func TestGenesisStateValidate(t *testing.T) {
 			),
 		},
 		{
+			name:         "invalid - nil fee tokens",
+			genesisState: types.NewGenesisState(types.DefaultParams(), nil),
+			errContains:  "fee_tokens must not be nil",
+		},
+		{
 			name: "invalid - bad param",
 			genesisState: types.NewGenesisState(
 				types.NewParams("", "coinoracle", types.DefaultClampFactor, 0, true),

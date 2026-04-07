@@ -11,10 +11,23 @@ import (
 
 // TestUpdateParams tests the UpdateParams method
 func (s *KeeperTestSuite) TestUpdateParams() {
+	// registerOracleTarget registers a denom as an oracle vote target and adds it to the whitelist
+	registerOracleTarget := func(ctx sdk.Context, denom string) {
+		err := s.app.OracleKeeper.VoteTarget.Set(ctx, denom, oracletypes.Denom{Name: denom})
+		s.Require().NoError(err)
+
+		oracleParams, err := s.app.OracleKeeper.Params.Get(ctx)
+		s.Require().NoError(err)
+		oracleParams.Whitelist = append(oracleParams.Whitelist, oracletypes.Denom{Name: denom})
+		err = s.app.OracleKeeper.Params.Set(ctx, oracleParams)
+		s.Require().NoError(err)
+	}
+
 	// Prepare all the test cases
 	testCases := []struct {
 		name        string
 		msg         *types.MsgUpdateParams
+		malleate    func(ctx sdk.Context)
 		errContains string
 	}{
 		{
@@ -22,6 +35,9 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			msg: &types.MsgUpdateParams{
 				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 				Params:    types.NewParams("testcoin", "testcoin", types.DefaultClampFactor, types.DefaultTwapLookbackWindow, true),
+			},
+			malleate: func(ctx sdk.Context) {
+				registerOracleTarget(ctx, "testcoin")
 			},
 		},
 		{
@@ -56,13 +72,42 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			},
 			errContains: "expected gov account as only signer for proposal message",
 		},
+		{
+			name: "invalid - native oracle denom not a vote target",
+			msg: &types.MsgUpdateParams{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Params:    types.NewParams("testcoin", "testcoin", types.DefaultClampFactor, types.DefaultTwapLookbackWindow, true),
+			},
+			errContains: "native oracle denom testcoin is not registered as an oracle vote target",
+		},
+		{
+			name: "invalid - native oracle denom not in whitelist",
+			msg: &types.MsgUpdateParams{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Params:    types.NewParams("testcoin", "testcoin", types.DefaultClampFactor, types.DefaultTwapLookbackWindow, true),
+			},
+			malleate: func(ctx sdk.Context) {
+				// Register as vote target but do NOT add to whitelist
+				err := s.app.OracleKeeper.VoteTarget.Set(ctx, "testcoin", oracletypes.Denom{Name: "testcoin"})
+				s.Require().NoError(err)
+			},
+			errContains: "native oracle denom testcoin is not in the oracle whitelist",
+		},
 	}
 
 	// Iterate through the test cases
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
+			// Set a cached context
+			cachedCtx, _ := s.ctx.CacheContext()
+
+			// Malleate if exists
+			if tc.malleate != nil {
+				tc.malleate(cachedCtx)
+			}
+
 			// Call the UpdateParams method
-			_, err := s.msgServer.UpdateParams(s.ctx, tc.msg)
+			_, err := s.msgServer.UpdateParams(cachedCtx, tc.msg)
 
 			// Check for errors
 			if tc.errContains != "" {
@@ -72,7 +117,7 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 				s.Require().NoError(err)
 
 				// Verify the params were updated
-				params, err := s.keeper.Params.Get(s.ctx)
+				params, err := s.keeper.Params.Get(cachedCtx)
 				s.Require().NoError(err)
 				s.Require().Equal(tc.msg.Params, params)
 			}

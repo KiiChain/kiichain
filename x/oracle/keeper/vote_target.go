@@ -15,3 +15,12 @@ func (k Keeper) GetVoteTargets(ctx sdk.Context) ([]string, error) {
 	})
 	return voteTargets, err
 }
+
+// GetWhitelist returns the oracle params whitelist
+func (k Keeper) GetWhitelist(ctx sdk.Context) (types.DenomList, error) {
+	params, err := k.Params.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return params.Whitelist, nil
+}

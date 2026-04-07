@@ -1,7 +1,7 @@
 package types
 
 import (
-	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/kiichain/kiichain/v7/app/params"
 )
@@ -15,9 +15,5 @@ func DefaultParams() Params {
 
 // ValidateBasic performs basic validation on distribution parameters.
 func (p Params) ValidateBasic() error {
-	denom := p.TokenDenom
-	if denom == "" {
-		return fmt.Errorf("invalid denom, empty: %s", denom)
-	}
-	return nil
+	return sdk.ValidateDenom(p.TokenDenom)
 }

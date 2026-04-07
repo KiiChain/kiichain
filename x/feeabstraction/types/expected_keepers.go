@@ -40,4 +40,5 @@ type OracleKeeper interface {
 	CalculateTwaps(ctx sdk.Context, lookBackSeconds uint64) (oracletypes.OracleTwaps, error)
 	ValidateLookBackSeconds(ctx sdk.Context, lookBackSeconds uint64) error
 	GetVoteTargets(ctx sdk.Context) ([]string, error)
+	GetWhitelist(ctx sdk.Context) (oracletypes.DenomList, error)
 }
