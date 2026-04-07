@@ -1,6 +1,9 @@
 package keeper
 
 import (
+	"errors"
+
+	"cosmossdk.io/collections"
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
@@ -108,6 +111,9 @@ func (k Keeper) calculatePriceTokens(
 		// Get the previous stored price for clamping
 		prevPrice, err := k.TokenPrices.Get(ctx, token.Denom)
 		if err != nil {
+			if !errors.Is(err, collections.ErrNotFound) {
+				return nil, err
+			}
 			// If price doesn't exist, take it as 0
 			prevPrice = math.LegacyZeroDec()
 		}
