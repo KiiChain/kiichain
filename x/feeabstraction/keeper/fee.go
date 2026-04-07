@@ -99,9 +99,15 @@ func (k Keeper) convertERC20ForFees(ctx sdk.Context, account sdk.AccAddress, fee
 			continue
 		}
 
+		// Look up the current price from the token prices store
+		price, err := k.TokenPrices.Get(ctx, feePrice.Denom)
+		if err != nil || price.IsZero() {
+			continue
+		}
+
 		// Convert the amount using the price
 		amountEquivalent, err := types.CalculateTokenAmountWithDecimals(
-			feePrice.Price,
+			price,
 			fee.Amount,
 			params.BaseDenomUnit,
 			uint64(feePrice.Decimals),
@@ -124,7 +130,7 @@ func (k Keeper) convertERC20ForFees(ctx sdk.Context, account sdk.AccAddress, fee
 
 		// If all went well we return the selected fee
 		if ok {
-			return sdk.Coins{sdk.NewCoin(feePrice.Denom, amountEquivalentInt)}, feePrice.Price, nil
+			return sdk.Coins{sdk.NewCoin(feePrice.Denom, amountEquivalentInt)}, price, nil
 		}
 	}
 

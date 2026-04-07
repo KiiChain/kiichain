@@ -44,14 +44,22 @@ func (k Keeper) WriteFeeTokenPricesMetrics(ctx context.Context) error {
 	}
 
 	// Iterate over the fee token prices and set the gauge metrics
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	for _, token := range feeTokenPrices.Items {
 		// If token is disabled, skip to next one
 		if !token.Enabled {
 			continue
 		}
 
+		// Look up the current price from the token prices store
+		price, err := k.TokenPrices.Get(ctx, token.Denom)
+		if err != nil {
+			k.Logger(sdkCtx).Debug("token price not found for telemetry", "denom", token.Denom)
+			continue
+		}
+
 		// Set a module metric for each enabled token
-		if floatPrice, err := token.Price.Float64(); err == nil {
+		if floatPrice, err := price.Float64(); err == nil {
 			telemetry.ModuleSetGauge(
 				types.ModuleName,
 				float32(floatPrice),

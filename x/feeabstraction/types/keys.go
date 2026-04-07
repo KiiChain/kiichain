@@ -4,8 +4,9 @@ import "cosmossdk.io/collections"
 
 // Defines all the KV keys for the collections
 var (
-	ParamsKey    = collections.NewPrefix(0)
-	FeeTokensKey = collections.NewPrefix(1)
+	ParamsKey      = collections.NewPrefix(0)
+	FeeTokensKey   = collections.NewPrefix(1)
+	TokenPricesKey = collections.NewPrefix(2)
 )
 
 const (

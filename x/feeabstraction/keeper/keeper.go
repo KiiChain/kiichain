@@ -6,6 +6,7 @@ import (
 	"cosmossdk.io/collections"
 	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
+	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -27,9 +28,10 @@ type Keeper struct {
 	authority string
 
 	// The schema and the different entries on collections
-	Schema    collections.Schema
-	Params    collections.Item[types.Params]
-	FeeTokens collections.Item[types.FeeTokenMetadataCollection]
+	Schema      collections.Schema
+	Params      collections.Item[types.Params]
+	FeeTokens   collections.Item[types.FeeTokenMetadataCollection]
+	TokenPrices collections.Map[string, math.LegacyDec]
 }
 
 // NewKeeper creates a new instance of the Keeper
@@ -51,6 +53,7 @@ func NewKeeper(
 		authority:    authority,
 		Params:       collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
 		FeeTokens:    collections.NewItem(sb, types.FeeTokensKey, "fee_tokens", codec.CollValue[types.FeeTokenMetadataCollection](cdc)),
+		TokenPrices:  collections.NewMap(sb, types.TokenPricesKey, "token_prices", collections.StringKey, sdk.LegacyDecValue),
 	}
 
 	// Build the schema

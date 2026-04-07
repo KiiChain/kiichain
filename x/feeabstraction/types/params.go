@@ -67,7 +67,7 @@ func (p Params) Validate() error {
 	return nil
 }
 
-// NewFeeTokenMetadata creates a new fee token with the given denom and address
+// NewFeeTokenMetadata creates a new fee token with the given denom and oracle denom
 func NewFeeTokenMetadata(
 	denom, oracleDenom string,
 	decimals uint32,

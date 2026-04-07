@@ -92,7 +92,9 @@ func (k Keeper) calculatePriceTokens(
 			k.Logger(ctx).Warn("token price is zero, disabling token", "denom", token.Denom)
 			// Disable the token
 			token.Enabled = false
-			token.Price = math.LegacyZeroDec()
+			if err := k.TokenPrices.Set(ctx, token.Denom, math.LegacyZeroDec()); err != nil {
+				return nil, err
+			}
 			updateTokens = append(updateTokens, token)
 			continue
 		}
@@ -103,11 +105,20 @@ func (k Keeper) calculatePriceTokens(
 			return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, "error calculating token price for denom %s: %v", token.Denom, err)
 		}
 
-		// Apply clamping
-		price = types.ClampPrice(token.Price, price, clampFactor)
+		// Get the previous stored price for clamping
+		prevPrice, err := k.TokenPrices.Get(ctx, token.Denom)
+		if err != nil {
+			// If price doesn't exist, take it as 0
+			prevPrice = math.LegacyZeroDec()
+		}
 
-		// Update the token price
-		token.Price = price
+		// Apply clamping
+		price = types.ClampPrice(prevPrice, price, clampFactor)
+
+		// Store the updated price
+		if err := k.TokenPrices.Set(ctx, token.Denom, price); err != nil {
+			return nil, err
+		}
 		updateTokens = append(updateTokens, token)
 	}
 
