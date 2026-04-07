@@ -84,17 +84,16 @@ func (ms MsgServer) UpdateFeeTokens(ctx context.Context, msg *types.MsgUpdateFee
 		}
 	}
 
-	// Zero out all token prices so BeginBlocker adopts the current TWAP immediately
-	resetItems := make([]types.FeeTokenMetadata, len(msg.FeeTokens.Items))
-	for i, token := range msg.FeeTokens.Items {
-		token.Price = math.LegacyZeroDec()
-		resetItems[i] = token
-	}
-	resetFeeTokens := types.NewFeeTokenMetadataCollection(resetItems...)
-
 	// Update the fee tokens
-	if err := ms.FeeTokens.Set(ctx, *resetFeeTokens); err != nil {
+	if err := ms.FeeTokens.Set(ctx, msg.FeeTokens); err != nil {
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to update fee tokens: %s", err)
+	}
+
+	// Zero out all token prices so BeginBlocker adopts the current TWAP immediately
+	for _, token := range msg.FeeTokens.Items {
+		if err := ms.TokenPrices.Set(ctx, token.Denom, math.LegacyZeroDec()); err != nil {
+			return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to initialize token price: %s", err)
+		}
 	}
 
 	// Return the response
