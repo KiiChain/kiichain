@@ -34,6 +34,14 @@ At the end of each block, if the releaser is active:
 - It sends the amt from the pool to the fee collector
 - It increases the released amt, the last release time and the community pool with the changes.
 
+## Edge cases and decisions
+
+A few decisions were taken when building the module, which must be taken into account when creating governance proposals and interacting with the module:
+- **Overriding schedules**: A new schedule will override the previous one and will not distribute any remaining funds from the previous schedule. This can be used to update amounts or end times, but if a schedule is changed midway it may result in leftover funds in the pool.
+- **Changing denoms**: The token denom being distributed can be changed, but it was not meant to support multiple distributions at the same time. It was merely set as a future possibility for other tokens to be rewarded instead of the native token. If the denom needs to be changed, the correct approach is to wait for the current schedule to end so no tokens are left over, then change the base denom and create a new schedule. Otherwise, some tokens may be left over in the pool.
+  - If a denom is changed, the `QueryParamsRequest` will return this new denom, even if there is still a current schedule on the old denom.
+- **Leftover tokens**: If tokens are left over by any schedule due to overrides, they can be distributed in the future with a new schedule, but not recovered. With this in mind, the recommended approach when changing a schedule is to first halt it, then include its leftover funds in the next schedule, assuming it's on the same token.
+
 ## Messages
 
 ### FundPool
