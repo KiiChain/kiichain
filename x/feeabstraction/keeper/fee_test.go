@@ -94,7 +94,6 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 						Denom:       "coin",
 						OracleDenom: "oraclecoin",
 						Decimals:    18,
-						Price:       math.LegacyOneDec(),
 						Enabled:     false,
 					},
 					defaultKii,
@@ -112,8 +111,10 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 				// Register a fee token and fund the user with it
 				err := s.keeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					// 0.1 atom per kii
-					types.NewFeeTokenMetadata("uatom", "atomoracle", 6, math.LegacyOneDec()),
+					types.NewFeeTokenMetadata("uatom", "atomoracle", 6),
 				))
+				s.Require().NoError(err)
+				err = s.keeper.TokenPrices.Set(ctx, "uatom", math.LegacyOneDec())
 				s.Require().NoError(err)
 
 				// Fund the user with sufficient native balance
@@ -129,11 +130,14 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Register multiple fee tokens
 				err := s.keeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("uatom", "atomoracle", 6, math.LegacyMustNewDecFromStr("0.123")),
-					types.NewFeeTokenMetadata("usol", "usoloracle", 9, math.LegacyMustNewDecFromStr("0.125")),
-					types.NewFeeTokenMetadata("mbtc", "btcoracle", 8, math.LegacyMustNewDecFromStr("2")),
+					types.NewFeeTokenMetadata("uatom", "atomoracle", 6),
+					types.NewFeeTokenMetadata("usol", "usoloracle", 9),
+					types.NewFeeTokenMetadata("mbtc", "btcoracle", 8),
 				))
 				s.Require().NoError(err)
+				s.Require().NoError(s.keeper.TokenPrices.Set(ctx, "uatom", math.LegacyMustNewDecFromStr("0.123")))
+				s.Require().NoError(s.keeper.TokenPrices.Set(ctx, "usol", math.LegacyMustNewDecFromStr("0.125")))
+				s.Require().NoError(s.keeper.TokenPrices.Set(ctx, "mbtc", math.LegacyMustNewDecFromStr("2")))
 
 				// Fund the user with insufficient native balance
 				s.fundAccount(ctx, feePayer, sdk.NewCoins(sdk.NewCoin("usol", convertToMinimalDenomination(1, 18))))
@@ -147,11 +151,14 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Register multiple fee tokens
 				err := s.keeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("uatom", "atomoracle", 6, math.LegacyMustNewDecFromStr("0.123")),
-					types.NewFeeTokenMetadata("usol", "usoloracle", 9, math.LegacyMustNewDecFromStr("0.125")),
-					types.NewFeeTokenMetadata("mbtc", "btcoracle", 8, math.LegacyMustNewDecFromStr("2")),
+					types.NewFeeTokenMetadata("uatom", "atomoracle", 6),
+					types.NewFeeTokenMetadata("usol", "usoloracle", 9),
+					types.NewFeeTokenMetadata("mbtc", "btcoracle", 8),
 				))
 				s.Require().NoError(err)
+				s.Require().NoError(s.keeper.TokenPrices.Set(ctx, "uatom", math.LegacyMustNewDecFromStr("0.123")))
+				s.Require().NoError(s.keeper.TokenPrices.Set(ctx, "usol", math.LegacyMustNewDecFromStr("0.125")))
+				s.Require().NoError(s.keeper.TokenPrices.Set(ctx, "mbtc", math.LegacyMustNewDecFromStr("2")))
 
 				// Fund the user with insufficient native balance
 				s.fundAccount(ctx, feePayer, sdk.NewCoins(sdk.NewCoin("usol", convertToMinimalDenomination(1, 18))))
@@ -166,9 +173,10 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 			malleate: func(ctx sdk.Context) sdk.Context {
 				// Register a fee token with zero price
 				err := s.keeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("uatom", "atomoracle", 6, math.LegacyZeroDec()),
+					types.NewFeeTokenMetadata("uatom", "atomoracle", 6),
 				))
 				s.Require().NoError(err)
+				s.Require().NoError(s.keeper.TokenPrices.Set(ctx, "uatom", math.LegacyZeroDec()))
 
 				// Fund the user with more than enough tokens to pay the fee
 				s.fundAccount(ctx, feePayer, sdk.NewCoins(sdk.NewCoin("uatom", convertToMinimalDenomination(1, 18))))
@@ -205,10 +213,10 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 						erc20NativeAddress,
 						"oracleerc20",
 						6,
-						math.LegacyMustNewDecFromStr("1"),
 					),
 				))
 				s.Require().NoError(err)
+				s.Require().NoError(s.keeper.TokenPrices.Set(ctx, erc20NativeAddress, math.LegacyMustNewDecFromStr("1")))
 
 				return ctx
 			},
@@ -261,10 +269,10 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 						erc20NativeAddress,
 						"oracleerc20",
 						6,
-						math.LegacyMustNewDecFromStr("1"),
 					),
 				))
 				s.Require().NoError(err)
+				s.Require().NoError(s.keeper.TokenPrices.Set(ctx, erc20NativeAddress, math.LegacyMustNewDecFromStr("1")))
 
 				return ctx
 			},
@@ -299,10 +307,10 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 						erc20NativeAddress,
 						"oracleerc20",
 						6,
-						math.LegacyMustNewDecFromStr("1"),
 					),
 				))
 				s.Require().NoError(err)
+				s.Require().NoError(s.keeper.TokenPrices.Set(ctx, erc20NativeAddress, math.LegacyMustNewDecFromStr("1")))
 
 				return ctx
 			},

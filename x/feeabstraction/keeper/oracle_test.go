@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	defaultKii  = types.NewFeeTokenMetadata(params.BaseDenom, params.DisplayDenom, 18, math.LegacyOneDec())
-	defaultAtom = types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyOneDec())
-	defaultSol  = types.NewFeeTokenMetadata("usol", "sol", 18, math.LegacyOneDec())
+	defaultKii  = types.NewFeeTokenMetadata(params.BaseDenom, params.DisplayDenom, 18)
+	defaultAtom = types.NewFeeTokenMetadata("uatom", "atom", 6)
+	defaultSol  = types.NewFeeTokenMetadata("usol", "sol", 18)
 )
 
 // TestCalculateFeeTokenPrices tests the CalculateFeeTokenPrices function
@@ -51,9 +51,12 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 
 				// Set the fee token prices in the keeper
 				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyMustNewDecFromStr("50")),
+					types.NewFeeTokenMetadata("uatom", "atom", 6),
 					defaultKii,
 				))
+				s.Require().NoError(err)
+				// Set the initial uatom price for clamping reference
+				err = s.app.FeeAbstractionKeeper.TokenPrices.Set(ctx, "uatom", math.LegacyMustNewDecFromStr("50"))
 				s.Require().NoError(err)
 
 				return ctx
@@ -72,7 +75,8 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 				expectedPriceMax := expectedPrice.Mul(math.LegacyMustNewDecFromStr("1.2")) // Allow 20% variance
 
 				// Check the price of the uatom token (should be in expected 20%)
-				atomPrice := feeTokens.Items[0].Price
+				atomPrice, err := s.app.FeeAbstractionKeeper.TokenPrices.Get(ctx, "uatom")
+				s.Require().NoError(err)
 				s.Require().True(
 					atomPrice.GTE(expectedPriceMin) && atomPrice.LTE(expectedPriceMax),
 				)
@@ -85,7 +89,7 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 				startTime := ctx.BlockTime()
 				ctx = s.createTwaps(ctx, startTime, math.LegacyMustNewDecFromStr("0.5"), 100, "kii")
 
-				// Set the fee token prices in the keeper without twaps
+				// Set the fee tokens in the keeper without twaps
 				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					defaultSol,
 					defaultAtom,
@@ -111,7 +115,7 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 				ctx = s.createTwaps(ctx, startTime, math.LegacyMustNewDecFromStr("0.4"), 100, "kii")
 				ctx = s.createTwaps(ctx, startTime, math.LegacyMustNewDecFromStr("0.5"), 100, "atom")
 
-				// Set the fee token prices in the keeper
+				// Set the fee tokens in the keeper
 				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					defaultSol,
 					defaultAtom,
@@ -144,7 +148,7 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 				// Set the fee token prices in the keeper with zero price
 				err := s.app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
 					defaultKii,
-					types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyZeroDec()),
+					types.NewFeeTokenMetadata("uatom", "atom", 6),
 				))
 				s.Require().NoError(err)
 
@@ -155,7 +159,9 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 				feeTokens, err := s.app.FeeAbstractionKeeper.FeeTokens.Get(ctx)
 				s.Require().NoError(err)
 				s.Require().Len(feeTokens.Items, 2)
-				s.Require().NotEqualValues(math.LegacyZeroDec(), feeTokens.Items[1].Price)
+				atomPrice, err := s.app.FeeAbstractionKeeper.TokenPrices.Get(ctx, "uatom")
+				s.Require().NoError(err)
+				s.Require().NotEqualValues(math.LegacyZeroDec(), atomPrice)
 				s.Require().True(feeTokens.Items[1].Enabled)
 			},
 		},
@@ -174,11 +180,16 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 						Denom:       "uatom",
 						OracleDenom: "atom",
 						Decimals:    6,
-						Price:       math.LegacyMustNewDecFromStr("50"),
 						Enabled:     false, // Token disabled
 					},
 					defaultSol,
 				))
+				s.Require().NoError(err)
+				// Set the stored price for the disabled token (should remain untouched)
+				err = s.app.FeeAbstractionKeeper.TokenPrices.Set(ctx, "uatom", math.LegacyMustNewDecFromStr("50"))
+				s.Require().NoError(err)
+				// Set the initial price for usol so we can verify it changed
+				err = s.app.FeeAbstractionKeeper.TokenPrices.Set(ctx, "usol", math.LegacyOneDec())
 				s.Require().NoError(err)
 
 				return ctx
@@ -191,11 +202,15 @@ func (s *KeeperTestSuite) TestCalculateFeeTokenPrices() {
 
 				// Check the first token is disabled and price is untouched
 				s.Require().False(feeTokens.Items[0].Enabled)
-				s.Require().Equal(math.LegacyMustNewDecFromStr("50"), feeTokens.Items[0].Price)
+				atomPrice, err := s.app.FeeAbstractionKeeper.TokenPrices.Get(ctx, "uatom")
+				s.Require().NoError(err)
+				s.Require().Equal(math.LegacyMustNewDecFromStr("50"), atomPrice)
 
 				// Check the second token is enabled and price has changed
 				s.Require().True(feeTokens.Items[1].Enabled)
-				s.Require().NotEqual(math.LegacyOneDec(), feeTokens.Items[1].Price)
+				solPrice, err := s.app.FeeAbstractionKeeper.TokenPrices.Get(ctx, "usol")
+				s.Require().NoError(err)
+				s.Require().NotEqual(math.LegacyOneDec(), solPrice)
 			},
 		},
 	}
