@@ -13,7 +13,7 @@ func (s *KeeperTestSuite) TestBeginBlocker() {
 
 	// Set the fee token prices in the keeper
 	err := s.app.FeeAbstractionKeeper.FeeTokens.Set(s.ctx, *types.NewFeeTokenMetadataCollection(
-		types.NewFeeTokenMetadata("uatom", "atom", 6, math.LegacyMustNewDecFromStr("50")),
+		types.NewFeeTokenMetadata("uatom", "atom", 6),
 	))
 	s.Require().NoError(err)
 

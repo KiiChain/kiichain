@@ -194,10 +194,10 @@ func TestMonoDecorator(t *testing.T) {
 						MockErc20Denom,
 						MockErc20Denom,
 						18,
-						MockErc20Price,
 					),
 				))
 				require.NoError(t, err)
+				require.NoError(t, app.FeeAbstractionKeeper.TokenPrices.Set(ctx, MockErc20Denom, MockErc20Price))
 
 				// Mint the tokens for the fee payer
 				amount := sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, 20000000*1000000*10))
@@ -231,10 +231,10 @@ func TestMonoDecorator(t *testing.T) {
 						MockErc20Denom,
 						MockErc20Denom,
 						18,
-						MockErc20Price,
 					),
 				))
 				require.NoError(t, err)
+				require.NoError(t, app.FeeAbstractionKeeper.TokenPrices.Set(ctx, MockErc20Denom, MockErc20Price))
 
 				// Mint the tokens for the fee payer
 				amount := sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, 20000000*1000000*10))
@@ -287,10 +287,10 @@ func TestMonoDecorator(t *testing.T) {
 						erc20NativeAddress,
 						erc20NativeAddress,
 						18,
-						math.LegacyMustNewDecFromStr("2"),
 					),
 				))
 				require.NoError(t, err)
+				require.NoError(t, app.FeeAbstractionKeeper.TokenPrices.Set(ctx, erc20NativeAddress, math.LegacyMustNewDecFromStr("2")))
 
 				// Write up the token address on the context for reuse
 				return ctx.WithValue("erc20_token", erc20Address)

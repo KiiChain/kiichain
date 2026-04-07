@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -85,9 +83,9 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 // TestUpdateFeeTokens tests the UpdateFeeTokens method
 func (s *KeeperTestSuite) TestUpdateFeeTokens() {
 	defaultFeeTokens := types.NewFeeTokenMetadataCollection(
-		types.NewFeeTokenMetadata("one", "oracleone", 6, math.LegacyMustNewDecFromStr("0.01")),
-		types.NewFeeTokenMetadata("two", "oracletwo", 6, math.LegacyMustNewDecFromStr("0.01")),
-		types.NewFeeTokenMetadata("three", "oraclethree", 6, math.LegacyMustNewDecFromStr("0.01")))
+		types.NewFeeTokenMetadata("one", "oracleone", 6),
+		types.NewFeeTokenMetadata("two", "oracletwo", 6),
+		types.NewFeeTokenMetadata("three", "oraclethree", 6))
 
 	// Prepare all the test cases
 	testCases := []struct {
@@ -147,7 +145,7 @@ func (s *KeeperTestSuite) TestUpdateFeeTokens() {
 			msg: types.NewMessageUpdateFeeTokens(
 				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 				*types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("invalid denom!", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
+					types.NewFeeTokenMetadata("invalid denom!", "oracleCoin", 6),
 				),
 			),
 			errContains: "denom is invalid: invalid fee token metadata: invalid request",
@@ -183,7 +181,9 @@ func (s *KeeperTestSuite) TestUpdateFeeTokens() {
 					s.Require().Equal(tc.msg.FeeTokens.Items[i].Denom, token.Denom)
 					s.Require().Equal(tc.msg.FeeTokens.Items[i].OracleDenom, token.OracleDenom)
 					s.Require().Equal(tc.msg.FeeTokens.Items[i].Decimals, token.Decimals)
-					s.Require().True(token.Price.IsZero(), "expected price to be 0 for denom %s, got %s", token.Denom, token.Price)
+					price, err := s.keeper.TokenPrices.Get(cachedCtx, token.Denom)
+					s.Require().NoError(err)
+					s.Require().True(price.IsZero(), "expected price to be 0 for denom %s, got %s", token.Denom, price)
 				}
 			}
 		})

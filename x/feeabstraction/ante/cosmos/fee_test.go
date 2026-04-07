@@ -172,10 +172,10 @@ func TestDeductFeeDecorator(t *testing.T) {
 						MockErc20Denom,
 						MockErc20Denom,
 						18,
-						MockErc20Price,
 					),
 				))
 				require.NoError(t, err)
+				require.NoError(t, app.FeeAbstractionKeeper.TokenPrices.Set(ctx, MockErc20Denom, MockErc20Price))
 
 				// Now we mint tokens for the fee payer
 				err = app.BankKeeper.MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, DefaultMinFeeValue*10)))
@@ -218,10 +218,10 @@ func TestDeductFeeDecorator(t *testing.T) {
 						erc20NativeAddress,
 						erc20NativeAddress,
 						18,
-						math.LegacyMustNewDecFromStr("0.5"),
 					),
 				))
 				require.NoError(t, err)
+				require.NoError(t, app.FeeAbstractionKeeper.TokenPrices.Set(ctx, erc20NativeAddress, math.LegacyMustNewDecFromStr("0.5")))
 			},
 			fee:      sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
 			expected: sdk.NewCoins(sdk.NewInt64Coin(DefaultFirstERC20Denom, DefaultMinFeeValue/2)),

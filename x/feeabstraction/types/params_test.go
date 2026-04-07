@@ -137,46 +137,37 @@ func TestFeeTokenMetadataValidate(t *testing.T) {
 	}{
 		{
 			name:     "valid - default metadata",
-			metadata: types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100)),
+			metadata: types.NewFeeTokenMetadata("coin", "oraclecoin", 6),
 		},
 		{
 			name:        "invalid - empty denom",
-			metadata:    types.NewFeeTokenMetadata("", "oraclecoin", 6, math.LegacyNewDec(100)),
+			metadata:    types.NewFeeTokenMetadata("", "oraclecoin", 6),
 			errContains: "denom is invalid",
 		},
 		{
 			name:        "invalid - empty oracle denom",
-			metadata:    types.NewFeeTokenMetadata("coin", "", 6, math.LegacyNewDec(100)),
+			metadata:    types.NewFeeTokenMetadata("coin", "", 6),
 			errContains: "oracle denom is invalid",
 		},
 		{
 			name:        "invalid - invalid denom",
-			metadata:    types.NewFeeTokenMetadata("123", "oraclecoin", 6, math.LegacyNewDec(100)),
+			metadata:    types.NewFeeTokenMetadata("123", "oraclecoin", 6),
 			errContains: "denom is invalid",
 		},
 		{
 			name:        "invalid - invalid oracle denom",
-			metadata:    types.NewFeeTokenMetadata("coin", "123", 6, math.LegacyNewDec(100)),
+			metadata:    types.NewFeeTokenMetadata("coin", "123", 6),
 			errContains: "oracle denom is invalid",
 		},
 		{
 			name:        "invalid - decimals zero",
-			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 0, math.LegacyNewDec(100)),
+			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 0),
 			errContains: "decimals must be between 1 and 18",
 		},
 		{
 			name:        "invalid - decimals greater than 18",
-			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 19, math.LegacyNewDec(100)),
+			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 19),
 			errContains: "decimals must be between 1 and 18",
-		},
-		{
-			name:        "invalid - negative price",
-			metadata:    types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(-100)),
-			errContains: "price must be non-negative",
-		},
-		{
-			name:     "valid - zero price (adopts TWAP immediately)",
-			metadata: types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(0)),
 		},
 	}
 
@@ -210,14 +201,14 @@ func TestFeeTokenMetadataCollectionValidate(t *testing.T) {
 		{
 			name: "valid - single valid token",
 			collection: types.NewFeeTokenMetadataCollection(
-				types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100)),
+				types.NewFeeTokenMetadata("coin", "oraclecoin", 6),
 			),
 		},
 		{
 			name: "valid - multiple valid tokens",
 			collection: types.NewFeeTokenMetadataCollection(
-				types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100)),
-				types.NewFeeTokenMetadata("two", "oracletwo", 18, math.LegacyNewDec(200)),
+				types.NewFeeTokenMetadata("coin", "oraclecoin", 6),
+				types.NewFeeTokenMetadata("two", "oracletwo", 18),
 			),
 		},
 		{
@@ -228,15 +219,15 @@ func TestFeeTokenMetadataCollectionValidate(t *testing.T) {
 		{
 			name: "invalid - invalid token in collection",
 			collection: types.NewFeeTokenMetadataCollection(
-				types.NewFeeTokenMetadata("", "oraclecoin", 6, math.LegacyNewDec(100)),
+				types.NewFeeTokenMetadata("", "oraclecoin", 6),
 			),
 			errContains: "denom is invalid: invalid fee token metadata",
 		},
 		{
 			name: "invalid - duplicate denoms in collection",
 			collection: types.NewFeeTokenMetadataCollection(
-				types.NewFeeTokenMetadata("coin", "oraclecoin", 6, math.LegacyNewDec(100)),
-				types.NewFeeTokenMetadata("coin", "oraclecoin2", 6, math.LegacyNewDec(100)),
+				types.NewFeeTokenMetadata("coin", "oraclecoin", 6),
+				types.NewFeeTokenMetadata("coin", "oraclecoin2", 6),
 			),
 			errContains: "duplicate denom found: coin",
 		},

@@ -26,8 +26,8 @@ func TestGenesisStateValidate(t *testing.T) {
 				types.NewParams(
 					"coin", "coinoracle", types.DefaultClampFactor, types.DefaultTwapLookbackWindow, true),
 				types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("coin", "oraclecoin", 6, types.DefaultClampFactor),
-					types.NewFeeTokenMetadata("two", "oracletwo", 18, types.DefaultClampFactor.MulInt64(2)),
+					types.NewFeeTokenMetadata("coin", "oraclecoin", 6),
+					types.NewFeeTokenMetadata("two", "oracletwo", 18),
 				),
 			),
 		},
@@ -44,7 +44,7 @@ func TestGenesisStateValidate(t *testing.T) {
 			genesisState: types.NewGenesisState(
 				types.DefaultParams(),
 				types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("", "oraclecoin", 6, types.DefaultClampFactor),
+					types.NewFeeTokenMetadata("", "oraclecoin", 6),
 				),
 			),
 			errContains: "invalid fee token metadata",
@@ -54,8 +54,8 @@ func TestGenesisStateValidate(t *testing.T) {
 			genesisState: types.NewGenesisState(
 				types.DefaultParams(),
 				types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("coin", "oraclecoin", 6, types.DefaultClampFactor),
-					types.NewFeeTokenMetadata("coin", "oraclecoin2", 6, types.DefaultClampFactor),
+					types.NewFeeTokenMetadata("coin", "oraclecoin", 6),
+					types.NewFeeTokenMetadata("coin", "oraclecoin2", 6),
 				),
 			),
 			errContains: "duplicate denom found: coin",

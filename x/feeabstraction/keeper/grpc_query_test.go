@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"cosmossdk.io/math"
-
 	"github.com/kiichain/kiichain/v7/x/feeabstraction/types"
 )
 
@@ -33,7 +31,7 @@ func (s *KeeperTestSuite) TestQuerierParams() {
 func (s *KeeperTestSuite) TestQuerierFeeTokens() {
 	// Define new fee tokens
 	newFeeTokens := types.NewFeeTokenMetadataCollection(
-		types.NewFeeTokenMetadata("testcoin", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
+		types.NewFeeTokenMetadata("testcoin", "oracleCoin", 6),
 	)
 
 	// Set the fee tokens in the keeper
