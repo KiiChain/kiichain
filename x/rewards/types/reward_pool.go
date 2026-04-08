@@ -15,9 +15,8 @@ func InitialRewardPool() RewardPool {
 
 // ValidateGenesis validates the reward pool for a genesis state
 func (rp RewardPool) ValidateGenesis() error {
-	if rp.CommunityPool.IsAnyNegative() {
-		return fmt.Errorf("negative CommunityPool in distribution fee pool, is %v",
-			rp.CommunityPool)
+	if err := rp.CommunityPool.Validate(); err != nil {
+		return fmt.Errorf("invalid CommunityPool: %w", err)
 	}
 
 	return nil
