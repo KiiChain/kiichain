@@ -115,13 +115,6 @@ message Params {
   ];
   // TwapLookbackWindow is the lookback window for calculating TWAPs
   uint64 twap_lookback_window = 5;
-  // FallbackNativePrice is the fallback price for the native token if the
-  // oracle price is not available (in USD)
-  string fallback_native_price = 6 [
-    (gogoproto.moretags) = "yaml:\"fallback_native_price\"",
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
 }
 ```
 
@@ -147,7 +140,7 @@ message FeeTokenMetadata {
     (gogoproto.nullable) = false
   ];
   // Enabled indicates if the token is enabled for fee abstraction
-  bool enabled = 6;
+  bool enabled = 5;
 }
 
 // Defines a collection of fee token metadata
@@ -188,6 +181,7 @@ Only the governance account can update the fee tokens, and it requires a valid s
 On each update, all fee tokens must be provided, even if they are not changed:
 
 - Ordering is important, since the balance will be calculated based on the order of the fee tokens.
+- Prices are always set to zero so that BeginBlocker adopts the current TWAP.
 
 It is defined as:
 
@@ -200,8 +194,26 @@ message MsgUpdateFeeTokens {
   // authority is the address of the governance account.
   string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
 
-  // fee_tokens defines the fee tokens to update.
-  FeeTokenMetadataCollection fee_tokens = 2 [ (gogoproto.nullable) = false ];
+  // tokens defines the fee tokens to update.
+  UpdateTokenMetadataCollection tokens = 2 [ (gogoproto.nullable) = false ];
+}
+
+// UpdateTokenMetadata defines the metadata for a fee token to be updated
+message UpdateTokenMetadata {
+  // Denom is the token denom
+  string denom = 1;
+  // Identifier on the oracle module
+  string oracle_denom = 2;
+  // Decimals is the number of decimals for the token
+  uint32 decimals = 3;
+  // Enabled indicates if the token is enabled for fee abstraction
+  bool enabled = 4;
+}
+
+// Defines a collection of fee token metadata to be updated
+message UpdateTokenMetadataCollection {
+  // Items is a repeated field of UpdateTokenMetadata
+  repeated UpdateTokenMetadata items = 1 [ (gogoproto.nullable) = false ];
 }
 ```
 
