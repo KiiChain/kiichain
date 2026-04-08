@@ -5,8 +5,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/math"
-
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -78,23 +76,21 @@ func TestMsgUpdateFeeTokensValidate(t *testing.T) {
 			name: "valid - empty fee tokens",
 			msg: types.NewMessageUpdateFeeTokens(
 				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				*types.NewFeeTokenMetadataCollection(),
+				*types.NewUpdateTokenMetadataCollection(),
 			),
 		},
 		{
 			name: "valid - fee tokens",
 			msg: types.NewMessageUpdateFeeTokens(
 				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				*types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("coin", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
-				),
+				*types.NewUpdateTokenMetadataCollection(),
 			),
 		},
 		{
 			name: "invalid - empty authority",
 			msg: types.NewMessageUpdateFeeTokens("",
-				*types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("coin", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
+				*types.NewUpdateTokenMetadataCollection(
+					types.NewUpdateTokenMetadata("coin", "oracleCoin", 6),
 				),
 			),
 			errContains: "empty address string is not allowed",
@@ -103,9 +99,9 @@ func TestMsgUpdateFeeTokensValidate(t *testing.T) {
 			name: "invalid - duplicate fee tokens",
 			msg: types.NewMessageUpdateFeeTokens(
 				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				*types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("coin", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
-					types.NewFeeTokenMetadata("coin", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
+				*types.NewUpdateTokenMetadataCollection(
+					types.NewUpdateTokenMetadata("coin", "oracleCoin", 6),
+					types.NewUpdateTokenMetadata("coin", "oracleCoin", 6),
 				),
 			),
 			errContains: "duplicate denom found: coin: invalid fee token metadata",
