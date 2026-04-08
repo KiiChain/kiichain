@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -103,14 +104,22 @@ func (ms MsgServer) UpdateFeeTokens(ctx context.Context, msg *types.MsgUpdateFee
 	for _, denom := range voteTargets {
 		voteTargetMap[denom] = struct{}{}
 	}
-	for _, feeToken := range msg.FeeTokens.Items {
+	for _, feeToken := range msg.Tokens.Items {
 		if _, ok := voteTargetMap[feeToken.OracleDenom]; !ok {
 			return nil, sdkerrors.ErrInvalidRequest.Wrapf("fee token denom %s is not registered on the oracle module", feeToken.OracleDenom)
 		}
 	}
 
+	// Zero out all token prices so BeginBlocker adopts the current TWAP immediately
+	// rather than being clamped from a stale governance-submitted price.
+	resetItems := make([]types.FeeTokenMetadata, len(msg.Tokens.Items))
+	for i, token := range msg.Tokens.Items {
+		resetItems[i] = types.NewFeeTokenMetadata(token.Denom, token.OracleDenom, token.Decimals, math.LegacyZeroDec())
+	}
+	resetFeeTokens := types.NewFeeTokenMetadataCollection(resetItems...)
+
 	// Update the fee tokens
-	if err := ms.FeeTokens.Set(ctx, msg.FeeTokens); err != nil {
+	if err := ms.FeeTokens.Set(ctx, *resetFeeTokens); err != nil {
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to update fee tokens: %s", err)
 	}
 

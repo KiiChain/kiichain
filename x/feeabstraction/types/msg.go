@@ -37,10 +37,10 @@ func (msg *MsgUpdateParams) Validate() error {
 }
 
 // NewMessageUpdateFeeTokens creates a new MsgUpdateFeeTokens instance
-func NewMessageUpdateFeeTokens(authority string, feeTokens FeeTokenMetadataCollection) *MsgUpdateFeeTokens {
+func NewMessageUpdateFeeTokens(authority string, tokens UpdateTokenMetadataCollection) *MsgUpdateFeeTokens {
 	return &MsgUpdateFeeTokens{
 		Authority: authority,
-		FeeTokens: feeTokens,
+		Tokens:    tokens,
 	}
 }
 
@@ -52,5 +52,5 @@ func (msg *MsgUpdateFeeTokens) Validate() error {
 	}
 
 	// Validate the fee tokens
-	return msg.FeeTokens.Validate()
+	return msg.Tokens.Validate()
 }
