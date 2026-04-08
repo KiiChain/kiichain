@@ -83,7 +83,9 @@ func TestMsgUpdateFeeTokensValidate(t *testing.T) {
 			name: "valid - fee tokens",
 			msg: types.NewMessageUpdateFeeTokens(
 				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				*types.NewUpdateTokenMetadataCollection(),
+				*types.NewUpdateTokenMetadataCollection(
+					types.NewUpdateTokenMetadata("coin", "oracleCoin", 6),
+				),
 			),
 		},
 		{
