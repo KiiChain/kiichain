@@ -15,6 +15,8 @@
 - Validate rewards baseDenom using sdk.ValidateDenom to enforce proper denom format (min 3 chars, valid characters, no leading digits)
 - Ensure feeTokens is not nil at genesis
 - Ensure feeTokenMetadata initial prices after updateFeeTokenMetadata is picked up from oracle
+- Use `DecCoins.Validate()` on `RewardPool.ValidateGenesis` to catch malformed denom formats, duplicate denoms, bad ordering
+- Enforce denom consistency in `GenesisState.Validate` with `Params.TokenDenom`
 
 ### Removed
 

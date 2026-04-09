@@ -80,6 +80,46 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			},
 			expectedPass: false,
 		},
+		{
+			name: "active schedule with mismatched total amount denom",
+			modifyFn: func(gs *types.GenesisState) {
+				gs.ReleaseSchedule = types.ReleaseSchedule{
+					TotalAmount:    sdk.NewCoin("notkii", math.NewInt(1000)),
+					ReleasedAmount: sdk.NewCoin("notkii", math.NewInt(0)),
+					EndTime:        time.Now().Add(time.Hour * 24),
+					Active:         true,
+				}
+			},
+			expectedPass: false,
+		},
+		{
+			name: "community pool with foreign denom",
+			modifyFn: func(gs *types.GenesisState) {
+				gs.RewardPool = types.RewardPool{
+					CommunityPool: sdk.DecCoins{
+						{Denom: "notkii", Amount: math.LegacyNewDec(100)},
+					},
+				}
+			},
+			expectedPass: false,
+		},
+		{
+			name: "both active schedule and pool with mismatched denoms",
+			modifyFn: func(gs *types.GenesisState) {
+				gs.ReleaseSchedule = types.ReleaseSchedule{
+					TotalAmount:    sdk.NewCoin("notkii", math.NewInt(1000)),
+					ReleasedAmount: sdk.NewCoin("notkii", math.NewInt(0)),
+					EndTime:        time.Now().Add(time.Hour * 24),
+					Active:         true,
+				}
+				gs.RewardPool = types.RewardPool{
+					CommunityPool: sdk.DecCoins{
+						{Denom: "notkii", Amount: math.LegacyNewDec(100)},
+					},
+				}
+			},
+			expectedPass: false,
+		},
 	}
 
 	for _, tc := range testCases {

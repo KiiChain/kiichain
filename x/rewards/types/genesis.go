@@ -1,5 +1,7 @@
 package types
 
+import "fmt"
+
 // NewGenesisState constructs a genesis state
 func NewGenesisState(
 	params Params, rp RewardPool, release ReleaseSchedule,
@@ -29,5 +31,24 @@ func (gs *GenesisState) Validate() error {
 	if err := gs.RewardPool.ValidateGenesis(); err != nil {
 		return err
 	}
-	return gs.ReleaseSchedule.ValidateGenesis()
+
+	if err := gs.ReleaseSchedule.ValidateGenesis(); err != nil {
+		return err
+	}
+
+	// Enforce denom consistency: all pool coins and the active schedule must use TokenDenom.
+	tokenDenom := gs.Params.TokenDenom
+	for _, coin := range gs.RewardPool.CommunityPool {
+		if coin.Denom != tokenDenom {
+			return fmt.Errorf("community pool coin denom %s does not match token denom %s",
+				coin.Denom, tokenDenom)
+		}
+	}
+
+	if gs.ReleaseSchedule.Active && gs.ReleaseSchedule.TotalAmount.Denom != tokenDenom {
+		return fmt.Errorf("release schedule total amount denom %s does not match token denom %s",
+			gs.ReleaseSchedule.TotalAmount.Denom, tokenDenom)
+	}
+
+	return nil
 }
