@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -129,10 +127,10 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 
 // TestUpdateFeeTokens tests the UpdateFeeTokens method
 func (s *KeeperTestSuite) TestUpdateFeeTokens() {
-	defaultFeeTokens := types.NewFeeTokenMetadataCollection(
-		types.NewFeeTokenMetadata("one", "oracleone", 6, math.LegacyMustNewDecFromStr("0.01")),
-		types.NewFeeTokenMetadata("two", "oracletwo", 6, math.LegacyMustNewDecFromStr("0.01")),
-		types.NewFeeTokenMetadata("three", "oraclethree", 6, math.LegacyMustNewDecFromStr("0.01")))
+	defaultFeeTokens := types.NewUpdateTokenMetadataCollection(
+		types.NewUpdateTokenMetadata("one", "oracleone", 6),
+		types.NewUpdateTokenMetadata("two", "oracletwo", 6),
+		types.NewUpdateTokenMetadata("three", "oraclethree", 6))
 
 	// Prepare all the test cases
 	testCases := []struct {
@@ -183,7 +181,7 @@ func (s *KeeperTestSuite) TestUpdateFeeTokens() {
 			name: "invalid - wrong authority",
 			msg: &types.MsgUpdateFeeTokens{
 				Authority: authtypes.NewModuleAddress(types.ModuleName).String(),
-				FeeTokens: *defaultFeeTokens,
+				Tokens:    *defaultFeeTokens,
 			},
 			errContains: "expected gov account as only signer for proposal message",
 		},
@@ -191,8 +189,8 @@ func (s *KeeperTestSuite) TestUpdateFeeTokens() {
 			name: "invalid - invalid fee tokens (bad denom)",
 			msg: types.NewMessageUpdateFeeTokens(
 				authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				*types.NewFeeTokenMetadataCollection(
-					types.NewFeeTokenMetadata("invalid denom!", "oracleCoin", 6, math.LegacyMustNewDecFromStr("0.01")),
+				*types.NewUpdateTokenMetadataCollection(
+					types.NewUpdateTokenMetadata("invalid denom!", "oracleCoin", 6),
 				),
 			),
 			errContains: "denom is invalid: invalid fee token metadata: invalid request",
@@ -223,7 +221,13 @@ func (s *KeeperTestSuite) TestUpdateFeeTokens() {
 				// Verify the fee tokens were updated
 				tokens, err := s.keeper.FeeTokens.Get(cachedCtx)
 				s.Require().NoError(err)
-				s.Require().Equal(tc.msg.FeeTokens, tokens)
+				s.Require().Len(tokens.Items, len(tc.msg.Tokens.Items))
+				for i, token := range tokens.Items {
+					s.Require().Equal(tc.msg.Tokens.Items[i].Denom, token.Denom)
+					s.Require().Equal(tc.msg.Tokens.Items[i].OracleDenom, token.OracleDenom)
+					s.Require().Equal(tc.msg.Tokens.Items[i].Decimals, token.Decimals)
+					s.Require().True(token.Price.IsZero(), "expected price to be 0 for denom %s, got %s", token.Denom, token.Price)
+				}
 			}
 		})
 	}
