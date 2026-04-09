@@ -2,9 +2,15 @@ package keeper_test
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdkmath "cosmossdk.io/math"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -279,4 +285,65 @@ func (suite *KeeperTestSuite) TestMintToBlockedAddr() {
 	// Should fail with blocked address error
 	suite.Require().Error(err)
 	suite.Require().Contains(err.Error(), "failed to mint to blocked address")
+}
+
+// TestTF01_ChangeAdminEmptyStringBlockedByFullPipeline is a
+// regression test for empty string on admin change
+func (suite *KeeperTestSuite) TestTF01_ChangeAdminEmptyStringBlockedByFullPipeline() {
+	suite.SetupTest()
+
+	app := suite.App
+	ctx := suite.Ctx
+	txConfig := app.GetTxConfig()
+	chainID := app.ChainID()
+
+	privKey := secp256k1.GenPrivKey()
+	senderAddr := sdk.AccAddress(privKey.PubKey().Address())
+
+	suite.FundAcc(senderAddr, sdk.NewCoins(
+		sdk.NewCoin(params.BaseDenom, sdkmath.NewInt(10_000_000_000_000_000)),
+	))
+
+	acc := app.AccountKeeper.NewAccountWithAddress(ctx, senderAddr)
+	app.AccountKeeper.SetAccount(ctx, acc)
+
+	res, err := suite.msgServer.CreateDenom(ctx, types.NewMsgCreateDenom(senderAddr.String(), "testdenom"))
+	suite.Require().NoError(err)
+	denom := res.GetNewTokenDenom()
+
+	accNum := acc.GetAccountNumber()
+	accSeq := acc.GetSequence()
+	nextHeight := app.LastBlockHeight() + 1
+
+	suite.Run("empty NewAdmin allowed by tx pipeline", func() {
+		msg := types.NewMsgChangeAdmin(senderAddr.String(), denom, "")
+
+		signedTx, err := simtestutil.GenSignedMockTx(
+			rand.New(rand.NewSource(time.Now().UnixNano())),
+			txConfig,
+			[]sdk.Msg{msg},
+			sdk.NewCoins(sdk.NewCoin(params.BaseDenom, sdkmath.NewInt(200_000_000_000_000))),
+			200_000,
+			chainID,
+			[]uint64{accNum},
+			[]uint64{accSeq},
+			privKey,
+		)
+		suite.Require().NoError(err)
+
+		txBytes, err := txConfig.TxEncoder()(signedTx)
+		suite.Require().NoError(err)
+
+		blockRes, err := app.FinalizeBlock(&abci.RequestFinalizeBlock{
+			Height: nextHeight,
+			Time:   ctx.BlockTime().Add(5 * time.Second),
+			Txs:    [][]byte{txBytes},
+		})
+		suite.Require().NoError(err)
+		suite.Require().Len(blockRes.TxResults, 1)
+
+		txResult := blockRes.TxResults[0]
+		suite.Require().Equal(uint32(0), txResult.Code,
+			"tx with empty NewAdmin should be allowed (zero code), got log=%q", txResult.Log)
+	})
 }
