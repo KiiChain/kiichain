@@ -13,10 +13,10 @@ The functionality of the module allows:
   - Applies a clamp factor to limit extreme price deviations.
   - Disables tokens with missing or zero prices.
 
-This feature is enabled for all users and cannot be opted out, fees we'll be payed with alternate tokens if:
+This feature is enabled for all users and cannot be opted out, fees will be payed with alternate tokens if:
 - The user has no native funds for the transaction
-- The user has enough of one of the alternate token
-- The token is enabled as alternate fee 
+- The user has enough of one of the alternate tokens
+- The token is enabled as an alternate fee token
 
 ## Core functionality
 
