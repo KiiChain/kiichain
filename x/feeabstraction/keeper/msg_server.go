@@ -148,7 +148,7 @@ func (ms MsgServer) validateFeeTokenDecimals(ctx sdk.Context, token types.Update
 	if strings.HasPrefix(token.Denom, erc20types.Erc20NativeCoinDenomPrefix) {
 		hexAddr := strings.TrimPrefix(token.Denom, erc20types.Erc20NativeCoinDenomPrefix)
 
-		// Look up the token pair to confirm it is registered.
+		// Look up the token pair to confirm it is registered
 		pairID := ms.erc20Keeper.GetTokenPairID(ctx, token.Denom)
 		if len(pairID) == 0 {
 			return sdkerrors.ErrUnknownAddress.Wrapf("no ERC20 pair registered for %s", token.Denom)
@@ -172,11 +172,12 @@ func (ms MsgServer) validateFeeTokenDecimals(ctx sdk.Context, token types.Update
 	// Bank-native path
 	meta, found := ms.bankKeeper.GetDenomMetaData(ctx, token.Denom)
 	if !found {
-		// No metadata registered; skip the check.
+		// IBC denoms and tokens without on-chain metadata cannot be validated;
+		// allow them through. If metadata is present, decimals MUST match
 		return nil
 	}
 
-	// Takes maximum exponent across all DenomUnits.
+	// Takes maximum exponent across all DenomUnits
 	var maxExp uint32
 	for _, unit := range meta.DenomUnits {
 		if unit.Exponent > maxExp {
