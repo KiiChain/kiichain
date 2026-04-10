@@ -13,6 +13,11 @@ The functionality of the module allows:
   - Applies a clamp factor to limit extreme price deviations.
   - Disables tokens with missing or zero prices.
 
+This feature is enabled for all users and cannot be opted out, fees we'll be payed with alternate tokens if:
+- The user has no native funds for the transaction
+- The user has enough of one of the alternate token
+- The token is enabled as alternate fee 
+
 ## Core functionality
 
 In its code, the module changes the fee-paying ante handlers to allow payment of fees with tokens different from the native gas token.
@@ -45,6 +50,9 @@ We have a few safety mechanisms to ensure the prices are valid:
 - If prices go to zero, the fee token is disabled
 - The Twap of the token is used to avoid sudden price changes
 - Price changes are clamped to avoid extreme values
+
+These measures are needed and in place because the price update happens at `BeginBlock`,
+meaning users only get an estimate of token prices, not actual values, when they do transactions.
 
 ### Fee payment
 
