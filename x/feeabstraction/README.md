@@ -140,7 +140,7 @@ message FeeTokenMetadata {
     (gogoproto.nullable) = false
   ];
   // Enabled indicates if the token is enabled for fee abstraction
-  bool enabled = 5;
+  bool enabled = 6;
 }
 
 // Defines a collection of fee token metadata
