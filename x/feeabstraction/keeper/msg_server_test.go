@@ -3,8 +3,12 @@ package keeper_test
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
+	erc20types "github.com/cosmos/evm/x/erc20/types"
+
+	"github.com/kiichain/kiichain/v7/app/apptesting"
 	"github.com/kiichain/kiichain/v7/x/feeabstraction/types"
 	oracletypes "github.com/kiichain/kiichain/v7/x/oracle/types"
 )
@@ -228,6 +232,142 @@ func (s *KeeperTestSuite) TestUpdateFeeTokens() {
 					s.Require().Equal(tc.msg.Tokens.Items[i].Decimals, token.Decimals)
 					s.Require().True(token.Price.IsZero(), "expected price to be 0 for denom %s, got %s", token.Denom, token.Price)
 				}
+			}
+		})
+	}
+}
+
+// TestUpdateFeeTokensDecimalsMismatch tests that MsgUpdateFeeTokens rejects
+// proposals where FeeTokenMetadata.Decimals disagrees with the existing
+// token records
+func (s *KeeperTestSuite) TestUpdateFeeTokensDecimalsMismatch() {
+	// registerOracleTarget registers a denom as a vote target on the oracle module.
+	registerOracleTarget := func(ctx sdk.Context, denom string) {
+		err := s.app.OracleKeeper.VoteTarget.Set(ctx, denom, oracletypes.Denom{Name: denom})
+		s.Require().NoError(err)
+	}
+
+	govAddr := authtypes.NewModuleAddress(govtypes.ModuleName).String()
+
+	testCases := []struct {
+		name        string
+		malleate    func(ctx sdk.Context) sdk.Context
+		token       types.UpdateTokenMetadata
+		errContains string
+	}{
+		// ERC20
+		{
+			name: "erc20 - correct decimals accepted",
+			malleate: func(ctx sdk.Context) sdk.Context {
+				// Configure ERC20 w/ 18 decimals
+				erc20Addr, err := apptesting.DeployERC20(ctx, s.app)
+				s.Require().NoError(err)
+				_, err = s.app.Erc20Keeper.RegisterERC20(ctx, &erc20types.MsgRegisterERC20{
+					Signer:         govAddr,
+					Erc20Addresses: []string{erc20Addr.Hex()},
+				})
+				s.Require().NoError(err)
+				denom := "erc20:" + erc20Addr.Hex()
+				registerOracleTarget(ctx, "oracleerc20")
+				ctx = ctx.WithValue("erc20denom", denom)
+				return ctx
+			},
+			token:       types.NewUpdateTokenMetadata("placeholder", "oracleerc20", 18),
+			errContains: "",
+		},
+		{
+			name: "erc20 - wrong decimals rejected",
+			malleate: func(ctx sdk.Context) sdk.Context {
+				// Configure ERC20 w/ 18 decimals
+				erc20Addr, err := apptesting.DeployERC20(ctx, s.app)
+				s.Require().NoError(err)
+				_, err = s.app.Erc20Keeper.RegisterERC20(ctx, &erc20types.MsgRegisterERC20{
+					Signer:         govAddr,
+					Erc20Addresses: []string{erc20Addr.Hex()},
+				})
+				s.Require().NoError(err)
+				denom := "erc20:" + erc20Addr.Hex()
+				registerOracleTarget(ctx, "oracleerc20")
+				ctx = ctx.WithValue("erc20denom", denom)
+				return ctx
+			},
+			// DeployERC20 deploys with 18 decimals; we deliberately register 6.
+			token:       types.NewUpdateTokenMetadata("placeholder", "oracleerc20", 6),
+			errContains: "declared decimals 6 does not match contract decimals 18",
+		},
+		// Bank path
+		{
+			name: "bank - correct decimals accepted",
+			malleate: func(ctx sdk.Context) sdk.Context {
+				s.app.BankKeeper.SetDenomMetaData(ctx, banktypes.Metadata{
+					Base:    "ucoin",
+					Display: "coin",
+					DenomUnits: []*banktypes.DenomUnit{
+						{Denom: "ucoin", Exponent: 0},
+						{Denom: "coin", Exponent: 6},
+					},
+				})
+				registerOracleTarget(ctx, "oraclecoin")
+				return ctx
+			},
+			token:       types.NewUpdateTokenMetadata("ucoin", "oraclecoin", 6),
+			errContains: "",
+		},
+		{
+			name: "bank - wrong decimals rejected",
+			malleate: func(ctx sdk.Context) sdk.Context {
+				s.app.BankKeeper.SetDenomMetaData(ctx, banktypes.Metadata{
+					Base:    "ucoin",
+					Display: "coin",
+					DenomUnits: []*banktypes.DenomUnit{
+						{Denom: "ucoin", Exponent: 0},
+						{Denom: "coin", Exponent: 6},
+					},
+				})
+				registerOracleTarget(ctx, "oraclecoin")
+				return ctx
+			},
+			// Metadata says 6; we deliberately declare 18.
+			token:       types.NewUpdateTokenMetadata("ucoin", "oraclecoin", 18),
+			errContains: "declared decimals 18 does not match bank metadata decimals 6",
+		},
+		{
+			name: "bank - no metadata registered, check skipped",
+			malleate: func(ctx sdk.Context) sdk.Context {
+				registerOracleTarget(ctx, "oracleunknown")
+				return ctx
+			},
+			token:       types.NewUpdateTokenMetadata("unknowncoin", "oracleunknown", 8),
+			errContains: "",
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			cachedCtx, _ := s.ctx.CacheContext()
+
+			if tc.malleate != nil {
+				cachedCtx = tc.malleate(cachedCtx)
+			}
+
+			// For ERC20 cases the denom depends on deployed address
+			token := tc.token
+			if denom, ok := cachedCtx.Value("erc20denom").(string); ok && denom != "" {
+				token.Denom = denom
+			}
+
+			msg := types.NewMessageUpdateFeeTokens(
+				govAddr,
+				*types.NewUpdateTokenMetadataCollection(token),
+			)
+
+			_, err := s.msgServer.UpdateFeeTokens(cachedCtx, msg)
+
+			if tc.errContains != "" {
+				s.Require().Error(err)
+				s.Require().Contains(err.Error(), tc.errContains)
+			} else {
+				s.Require().NoError(err)
 			}
 		})
 	}

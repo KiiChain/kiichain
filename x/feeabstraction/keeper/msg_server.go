@@ -2,6 +2,9 @@ package keeper
 
 import (
 	"context"
+	"strings"
+
+	"github.com/ethereum/go-ethereum/common"
 
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -9,6 +12,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
+	erc20types "github.com/cosmos/evm/x/erc20/types"
 
 	"github.com/kiichain/kiichain/v7/x/feeabstraction/types"
 )
@@ -96,7 +101,8 @@ func (ms MsgServer) UpdateFeeTokens(ctx context.Context, msg *types.MsgUpdateFee
 	}
 
 	// Check if all the oracle denoms are registered on the oracle module
-	voteTargets, err := ms.oracleKeeper.GetVoteTargets(sdk.UnwrapSDKContext(ctx))
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	voteTargets, err := ms.oracleKeeper.GetVoteTargets(sdkCtx)
 	if err != nil {
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to get oracle vote targets: %s", err)
 	}
@@ -107,6 +113,13 @@ func (ms MsgServer) UpdateFeeTokens(ctx context.Context, msg *types.MsgUpdateFee
 	for _, feeToken := range msg.Tokens.Items {
 		if _, ok := voteTargetMap[feeToken.OracleDenom]; !ok {
 			return nil, sdkerrors.ErrInvalidRequest.Wrapf("fee token denom %s is not registered on the oracle module", feeToken.OracleDenom)
+		}
+	}
+
+	// Validate that the registered Decimals match the canonical decimals for each token
+	for _, feeToken := range msg.Tokens.Items {
+		if err := ms.validateFeeTokenDecimals(sdkCtx, feeToken); err != nil {
+			return nil, sdkerrors.ErrInvalidRequest.Wrapf("fee token %s decimals mismatch: %s", feeToken.Denom, err)
 		}
 	}
 
@@ -126,6 +139,59 @@ func (ms MsgServer) UpdateFeeTokens(ctx context.Context, msg *types.MsgUpdateFee
 
 	// Return the response
 	return &types.MsgUpdateFeeTokensResponse{}, nil
+}
+
+// validateFeeTokenDecimals checks that the Decimals field on a proposed fee token
+// matches the ERC20 or bank record
+func (ms MsgServer) validateFeeTokenDecimals(ctx sdk.Context, token types.UpdateTokenMetadata) error {
+	// ERC20 path
+	if strings.HasPrefix(token.Denom, erc20types.Erc20NativeCoinDenomPrefix) {
+		hexAddr := strings.TrimPrefix(token.Denom, erc20types.Erc20NativeCoinDenomPrefix)
+
+		// Look up the token pair to confirm it is registered
+		pairID := ms.erc20Keeper.GetTokenPairID(ctx, token.Denom)
+		if len(pairID) == 0 {
+			return sdkerrors.ErrUnknownAddress.Wrapf("no ERC20 pair registered for %s", token.Denom)
+		}
+
+		// Query decimals() from the contract.
+		erc20Data, err := ms.erc20Keeper.QueryERC20(ctx, common.HexToAddress(hexAddr))
+		if err != nil {
+			return errors.Wrapf(err, "failed to query ERC20 decimals for %s", token.Denom)
+		}
+
+		if uint32(erc20Data.Decimals) != token.Decimals {
+			return sdkerrors.ErrInvalidRequest.Wrapf(
+				"declared decimals %d does not match contract decimals %d",
+				token.Decimals, erc20Data.Decimals,
+			)
+		}
+		return nil
+	}
+
+	// Bank-native path
+	meta, found := ms.bankKeeper.GetDenomMetaData(ctx, token.Denom)
+	if !found {
+		// IBC denoms and tokens without on-chain metadata cannot be validated;
+		// allow them through. If metadata is present, decimals MUST match
+		return nil
+	}
+
+	// Takes maximum exponent across all DenomUnits
+	var maxExp uint32
+	for _, unit := range meta.DenomUnits {
+		if unit.Exponent > maxExp {
+			maxExp = unit.Exponent
+		}
+	}
+
+	if maxExp != token.Decimals {
+		return sdkerrors.ErrInvalidRequest.Wrapf(
+			"declared decimals %d does not match bank metadata decimals %d",
+			token.Decimals, maxExp,
+		)
+	}
+	return nil
 }
 
 // validateAuthority checks if address authority is valid and same as expected
