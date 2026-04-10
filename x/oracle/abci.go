@@ -112,14 +112,14 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 				// Get weighted median of cross exchange rates
 				exchangeRate := Tally(ctx, votingTally, params.RewardBand, validatorClaimMap)
 
-				// Validate invalid exchangeRate
-				if exchangeRate.IsZero() {
-					continue // skip this denom
-				}
-
 				// transform into the original form base/quote
 				if denom != referenceDenom {
 					exchangeRate = exchangeRateRD.Quo(exchangeRate)
+				}
+
+				// SECURITY FIX: Validate final exchange rate after transformation
+				if exchangeRate.IsZero() || !k.IsValidExchangeRate(exchangeRate) {
+					continue // skip this denom - invalid final rate
 				}
 
 				// set the exchange rate with event

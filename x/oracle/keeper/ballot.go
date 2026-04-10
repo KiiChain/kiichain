@@ -25,8 +25,8 @@ func (k Keeper) OrganizeBallotByDenom(ctx sdk.Context, validatorClaimMap map[str
 			for _, tuple := range aggregateVote.ExchangeRateTuples {
 				tmpPower := power
 
-				// Validate invalids exchange rates
-				if !tuple.ExchangeRate.IsPositive() {
+				// Validate exchange rates - SECURITY FIX: Added range validation
+				if !k.IsValidExchangeRate(tuple.ExchangeRate) {
 					tmpPower = 0
 				}
 
@@ -107,4 +107,22 @@ func (k Keeper) ApplyWhitelist(ctx sdk.Context, whitelist types.DenomList, voteT
 	}
 
 	return nil
+}
+
+// getMaxExchangeRate returns the maximum allowed exchange rate - immutable
+func getMaxExchangeRate() sdk.Dec {
+	return sdk.NewDecFromInt(sdk.NewIntFromUint64(1_000_000_000)) // 1 billion max
+}
+
+// getMinExchangeRate returns the minimum allowed exchange rate - immutable
+func getMinExchangeRate() sdk.Dec {
+	return sdk.NewDecWithPrec(1, 8) // 0.00000001 min
+}
+
+// IsValidExchangeRate validates exchange rates to prevent price manipulation attacks  
+// SECURITY FIX: Implements comprehensive price validation beyond simple positive check
+func (k Keeper) IsValidExchangeRate(rate sdk.Dec) bool {
+	return rate.IsPositive() && 
+		   rate.LTE(getMaxExchangeRate()) && 
+		   rate.GTE(getMinExchangeRate())
 }
