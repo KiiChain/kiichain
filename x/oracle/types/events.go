@@ -7,6 +7,7 @@ const (
 	EventTypeFeedDelegate       = "feed_delegate"
 	EventTypeAggregateVote      = "aggregate_vote"
 	EventTypeEndSlashWindow     = "end_slash_window"
+	EventTypeParamsUpdated      = "update_params"
 )
 
 // Oracle module Attribute key

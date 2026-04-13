@@ -165,6 +165,12 @@ func (ms msgServer) UpdateParams(ctx context.Context, req *types.MsgUpdateParams
 		return nil, err
 	}
 
+	sdkCtx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeParamsUpdated,
+		),
+	})
+
 	// Return an empty response
 	return &types.MsgUpdateParamsResponse{}, nil
 }
