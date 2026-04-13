@@ -305,6 +305,125 @@ func TestMint(t *testing.T) {
 	}
 }
 
+// TestSetMetadataCapabilityGating verifies that PerformSetMetadata enforces the
+// EnableSetMetadata capability check
+func TestSetMetadataCapabilityGating(t *testing.T) {
+	creator := apptesting.RandomAccountAddress()
+
+	validMetadata := func(denom string) bindingtypes.Metadata {
+		return bindingtypes.Metadata{
+			Description: "test token",
+			DenomUnits: []bindingtypes.DenomUnit{
+				{Denom: denom, Exponent: 0},
+				{Denom: "utest", Exponent: 6},
+			},
+			Base:    denom,
+			Display: "utest",
+			Name:    "Test",
+			Symbol:  "TEST",
+		}
+	}
+
+	specs := map[string]struct {
+		capabilities []string
+		expErr       bool
+	}{
+		"succeeds when EnableSetMetadata capability is enabled": {
+			capabilities: []string{types.EnableSetMetadata},
+			expErr:       false,
+		},
+		"fails when EnableSetMetadata capability is disabled": {
+			capabilities: []string{},
+			expErr:       true,
+		},
+	}
+	for name, spec := range specs {
+		t.Run(name, func(t *testing.T) {
+			app, ctx := helpers.SetupCustomApp(t, creator)
+
+			// Fund creator with denom creation fees
+			actorAmount := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(10)))
+			helpers.FundAccount(t, ctx, app, creator, actorAmount)
+
+			// Create a denom first (without metadata)
+			resp, err := wasmbinding.PerformCreateDenom(&app.TokenFactoryKeeper, app.BankKeeper, ctx, creator, &bindingtypes.CreateDenom{
+				Subdenom: "GATE",
+			})
+			require.NoError(t, err)
+			require.NotNil(t, resp)
+			denom := fmt.Sprintf("factory/%s/GATE", creator.String())
+
+			// Override capability set
+			app.TokenFactoryKeeper.SetEnabledCapabilities(ctx, spec.capabilities)
+
+			gotErr := wasmbinding.PerformSetMetadata(&app.TokenFactoryKeeper, ctx, creator, denom, validMetadata(denom))
+			if spec.expErr {
+				require.Error(t, gotErr)
+				require.ErrorContains(t, gotErr, "capability is not enabled on chain")
+			} else {
+				require.NoError(t, gotErr)
+			}
+		})
+	}
+}
+
+// TestCreateDenomWithMetadataCapabilityGating verifies that the optional metadata
+// path in PerformCreateDenom respects the EnableSetMetadata capability check
+func TestCreateDenomWithMetadataCapabilityGating(t *testing.T) {
+	creator := apptesting.RandomAccountAddress()
+
+	specs := map[string]struct {
+		capabilities []string
+		expErr       bool
+	}{
+		"succeeds when EnableSetMetadata capability is enabled": {
+			capabilities: []string{types.EnableSetMetadata},
+			expErr:       false,
+		},
+		"fails when EnableSetMetadata capability is disabled": {
+			capabilities: []string{},
+			expErr:       true,
+		},
+	}
+	for name, spec := range specs {
+		t.Run(name, func(t *testing.T) {
+			app, ctx := helpers.SetupCustomApp(t, creator)
+
+			// Fund creator with denom creation fees
+			actorAmount := sdk.NewCoins(sdk.NewCoin(types.DefaultParams().DenomCreationFee[0].Denom, types.DefaultParams().DenomCreationFee[0].Amount.MulRaw(10)))
+			helpers.FundAccount(t, ctx, app, creator, actorAmount)
+
+			// Override capability set before CreateDenom so the metadata step sees it
+			app.TokenFactoryKeeper.SetEnabledCapabilities(ctx, spec.capabilities)
+
+			subdenom := "META"
+			denom := fmt.Sprintf("factory/%s/%s", creator.String(), subdenom)
+			metadata := bindingtypes.Metadata{
+				Description: "test token",
+				DenomUnits: []bindingtypes.DenomUnit{
+					{Denom: denom, Exponent: 0},
+					{Denom: "umeta", Exponent: 6},
+				},
+				Base:    denom,
+				Display: "umeta",
+				Name:    "Meta",
+				Symbol:  "META",
+			}
+
+			_, gotErr := wasmbinding.PerformCreateDenom(&app.TokenFactoryKeeper, app.BankKeeper, ctx, creator, &bindingtypes.CreateDenom{
+				Subdenom: subdenom,
+				Metadata: &metadata,
+			})
+			if spec.expErr {
+				require.Error(t, gotErr)
+				require.ErrorContains(t, gotErr, "capability is not enabled on chain")
+			} else {
+				require.NoError(t, gotErr)
+			}
+		})
+	}
+}
+
 // TestBurn tests the burning of tokens
 func TestBurn(t *testing.T) {
 	creator := apptesting.RandomAccountAddress()

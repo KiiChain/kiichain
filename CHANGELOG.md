@@ -4,6 +4,7 @@
 
 ### Fixed
 
+- Refactor `PerformSetMetadata` in wasmbinding to delegate to `msgServer.SetDenomMetadata`, ensuring the `EnableSetMetadata` capability check is enforced
 - Ensure that `UpdateTokenMetadata.Decimals` matches the ERC20 or bank records
 - Fixed odd validation on tokenfactory change admin that blocked removing admin from the token
 - Fix division-by-zero chain halt in `CalculateReward` caused by sub-second schedule durations; replace `Seconds()` truncation with `Nanoseconds()` precision and release full remaining reward when `EndTime <= LastReleaseTime` ([#267](https://github.com/KiiChain/kiichain/issues/267))
