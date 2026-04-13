@@ -87,7 +87,7 @@ func PerformCreateDenom(f *tokenfactorykeeper.Keeper, b bankkeeper.Keeper, ctx s
 
 	if createDenom.Metadata != nil {
 		newDenom := resp.NewTokenDenom
-		err := PerformSetMetadata(f, b, ctx, contractAddr, newDenom, *createDenom.Metadata)
+		err := PerformSetMetadata(f, ctx, contractAddr, newDenom, *createDenom.Metadata)
 		if err != nil {
 			return nil, errorsmod.Wrap(err, "setting metadata")
 		}
@@ -249,40 +249,31 @@ func PerformForceTransfer(f *tokenfactorykeeper.Keeper, ctx sdk.Context, contrac
 
 // createDenom creates a new token denom
 func (m *CustomMessenger) SetMetadata(ctx sdk.Context, contractAddr sdk.AccAddress, setMetadata *tfbindingtypes.SetMetadata) ([]sdk.Event, [][]byte, [][]*types.Any, error) {
-	err := PerformSetMetadata(m.tokenFactory, m.bank, ctx, contractAddr, setMetadata.Denom, setMetadata.Metadata)
+	err := PerformSetMetadata(m.tokenFactory, ctx, contractAddr, setMetadata.Denom, setMetadata.Metadata)
 	if err != nil {
 		return nil, nil, utils.EmptyMsgResp, errorsmod.Wrap(err, "perform set metadata")
 	}
 	return nil, nil, utils.EmptyMsgResp, nil
 }
 
-// PerformSetMetadata is used with setMetadata to add new metadata
-// It also is called inside CreateDenom if optional metadata field is set
-func PerformSetMetadata(f *tokenfactorykeeper.Keeper, b bankkeeper.Keeper, ctx sdk.Context, contractAddr sdk.AccAddress, denom string, metadata tfbindingtypes.Metadata) error {
-	// ensure contract address is admin of denom
-	auth, err := f.GetAuthorityMetadata(ctx, denom)
-	if err != nil {
-		return err
-	}
-	if auth.Admin != contractAddr.String() {
-		return wasmvmtypes.InvalidRequest{Err: "only admin can set metadata"}
-	}
-
+// PerformSetMetadata is used with setMetadata to add new metadata.
+// It also is called inside CreateDenom if optional metadata field is set.
+// Delegates to msgServer.SetDenomMetadata to ensure capability checks
+func PerformSetMetadata(f *tokenfactorykeeper.Keeper, ctx sdk.Context, contractAddr sdk.AccAddress, denom string, metadata tfbindingtypes.Metadata) error {
 	// ensure we are setting proper denom metadata (bank uses Base field, fill it if missing)
 	if metadata.Base == "" {
 		metadata.Base = denom
 	} else if metadata.Base != denom {
-		// this is the key that we set
 		return wasmvmtypes.InvalidRequest{Err: "Base must be the same as denom"}
 	}
 
-	// Create and validate the metadata
 	bankMetadata := WasmMetadataToSdk(metadata)
-	if err := bankMetadata.Validate(); err != nil {
+
+	msgServer := tokenfactorykeeper.NewMsgServerImpl(*f)
+	_, err := msgServer.SetDenomMetadata(ctx, tokenfactorytypes.NewMsgSetDenomMetadata(contractAddr.String(), bankMetadata))
+	if err != nil {
 		return err
 	}
-
-	b.SetDenomMetaData(ctx, bankMetadata)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		tokenfactorytypes.TypeMsgSetDenomMetadata,
