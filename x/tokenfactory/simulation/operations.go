@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
@@ -41,7 +42,7 @@ type TokenfactoryKeeper interface {
 	GetParams(ctx context.Context) (params types.Params)
 	GetAuthorityMetadata(ctx context.Context, denom string) (types.DenomAuthorityMetadata, error)
 	GetAllDenomsIterator(ctx context.Context) sdkstore.Iterator
-	GetDenomsFromCreator(ctx context.Context, creator string) []string
+	GetDenomsFromCreator(ctx context.Context, creator string, req *query.PageRequest) ([]string, *query.PageResponse, error)
 }
 
 type BankKeeper interface {
@@ -148,7 +149,7 @@ func WeightedOperations(
 type DenomSelector = func(*rand.Rand, sdk.Context, TokenfactoryKeeper, string) (string, bool)
 
 func DefaultSimulationDenomSelector(r *rand.Rand, ctx sdk.Context, tfKeeper TokenfactoryKeeper, creator string) (string, bool) {
-	denoms := tfKeeper.GetDenomsFromCreator(ctx, creator)
+	denoms, _, _ := tfKeeper.GetDenomsFromCreator(ctx, creator, nil)
 	if len(denoms) == 0 {
 		return "", false
 	}
