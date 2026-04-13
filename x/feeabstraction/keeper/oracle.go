@@ -40,7 +40,14 @@ func (k Keeper) CalculateFeeTokenPrices(ctx sdk.Context) error {
 		// Disable fee abstraction if there is no pricing
 		k.Logger(ctx).Debug("%s has no price, feeabstraction disabled", params.NativeOracleDenom)
 		params.Enabled = false
-		return k.Params.Set(ctx, params)
+		if err := k.Params.Set(ctx, params); err != nil {
+			return err
+		}
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			types.TypeEventModuleDisabled,
+			sdk.NewAttribute(types.TypeAttributeOracleDenom, params.NativeOracleDenom),
+		))
+		return nil
 	}
 
 	// Iterate all the tokens
@@ -94,6 +101,10 @@ func (k Keeper) calculatePriceTokens(
 			token.Enabled = false
 			token.Price = math.LegacyZeroDec()
 			updateTokens = append(updateTokens, token)
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.TypeEventTokenDisabled,
+				sdk.NewAttribute(types.TypeAttributeDenom, token.Denom),
+			))
 			continue
 		}
 

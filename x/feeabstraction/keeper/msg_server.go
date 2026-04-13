@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"strconv"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -81,6 +82,10 @@ func (ms MsgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams
 		return nil, err
 	}
 
+	sdkCtx.EventManager().EmitEvent(sdk.NewEvent(
+		types.TypeEventUpdateParams,
+	))
+
 	// Return the response
 	return &types.MsgUpdateParamsResponse{}, nil
 }
@@ -136,6 +141,11 @@ func (ms MsgServer) UpdateFeeTokens(ctx context.Context, msg *types.MsgUpdateFee
 	if err := ms.FeeTokens.Set(ctx, *resetFeeTokens); err != nil {
 		return nil, sdkerrors.ErrInvalidRequest.Wrapf("failed to update fee tokens: %s", err)
 	}
+
+	sdkCtx.EventManager().EmitEvent(sdk.NewEvent(
+		types.TypeEventUpdateFeeTokens,
+		sdk.NewAttribute(types.TypeAttributeTokenCount, strconv.Itoa(len(msg.Tokens.Items))),
+	))
 
 	// Return the response
 	return &types.MsgUpdateFeeTokensResponse{}, nil

@@ -15,6 +15,15 @@ var (
 	TypeAttributeOriginalFeeAmount = "original_fee"
 	TypeAttributeConvertedFee      = "converted_fee"
 	TypeAttributePrice             = "price"
+
+	TypeEventUpdateParams    = "update_params"
+	TypeEventUpdateFeeTokens = "update_fee_tokens"
+	TypeEventModuleDisabled  = "module_disabled"
+	TypeEventTokenDisabled   = "token_disabled"
+
+	TypeAttributeTokenCount  = "token_count"
+	TypeAttributeOracleDenom = "oracle_denom"
+	TypeAttributeDenom       = "denom"
 )
 
 // NewMessageUpdateParams creates a new MsgUpdateParams instance
