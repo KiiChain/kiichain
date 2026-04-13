@@ -135,7 +135,10 @@ func (qp QueryPlugin) GetTokenfactoryDenomsByCreator(ctx context.Context, creato
 	if _, err := sdk.AccAddressFromBech32(creator); err != nil {
 		return nil, errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address %q: %v", creator, err)
 	}
-	denoms := qp.tokenFactoryKeeper.GetDenomsFromCreator(sdk.UnwrapSDKContext(ctx), creator)
+	denoms, _, err := qp.tokenFactoryKeeper.GetDenomsFromCreator(sdk.UnwrapSDKContext(ctx), creator, nil)
+	if err != nil {
+		return nil, err
+	}
 	return &tfbindingtypes.DenomsByCreatorResponse{Denoms: denoms}, nil
 }
 

@@ -30,15 +30,18 @@ func (k Keeper) DenomAuthorityMetadata(ctx context.Context, req *types.QueryDeno
 
 func (k Keeper) DenomsFromCreator(ctx context.Context, req *types.QueryDenomsFromCreatorRequest) (*types.QueryDenomsFromCreatorResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	denoms := k.GetDenomsFromCreator(sdkCtx, req.GetCreator())
-	return &types.QueryDenomsFromCreatorResponse{Denoms: denoms}, nil
+	denoms, pageRes, err := k.GetDenomsFromCreator(sdkCtx, req.GetCreator(), req.GetPagination())
+	if err != nil {
+		return nil, err
+	}
+	return &types.QueryDenomsFromCreatorResponse{Denoms: denoms, Pagination: pageRes}, nil
 }
 
 func (k Keeper) DenomsFromAdmin(ctx context.Context, req *types.QueryDenomsFromAdminRequest) (*types.QueryDenomsFromAdminResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	denoms, err := k.GetDenomsFromAdmin(sdkCtx, req.GetAdmin())
+	denoms, pageRes, err := k.GetDenomsFromAdmin(sdkCtx, req.GetAdmin(), req.GetPagination())
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryDenomsFromAdminResponse{Denoms: denoms}, nil
+	return &types.QueryDenomsFromAdminResponse{Denoms: denoms, Pagination: pageRes}, nil
 }
