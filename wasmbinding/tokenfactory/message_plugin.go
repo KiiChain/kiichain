@@ -283,6 +283,12 @@ func PerformSetMetadata(f *tokenfactorykeeper.Keeper, b bankkeeper.Keeper, ctx s
 	}
 
 	b.SetDenomMetaData(ctx, bankMetadata)
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		tokenfactorytypes.TypeMsgSetDenomMetadata,
+		sdk.NewAttribute(tokenfactorytypes.AttributeDenom, denom),
+	))
+
 	return nil
 }
 
