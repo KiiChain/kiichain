@@ -19,6 +19,8 @@
 - Ensure feeTokenMetadata initial prices after updateFeeTokenMetadata is picked up from oracle
 - Use `DecCoins.Validate()` on `RewardPool.ValidateGenesis` to catch malformed denom formats, duplicate denoms, bad ordering
 - Enforce denom consistency in `GenesisState.Validate` with `Params.TokenDenom`
+- Limited tokenfactory queries, removing denial of service possibility
+- Indexed admins to reduce query space on tokenfactory denom queries
 
 ### Removed
 
