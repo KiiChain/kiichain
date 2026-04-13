@@ -29,6 +29,7 @@ import (
 	"github.com/kiichain/kiichain/v7/x/tokenfactory/client/cli"
 	"github.com/kiichain/kiichain/v7/x/tokenfactory/exported"
 	"github.com/kiichain/kiichain/v7/x/tokenfactory/keeper"
+	v2 "github.com/kiichain/kiichain/v7/x/tokenfactory/migrations/v2"
 	simulation "github.com/kiichain/kiichain/v7/x/tokenfactory/simulation"
 	"github.com/kiichain/kiichain/v7/x/tokenfactory/types"
 )
@@ -39,7 +40,7 @@ var (
 )
 
 // ConsensusVersion defines the current x/tokenfactory module consensus version.
-const ConsensusVersion = 1
+const ConsensusVersion = 2
 
 // ----------------------------------------------------------------------------
 // AppModuleBasic
@@ -151,6 +152,14 @@ func (AppModule) QuerierRoute() string { return types.QuerierRoute }
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+
+	// Register the migration from consensus version 1 to 2, which backfills the
+	// secondary admin index introduced in this version.
+	if err := cfg.RegisterMigration(types.ModuleName, 1, func(ctx sdk.Context) error {
+		return v2.MigrateStore(ctx, am.keeper)
+	}); err != nil {
+		panic(err)
+	}
 }
 
 // InitGenesis performs the x/tokenfactory module's genesis initialization. It
