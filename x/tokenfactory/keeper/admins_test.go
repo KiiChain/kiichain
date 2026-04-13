@@ -598,7 +598,7 @@ func (suite *KeeperTestSuite) TestDenomsFromAdminPagination() {
 		suite.Require().NoError(err)
 	}
 
-	// Nil pagination returns all denoms (default behaviour).
+	// Nil pagination defaults to MaxPageSize limit.
 	res, err := suite.queryClient.DenomsFromAdmin(suite.Ctx.Context(), &types.QueryDenomsFromAdminRequest{
 		Admin: suite.TestAccs[0].String(),
 	})
@@ -634,7 +634,7 @@ func (suite *KeeperTestSuite) TestDenomsFromCreatorPagination() {
 		suite.Require().NoError(err)
 	}
 
-	// Nil pagination returns all denoms.
+	// Nil pagination defaults to MaxPageSize limit.
 	res, err := suite.queryClient.DenomsFromCreator(suite.Ctx.Context(), &types.QueryDenomsFromCreatorRequest{
 		Creator: suite.TestAccs[0].String(),
 	})

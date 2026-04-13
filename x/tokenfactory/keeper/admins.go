@@ -83,7 +83,9 @@ func (k Keeper) setAdmin(ctx context.Context, metadata types.DenomAuthorityMetad
 // GetDenomsFromAdmin returns a paginated list of denoms the given admin.
 // It has maximum of types.MaxPageSize entries per request
 func (k Keeper) GetDenomsFromAdmin(ctx context.Context, admin string, req *query.PageRequest) ([]string, *query.PageResponse, error) {
-	if req != nil && req.Limit > types.MaxPageSize {
+	if req == nil {
+		req = &query.PageRequest{Limit: types.MaxPageSize}
+	} else if req.Limit > types.MaxPageSize {
 		return nil, nil, errors.Wrapf(sdkerrors.ErrInvalidRequest,
 			"page size %d exceeds maximum allowed %d", req.Limit, types.MaxPageSize)
 	}
