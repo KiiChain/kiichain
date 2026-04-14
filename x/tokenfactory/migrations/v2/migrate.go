@@ -12,6 +12,9 @@ import (
 // MigrateStore iterates every tokenfactory denom, reads its authority metadata,
 // and writes the corresponding entry into the admin secondary index
 func MigrateStore(ctx sdk.Context, k keeper.Keeper) error {
+	logger := ctx.Logger().With("module", "tokenfactory", "migration", "v2")
+	logger.Info("starting admin index backfill migration")
+
 	iterator := k.GetAllDenomsIterator(ctx)
 	defer iterator.Close()
 
@@ -26,5 +29,6 @@ func MigrateStore(ctx sdk.Context, k keeper.Keeper) error {
 		k.AddDenomFromAdmin(ctx, metadata.Admin, denom)
 	}
 
+	logger.Info("admin index backfill migration complete")
 	return nil
 }
