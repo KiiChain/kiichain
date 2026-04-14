@@ -98,3 +98,9 @@ func (k Keeper) GetCreatorsPrefixStore(ctx sdk.Context) store.KVStore {
 	store := ctx.KVStore(k.storeKey)
 	return prefix.NewStore(store, types.GetCreatorsPrefix())
 }
+
+// GetAdminPrefixStore returns the substore for a specific admin address
+func (k Keeper) GetAdminPrefixStore(ctx sdk.Context, admin string) store.KVStore {
+	store := ctx.KVStore(k.storeKey)
+	return prefix.NewStore(store, types.GetAdminPrefix(admin))
+}

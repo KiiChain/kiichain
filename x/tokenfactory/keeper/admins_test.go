@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/kiichain/kiichain/v7/x/tokenfactory/types"
@@ -583,4 +584,77 @@ func (suite *KeeperTestSuite) TestSetDenomMetaData() {
 			}
 		})
 	}
+}
+
+// TestDenomsFromAdminPagination verifies that DenomsFromAdmin pagination works
+// correctly and that requests exceeding MaxPageSize are rejected.
+func (suite *KeeperTestSuite) TestDenomsFromAdminPagination() {
+	suite.SetupTest()
+
+	// Create 3 denoms for TestAccs[0] to use as paging targets.
+	subdenoms := []string{"aaa", "bbb", "ccc"}
+	for _, sub := range subdenoms {
+		_, err := suite.msgServer.CreateDenom(suite.Ctx, types.NewMsgCreateDenom(suite.TestAccs[0].String(), sub))
+		suite.Require().NoError(err)
+	}
+
+	// Nil pagination defaults to MaxPageSize limit.
+	res, err := suite.queryClient.DenomsFromAdmin(suite.Ctx.Context(), &types.QueryDenomsFromAdminRequest{
+		Admin: suite.TestAccs[0].String(),
+	})
+	suite.Require().NoError(err)
+	suite.Require().Len(res.Denoms, 3)
+
+	// Limit=2 returns exactly 2 denoms with a non-nil next key.
+	res, err = suite.queryClient.DenomsFromAdmin(suite.Ctx.Context(), &types.QueryDenomsFromAdminRequest{
+		Admin:      suite.TestAccs[0].String(),
+		Pagination: &query.PageRequest{Limit: 2},
+	})
+	suite.Require().NoError(err)
+	suite.Require().Len(res.Denoms, 2)
+	suite.Require().NotNil(res.Pagination)
+	suite.Require().NotEmpty(res.Pagination.NextKey)
+
+	// A request with Limit > MaxPageSize must be rejected.
+	_, err = suite.queryClient.DenomsFromAdmin(suite.Ctx.Context(), &types.QueryDenomsFromAdminRequest{
+		Admin:      suite.TestAccs[0].String(),
+		Pagination: &query.PageRequest{Limit: types.MaxPageSize + 1},
+	})
+	suite.Require().Error(err)
+}
+
+// TestDenomsFromCreatorPagination verifies that DenomsFromCreator pagination works
+// correctly and that requests exceeding MaxPageSize are rejected.
+func (suite *KeeperTestSuite) TestDenomsFromCreatorPagination() {
+	suite.SetupTest()
+
+	subdenoms := []string{"aaa", "bbb", "ccc"}
+	for _, sub := range subdenoms {
+		_, err := suite.msgServer.CreateDenom(suite.Ctx, types.NewMsgCreateDenom(suite.TestAccs[0].String(), sub))
+		suite.Require().NoError(err)
+	}
+
+	// Nil pagination defaults to MaxPageSize limit.
+	res, err := suite.queryClient.DenomsFromCreator(suite.Ctx.Context(), &types.QueryDenomsFromCreatorRequest{
+		Creator: suite.TestAccs[0].String(),
+	})
+	suite.Require().NoError(err)
+	suite.Require().Len(res.Denoms, 3)
+
+	// Limit=1 returns exactly 1 denom.
+	res, err = suite.queryClient.DenomsFromCreator(suite.Ctx.Context(), &types.QueryDenomsFromCreatorRequest{
+		Creator:    suite.TestAccs[0].String(),
+		Pagination: &query.PageRequest{Limit: 1},
+	})
+	suite.Require().NoError(err)
+	suite.Require().Len(res.Denoms, 1)
+	suite.Require().NotNil(res.Pagination)
+	suite.Require().NotEmpty(res.Pagination.NextKey)
+
+	// A request with Limit > MaxPageSize must be rejected.
+	_, err = suite.queryClient.DenomsFromCreator(suite.Ctx.Context(), &types.QueryDenomsFromCreatorRequest{
+		Creator:    suite.TestAccs[0].String(),
+		Pagination: &query.PageRequest{Limit: types.MaxPageSize + 1},
+	})
+	suite.Require().Error(err)
 }

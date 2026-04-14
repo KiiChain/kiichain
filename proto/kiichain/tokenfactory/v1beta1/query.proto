@@ -70,22 +70,26 @@ message QueryDenomAuthorityMetadataResponse {
 // DenomsFromCreator gRPC query.
 message QueryDenomsFromCreatorRequest {
   string creator = 1 [ (gogoproto.moretags) = "yaml:\"creator\"" ];
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-// QueryDenomsFromCreatorRequest defines the response structure for the
+// QueryDenomsFromCreatorResponse defines the response structure for the
 // DenomsFromCreator gRPC query.
 message QueryDenomsFromCreatorResponse {
   repeated string denoms = 1 [ (gogoproto.moretags) = "yaml:\"denoms\"" ];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryDenomsFromAdminRequest defines the request structure for the
 // DenomsFromAdmin gRPC query.
 message QueryDenomsFromAdminRequest {
   string admin = 1 [ (gogoproto.moretags) = "yaml:\"admin\"" ];
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-// QueryDenomsFromAdminRequest defines the response structure for the
+// QueryDenomsFromAdminResponse defines the response structure for the
 // DenomsFromAdmin gRPC query.
 message QueryDenomsFromAdminResponse {
   repeated string denoms = 1 [ (gogoproto.moretags) = "yaml:\"denoms\"" ];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

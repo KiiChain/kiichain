@@ -101,8 +101,14 @@ func GetCmdDenomsFromCreator() *cobra.Command {
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
 			res, err := queryClient.DenomsFromCreator(cmd.Context(), &types.QueryDenomsFromCreatorRequest{
-				Creator: args[0],
+				Creator:    args[0],
+				Pagination: pageReq,
 			})
 			if err != nil {
 				return err
@@ -113,6 +119,7 @@ func GetCmdDenomsFromCreator() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "denoms-from-creator")
 
 	return cmd
 }
@@ -129,8 +136,14 @@ func GetCmdDenomsFromAdmin() *cobra.Command {
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
 			res, err := queryClient.DenomsFromAdmin(cmd.Context(), &types.QueryDenomsFromAdminRequest{
-				Admin: args[0],
+				Admin:      args[0],
+				Pagination: pageReq,
 			})
 			if err != nil {
 				return err
@@ -141,6 +154,7 @@ func GetCmdDenomsFromAdmin() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "denoms-from-admin")
 
 	return cmd
 }

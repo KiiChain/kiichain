@@ -24,7 +24,12 @@ const (
 )
 
 // KeySeparator is used to combine parts of the keys in the store
-const KeySeparator = "|"
+const (
+	KeySeparator = "|"
+
+	// MaxPageSize is the hard upper bound for paginated tokenfactory queries.
+	MaxPageSize = uint64(100)
+)
 
 var (
 	DenomAuthorityMetadataKey = "authoritymetadata"
@@ -48,4 +53,10 @@ func GetCreatorPrefix(creator string) []byte {
 // GetCreatorsPrefix returns the store prefix where a list of all creator addresses are stored
 func GetCreatorsPrefix() []byte {
 	return []byte(strings.Join([]string{CreatorPrefixKey, ""}, KeySeparator))
+}
+
+// GetAdminPrefix returns the store prefix where the list of denoms administered by a specific
+// admin are stored
+func GetAdminPrefix(admin string) []byte {
+	return []byte(strings.Join([]string{AdminPrefixKey, admin, ""}, KeySeparator))
 }
