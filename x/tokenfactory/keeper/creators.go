@@ -21,15 +21,18 @@ func (k Keeper) addDenomFromCreator(ctx context.Context, creator, denom string) 
 // GetDenomsFromCreator returns a paginated list of denoms created by the given
 // creator address. It has a maximum of types.MaxPageSize entries
 func (k Keeper) GetDenomsFromCreator(ctx context.Context, creator string, req *query.PageRequest) ([]string, *query.PageResponse, error) {
+	// Use max request size if none provided
 	if req == nil {
 		req = &query.PageRequest{Limit: types.MaxPageSize}
 	} else if req.Limit > types.MaxPageSize {
+		// If provided request size is above limit, return error
 		return nil, nil, errors.Wrapf(sdkerrors.ErrInvalidRequest,
 			"page size %d exceeds maximum allowed %d", req.Limit, types.MaxPageSize)
 	}
 
 	store := k.GetCreatorPrefixStore(sdk.UnwrapSDKContext(ctx), creator)
 
+	// Append denoms from creator until pagination limit
 	var denoms []string
 	pageRes, err := query.Paginate(store, req, func(key, _ []byte) error {
 		denoms = append(denoms, string(key))
