@@ -271,7 +271,16 @@ func PerformSetMetadata(f *tokenfactorykeeper.Keeper, ctx sdk.Context, contractA
 
 	msgServer := tokenfactorykeeper.NewMsgServerImpl(*f)
 	_, err := msgServer.SetDenomMetadata(ctx, tokenfactorytypes.NewMsgSetDenomMetadata(contractAddr.String(), bankMetadata))
-	return err
+	if err != nil {
+		return err
+	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		tokenfactorytypes.TypeMsgSetDenomMetadata,
+		sdk.NewAttribute(tokenfactorytypes.AttributeDenom, denom),
+	))
+
+	return nil
 }
 
 // GetFullDenom is a function, not method, so the message_plugin can use it

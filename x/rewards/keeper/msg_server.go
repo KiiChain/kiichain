@@ -36,6 +36,10 @@ func (k msgServer) UpdateParams(ctx context.Context, msg *types.MsgUpdateParams)
 		return nil, err
 	}
 
+	sdk.UnwrapSDKContext(ctx).EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeUpdateParams,
+	))
+
 	return &types.MsgUpdateParamsResponse{}, nil
 }
 
@@ -61,6 +65,12 @@ func (k msgServer) FundPool(ctx context.Context, msg *types.MsgFundPool) (*types
 	if err := k.FundCommunityPool(ctx, msg.Amount, depositor); err != nil {
 		return nil, err
 	}
+
+	sdk.UnwrapSDKContext(ctx).EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeFundPool,
+		sdk.NewAttribute(types.AttributeKeySender, msg.Sender),
+		sdk.NewAttribute(types.AttributeKeyAmount, msg.Amount.String()),
+	))
 
 	return &types.MsgFundPoolResponse{}, nil
 }
@@ -90,6 +100,11 @@ func (k msgServer) ChangeSchedule(ctx context.Context, msg *types.MsgChangeSched
 	if err := k.ReleaseSchedule.Set(sdkCtx, schedule); err != nil {
 		return nil, fmt.Errorf("failed to set release schedule: %w", err)
 	}
+
+	sdkCtx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeChangeSchedule,
+		sdk.NewAttribute(types.AttributeKeyTotalAmount, schedule.TotalAmount.String()),
+	))
 
 	return &types.MsgChangeScheduleResponse{}, nil
 }

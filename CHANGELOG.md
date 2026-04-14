@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Added
+
+- Emit `update_params`, `fund_pool`, `change_schedule`, and `reward_distributed` events from x/rewards
+- Emit `update_params` and `set_denom_metadata` events from tokenfactory
+- Emit `update_params`, `update_fee_tokens`, `module_disabled` and `token_disabled` events on fee abstraction
+- Emit `update_params` event on oracle module
+
 ### Fixed
 
 - Refactor `PerformSetMetadata` in wasmbinding to delegate to `msgServer.SetDenomMetadata`, ensuring the `EnableSetMetadata` capability check is enforced

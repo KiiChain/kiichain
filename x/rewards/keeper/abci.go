@@ -93,6 +93,12 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 		return err
 	}
 
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeRewardDistributed,
+		sdk.NewAttribute(types.AttributeKeyAmount, amountToDistribute.String()),
+		sdk.NewAttribute(types.AttributeKeyTotalReleased, schedule.ReleasedAmount.String()),
+	))
+
 	k.WriteRewardMetrics(ctx, amountToDistribute, schedule.ReleasedAmount)
 
 	return nil

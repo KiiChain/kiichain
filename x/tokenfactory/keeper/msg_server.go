@@ -226,5 +226,9 @@ func (server msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdate
 		return nil, err
 	}
 
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.TypeMsgUpdateParams,
+	))
+
 	return &types.MsgUpdateParamsResponse{}, nil
 }
