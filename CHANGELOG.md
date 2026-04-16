@@ -29,6 +29,7 @@
 - Enforce denom consistency in `GenesisState.Validate` with `Params.TokenDenom`
 - Limited tokenfactory queries, removing denial of service possibility
 - Indexed admins to reduce query space on tokenfactory denom queries
+- Fix native token supply inflation from the stateful precompiles by wrapping the account address codec (`evmAddressCodec`) to reject non-20-byte accounts (e.g. a 32-byte bech32 withdraw, module, or CosmWasm contract address) at decode time, preventing such addresses from being truncated and minted a duplicate balance when mirrored into the EVM StateDB
 
 ### Removed
 

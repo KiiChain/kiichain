@@ -53,10 +53,36 @@ type Optionals struct {
 // defaultOptionals returns the default coded optionals
 func defaultOptionals() Optionals {
 	return Optionals{
-		AddressCodec:       addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
+		AddressCodec:       evmAddressCodec{addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix())},
 		ValidatorAddrCodec: addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		ConsensusAddrCodec: addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
 	}
+}
+
+// evmAddressCodec wraps an account address codec and enforces that any decoded address is exactly
+// 20 bytes (a valid EVM account).
+//
+// The stateful EVM precompiles accept an account address (e.g. the distribution withdraw address)
+// and mirror the resulting bank transfer into the EVM StateDB via common.BytesToAddress, which is
+// keyed by a 20-byte address. A longer account (e.g. a 32-byte bech32 account) would be silently
+// truncated to its trailing 20 bytes during mirroring, causing the StateDB commit to mint a
+// duplicate balance to that trailing-20-byte account and inflate native supply. Rejecting any
+// non-20-byte address at decode time prevents such addresses from ever entering a mirrored flow.
+type evmAddressCodec struct {
+	address.Codec
+}
+
+// StringToBytes decodes the address with the wrapped codec and rejects any result that is not
+// exactly 20 bytes, so only EVM-compatible accounts reach the balance-mirroring precompiles.
+func (c evmAddressCodec) StringToBytes(text string) ([]byte, error) {
+	bz, err := c.Codec.StringToBytes(text)
+	if err != nil {
+		return nil, err
+	}
+	if len(bz) != common.AddressLength {
+		return nil, fmt.Errorf("invalid address %q: precompiles only accept 20-byte EVM accounts, got %d bytes", text, len(bz))
+	}
+	return bz, nil
 }
 
 // Option returns a funcion for the corresponding needed coded
