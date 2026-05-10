@@ -759,3 +759,22 @@ func TestAddPriceSnapshotMergesDuplicateTimestamp(t *testing.T) {
 	require.Equal(t, utils.EthDenom, stored.PriceSnapshotItems[0].Denom)
 	require.Equal(t, utils.KiiDenom, stored.PriceSnapshotItems[1].Denom)
 }
+
+func TestAddPriceSnapshotRejectsFutureTimestamp(t *testing.T) {
+	init := CreateTestInput(t)
+	oracleKeeper := init.OracleKeeper
+	ctx := init.Ctx.WithBlockTime(time.Unix(1000, 0))
+
+	snapshot := types.NewPriceSnapshot(1001, types.PriceSnapshotItems{
+		types.NewPriceSnapshotItem(utils.KiiDenom, types.OracleExchangeRate{ExchangeRate: math.LegacyNewDec(1)}),
+	})
+
+	err := oracleKeeper.AddPriceSnapshot(ctx, snapshot)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "future")
+
+	stored, err := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1001)
+	require.NoError(t, err)
+	require.Empty(t, stored.PriceSnapshotItems)
+}
+
