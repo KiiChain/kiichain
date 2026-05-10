@@ -295,6 +295,30 @@ func (k Keeper) GetPriceSnapshotOrDefault(ctx sdk.Context, timestamp int64) (typ
 	return priceSnapshot, nil
 }
 
+// mergePriceSnapshotItems combines two snapshot item sets and keeps the latest
+// value for each denom.
+func mergePriceSnapshotItems(existing, incoming types.PriceSnapshotItems) types.PriceSnapshotItems {
+	merged := make(map[string]types.PriceSnapshotItem, len(existing)+len(incoming))
+	for _, item := range existing {
+		merged[item.Denom] = item
+	}
+	for _, item := range incoming {
+		merged[item.Denom] = item
+	}
+
+	denoms := make([]string, 0, len(merged))
+	for denom := range merged {
+		denoms = append(denoms, denom)
+	}
+	sort.Strings(denoms)
+
+	items := make(types.PriceSnapshotItems, 0, len(denoms))
+	for _, denom := range denoms {
+		items = append(items, merged[denom])
+	}
+	return items
+}
+
 // AddPriceSnapshot stores the snapshot on the KVStore and deletes snapshots older than the lookBackDuration
 // defined on the params
 func (k Keeper) AddPriceSnapshot(ctx sdk.Context, snapshot types.PriceSnapshot) error {
@@ -304,6 +328,21 @@ func (k Keeper) AddPriceSnapshot(ctx sdk.Context, snapshot types.PriceSnapshot) 
 		return err
 	}
 	lookBackDuration := params.LookbackDuration
+	currentTime := ctx.BlockTime().Unix()
+
+	// Reject future-dated snapshots before mutating state.
+	if snapshot.SnapshotTimestamp > currentTime {
+		return fmt.Errorf("snapshot timestamp %d is in the future", snapshot.SnapshotTimestamp)
+	}
+
+	// Merge with the current snapshot if we already stored one for the same timestamp.
+	existingSnapshot, err := k.PriceSnapshot.Get(ctx, snapshot.SnapshotTimestamp)
+	if err != nil && !errors.Is(err, collections.ErrNotFound) {
+		return err
+	}
+	if err == nil {
+		snapshot.PriceSnapshotItems = mergePriceSnapshotItems(existingSnapshot.PriceSnapshotItems, snapshot.PriceSnapshotItems)
+	}
 
 	// Add snapshot on the KVStore
 	err = k.PriceSnapshot.Set(ctx, snapshot.SnapshotTimestamp, snapshot)
@@ -311,24 +350,27 @@ func (k Keeper) AddPriceSnapshot(ctx sdk.Context, snapshot types.PriceSnapshot) 
 		return err
 	}
 
-	// Delete the snapshot that it's timestamps is older that the LookbackDuration
+	// Delete snapshots that are older than the lookback duration.
 	var timestampsToDelete []int64
 
 	err = k.PriceSnapshot.Walk(ctx, nil, func(_ int64, snapshot types.PriceSnapshot) (bool, error) {
-		// If the snapshot is too old, mark it for deletion
-		if snapshot.SnapshotTimestamp+int64(lookBackDuration) < ctx.BlockTime().Unix() {
+		// If the snapshot is too old, mark it for deletion.
+		if snapshot.SnapshotTimestamp > currentTime {
+			return false, fmt.Errorf("snapshot timestamp %d is in the future", snapshot.SnapshotTimestamp)
+		}
+		if currentTime-snapshot.SnapshotTimestamp > int64(lookBackDuration) {
 			timestampsToDelete = append(timestampsToDelete, snapshot.SnapshotTimestamp)
 			return false, nil // Continue iteration
 		}
 
-		// If a valid snapshot is found, stop iterating
-		return true, nil
+		// Continue checking the remaining snapshots so future-dated entries cannot hide later in the walk.
+		return false, nil
 	})
 	if err != nil {
 		return err
 	}
 
-	// Delete all marked old snapshots
+	// Delete all marked old snapshots.
 	for _, timeToDelete := range timestampsToDelete {
 		err = k.PriceSnapshot.Remove(ctx, timeToDelete)
 		if err != nil {
@@ -501,3 +543,4 @@ func (k Keeper) ValidateLookBackSeconds(ctx sdk.Context, lookBackSeconds uint64)
 	}
 	return nil
 }
+

@@ -737,3 +737,44 @@ func TestRemoveExcessFeedsWithError(t *testing.T) {
 	_, err = oracleKeeper.ExchangeRate.Get(ctx, utils.AtomDenom)
 	require.NoError(t, err)
 }
+
+func TestAddPriceSnapshotMergesDuplicateTimestamp(t *testing.T) {
+	init := CreateTestInput(t)
+	oracleKeeper := init.OracleKeeper
+	ctx := init.Ctx.WithBlockTime(time.Unix(3500, 0))
+
+	snapshot1 := types.NewPriceSnapshot(1000, types.PriceSnapshotItems{
+		types.NewPriceSnapshotItem(utils.KiiDenom, types.OracleExchangeRate{ExchangeRate: math.LegacyNewDec(1)}),
+	})
+	snapshot2 := types.NewPriceSnapshot(1000, types.PriceSnapshotItems{
+		types.NewPriceSnapshotItem(utils.EthDenom, types.OracleExchangeRate{ExchangeRate: math.LegacyNewDec(2)}),
+	})
+
+	require.NoError(t, oracleKeeper.AddPriceSnapshot(ctx, snapshot1))
+	require.NoError(t, oracleKeeper.AddPriceSnapshot(ctx, snapshot2))
+
+	stored, err := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1000)
+	require.NoError(t, err)
+	require.Len(t, stored.PriceSnapshotItems, 2)
+	require.Equal(t, utils.EthDenom, stored.PriceSnapshotItems[0].Denom)
+	require.Equal(t, utils.KiiDenom, stored.PriceSnapshotItems[1].Denom)
+}
+
+func TestAddPriceSnapshotRejectsFutureTimestamp(t *testing.T) {
+	init := CreateTestInput(t)
+	oracleKeeper := init.OracleKeeper
+	ctx := init.Ctx.WithBlockTime(time.Unix(1000, 0))
+
+	snapshot := types.NewPriceSnapshot(1001, types.PriceSnapshotItems{
+		types.NewPriceSnapshotItem(utils.KiiDenom, types.OracleExchangeRate{ExchangeRate: math.LegacyNewDec(1)}),
+	})
+
+	err := oracleKeeper.AddPriceSnapshot(ctx, snapshot)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "future")
+
+	stored, err := oracleKeeper.GetPriceSnapshotOrDefault(ctx, 1001)
+	require.NoError(t, err)
+	require.Empty(t, stored.PriceSnapshotItems)
+}
+

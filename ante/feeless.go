@@ -43,7 +43,7 @@ func (gd FeelessDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 
 	// If feeless, ignore fee deduction
 	if isFeeless {
-		ctx = ctx.WithPriority(math.MaxInt64)
+		ctx = ctx.WithPriority(math.MaxInt64 / 1_000_000)
 		return next(ctx, tx, simulate)
 	}
 
