@@ -8,7 +8,7 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/KiiChain/kiichain)](https://github.com/KiiChain/kiichain/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/KiiChain/kiichain)](https://goreportcard.com/report/github.com/KiiChain/kiichain)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Lines of Code](https://tokei.rs/b1/github/KiiChain/kiichain)](https://github.com/KiiChain/kiichain)
+[![Lines of Code](https://img.shields.io/endpoint?url=https://ghloc.vercel.app/api/KiiChain/kiichain/badge&color=blue)](https://github.com/KiiChain/kiichain)
 [![GitHub Super-Linter](https://github.com/KiiChain/kiichain/workflows/Lint/badge.svg)](https://github.com/marketplace/actions/super-linter)
 [![GoDoc](https://godoc.org/github.com/KiiChain/kiichain?status.svg)](https://pkg.go.dev/github.com/kiichain/kiichain)
 
