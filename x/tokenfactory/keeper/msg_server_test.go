@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -257,6 +258,29 @@ func (suite *KeeperTestSuite) TestSetDenomMetaDataMsg() {
 			suite.AssertEventEmitted(ctx, types.TypeMsgSetDenomMetadata, tc.expectedMessageEvents)
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) TestSetDenomMetaDataOversizedRejected() {
+	suite.SetupTest()
+	suite.CreateDefaultDenom()
+
+	ctx := suite.Ctx.WithEventManager(sdk.NewEventManager())
+
+	oversized := banktypes.Metadata{
+		Description: strings.Repeat("a", types.MaxDenomMetadataSize+1),
+		DenomUnits: []*banktypes.DenomUnit{
+			{Denom: suite.defaultDenom, Exponent: 0},
+			{Denom: "uosmo", Exponent: 6},
+		},
+		Base:    suite.defaultDenom,
+		Display: "uosmo",
+		Name:    "OSMO",
+		Symbol:  "OSMO",
+	}
+
+	_, err := suite.msgServer.SetDenomMetadata(ctx, types.NewMsgSetDenomMetadata(suite.TestAccs[0].String(), oversized))
+	suite.Require().ErrorIs(err, types.ErrMetadataTooLarge)
+	suite.AssertEventEmitted(ctx, types.TypeMsgSetDenomMetadata, 0)
 }
 
 // TestMintToBlockedAddr tests that minting to a blocked address (module account) fails

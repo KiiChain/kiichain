@@ -27,6 +27,7 @@
 - Ensure feeTokenMetadata initial prices after updateFeeTokenMetadata is picked up from oracle
 - Use `DecCoins.Validate()` on `RewardPool.ValidateGenesis` to catch malformed denom formats, duplicate denoms, bad ordering
 - Enforce denom consistency in `GenesisState.Validate` with `Params.TokenDenom`
+- Bound tokenfactory denom metadata size (`MaxDenomMetadataSize`) in `MsgSetDenomMetadata.ValidateBasic` and `msgServer.SetDenomMetadata` to prevent oversized metadata rewrites (including via the CosmWasm binding) from forcing unbounded native store writes that overrun the transaction's declared gas
 - Limited tokenfactory queries, removing denial of service possibility
 - Indexed admins to reduce query space on tokenfactory denom queries
 
