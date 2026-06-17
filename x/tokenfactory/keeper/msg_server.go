@@ -194,6 +194,10 @@ func (server msgServer) SetDenomMetadata(goCtx context.Context, msg *types.MsgSe
 		return nil, err
 	}
 
+	if err := types.ValidateMetadataSize(msg.Metadata); err != nil {
+		return nil, err
+	}
+
 	authorityMetadata, err := server.GetAuthorityMetadata(ctx, msg.Metadata.Base)
 	if err != nil {
 		return nil, err

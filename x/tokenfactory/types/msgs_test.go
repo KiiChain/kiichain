@@ -2,6 +2,7 @@ package types_test
 
 import (
 	fmt "fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -439,6 +440,15 @@ func TestMsgSetDenomMetadata(t *testing.T) {
 				msg := baseMsg
 				msg.Metadata = invalidDenomMetadata
 				return msg
+			},
+			expectPass: false,
+		},
+		{
+			name: "oversized metadata",
+			msg: func() *types.MsgSetDenomMetadata {
+				oversized := denomMetadata
+				oversized.Description = strings.Repeat("a", types.MaxDenomMetadataSize+1)
+				return types.NewMsgSetDenomMetadata(addr1.String(), oversized)
 			},
 			expectPass: false,
 		},

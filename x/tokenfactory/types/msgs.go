@@ -264,6 +264,11 @@ func (m MsgSetDenomMetadata) ValidateBasic() error {
 		return err
 	}
 
+	err = ValidateMetadataSize(m.Metadata)
+	if err != nil {
+		return err
+	}
+
 	_, _, err = DeconstructDenom(m.Metadata.Base)
 	if err != nil {
 		return err
