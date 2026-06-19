@@ -224,7 +224,7 @@ func NewAppKeeper(
 	appKeepers.AuthzKeeper = authzkeeper.NewKeeper(
 		runtime.NewKVStoreService(appKeepers.keys[authzkeeper.StoreKey]),
 		appCodec,
-		bApp.MsgServiceRouter(),
+		newEVMRejectingMessageRouter(bApp.MsgServiceRouter()),
 		appKeepers.AccountKeeper,
 	)
 

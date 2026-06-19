@@ -11,6 +11,7 @@
 
 ### Fixed
 
+- Reject `MsgEthereumTx` from being dispatched through the authz keeper (including when nested inside `authz.MsgExec`), closing an EVM ante bypass on message-router execution paths that skip the ante handler
 - Refactor `PerformSetMetadata` in wasmbinding to delegate to `msgServer.SetDenomMetadata`, ensuring the `EnableSetMetadata` capability check is enforced
 - Ensure that `UpdateTokenMetadata.Decimals` matches the ERC20 or bank records
 - Fixed odd validation on tokenfactory change admin that blocked removing admin from the token
