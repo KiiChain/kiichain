@@ -72,6 +72,16 @@ func (g GovVoteDecorator) ValidateVoteMsgs(ctx sdk.Context, msgs []sdk.Msg) erro
 			if err != nil {
 				return err
 			}
+		case *govv1beta1.MsgVoteWeighted:
+			accAddr, err = sdk.AccAddressFromBech32(msg.Voter)
+			if err != nil {
+				return err
+			}
+		case *govv1.MsgVoteWeighted:
+			accAddr, err = sdk.AccAddressFromBech32(msg.Voter)
+			if err != nil {
+				return err
+			}
 		default:
 			// not a vote message - nothing to validate
 			return nil
@@ -114,11 +124,18 @@ func (g GovVoteDecorator) ValidateVoteMsgs(ctx sdk.Context, msgs []sdk.Msg) erro
 		return nil
 	}
 
-	validAuthz := func(execMsg *authz.MsgExec) error {
+	var validAuthz func(execMsg *authz.MsgExec) error
+	validAuthz = func(execMsg *authz.MsgExec) error {
 		for _, v := range execMsg.Msgs {
 			var innerMsg sdk.Msg
 			if err := g.cdc.UnpackAny(v, &innerMsg); err != nil {
 				return errorsmod.Wrap(xerrors.ErrUnauthorized, "cannot unmarshal authz exec msgs")
+			}
+			if nestedExec, ok := innerMsg.(*authz.MsgExec); ok {
+				if err := validAuthz(nestedExec); err != nil {
+					return err
+				}
+				continue
 			}
 			if err := validMsg(innerMsg); err != nil {
 				return err
