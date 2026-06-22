@@ -107,20 +107,12 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 	// if feegranter set deduct fee from feegranter account.
 	// this works with only when feegrant enabled.
 	if feeGranter != nil {
-		feeGranterAddr := sdk.AccAddress(feeGranter)
-
-		// If feegranter is set, we need to check if the feegrant module is enabled
 		if dfd.feegrantKeeper == nil {
 			return sdkerrors.ErrInvalidRequest.Wrap("fee grants are not enabled")
-		} else if !bytes.Equal(feeGranterAddr, feePayer) {
-			err := dfd.feegrantKeeper.UseGrantedFees(ctx, feeGranterAddr, feePayer, fee, sdkTx.GetMsgs())
-			if err != nil {
-				return errorsmod.Wrapf(err, "%s does not allow to pay fees for %s", feeGranter, feePayer)
-			}
 		}
 
 		// If feegranter is set, we deduct the fees from the feegranter account
-		deductFeesFrom = feeGranterAddr
+		deductFeesFrom = sdk.AccAddress(feeGranter)
 	}
 
 	// Get the account of the fee payer
@@ -129,22 +121,31 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		return sdkerrors.ErrUnknownAddress.Wrapf("fee payer address: %s does not exist", deductFeesFrom)
 	}
 
-	// Deduct the fees
+	// Apply the fee conversion from the fee abstraction module against the
+	// account that will actually pay, so the feegrant is validated and consumed
+	// using the same coins that are later deducted
 	var convertedFee sdk.Coins
 	if !fee.IsZero() {
-		// Apply the fee conversion from the fee abstraction module
-		// This is the only change from the original implementation
 		var err error
 		convertedFee, err = dfd.feeAbstractionKeeper.ConvertNativeFee(ctx, deductFeesFromAcc.GetAddress(), fee)
 		if err != nil {
 			return err
 		}
+	}
 
+	if feeGranter != nil && !bytes.Equal(deductFeesFrom, feePayer) {
+		err := dfd.feegrantKeeper.UseGrantedFees(ctx, deductFeesFrom, feePayer, convertedFee, sdkTx.GetMsgs())
+		if err != nil {
+			return errorsmod.Wrapf(err, "%s does not allow to pay fees for %s", feeGranter, feePayer)
+		}
+	}
+
+	if !convertedFee.IsZero() {
 		// Refresh info, it can't be nil since we checked it exists before
 		deductFeesFromAcc = dfd.accountKeeper.GetAccount(ctx, deductFeesFrom)
 
 		// Deduct the fees from the fee payer account
-		err = ante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, convertedFee)
+		err := ante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, convertedFee)
 		if err != nil {
 			return err
 		}

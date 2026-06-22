@@ -244,11 +244,62 @@ func TestDeductFeeDecorator(t *testing.T) {
 			},
 		},
 		{
-			name:        "fail - unauthorized fee grant",
+			name: "fail - unauthorized fee grant",
+			malleate: func(ctx sdk.Context) {
+				// Fund the granter so fee conversion is a no-op and the missing grant is what fails
+				err := app.BankKeeper.MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)))
+				require.NoError(t, err)
+				err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, feeGranter, sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)))
+				require.NoError(t, err)
+			},
 			feeGranter:  feeGranter,
 			fee:         sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
 			expected:    sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
 			errContains: "fee-grant not found",
+		},
+		{
+			name: "fail - feegrant denom bypass blocked when grant is akii but conversion picks erc20",
+			malleate: func(ctx sdk.Context) {
+				err := app.Erc20Keeper.SetToken(ctx, erc20types.TokenPair{
+					Erc20Address:  MockErc20Address,
+					Denom:         MockErc20Denom,
+					Enabled:       true,
+					ContractOwner: erc20types.OWNER_UNSPECIFIED,
+				})
+				require.NoError(t, err)
+
+				err = app.FeeAbstractionKeeper.FeeTokens.Set(ctx, *types.NewFeeTokenMetadataCollection(
+					types.NewFeeTokenMetadata(
+						MockErc20Denom,
+						MockErc20Denom,
+						18,
+						MockErc20Price,
+					),
+				))
+				require.NoError(t, err)
+
+				// Granter holds only the enabled fee token, no native akii
+				err = app.BankKeeper.MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, DefaultMinFeeValue*10)))
+				require.NoError(t, err)
+				err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, feeGranter, sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, DefaultMinFeeValue*10)))
+				require.NoError(t, err)
+
+				// Grant authorizes native akii only
+				err = app.FeeGrantKeeper.GrantAllowance(ctx, feeGranter, founder, &feegrant.BasicAllowance{
+					SpendLimit: sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
+					Expiration: nil,
+				})
+				require.NoError(t, err)
+			},
+			feeGranter:  feeGranter,
+			fee:         sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
+			expected:    sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, DefaultMinFeeValue*10)),
+			errContains: "does not allow to pay fees",
+			postCheck: func(ctx sdk.Context) {
+				// The granter's enabled fee token must be untouched
+				balance := app.BankKeeper.GetBalance(ctx, feeGranter, MockErc20Denom)
+				require.Equal(t, DefaultMinFeeValue*10, balance.Amount.Int64())
+			},
 		},
 	}
 
