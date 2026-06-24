@@ -31,6 +31,7 @@
 - Limited tokenfactory queries, removing denial of service possibility
 - Indexed admins to reduce query space on tokenfactory denom queries
 - Fix native token supply inflation from the stateful precompiles by wrapping the account address codec (`evmAddressCodec`) to reject non-20-byte accounts (e.g. a 32-byte bech32 withdraw, module, or CosmWasm contract address) at decode time, preventing such addresses from being truncated and minted a duplicate balance when mirrored into the EVM StateDB
+- Close governance vote minimum-stake bypass in `GovVoteDecorator` by enforcing the stake check on `MsgVoteWeighted` (`govv1` and `govv1beta1`) and recursing into nested `authz.MsgExec` messages so wrapped votes can no longer skip the requirement
 
 ### Removed
 
