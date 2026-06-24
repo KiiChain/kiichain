@@ -11,6 +11,7 @@
 
 ### Fixed
 
+- Fix feegrant denomination bypass in the cosmos fee ante handler by converting the fee before consuming the grant, so `UseGrantedFees` is checked against the same coins later deducted (prevents a grantee from forcing the granter to pay in a non-granted fee-abstraction denom)
 - Refactor `PerformSetMetadata` in wasmbinding to delegate to `msgServer.SetDenomMetadata`, ensuring the `EnableSetMetadata` capability check is enforced
 - Ensure that `UpdateTokenMetadata.Decimals` matches the ERC20 or bank records
 - Fixed odd validation on tokenfactory change admin that blocked removing admin from the token
