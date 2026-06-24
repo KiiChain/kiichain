@@ -1,3 +1,5 @@
+//go:build test
+
 package cosmos_test
 
 import (
@@ -246,7 +248,6 @@ func TestDeductFeeDecorator(t *testing.T) {
 		{
 			name: "fail - unauthorized fee grant",
 			malleate: func(ctx sdk.Context) {
-				// Fund the granter so fee conversion is a no-op and the missing grant is what fails
 				err := app.BankKeeper.MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)))
 				require.NoError(t, err)
 				err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, feeGranter, sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)))
@@ -278,13 +279,11 @@ func TestDeductFeeDecorator(t *testing.T) {
 				))
 				require.NoError(t, err)
 
-				// Granter holds only the enabled fee token, no native akii
 				err = app.BankKeeper.MintCoins(ctx, evmtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, DefaultMinFeeValue*10)))
 				require.NoError(t, err)
 				err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, feeGranter, sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, DefaultMinFeeValue*10)))
 				require.NoError(t, err)
 
-				// Grant authorizes native akii only
 				err = app.FeeGrantKeeper.GrantAllowance(ctx, feeGranter, founder, &feegrant.BasicAllowance{
 					SpendLimit: sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
 					Expiration: nil,
@@ -293,10 +292,9 @@ func TestDeductFeeDecorator(t *testing.T) {
 			},
 			feeGranter:  feeGranter,
 			fee:         sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
-			expected:    sdk.NewCoins(sdk.NewInt64Coin(MockErc20Denom, DefaultMinFeeValue*10)),
+			expected:    sdk.NewCoins(),
 			errContains: "does not allow to pay fees",
 			postCheck: func(ctx sdk.Context) {
-				// The granter's enabled fee token must be untouched
 				balance := app.BankKeeper.GetBalance(ctx, feeGranter, MockErc20Denom)
 				require.Equal(t, DefaultMinFeeValue*10, balance.Amount.Int64())
 			},

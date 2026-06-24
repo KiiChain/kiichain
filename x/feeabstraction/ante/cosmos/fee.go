@@ -121,9 +121,6 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 		return sdkerrors.ErrUnknownAddress.Wrapf("fee payer address: %s does not exist", deductFeesFrom)
 	}
 
-	// Apply the fee conversion from the fee abstraction module against the
-	// account that will actually pay, so the feegrant is validated and consumed
-	// using the same coins that are later deducted
 	var convertedFee sdk.Coins
 	if !fee.IsZero() {
 		var err error
@@ -136,7 +133,7 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 	if feeGranter != nil && !bytes.Equal(deductFeesFrom, feePayer) {
 		err := dfd.feegrantKeeper.UseGrantedFees(ctx, deductFeesFrom, feePayer, convertedFee, sdkTx.GetMsgs())
 		if err != nil {
-			return errorsmod.Wrapf(err, "%s does not allow to pay fees for %s", feeGranter, feePayer)
+			return errorsmod.Wrapf(err, "%s does not allow to pay fees for %s", sdk.AccAddress(deductFeesFrom).String(), sdk.AccAddress(feePayer).String())
 		}
 	}
 
