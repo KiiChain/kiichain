@@ -101,17 +101,12 @@ func modifyGenesis(path, moniker, amountStr string, addrAll []sdk.AccAddress, de
 	}
 
 	icaGenesisState.HostGenesisState.Params.AllowMessages = []string{
-		"/cosmos.authz.v1beta1.MsgExec",
-		"/cosmos.authz.v1beta1.MsgGrant",
-		"/cosmos.authz.v1beta1.MsgRevoke",
 		"/cosmos.bank.v1beta1.MsgSend",
 		"/cosmos.bank.v1beta1.MsgMultiSend",
 		"/cosmos.distribution.v1beta1.MsgSetWithdrawAddress",
 		"/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission",
 		"/cosmos.distribution.v1beta1.MsgFundCommunityPool",
 		"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
-		"/cosmos.feegrant.v1beta1.MsgGrantAllowance",
-		"/cosmos.feegrant.v1beta1.MsgRevokeAllowance",
 		"/cosmos.gov.v1beta1.MsgVoteWeighted",
 		"/cosmos.gov.v1beta1.MsgSubmitProposal",
 		"/cosmos.gov.v1beta1.MsgDeposit",
@@ -122,11 +117,6 @@ func modifyGenesis(path, moniker, amountStr string, addrAll []sdk.AccAddress, de
 		"/cosmos.staking.v1beta1.MsgBeginRedelegate",
 		"/cosmos.staking.v1beta1.MsgCreateValidator",
 		"/cosmos.vesting.v1beta1.MsgCreateVestingAccount",
-		"/ibc.applications.transfer.v1.MsgTransfer",
-		"/tendermint.liquidity.v1beta1.MsgCreatePool",
-		"/tendermint.liquidity.v1beta1.MsgSwapWithinBatch",
-		"/tendermint.liquidity.v1beta1.MsgDepositWithinBatch",
-		"/tendermint.liquidity.v1beta1.MsgWithdrawWithinBatch",
 	}
 
 	icaGenesisStateBz, err := cdc.MarshalJSON(&icaGenesisState)

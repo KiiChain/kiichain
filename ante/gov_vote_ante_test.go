@@ -1,3 +1,5 @@
+//go:build test
+
 package ante_test
 
 import (
@@ -26,6 +28,8 @@ func TestVoteSpamDecoratorGovV1Beta1(t *testing.T) {
 	ctx := kiiApp.NewUncachedContext(true, tmproto.Header{})
 	decorator := ante.NewGovVoteDecorator(kiiApp.AppCodec(), kiiApp.StakingKeeper)
 	stakingKeeper := kiiApp.StakingKeeper
+
+	ante.SetMinStakedTokens(math.LegacyNewDec(1000000))
 
 	// Get validator
 	validators, err := stakingKeeper.GetAllValidators(ctx)
@@ -153,6 +157,8 @@ func TestVoteSpamDecoratorGovV1(t *testing.T) {
 	decorator := ante.NewGovVoteDecorator(kiiApp.AppCodec(), kiiApp.StakingKeeper)
 	stakingKeeper := kiiApp.StakingKeeper
 
+	ante.SetMinStakedTokens(math.LegacyNewDec(1000000))
+
 	// Get validator
 	validators, err := stakingKeeper.GetAllValidators(ctx)
 	require.NoError(t, err)
@@ -169,8 +175,8 @@ func TestVoteSpamDecoratorGovV1(t *testing.T) {
 	)
 	require.NoError(t, err)
 	valAddr2, err := stakingKeeper.ValidatorAddressCodec().StringToBytes(validator2.GetOperator())
-	require.NoError(t, err)
 	valAddr2 = sdk.ValAddress(valAddr2)
+	require.NoError(t, err)
 	// Make sure the validator is bonded so it's not removed on Undelegate
 	validator2.Status = stakingtypes.Bonded
 	err = stakingKeeper.SetValidator(ctx, validator2)
