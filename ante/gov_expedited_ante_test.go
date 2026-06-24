@@ -1,3 +1,5 @@
+//go:build test
+
 package ante_test
 
 import (

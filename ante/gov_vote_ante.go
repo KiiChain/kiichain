@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	minStakedTokens       = math.LegacyNewDec(1000000) // 1_000_000 akii (or 1 atom)
-	maxDelegationsChecked = 100                        // number of delegation to check for the minStakedTokens
+	minStakedTokens       = math.LegacyNewDec(1000000000000000000) // 1_000_000_000_000_000_000 akii (1 kii)
+	maxDelegationsChecked = 100                                    // number of delegation to check for the minStakedTokens
 )
 
 // SetMinStakedTokens sets the minimum amount of staked tokens required to vote
