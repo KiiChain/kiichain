@@ -139,7 +139,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	stateDB := statedb.New(ctx, qp.evmKeeper, statedb.NewEmptyTxConfig())
 
 	// Query the decimals
-	callRes, err := qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, nil, "decimals")
+	callRes, err := qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, queryGasCap(ctx), "decimals")
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +156,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res.Decimals = decimals
 
 	// Query the name
-	callRes, err = qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, nil, "name")
+	callRes, err = qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, queryGasCap(ctx), "name")
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +173,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res.Name = name
 
 	// Query the symbol
-	callRes, err = qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, nil, "symbol")
+	callRes, err = qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, queryGasCap(ctx), "symbol")
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +190,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res.Symbol = symbol
 
 	// Query the total supply
-	callRes, err = qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, nil, "totalSupply")
+	callRes, err = qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, queryGasCap(ctx), "totalSupply")
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +221,7 @@ func (qp *QueryPlugin) HandleERC20Balance(ctx sdk.Context, call *evmbindingtypes
 	stateDB := statedb.New(ctx, qp.evmKeeper, statedb.NewEmptyTxConfig())
 
 	// Query the balance
-	callRes, err := qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, nil, "balanceOf", address)
+	callRes, err := qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, queryGasCap(ctx), "balanceOf", address)
 	if err != nil {
 		return nil, err
 	}
@@ -253,7 +253,7 @@ func (qp *QueryPlugin) HandleERC20Allowance(ctx sdk.Context, call *evmbindingtyp
 	stateDB := statedb.New(ctx, qp.evmKeeper, statedb.NewEmptyTxConfig())
 
 	// Query the allowance
-	callRes, err := qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, nil, "allowance", owner, spender)
+	callRes, err := qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, queryGasCap(ctx), "allowance", owner, spender)
 	if err != nil {
 		return nil, err
 	}
@@ -301,6 +301,14 @@ func handleRevertError(vmError string, ret []byte) error {
 		return evmtypes.NewExecErrorWithReason(ret)
 	}
 	return nil
+}
+
+// queryGasCap returns the gas cap to apply to internal EVM query sub-calls.
+// It is bounded by the transaction's remaining SDK gas so that a CosmWasm
+// contract cannot force more EVM computation than its transaction pays for,
+// and additionally capped by DefaultGasCap to match the eth_call behaviour.
+func queryGasCap(ctx sdk.Context) *big.Int {
+	return new(big.Int).SetUint64(min(ctx.GasMeter().GasRemaining(), emvconfig.DefaultGasCap))
 }
 
 // buildEthCallRequest builds the EVM query call
