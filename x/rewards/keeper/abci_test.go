@@ -137,6 +137,30 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 			expectedChangeAmount: sdk.NewCoin(denom, math.ZeroInt()),
 		},
 		{
+			name: "bank transfer failure - halts schedule gracefully",
+			initialSchedule: types.ReleaseSchedule{
+				Active:          true,
+				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000000)),
+				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
+				LastReleaseTime: now,
+				EndTime:         now.Add(time.Hour * 2),
+			},
+			// Accounting claims 1,000,000 is available but the module account only
+			// holds the 100,000 funded above, so the 500,000 release transfer fails
+			// and the schedule must be halted instead of aborting the block.
+			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(1000000))),
+			blockTime:   now.Add(time.Hour),
+			expectedSchedule: types.ReleaseSchedule{
+				Active:          false,
+				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000000)),
+				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
+				LastReleaseTime: now,
+				EndTime:         now.Add(time.Hour * 2),
+			},
+			expectedChange:       true,
+			expectedChangeAmount: sdk.NewCoin(denom, math.ZeroInt()),
+		},
+		{
 			name: "end time equal to last release time - releases full remaining",
 			initialSchedule: types.ReleaseSchedule{
 				Active:          true,

@@ -34,7 +34,8 @@
 - Indexed admins to reduce query space on tokenfactory denom queries
 - Fix native token supply inflation from the stateful precompiles by wrapping the account address codec (`evmAddressCodec`) to reject non-20-byte accounts (e.g. a 32-byte bech32 withdraw, module, or CosmWasm contract address) at decode time, preventing such addresses from being truncated and minted a duplicate balance when mirrored into the EVM StateDB
 - Close governance vote minimum-stake bypass in `GovVoteDecorator` by enforcing the stake check on `MsgVoteWeighted` (`govv1` and `govv1beta1`) and recursing into nested `authz.MsgExec` messages so wrapped votes can no longer skip the requirement
-- Bound the CosmWasm→EVM ERC20 query bindings (`wasmbinding/evm/queries.go`) by routing every internal sub-call (`decimals`, `name`, `symbol`, `totalSupply`, `balanceOf`, `allowance`) through a helper that passes the transaction's remaining SDK gas as the `gasCap` and charges the SDK gas meter for the actual pre-refund EVM work (`MaxUsedGas`), so a malicious ERC20 can no longer force repeatable, undercharged internal EVM execution
+- Prevent a chain halt in the rewards `BeginBlocker` by routing `SendCoinsFromModuleToModule` failures through `haltSchedule` (graceful schedule deactivation) instead of returning a fatal error, matching the other reward release error paths
+- Add a `ValidateModuleAccounting` check (rewards module bank balance must cover the `CommunityPool`) and run it at genesis to surface accounting/bank divergences early
 
 ### Removed
 
