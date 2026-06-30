@@ -17,7 +17,7 @@ import (
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
-	_ *keepers.AppKeepers,
+	appKeepers *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(c context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		ctx := sdk.UnwrapSDKContext(c)
@@ -27,6 +27,10 @@ func CreateUpgradeHandler(
 		vm, err := mm.RunMigrations(ctx, configurator, vm)
 		if err != nil {
 			return vm, err
+		}
+
+		if err := appKeepers.RewardsKeeper.ValidateModuleAccounting(ctx); err != nil {
+			ctx.Logger().Error("rewards module accounting invariant violated during upgrade", "error", err)
 		}
 
 		ctx.Logger().Info("Upgrade v7.2.0 complete")

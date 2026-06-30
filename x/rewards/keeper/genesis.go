@@ -2,7 +2,6 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
@@ -21,19 +20,11 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		panic(err)
 	}
 
-	// Consistency check: warn if the module bank balance for the configured denom
-	// does not match the CommunityPool accounting
-	denom := data.Params.TokenDenom
-	moduleAddr := authtypes.NewModuleAddress(types.ModuleName)
-	bankBalance := k.bankKeeper.GetBalance(ctx, moduleAddr, denom)
-	poolAmount := data.RewardPool.CommunityPool.AmountOf(denom).TruncateInt()
-	if !bankBalance.Amount.Equal(poolAmount) {
-		k.Logger(ctx).Error(
-			"rewards module bank balance does not match CommunityPool accounting at genesis",
-			"denom", denom,
-			"bank_balance", bankBalance.Amount,
-			"community_pool", poolAmount,
-		)
+	// Consistency check: warn if the module bank balance cannot cover the
+	// CommunityPool accounting. This is only logged because module InitGenesis
+	// ordering may fund the module account after this runs.
+	if err := k.ValidateModuleAccounting(ctx); err != nil {
+		k.Logger(ctx).Error("rewards module accounting mismatch at genesis", "error", err)
 	}
 }
 

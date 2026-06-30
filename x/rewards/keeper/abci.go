@@ -71,7 +71,7 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 
 	// Send to distribution pool
 	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, k.feeCollectorName, coinsToDistribute); err != nil {
-		return err
+		return k.haltSchedule(ctx, schedule, fmt.Errorf("failed to send rewards to fee collector: %w", err))
 	}
 
 	// Deduct from RewardPool using SafeSub so a divergence cannot panic the chain.
