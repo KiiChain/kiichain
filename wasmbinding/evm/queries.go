@@ -8,6 +8,7 @@ import (
 	"math/big"
 
 	wasmvmtypes "github.com/CosmWasm/wasmvm/v3/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -139,7 +140,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	stateDB := statedb.New(ctx, qp.evmKeeper, statedb.NewEmptyTxConfig())
 
 	// Query the decimals
-	callRes, err := qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, queryGasCap(ctx), "decimals")
+	callRes, err := qp.callERC20Query(ctx, stateDB, erc20ABI, to, "decimals")
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +157,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res.Decimals = decimals
 
 	// Query the name
-	callRes, err = qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, queryGasCap(ctx), "name")
+	callRes, err = qp.callERC20Query(ctx, stateDB, erc20ABI, to, "name")
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +174,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res.Name = name
 
 	// Query the symbol
-	callRes, err = qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, queryGasCap(ctx), "symbol")
+	callRes, err = qp.callERC20Query(ctx, stateDB, erc20ABI, to, "symbol")
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +191,7 @@ func (qp *QueryPlugin) HandleERC20Information(ctx sdk.Context, call *evmbindingt
 	res.Symbol = symbol
 
 	// Query the total supply
-	callRes, err = qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, queryGasCap(ctx), "totalSupply")
+	callRes, err = qp.callERC20Query(ctx, stateDB, erc20ABI, to, "totalSupply")
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +222,7 @@ func (qp *QueryPlugin) HandleERC20Balance(ctx sdk.Context, call *evmbindingtypes
 	stateDB := statedb.New(ctx, qp.evmKeeper, statedb.NewEmptyTxConfig())
 
 	// Query the balance
-	callRes, err := qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, queryGasCap(ctx), "balanceOf", address)
+	callRes, err := qp.callERC20Query(ctx, stateDB, erc20ABI, to, "balanceOf", address)
 	if err != nil {
 		return nil, err
 	}
@@ -253,7 +254,7 @@ func (qp *QueryPlugin) HandleERC20Allowance(ctx sdk.Context, call *evmbindingtyp
 	stateDB := statedb.New(ctx, qp.evmKeeper, statedb.NewEmptyTxConfig())
 
 	// Query the allowance
-	callRes, err := qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, to, false, false, queryGasCap(ctx), "allowance", owner, spender)
+	callRes, err := qp.callERC20Query(ctx, stateDB, erc20ABI, to, "allowance", owner, spender)
 	if err != nil {
 		return nil, err
 	}
@@ -303,12 +304,20 @@ func handleRevertError(vmError string, ret []byte) error {
 	return nil
 }
 
-// queryGasCap returns the gas cap to apply to internal EVM query sub-calls.
-// It is bounded by the transaction's remaining SDK gas so that a CosmWasm
-// contract cannot force more EVM computation than its transaction pays for,
-// and additionally capped by DefaultGasCap to match the eth_call behaviour.
-func queryGasCap(ctx sdk.Context) *big.Int {
-	return new(big.Int).SetUint64(min(ctx.GasMeter().GasRemaining(), emvconfig.DefaultGasCap))
+// callERC20Query runs an internal ERC20 EVM query and charges the SDK gas meter for the actual pre-refund work
+func (qp *QueryPlugin) callERC20Query(ctx sdk.Context, stateDB *statedb.StateDB, erc20ABI abi.ABI, contract common.Address, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error) {
+	gasCap := new(big.Int).SetUint64(ctx.GasMeter().GasRemaining())
+
+	res, err := qp.evmKeeper.CallEVM(ctx, stateDB, erc20ABI, erc20types.ModuleAddress, contract, false, false, gasCap, method, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	if res.MaxUsedGas > res.GasUsed {
+		ctx.GasMeter().ConsumeGas(res.MaxUsedGas-res.GasUsed, "evm query pre-refund work")
+	}
+
+	return res, nil
 }
 
 // buildEthCallRequest builds the EVM query call
