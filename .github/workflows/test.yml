@@ -47,6 +47,10 @@ jobs:
         if: env.GIT_DIFF
         run: |
           go test -v -coverprofile=profile.txt -covermode=atomic -coverpkg=./... $(go list ./... | grep -v -e '/tests/e2e' | grep -v -e '/tests/interchain') | grep -v "store.go:" | grep -v "mutable_tree.go:"
+      - name: wasmbinding coverage (test build tag)
+        if: env.GIT_DIFF
+        run: |
+          go test -tags=test -coverprofile=profile-wasmbinding.txt -covermode=atomic ./wasmbinding/...
       - uses: actions/upload-artifact@v4
         if: env.GIT_DIFF
         with:
@@ -56,7 +60,7 @@ jobs:
         uses: codecov/codecov-action@v4
         if: env.GIT_DIFF
         with:
-          files: ./profile.txt
+          files: ./profile.txt,./profile-wasmbinding.txt
           token: ${{ secrets.CODECOV_TOKEN }}
 
   repo-analysis:
