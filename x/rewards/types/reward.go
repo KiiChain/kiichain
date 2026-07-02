@@ -36,8 +36,6 @@ func CalculateReward(blockTime time.Time, schedule ReleaseSchedule) (sdk.Coin, e
 	// Truncate to int, it will be a coin amt after all
 	amountToRelease := math.LegacyNewDecFromInt(remaining.Amount).Mul(releaseProportion).TruncateInt()
 
-	// Make sure at least one coin will be distributed if there is still a distribution to happen
-	amountToRelease = math.MaxInt(amountToRelease, math.NewInt(1))
 	// Cap at remaining amount
 	amountToRelease = math.MinInt(amountToRelease, remaining.Amount)
 
