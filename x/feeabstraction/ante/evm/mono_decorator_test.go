@@ -393,7 +393,9 @@ func TestMonoDecorator(t *testing.T) {
 
 				// Build an EIP-7702 delegation designator (0xef0100 || address)
 				// and store it as the account code
-				delegation := append(gethtypes.DelegationPrefix, common.HexToAddress("0x1111111111111111111111111111111111111111").Bytes()...)
+				delegation := make([]byte, 0, len(gethtypes.DelegationPrefix)+common.AddressLength)
+				delegation = append(delegation, gethtypes.DelegationPrefix...)
+				delegation = append(delegation, common.HexToAddress("0x1111111111111111111111111111111111111111").Bytes()...)
 				codeHash := crypto.Keccak256Hash(delegation)
 				app.EVMKeeper.SetCode(ctx, codeHash.Bytes(), delegation)
 
