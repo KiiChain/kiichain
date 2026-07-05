@@ -378,16 +378,16 @@ func (app *KiichainApp) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
 func (app *KiichainApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
 	var genesisState GenesisState
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to unmarshal genesis state: %w", err)
 	}
 
 	if err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap()); err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to set module version map: %w", err)
 	}
 
 	response, err := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to run InitGenesis: %w", err)
 	}
 
 	return response, nil
