@@ -91,8 +91,10 @@ func (k msgServer) ChangeSchedule(ctx context.Context, msg *types.MsgChangeSched
 		return nil, fmt.Errorf("invalid schedule: %w", err)
 	}
 
-	// Check available funds
-	if err := k.fundsAvailable(sdkCtx, schedule.TotalAmount); err != nil {
+	// Check available funds: only require pool to cover the remaining (unreleased) amount,
+	// not the full TotalAmount (which may have been partially released already).
+	netAmount := schedule.TotalAmount.Sub(schedule.ReleasedAmount)
+	if err := k.fundsAvailable(sdkCtx, netAmount); err != nil {
 		return nil, fmt.Errorf("insufficient funds: %w", err)
 	}
 
