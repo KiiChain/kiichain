@@ -155,3 +155,20 @@ func TestCalculateReward(t *testing.T) {
 		})
 	}
 }
+
+func TestCalculateRewardNoForcedMinimum(t *testing.T) {
+	now := time.Now()
+	denom := "akii"
+
+	schedule := types.ReleaseSchedule{
+		TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000000)),
+		ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
+		LastReleaseTime: now,
+		EndTime:         now.Add(time.Hour * 24 * 365 * 10),
+		Active:          true,
+	}
+
+	result, err := types.CalculateReward(now.Add(time.Second), schedule)
+	require.NoError(t, err)
+	require.True(t, result.Amount.IsZero(), "expected zero release, got %s", result.Amount)
+}

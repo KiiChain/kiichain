@@ -161,6 +161,27 @@ func (suite *KeeperTestSuite) TestEndBlocker() {
 			expectedChangeAmount: sdk.NewCoin(denom, math.ZeroInt()),
 		},
 		{
+			name: "sub-unit release - skips without halting or releasing",
+			initialSchedule: types.ReleaseSchedule{
+				Active:          true,
+				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000000)),
+				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
+				LastReleaseTime: now,
+				EndTime:         now.Add(time.Hour * 24 * 365 * 10),
+			},
+			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(1000000))),
+			blockTime:   now.Add(time.Second),
+			expectedSchedule: types.ReleaseSchedule{
+				Active:          true,
+				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000000)),
+				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
+				LastReleaseTime: now,
+				EndTime:         now.Add(time.Hour * 24 * 365 * 10),
+			},
+			expectedChange:       true,
+			expectedChangeAmount: sdk.NewCoin(denom, math.ZeroInt()),
+		},
+		{
 			name: "end time equal to last release time - releases full remaining",
 			initialSchedule: types.ReleaseSchedule{
 				Active:          true,

@@ -47,10 +47,12 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 		return k.haltSchedule(ctx, schedule, err)
 	}
 
-	// If nothing to distribute, sets up as inactive for early exit next time
 	if amountToDistribute.IsZero() {
-		schedule.Active = false
-		return k.ReleaseSchedule.Set(ctx, schedule)
+		if schedule.ReleasedAmount.IsGTE(schedule.TotalAmount) {
+			schedule.Active = false
+			return k.ReleaseSchedule.Set(ctx, schedule)
+		}
+		return nil
 	}
 
 	// Get the current RewardPool from state
