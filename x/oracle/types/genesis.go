@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 )
@@ -45,7 +46,9 @@ func GetGenesisStateFromAppState(cdc codec.JSONCodec, appState map[string]json.R
 
 	// Unmarshal current genesis state
 	if appState[ModuleName] != nil {
-		cdc.MustUnmarshalJSON(appState[ModuleName], &genesisState)
+		if err := cdc.UnmarshalJSON(appState[ModuleName], &genesisState); err != nil {
+			panic(fmt.Errorf("failed to unmarshal %s genesis state: %w", ModuleName, err))
+		}
 	}
 
 	return &genesisState
