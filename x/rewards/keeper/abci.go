@@ -41,6 +41,20 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 		return k.ReleaseSchedule.Set(ctx, schedule)
 	}
 
+	// Guard against clock regression: if the block time has not advanced past
+	// the last release time (e.g. clock skew or a same-block callback), skip
+	// this block. Without this guard, CalculateReward receives a non-positive
+	// elapsed duration and returns zero — or, absent the reward.go guard,
+	// produces a negative coin amount and panics.
+	if !ctx.BlockTime().After(schedule.LastReleaseTime) {
+		k.Logger(ctx).Error(
+			"rewards BeginBlocker: block time has not advanced past last release time — skipping",
+			"block_time", ctx.BlockTime(),
+			"last_release_time", schedule.LastReleaseTime,
+		)
+		return nil
+	}
+
 	// Calculate the amount to distribute this block
 	amountToDistribute, err := types.CalculateReward(ctx.BlockTime(), schedule)
 	if err != nil {
