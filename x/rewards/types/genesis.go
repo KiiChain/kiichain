@@ -50,5 +50,22 @@ func (gs *GenesisState) Validate() error {
 			gs.ReleaseSchedule.TotalAmount.Denom, tokenDenom)
 	}
 
+	// For an active schedule, ensure the CommunityPool holds enough to cover
+	// the remaining release obligations. A deficit at genesis guarantees a
+	// future chain halt once BeginBlocker exhausts the actual bank balance.
+	if gs.ReleaseSchedule.Active {
+		remaining := gs.ReleaseSchedule.TotalAmount.Sub(gs.ReleaseSchedule.ReleasedAmount)
+		if remaining.IsPositive() {
+			poolAmt := gs.RewardPool.CommunityPool.AmountOf(tokenDenom)
+			if poolAmt.TruncateInt().LT(remaining.Amount) {
+				return fmt.Errorf(
+					"community pool (%s %s) is insufficient to cover active schedule remaining amount (%s %s)",
+					poolAmt.TruncateInt(), tokenDenom,
+					remaining.Amount, tokenDenom,
+				)
+			}
+		}
+	}
+
 	return nil
 }
