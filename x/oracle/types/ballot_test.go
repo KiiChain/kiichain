@@ -180,7 +180,7 @@ func TestStandardDeviation(t *testing.T) {
 	median := ballot.WeightedMedianWithAssertion()
 	deviation := ballot.StandardDeviation(median)
 
-	expected := sdkMath.LegacyNewDecWithPrec(1224745, 6)
+	expected := sdkMath.LegacyOneDec()
 	// 2e-7 tolerance
 	delta := sdkMath.LegacyNewDecWithPrec(2, 7)
 

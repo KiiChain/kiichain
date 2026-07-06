@@ -173,14 +173,20 @@ func (ex ExchangeRateBallot) StandardDeviation(median sdkMath.LegacyDec) (standa
 		}
 	}()
 
-	sum := sdkMath.LegacyZeroDec()
-	for _, votes := range ex {
-		deviation := votes.ExchangeRate.Sub(median) // calculate the ex - median
-		sum = sum.Add(deviation.Mul(deviation))     // Calculate sum += (ex - median)^2
+	// Get the total voting power to weight the variance
+	totalPower := ex.Power()
+	if totalPower == 0 {
+		return sdkMath.LegacyZeroDec()
 	}
 
-	// Divide the result by the number of ex
-	variance := sum.QuoInt64(int64(len(ex)))
+	sum := sdkMath.LegacyZeroDec()
+	for _, votes := range ex {
+		deviation := votes.ExchangeRate.Sub(median)                   // calculate the ex - median
+		sum = sum.Add(deviation.Mul(deviation).MulInt64(votes.Power)) // Calculate sum += power * (ex - median)^2
+	}
+
+	// Divide the result by the total voting power
+	variance := sum.QuoInt64(totalPower)
 
 	// Finally get the square root of variance
 	standardDeviation, err := variance.ApproxSqrt()
@@ -188,5 +194,5 @@ func (ex ExchangeRateBallot) StandardDeviation(median sdkMath.LegacyDec) (standa
 		return sdkMath.LegacyZeroDec()
 	}
 
-	return
+	return standardDeviation
 }

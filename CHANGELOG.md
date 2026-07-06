@@ -11,6 +11,7 @@
 
 ### Fixed
 
+- Compute the oracle ballot `StandardDeviation` as a stake-weighted variance (weight each squared deviation by the vote's power and divide by total voting power) instead of an unweighted average divided by the vote count, aligning the reward-band width with the stake-weighted median and preventing a group of low-stake validators from inflating the deviation to widen the accepted vote window
 - Remove the forced minimum 1-unit-per-block reward release in `CalculateReward` and skip (instead of deactivating) sub-unit blocks in the rewards `BeginBlocker`, so the proportional share accumulates and the pool follows the configured schedule independent of block time (previously a 10-year, 1M-unit schedule drained in ~12 days at the 1s target block time and ~28 days at the current ~2.4s rate, regardless of the configured duration)
 - Reject `MsgEthereumTx` from being dispatched through the authz keeper (including when nested inside `authz.MsgExec`), closing an EVM ante bypass on message-router execution paths that skip the ante handler
 - Fix feegrant denomination bypass in the cosmos fee ante handler by converting the fee before consuming the grant, so `UseGrantedFees` is checked against the same coins later deducted (prevents a grantee from forcing the granter to pay in a non-granted fee-abstraction denom)
