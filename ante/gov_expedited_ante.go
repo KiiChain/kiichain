@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	xerrors "github.com/kiichain/kiichain/v7/x/types/errors"
@@ -39,19 +40,45 @@ func NewGovExpeditedProposalsDecorator(cdc codec.BinaryCodec) GovExpeditedPropos
 // Legacy proposals submitted using "kiichaind tx gov submit-legacy-proposal" cannot be marked as expedited.
 func (g GovExpeditedProposalsDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	if expeditedPropDecoratorEnabled {
-		for _, msg := range tx.GetMsgs() {
-			prop, ok := msg.(*govv1.MsgSubmitProposal)
-			if !ok {
-				continue
-			}
-			if prop.Expedited {
-				if err := g.validateExpeditedGovProp(prop); err != nil {
-					return ctx, err
-				}
-			}
+		if err := g.validateMsgs(tx.GetMsgs()); err != nil {
+			return ctx, err
 		}
 	}
 	return next(ctx, tx, simulate)
+}
+
+func (g GovExpeditedProposalsDecorator) validateMsgs(msgs []sdk.Msg) error {
+	for _, msg := range msgs {
+		if execMsg, ok := msg.(*authz.MsgExec); ok {
+			if err := g.validateAuthzExec(execMsg); err != nil {
+				return err
+			}
+			continue
+		}
+
+		prop, ok := msg.(*govv1.MsgSubmitProposal)
+		if !ok {
+			continue
+		}
+		if prop.Expedited {
+			if err := g.validateExpeditedGovProp(prop); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (g GovExpeditedProposalsDecorator) validateAuthzExec(execMsg *authz.MsgExec) error {
+	innerMsgs := make([]sdk.Msg, 0, len(execMsg.Msgs))
+	for _, v := range execMsg.Msgs {
+		var innerMsg sdk.Msg
+		if err := g.cdc.UnpackAny(v, &innerMsg); err != nil {
+			return errorsmod.Wrap(xerrors.ErrInvalidExpeditedProposal, "cannot unmarshal authz exec msgs")
+		}
+		innerMsgs = append(innerMsgs, innerMsg)
+	}
+	return g.validateMsgs(innerMsgs)
 }
 
 func (g GovExpeditedProposalsDecorator) isWhitelisted(msgType string) bool {
