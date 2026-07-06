@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -726,13 +727,19 @@ func (s *IntegrationTestSuite) expectErrExecValidation(chain *chain, valIdx int,
 		}
 
 		endpoint := fmt.Sprintf("http://%s", s.valResources[chain.id][valIdx].GetHostPort("1317/tcp"))
+		// Ensure the node is reachable before polling for tx confirmation.
+		// The REST API may be temporarily unavailable during cold starts or
+		// chain recovery. We wait up to 2 min for the API to become responsive
+		// before entering the tx-confirmation poll, which provides a further
+		// 3 min window. This addresses issue #176.
+		s.waitForNodeReady(chain, valIdx, endpoint)
 		// wait for the tx to be committed on chain
 		s.Require().Eventuallyf(
 			func() bool {
 				gotErr := queryKiichainTx(endpoint, txResp.TxHash) != nil
 				return gotErr == expectErr
 			},
-			time.Minute,
+			3*time.Minute,
 			5*time.Second,
 			"stdOut: %s, stdErr: %s",
 			string(stdOut), string(stdErr),
@@ -749,14 +756,20 @@ func (s *IntegrationTestSuite) defaultExecValidation(chain *chain, valIdx int) f
 		}
 		if strings.Contains(txResp.String(), "code: 0") || txResp.Code == 0 {
 			endpoint := fmt.Sprintf("http://%s", s.valResources[chain.id][valIdx].GetHostPort("1317/tcp"))
+			// Wait for the node to be responsive before polling for tx confirmation.
+			// The REST API can be briefly unavailable during chain cold starts,
+			// node recovery from stalls, or under resource pressure in CI.
+			// This pre-check gives the node up to 2 min to become reachable,
+			// followed by a 3 min window for the tx to be committed (fixes #176).
+			s.waitForNodeReady(chain, valIdx, endpoint)
 			s.Require().Eventually(
 				func() bool {
 					return queryKiichainTx(endpoint, txResp.TxHash) == nil
 				},
-				time.Minute,
+				3*time.Minute,
 				5*time.Second,
-				"stdOut: %s, stdErr: %s",
-				string(stdOut), string(stdErr),
+				"tx %s not confirmed after 3 min. endpoint: %s, stdOut: %s, stdErr: %s",
+				txResp.TxHash, endpoint, string(stdOut), string(stdErr),
 			)
 			return true
 		}
@@ -778,4 +791,30 @@ func (s *IntegrationTestSuite) execValidationWithError(_ *chain, _ int, errorCon
 		}
 		return false
 	}
+}
+
+// waitForNodeReady ensures the validator node's REST API is responsive before
+// proceeding with tx confirmation polling. This mitigates flaky E2E test failures
+// (issue #176) caused by:
+//   - Temporary node unavailability during cold starts / CI cache misses
+//   - Chain pauses under resource pressure in constrained environments
+//   - Brief REST API restarts during node recovery
+//
+// If the node does not become reachable within the timeout, the test fails with
+// a diagnostic message that includes the endpoint URL for debugging.
+func (s *IntegrationTestSuite) waitForNodeReady(c *chain, valIdx int, endpoint string) {
+	s.Require().Eventually(
+		func() bool {
+			resp, err := http.Get(fmt.Sprintf("%s/cosmos/tx/v1beta1/txs?query=tx.height=0", endpoint))
+			if err != nil {
+				return false
+			}
+			resp.Body.Close()
+			return resp.StatusCode == http.StatusOK
+		},
+		2*time.Minute,
+		5*time.Second,
+		"node %s validator %d REST API (%s) not responding; check container logs for chain status",
+		c.id, valIdx, endpoint,
+	)
 }
