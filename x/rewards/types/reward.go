@@ -1,7 +1,7 @@
 package types
 
 import (
-	"time"
+	time "time"
 
 	"cosmossdk.io/math"
 
@@ -26,6 +26,14 @@ func CalculateReward(blockTime time.Time, schedule ReleaseSchedule) (sdk.Coin, e
 	// Get time parameters
 	timeElapsedStamp := blockTime.Sub(schedule.LastReleaseTime)          // Time since last release
 	totalDurationStamp := schedule.EndTime.Sub(schedule.LastReleaseTime) // Remaining release period
+
+	// Guard: if block time has not advanced past the last release time (e.g.
+	// clock skew or same-block re-entry), return a zero coin to avoid a
+	// negative elapsed duration producing a negative proportion and a
+	// downstream panic in sdk.NewCoin.
+	if timeElapsedStamp.Nanoseconds() <= 0 {
+		return sdk.NewCoin(schedule.TotalAmount.Denom, math.ZeroInt()), nil
+	}
 
 	// Use nanoseconds for precise duration calculations
 	timeElapsedNs := math.NewInt(timeElapsedStamp.Nanoseconds()).BigInt()
