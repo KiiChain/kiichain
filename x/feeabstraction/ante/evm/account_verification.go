@@ -24,15 +24,20 @@ import (
 func VerifyIfAccountExists(
 	ctx sdk.Context,
 	accountKeeper anteinterfaces.AccountKeeper,
+	evmKeeper anteinterfaces.EVMKeeper,
 	account *statedb.Account,
 	from common.Address,
 ) error {
 	// Only EOA are allowed to send transactions.
 	if account != nil && account.HasCodeHash() {
-		return errorsmod.Wrapf(
-			errortypes.ErrInvalidType,
-			"the sender is not EOA: address %s", from,
-		)
+		code := evmKeeper.GetCode(ctx, common.BytesToHash(account.CodeHash))
+		_, delegated := ethtypes.ParseDelegation(code)
+		if len(code) > 0 && !delegated {
+			return errorsmod.Wrapf(
+				errortypes.ErrInvalidType,
+				"the sender is not EOA: address %s", from,
+			)
+		}
 	}
 
 	// Check if the account is nil, if so, create a new account

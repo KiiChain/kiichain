@@ -6,6 +6,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/holiman/uint256"
 	"github.com/stretchr/testify/require"
 
@@ -366,11 +367,15 @@ func TestMonoDecorator(t *testing.T) {
 				fromAddr := keys.GetKey(0).Addr
 
 				// Create a contract account
-				// To define as a contract we need to set the code hash
+				// To define as a contract we need to store code and set the matching code hash
+				code := []byte("contract code")
+				codeHash := crypto.Keccak256Hash(code)
+				app.EVMKeeper.SetCode(ctx, codeHash.Bytes(), code)
+
 				err = app.EVMKeeper.SetAccount(ctx, fromAddr, statedb.Account{
 					Nonce:    0,
 					Balance:  uint256.NewInt(1000000),
-					CodeHash: []byte("contract code"),
+					CodeHash: codeHash.Bytes(),
 				})
 				require.NoError(t, err)
 
@@ -379,6 +384,37 @@ func TestMonoDecorator(t *testing.T) {
 			gasLimit:    20000000,
 			gasPrice:    big.NewInt(1000000),
 			errContains: "the sender is not EOA",
+		},
+		{
+			name: "success - account has EIP-7702 delegation code",
+			malleate: func(ctx sdk.Context) sdk.Context {
+				// Set the EVM account beforehand
+				fromAddr := keys.GetKey(0).Addr
+
+				// Build an EIP-7702 delegation designator (0xef0100 || address)
+				// and store it as the account code
+				delegation := make([]byte, 0, len(gethtypes.DelegationPrefix)+common.AddressLength)
+				delegation = append(delegation, gethtypes.DelegationPrefix...)
+				delegation = append(delegation, common.HexToAddress("0x1111111111111111111111111111111111111111").Bytes()...)
+				codeHash := crypto.Keccak256Hash(delegation)
+				app.EVMKeeper.SetCode(ctx, codeHash.Bytes(), delegation)
+
+				err = app.EVMKeeper.SetAccount(ctx, fromAddr, statedb.Account{
+					Nonce:    0,
+					Balance:  uint256.NewInt(0),
+					CodeHash: codeHash.Bytes(),
+				})
+				require.NoError(t, err)
+
+				// Fund the account with token to pay for the fees
+				amount := sdk.NewCoins(sdk.NewCoin("akii", math.NewInt(20000000*1000000)))
+				err = mintCoins(app, ctx, keys.GetKey(0).AccAddr, amount)
+				require.NoError(t, err)
+
+				return ctx
+			},
+			gasLimit: 20000000,
+			gasPrice: big.NewInt(1000000),
 		},
 	}
 
