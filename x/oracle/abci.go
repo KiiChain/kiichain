@@ -155,9 +155,24 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 			)
 		}
 
+		for _, ballot := range belowThresholdVoteMap {
+			for _, vote := range ballot {
+				voter := vote.Voter.String()
+				claim, found := validatorClaimMap[voter]
+				if !found {
+					continue
+				}
+				claim.WinCount++
+				claim.DidVote = true
+				validatorClaimMap[voter] = claim
+			}
+		}
+
+		requiredWinCount := len(voteTargets) + len(belowThresholdVoteMap)
+
 		// Validate miss voting process
 		for _, claim := range validatorClaimMap {
-			if int(claim.WinCount) == len(voteTargets) {
+			if int(claim.WinCount) == requiredWinCount {
 				err = k.IncrementSuccessCount(ctx, claim.Recipient)
 				if err != nil {
 					return err
