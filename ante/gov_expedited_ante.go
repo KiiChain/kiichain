@@ -24,11 +24,12 @@ var expeditedPropsWhitelist = map[string]struct{}{
 	"/cosmos.upgrade.v1beta1.MsgCancelUpgrade":   {},
 }
 
-// Check if the proposal is whitelisted for expedited voting.
+// GovExpeditedProposalsDecorator rejects expedited proposals whose messages are not whitelisted.
 type GovExpeditedProposalsDecorator struct {
 	cdc codec.BinaryCodec
 }
 
+// NewGovExpeditedProposalsDecorator returns a new GovExpeditedProposalsDecorator.
 func NewGovExpeditedProposalsDecorator(cdc codec.BinaryCodec) GovExpeditedProposalsDecorator {
 	return GovExpeditedProposalsDecorator{
 		cdc: cdc,
@@ -47,6 +48,7 @@ func (g GovExpeditedProposalsDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 	return next(ctx, tx, simulate)
 }
 
+// validateMsgs validates each message, unwrapping authz.MsgExec to prevent whitelist bypass.
 func (g GovExpeditedProposalsDecorator) validateMsgs(msgs []sdk.Msg) error {
 	for _, msg := range msgs {
 		if execMsg, ok := msg.(*authz.MsgExec); ok {
@@ -69,23 +71,26 @@ func (g GovExpeditedProposalsDecorator) validateMsgs(msgs []sdk.Msg) error {
 	return nil
 }
 
+// validateAuthzExec unpacks the inner messages of an authz.MsgExec and validates them.
 func (g GovExpeditedProposalsDecorator) validateAuthzExec(execMsg *authz.MsgExec) error {
 	innerMsgs := make([]sdk.Msg, 0, len(execMsg.Msgs))
 	for _, v := range execMsg.Msgs {
 		var innerMsg sdk.Msg
 		if err := g.cdc.UnpackAny(v, &innerMsg); err != nil {
-			return errorsmod.Wrap(xerrors.ErrInvalidExpeditedProposal, "cannot unmarshal authz exec msgs")
+			return errorsmod.Wrapf(xerrors.ErrInvalidExpeditedProposal, "cannot unmarshal authz exec msg (type %s): %v", v.TypeUrl, err)
 		}
 		innerMsgs = append(innerMsgs, innerMsg)
 	}
 	return g.validateMsgs(innerMsgs)
 }
 
+// isWhitelisted reports whether the given message type may be expedited.
 func (g GovExpeditedProposalsDecorator) isWhitelisted(msgType string) bool {
 	_, ok := expeditedPropsWhitelist[msgType]
 	return ok
 }
 
+// validateExpeditedGovProp ensures every message in an expedited proposal is whitelisted.
 func (g GovExpeditedProposalsDecorator) validateExpeditedGovProp(prop *govv1.MsgSubmitProposal) error {
 	msgs := prop.GetMessages()
 	if len(msgs) == 0 {
