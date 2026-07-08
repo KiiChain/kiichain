@@ -11,6 +11,7 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -163,6 +164,57 @@ func TestGovExpeditedProposalsDecorator(t *testing.T) {
 			},
 			expectErr: true,
 		},
+		{
+			name: "authz - expedited whitelisted - MsgSoftwareUpgrade",
+			ctx:  sdk.Context{},
+			msgs: []sdk.Msg{
+				newAuthzExec(newGovProp([]sdk.Msg{&upgradetypes.MsgSoftwareUpgrade{
+					Authority: "kii10d07y265gmmuvt4z0w9aw880jnsr700jrff0qv",
+					Plan: upgradetypes.Plan{
+						Name:   "upgrade plan-plan",
+						Info:   "some text here",
+						Height: 123456789,
+					},
+				}}, true)),
+			},
+			expectErr: false,
+		},
+		{
+			name: "authz - normal non-whitelisted - MsgCommunityPoolSpend",
+			ctx:  sdk.Context{},
+			msgs: []sdk.Msg{
+				newAuthzExec(newGovProp([]sdk.Msg{&distrtypes.MsgCommunityPoolSpend{
+					Authority: "kii10d07y265gmmuvt4z0w9aw880jnsr700jrff0qv",
+					Recipient: sdk.AccAddress{}.String(),
+					Amount:    sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(100))),
+				}}, false)),
+			},
+			expectErr: false,
+		},
+		{
+			name: "fail - authz - expedited non-whitelisted - MsgCommunityPoolSpend",
+			ctx:  sdk.Context{},
+			msgs: []sdk.Msg{
+				newAuthzExec(newGovProp([]sdk.Msg{&distrtypes.MsgCommunityPoolSpend{
+					Authority: "kii10d07y265gmmuvt4z0w9aw880jnsr700jrff0qv",
+					Recipient: sdk.AccAddress{}.String(),
+					Amount:    sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(100))),
+				}}, true)),
+			},
+			expectErr: true,
+		},
+		{
+			name: "fail - nested authz - expedited non-whitelisted - MsgSend",
+			ctx:  sdk.Context{},
+			msgs: []sdk.Msg{
+				newAuthzExec(newAuthzExec(newGovProp([]sdk.Msg{&banktypes.MsgSend{
+					FromAddress: "kii10d07y265gmmuvt4z0w9aw880jnsr700jrff0qv",
+					ToAddress:   "kii10d07y265gmmuvt4z0w9aw880jnsr700jrff0qv",
+					Amount:      sdk.NewCoins(sdk.NewCoin("stake", math.NewInt(100))),
+				}}, true))),
+			},
+			expectErr: true,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -217,4 +269,9 @@ func newGovProp(msgs []sdk.Msg, expedite bool) *govv1.MsgSubmitProposal {
 	msg, _ := govv1.NewMsgSubmitProposal(msgs, sdk.NewCoins(), sdk.AccAddress{}.String(), "", "expedite", "expedite", expedite)
 	// fmt.Println("### msg ###", msg, "err", err)
 	return msg
+}
+
+func newAuthzExec(msgs ...sdk.Msg) sdk.Msg {
+	m := authz.NewMsgExec(sdk.AccAddress("expedited-authz-grantee"), msgs)
+	return &m
 }
