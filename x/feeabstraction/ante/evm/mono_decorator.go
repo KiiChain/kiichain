@@ -195,6 +195,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	if err := VerifyIfAccountExists(
 		ctx,
 		md.accountKeeper,
+		md.evmKeeper,
 		account,
 		fromAddr,
 	); err != nil {
