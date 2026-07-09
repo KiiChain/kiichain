@@ -325,3 +325,4 @@ replace (
 )
 
 replace github.com/cosmos/evm => github.com/KiiChain/evm v0.6.0-fork.2
+
