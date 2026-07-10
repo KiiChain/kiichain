@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Dependencies
+
+- [EVM](https://github.com/KiiChain/evm) fork from v0.6.0-fork.1 to [v0.6.0-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.0-fork.2): bounded internal EVM call gas limit, EVM fee refunds, distribution precompile 32-byte withdraw fix, and CosmWasm EVM query undercharge fix
+
 ### Added
 
 - Emit `update_params`, `fund_pool`, `change_schedule`, and `reward_distributed` events from x/rewards
