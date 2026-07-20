@@ -5,6 +5,7 @@
 ### Dependencies
 
 - [EVM](https://github.com/KiiChain/evm) fork from v0.6.0-fork.1 to [v0.6.0-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.0-fork.2): bounded internal EVM call gas limit, EVM fee refunds, distribution precompile 32-byte withdraw fix, and CosmWasm EVM query undercharge fix
+- EVM fork bump from `v0.6.0-fork.2` to `v0.6.0-fork.3` (maintenance and stability update), applied via the coordinated `v7.3.0` upgrade
 
 ### Added
 
