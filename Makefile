@@ -148,6 +148,7 @@ distclean: clean
 GO_VERSION := $(shell cat go.mod | grep -E 'go [0-9].[0-9]+' | cut -d ' ' -f 2)
 GORELEASER_IMAGE := ghcr.io/goreleaser/goreleaser-cross:v$(REQUIRE_GO_VERSION)
 COSMWASM_VERSION := $(shell go list -m github.com/CosmWasm/wasmvm/v3 | sed 's/.* //')
+GOMODCACHE := $(shell go env GOMODCACHE)
 
 # create tag and run goreleaser without publishing
 # errors are possible while running goreleaser - the process can run for >30 min
@@ -165,9 +166,12 @@ ifneq ($(strip $(TAG)),)
 	@docker run \
 		--rm \
 		-e CGO_ENABLED=1 \
+		-e GOPRIVATE=github.com/KiiChain/* \
+		-e GOMODCACHE=/go/pkg/mod \
 		-e TM_VERSION=$(TM_VERSION) \
 		-e COSMWASM_VERSION=$(COSMWASM_VERSION) \
 		-v `pwd`:/go/src/kiichaind \
+		-v $(GOMODCACHE):/go/pkg/mod \
 		-w /go/src/kiichaind \
 		$(GORELEASER_IMAGE) \
 		release \
@@ -206,9 +210,12 @@ goreleaser-build-local:
 	docker run \
 		--rm \
 		-e CGO_ENABLED=1 \
+		-e GOPRIVATE=github.com/KiiChain/* \
+		-e GOMODCACHE=/go/pkg/mod \
 		-e TM_VERSION=$(TM_VERSION) \
 		-e COSMWASM_VERSION=$(COSMWASM_VERSION) \
 		-v `pwd`:/go/src/kiichaind \
+		-v $(GOMODCACHE):/go/pkg/mod \
 		-w /go/src/kiichaind \
 		$(GORELEASER_IMAGE) \
 		release \
@@ -216,7 +223,8 @@ goreleaser-build-local:
 		--skip=publish \
 		--release-notes ./RELEASE_NOTES.md \
 		--timeout 90m \
-		--verbose
+		--verbose \
+		--clean
 
 # uses goreleaser to create static binaries for linux an darwin
 # requires access to GITHUB_TOKEN which has to be available in the CI environment
@@ -226,9 +234,12 @@ ci-release:
 		--rm \
 		-e CGO_ENABLED=1 \
 		-e GITHUB_TOKEN=$(GITHUB_TOKEN) \
+		-e GOPRIVATE=github.com/KiiChain/* \
+		-e GOMODCACHE=/go/pkg/mod \
 		-e TM_VERSION=$(TM_VERSION) \
 		-e COSMWASM_VERSION=$(COSMWASM_VERSION) \
 		-v `pwd`:/go/src/kiichaind \
+		-v $(GOMODCACHE):/go/pkg/mod \
 		-w /go/src/kiichaind \
 		$(GORELEASER_IMAGE) \
 		release \
