@@ -31,7 +31,7 @@ import (
 )
 
 var (
-	DefaultFirstERC20      = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd"
+	DefaultFirstERC20      = apptesting.DefaultFirstERC20
 	DefaultFirstERC20Denom = "erc20:" + DefaultFirstERC20
 	DefaultMinFeeValue     = int64(875000000000000)
 

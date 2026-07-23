@@ -25,8 +25,8 @@ func (s *KeeperTestSuite) TestConvertNativeFee() {
 	feePayer := apptesting.RandomAccountAddress()
 	s.app.AccountKeeper.SetAccount(s.ctx, s.app.AccountKeeper.NewAccountWithAddress(s.ctx, feePayer))
 
-	// Default erc20 address to use in tests
-	DefaultFirstERC20 := "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd"
+	// Default erc20 address to use in tests (first DeployERC20 from apptesting deployer)
+	DefaultFirstERC20 := apptesting.DefaultFirstERC20
 
 	// Reactivate keeper since it was disabled on abci
 	err := s.app.FeeAbstractionKeeper.Params.Set(s.ctx, types.DefaultParams())
