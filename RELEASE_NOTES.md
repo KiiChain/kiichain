@@ -1,8 +1,14 @@
 # Kiichain v7.3.0 — Private Coordinated Release
 
-> **Why binaries are attached:** This release ships prebuilt `kiichaind` binaries because the patched EVM dependency lives in the private `github.com/KiiChain/evm-private` mirror. **You cannot build this release from public source** until after Cosmos EVM’s public disclosure window.
+> **Why binaries are attached:** Validators cannot build this release from public source. The patched EVM dependency is temporarily published only in the private `github.com/KiiChain/evm-private` mirror (`v0.6.0-fork.3`), following Cosmos Labs’ coordinated-disclosure process for the July 2026 Cosmos EVM hotfix. We are attaching prebuilt `kiichaind` binaries (and checksums) so operators can upgrade without needing private module access.
 >
-> **Public build-from-source release:** We will publish a follow-up public release with the public module path **1 day after Cosmos EVM’s announced public disclosure date**, and attach fresh checksums for that rebuild. Until then, use only the binaries and checksums attached to this GitHub Release.
+> **Cannot build from source (yet):** `go mod download` / `make build` against public GitHub will fail until the dependency is flipped back to a public module path.
+>
+> **Public build-from-source release:** A follow-up public release (public `KiiChain/evm` / upstream module path, with its own checksums) will be published **1 day after Cosmos EVM’s announced public disclosure date**.  
+> - Cosmos EVM public disclosure date: **TBD (fill from Cosmos announcement)**  
+> - Kiichain public build-from-source release target: **TBD + 1 day**  
+>
+> Until that public release, use **only** the binaries and `SHA256SUMS-v7.3.0.txt` attached to this GitHub Release.
 
 ## Summary
 
