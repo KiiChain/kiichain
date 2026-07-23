@@ -5,8 +5,8 @@
 > **Cannot build from source (yet):** `go mod download` / `make build` against public GitHub will fail until the dependency is flipped back to a public module path.
 >
 > **Public build-from-source release:** A follow-up public release (public `KiiChain/evm` / upstream module path, with its own checksums) will be published **1 day after Cosmos EVM’s announced public disclosure date**.  
-> - Cosmos EVM public disclosure date: **TBD (fill from Cosmos announcement)**  
-> - Kiichain public build-from-source release target: **TBD + 1 day**  
+> - Cosmos EVM public disclosure date: **July 27, 2026**  
+> - Kiichain public build-from-source release target: **July 28, 2026**  
 >
 > Until that public release, use **only** the binaries and `SHA256SUMS-v7.3.0.txt` attached to this GitHub Release.
 
