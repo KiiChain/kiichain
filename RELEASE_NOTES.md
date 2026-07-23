@@ -51,11 +51,11 @@ Build with `make goreleaser-build-local` using `--platform linux/amd64` for repr
 
 Verify downloads against `SHA256SUMS-v7.3.0.txt`.
 
-### Reproduced checksums (linux/amd64 GoReleaser container)
+### Checksums (`SHA256SUMS-v7.3.0.txt`)
 
 ```text
-6dd640a9b9943856e5890e9705fb9f8267b80a36d0fb3ad6dd5e4cc64803c62a  kiichaind-darwin-amd64
-b91dedaea1e822618ef05f2ac77e9c9baa6a2bbe26b2bc952972a92f8cff8bbf  kiichaind-darwin-arm64
-b99a7dd0097fe377c7248a12184d3c0ff1efb1c7886db7e6b366fc1701225b01  kiichaind-linux-amd64
-46e553bee97c8bf68b3d5b14885497ad660735e36d4dc0b4c3788a96c662e688  kiichaind-linux-arm64
+c8de862ae2a57801c03165acab8b002b283513e14d39cc791b2e27fa70af9e6e  kiichaind-v7.3.0-darwin-amd64
+f544123d3a7f4db6f5580b0170c7a822ae4f625834d577761637765bf8a0b5dc  kiichaind-v7.3.0-darwin-arm64
+be366ab7e9508f958267010bfa9bdc5b44957705e1bda5a31cc95b47c4c91dfd  kiichaind-v7.3.0-linux-amd64
+ccaece2adc055dbdc5b79b38b2e082d9f864720cae6d4eb2fea4c884e8c64a70  kiichaind-v7.3.0-linux-arm64
 ```
