@@ -163,6 +163,7 @@ ifneq ($(strip $(TAG)),)
 	@git tag -d $(TAG)
 	@echo "--> Running goreleaser"
 	@go install github.com/goreleaser/goreleaser@latest
+	@GOPRIVATE=github.com/KiiChain/* go mod download
 	@docker run \
 		--rm \
 		-e CGO_ENABLED=1 \
@@ -207,6 +208,7 @@ build-static-linux-amd64: go.sum $(BUILDDIR)/
 
 # uses goreleaser to create static binaries for darwin on local machine
 goreleaser-build-local:
+	GOPRIVATE=github.com/KiiChain/* go mod download
 	docker run \
 		--rm \
 		-e CGO_ENABLED=1 \
@@ -230,6 +232,7 @@ goreleaser-build-local:
 # requires access to GITHUB_TOKEN which has to be available in the CI environment
 ifdef GITHUB_TOKEN
 ci-release:
+	GOPRIVATE=github.com/KiiChain/* go mod download
 	docker run \
 		--rm \
 		-e CGO_ENABLED=1 \
