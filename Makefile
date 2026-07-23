@@ -171,7 +171,7 @@ ifneq ($(strip $(TAG)),)
 		-e TM_VERSION=$(TM_VERSION) \
 		-e COSMWASM_VERSION=$(COSMWASM_VERSION) \
 		-v `pwd`:/go/src/kiichaind \
-		-v $(GOMODCACHE):/go/pkg/mod \
+		-v $(GOMODCACHE):/go/pkg/mod:ro \
 		-w /go/src/kiichaind \
 		$(GORELEASER_IMAGE) \
 		release \
@@ -215,7 +215,7 @@ goreleaser-build-local:
 		-e TM_VERSION=$(TM_VERSION) \
 		-e COSMWASM_VERSION=$(COSMWASM_VERSION) \
 		-v `pwd`:/go/src/kiichaind \
-		-v $(GOMODCACHE):/go/pkg/mod \
+		-v $(GOMODCACHE):/go/pkg/mod:ro \
 		-w /go/src/kiichaind \
 		$(GORELEASER_IMAGE) \
 		release \
@@ -239,7 +239,7 @@ ci-release:
 		-e TM_VERSION=$(TM_VERSION) \
 		-e COSMWASM_VERSION=$(COSMWASM_VERSION) \
 		-v `pwd`:/go/src/kiichaind \
-		-v $(GOMODCACHE):/go/pkg/mod \
+		-v $(GOMODCACHE):/go/pkg/mod:ro \
 		-w /go/src/kiichaind \
 		$(GORELEASER_IMAGE) \
 		release \

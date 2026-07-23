@@ -98,9 +98,8 @@ builds:
         - wget -O /lib/libwasmvm_muslc.x86_64.a https://github.com/CosmWasm/wasmvm/releases/download/{{ .Env.COSMWASM_VERSION }}/libwasmvm_muslc.x86_64.a
         - echo "cefe73f0caa5a9eaba3733c639cdf5040c4746a93c20670ba6c9287fe39448ba /lib/libwasmvm_muslc.x86_64.a" | sha256sum -c
         - cp /lib/libwasmvm_muslc.x86_64.a /lib/libwasmvm_muslc.a
-        - curl -LO https://musl.cc/x86_64-linux-musl-cross.tgz
-        - tar xf x86_64-linux-musl-cross.tgz
-        - mv x86_64-linux-musl-cross /opt/musl-cross
+        - curl -L https://musl.cc/x86_64-linux-musl-cross.tgz | tar xz -C /opt
+        - mv /opt/x86_64-linux-musl-cross /opt/musl-cross
     ldflags:
       - -s -w
       - -linkmode=external
@@ -139,9 +138,8 @@ builds:
         - wget -O /lib/aarch64/libwasmvm_muslc.aarch64.a https://github.com/CosmWasm/wasmvm/releases/download/{{ .Env.COSMWASM_VERSION }}/libwasmvm_muslc.aarch64.a
         - echo "a04969b4f931be1d2e2f3f2313a68a20a202693f67559f7aaf1dd97250823aec /lib/aarch64/libwasmvm_muslc.aarch64.a" | sha256sum -c
         - cp /lib/aarch64/libwasmvm_muslc.aarch64.a /lib/aarch64/libwasmvm_muslc.a
-        - curl -LO https://musl.cc/aarch64-linux-musl-cross.tgz
-        - tar xf aarch64-linux-musl-cross.tgz
-        - mv aarch64-linux-musl-cross /opt/musl-cross-arm64
+        - curl -L https://musl.cc/aarch64-linux-musl-cross.tgz | tar xz -C /opt
+        - mv /opt/aarch64-linux-musl-cross /opt/musl-cross-arm64
     ldflags:
       - -s -w
       - -linkmode=external

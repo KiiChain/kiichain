@@ -2,7 +2,7 @@
 
 > **Why binaries are attached:** This release ships prebuilt `kiichaind` binaries because the patched EVM dependency lives in the private `github.com/KiiChain/evm-private` mirror. **You cannot build this release from public source** until after Cosmos EVM’s public disclosure window.
 >
-> **Public build-from-source release:** We will publish a follow-up public release (same binary hashes / equivalent public module path) **1 day after Cosmos EVM’s announced public disclosure date**. Until then, use only the binaries and checksums attached to this GitHub Release.
+> **Public build-from-source release:** We will publish a follow-up public release with the public module path **1 day after Cosmos EVM’s announced public disclosure date**, and attach fresh checksums for that rebuild. Until then, use only the binaries and checksums attached to this GitHub Release.
 
 ## Summary
 

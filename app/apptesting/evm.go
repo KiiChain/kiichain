@@ -22,10 +22,6 @@ import (
 // SetBalanceWithLocked after the Cosmos EVM locked-balance hotfix.
 const ERC20DeployerSeed = "kiichain/apptesting/erc20-deployer"
 
-// DefaultFirstERC20 is the contract address produced by the first DeployERC20
-// call (deployer nonce 0) using ERC20DeployerAddress.
-const DefaultFirstERC20 = "0xaF095889C624F74f349c59443D09E3958B227270"
-
 // ERC20DeployerAddress returns the deterministic EOA used to deploy/mint test
 // ERC20 contracts.
 func ERC20DeployerAddress() common.Address {
@@ -36,6 +32,10 @@ func ERC20DeployerAddress() common.Address {
 	}
 	return crypto.PubkeyToAddress(key.PublicKey)
 }
+
+// DefaultFirstERC20 is the contract address produced by the first DeployERC20
+// call (deployer nonce 0).
+var DefaultFirstERC20 = crypto.CreateAddress(ERC20DeployerAddress(), 0).Hex()
 
 // ensureAccountExists creates the account if missing so nonce tracking works.
 func ensureAccountExists(ctx sdk.Context, app *app.KiichainApp, addr sdk.AccAddress) {
