@@ -21,9 +21,33 @@ Cosmos Labs shared a hotfix with affected chains ahead of public disclosure. The
 
 ## Changes
 
+### Coordinated upgrade
+
 - chore: update `github.com/cosmos/evm` replacement to `github.com/KiiChain/evm-private v0.6.0-fork.3`.
 - feat: add `v7.3.0` coordinated upgrade handler (module migrations only; no store migrations).
 - chore: strip completed `v7.2.0` upgrade handler.
+
+### Kiichain ([KiiChain/kiichain](https://github.com/KiiChain/kiichain))
+
+- [#341](https://github.com/KiiChain/kiichain/pull/341) fix: tokenfactory metadata size limit
+- [#340](https://github.com/KiiChain/kiichain/pull/340) fix: distribution precompile 32-byte withdraw address inflates native supply
+- [#344](https://github.com/KiiChain/kiichain/pull/344) fix: MsgVoteWeighted and Nested Authz Bypass Vote Stake Requirements
+- [#343](https://github.com/KiiChain/kiichain/pull/343) fix: Feegrant Denomination Bypass via Post-Allowance Fee Conversion
+- [#342](https://github.com/KiiChain/kiichain/pull/342) fix: add authz guarded router
+- [#345](https://github.com/KiiChain/kiichain/pull/345) fix: cosmwasm evm query path repeatable undercharged evm exec
+- [#346](https://github.com/KiiChain/kiichain/pull/346) fix: prevent rewards BeginBlocker chain halt on bank transfer failure
+- [#347](https://github.com/KiiChain/kiichain/pull/347) fix: Reward Pool Exhaustion via Forced Minimum 1-Unit-Per-Block Release
+- [#350](https://github.com/KiiChain/kiichain/pull/350) fix: EIP-7702 Delegated EOAs Permanently Locked Out
+- [#352](https://github.com/KiiChain/kiichain/pull/352) fix: Oracle Slashing Bypass via voteTargets Map Mutation
+- [#354](https://github.com/KiiChain/kiichain/pull/354) fix: Unweighted Oracle Standard Deviation Inflates Reward Band
+- [#353](https://github.com/KiiChain/kiichain/pull/353) fix: Expedited Governance Proposal Whitelist Bypass via authz Wrapping
+- [#365](https://github.com/KiiChain/kiichain/pull/365) chore: bump evm fork
+
+### EVM ([KiiChain/evm](https://github.com/KiiChain/evm))
+
+- [#16](https://github.com/KiiChain/evm/pull/16) fix: distribution precompile 32-byte withdraw address inflates native supply
+- [#17](https://github.com/KiiChain/evm/pull/17) fix: evm fees refund
+- [#18](https://github.com/KiiChain/evm/pull/18) fix: cosmwasm evm query path repeatable undercharged evm exec
 
 ## Upgrade
 
@@ -40,22 +64,23 @@ Cosmos Labs shared a hotfix with affected chains ahead of public disclosure. The
 
 ## Binaries
 
-Build with `make goreleaser-build-local` using `--platform linux/amd64` for reproducible hashes across machines.
+**Validators: use the Linux prebuilt binaries only.** Do not build from public source for this release, and do not use Darwin artifacts on validator nodes.
 
-| OS     | Arch  | Artifact                          |
-| ------ | ----- | --------------------------------- |
-| linux  | amd64 | `kiichaind-v7.3.0-linux-amd64`    |
-| linux  | arm64 | `kiichaind-v7.3.0-linux-arm64`    |
-| darwin | arm64 | `kiichaind-v7.3.0-darwin-arm64`   |
-| darwin | amd64 | `kiichaind-v7.3.0-darwin-amd64`   |
+Release linux/darwin hashes were reproduced from tag `v7.3.0` (`cedbf48`) via GoReleaser release mode (no `--snapshot`). Verify downloads against `SHA256SUMS-v7.3.0.txt` below.
 
-Verify downloads against `SHA256SUMS-v7.3.0.txt`.
+| Role | OS | Arch | Artifact |
+| ---- | -- | ---- | -------- |
+| **Validator (recommended)** | linux | amd64 | `kiichaind-v7.3.0-linux-amd64` |
+| Validator (ARM hosts) | linux | arm64 | `kiichaind-v7.3.0-linux-arm64` |
+| Local Mac only (not for validators) | darwin | amd64 / arm64 | `kiichaind-v7.3.0-darwin-*` |
+
+Verify downloads against `SHA256SUMS-v7.3.0.txt`. After install, `kiichaind version` should report `v7.3.0` (commit `cedbf486bcdf1d7744b7506e7f3880eb21bd61c3`).
 
 ### Checksums (`SHA256SUMS-v7.3.0.txt`)
 
 ```text
+be9f08d4d04d4d2f6eb576c59415a7bd8965f03d8893e4a95c25b22584f3bc44  kiichaind-v7.3.0-linux-amd64
+b65d99295c8ead7708ceed21a3c1f36e096a0c7160f939fe6dbc36b64f08875d  kiichaind-v7.3.0-linux-arm64
 c8de862ae2a57801c03165acab8b002b283513e14d39cc791b2e27fa70af9e6e  kiichaind-v7.3.0-darwin-amd64
 f544123d3a7f4db6f5580b0170c7a822ae4f625834d577761637765bf8a0b5dc  kiichaind-v7.3.0-darwin-arm64
-be366ab7e9508f958267010bfa9bdc5b44957705e1bda5a31cc95b47c4c91dfd  kiichaind-v7.3.0-linux-amd64
-ccaece2adc055dbdc5b79b38b2e082d9f864720cae6d4eb2fea4c884e8c64a70  kiichaind-v7.3.0-linux-arm64
 ```
