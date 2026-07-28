@@ -5,7 +5,7 @@
 ### Dependencies
 
 - [EVM](https://github.com/KiiChain/evm) fork from v0.6.0-fork.1 to [v0.6.0-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.0-fork.2): bounded internal EVM call gas limit, EVM fee refunds, distribution precompile 32-byte withdraw fix, and CosmWasm EVM query undercharge fix
-- EVM fork bump from `v0.6.0-fork.2` to `v0.6.0-fork.3`, applied via the coordinated `v7.3.0` upgrade. This is a **private coordinated upgrade** following Cosmos Labs' recommended coordinated-disclosure process for the July 2026 Cosmos EVM hotfix (precompile gas accounting alignment and StateDB locked-balance snapshotting). Until Cosmos publishes the fix, the dependency is temporarily sourced from the private `github.com/KiiChain/evm-private` mirror so binaries can be built and verified without leaking the patch early. The dependency will be flipped back to the public `github.com/KiiChain/evm` tag the day after Cosmos makes the corresponding release public on their end.
+- [EVM](https://github.com/KiiChain/evm) fork bump from `v0.6.0-fork.2` to [v0.6.1-fork.1](https://github.com/KiiChain/evm/releases/tag/v0.6.1-fork.1), applied via the coordinated `v7.3.0` upgrade: the July 2026 Cosmos EVM hotfix (precompile gas accounting alignment and StateDB locked-balance snapshotting), published upstream as [cosmos/evm v0.6.1](https://github.com/cosmos/evm/releases/tag/v0.6.1)
 
 ### Added
 

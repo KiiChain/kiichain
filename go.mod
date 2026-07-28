@@ -311,27 +311,8 @@ replace (
 	// Use cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
-	// Temporary private Cosmos EVM dependency for the coordinated v7.3.0 upgrade.
-	//
-	// Context:
-	//   Cosmos Labs privately shared a July 2026 Cosmos EVM hotfix with affected
-	//   chains ahead of public disclosure (precompile gas accounting alignment,
-	//   StateDB locked-balance snapshotting, and related state-machine fixes).
-	//   Those changes are state-machine-breaking, so validators must switch at a
-	//   coordinated height. Until Cosmos publishes the fix upstream, we cannot
-	//   source it from the public github.com/cosmos/evm or github.com/KiiChain/evm
-	//   tags without leaking the patch early.
-	//
-	// Why github.com/KiiChain/evm-private:
-	//   The hotfix is backported onto our existing fee-abstraction fork as
-	//   v0.6.0-fork.3 and kept in a private mirror so operators can build and
-	//   verify binaries before the public disclosure window.
-	//
-	// Follow-up:
-	//   After Cosmos makes the corresponding release public, flip this replace
-	//   back to the public KiiChain/evm (or upstream cosmos/evm) tag on the day
-	//   after their public disclosure date, and remove the private-repo CI auth.
-	github.com/cosmos/evm => github.com/KiiChain/evm-private v0.6.0-fork.3
+	// Use our fork w/ fee abstraction possibility
+	github.com/cosmos/evm => github.com/KiiChain/evm v0.6.1-fork.1
 
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2

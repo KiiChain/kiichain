@@ -12,7 +12,7 @@ import (
 )
 
 // CreateUpgradeHandler creates the upgrade handler for the v7.3.0 upgrade.
-// This upgrade coordinates the switch to the EVM v0.6.0-fork.3 dependency, whose
+// This upgrade coordinates the switch to the EVM v0.6.1-fork.1 dependency, whose
 // changes are state-machine-breaking. No custom state migrations are needed, so
 // the handler only runs pending module migrations.
 func CreateUpgradeHandler(

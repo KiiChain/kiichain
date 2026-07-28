@@ -9,8 +9,8 @@ const (
 	UpgradeName = "v7.3.0"
 )
 
-// Upgrade defines the coordinated upgrade for the EVM v0.6.0-fork.3 dependency
-// bump. The fork.3 changes (precompile gas accounting, statedb locked-balance
+// Upgrade defines the coordinated upgrade for the EVM v0.6.1-fork.1 dependency
+// bump. Those changes (precompile gas accounting, statedb locked-balance
 // handling, and feemarket EndBlock) are state-machine-breaking, so this upgrade
 // ensures every validator switches to the new binary at the same height. No
 // store migrations are required.
