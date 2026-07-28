@@ -221,7 +221,6 @@ goreleaser-build-local:
 		release \
 		--snapshot \
 		--skip=publish \
-		--release-notes ./RELEASE_NOTES.md \
 		--timeout 90m \
 		--verbose \
 		--clean
@@ -243,7 +242,6 @@ ci-release:
 		-w /go/src/kiichaind \
 		$(GORELEASER_IMAGE) \
 		release \
-		--release-notes ./RELEASE_NOTES.md \
 		--timeout=90m \
 		--clean
 else
