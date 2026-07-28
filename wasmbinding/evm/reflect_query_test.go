@@ -12,9 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	erc20types "github.com/cosmos/evm/x/erc20/types"
 	"github.com/cosmos/evm/x/vm/statedb"
 
 	app "github.com/kiichain/kiichain/v7/app"
@@ -205,8 +203,10 @@ func TestQueryERC20Allowance(t *testing.T) {
 // deployCounter deploys the counter contract
 func deployCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.Address {
 	t.Helper()
-	// Select the from as the erc20 module address
-	from := common.BytesToAddress(authtypes.NewModuleAddress(erc20types.ModuleName).Bytes())
+	from := apptesting.ERC20DeployerAddress()
+	if app.AccountKeeper.GetAccount(ctx, sdk.AccAddress(from.Bytes())) == nil {
+		app.AccountKeeper.SetAccount(ctx, app.AccountKeeper.NewAccountWithAddress(ctx, sdk.AccAddress(from.Bytes())))
+	}
 
 	// Set the data
 	counterABI, err := mock.CounterMetaData.GetAbi()
@@ -230,8 +230,10 @@ func deployCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp) common.A
 // incrementCounter increments the counter in the contract
 func incrementCounter(t *testing.T, ctx sdk.Context, app *app.KiichainApp, contractAddr common.Address) {
 	t.Helper()
-	// Sender must be an account with ETH balance and nonce tracking
-	from := common.BytesToAddress(authtypes.NewModuleAddress(erc20types.ModuleName).Bytes())
+	from := apptesting.ERC20DeployerAddress()
+	if app.AccountKeeper.GetAccount(ctx, sdk.AccAddress(from.Bytes())) == nil {
+		app.AccountKeeper.SetAccount(ctx, app.AccountKeeper.NewAccountWithAddress(ctx, sdk.AccAddress(from.Bytes())))
+	}
 
 	// Load the ABI and pack the increment() call
 	counterABI, err := mock.CounterMetaData.GetAbi()

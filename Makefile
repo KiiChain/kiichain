@@ -148,6 +148,7 @@ distclean: clean
 GO_VERSION := $(shell cat go.mod | grep -E 'go [0-9].[0-9]+' | cut -d ' ' -f 2)
 GORELEASER_IMAGE := ghcr.io/goreleaser/goreleaser-cross:v$(REQUIRE_GO_VERSION)
 COSMWASM_VERSION := $(shell go list -m github.com/CosmWasm/wasmvm/v3 | sed 's/.* //')
+GOMODCACHE := $(shell go env GOMODCACHE)
 
 # create tag and run goreleaser without publishing
 # errors are possible while running goreleaser - the process can run for >30 min
@@ -162,12 +163,15 @@ ifneq ($(strip $(TAG)),)
 	@git tag -d $(TAG)
 	@echo "--> Running goreleaser"
 	@go install github.com/goreleaser/goreleaser@latest
+	@go mod download
 	@docker run \
 		--rm \
 		-e CGO_ENABLED=1 \
+		-e GOMODCACHE=/go/pkg/mod \
 		-e TM_VERSION=$(TM_VERSION) \
 		-e COSMWASM_VERSION=$(COSMWASM_VERSION) \
 		-v `pwd`:/go/src/kiichaind \
+		-v $(GOMODCACHE):/go/pkg/mod:ro \
 		-w /go/src/kiichaind \
 		$(GORELEASER_IMAGE) \
 		release \
@@ -203,36 +207,41 @@ build-static-linux-amd64: go.sum $(BUILDDIR)/
 
 # uses goreleaser to create static binaries for darwin on local machine
 goreleaser-build-local:
+	go mod download
 	docker run \
 		--rm \
 		-e CGO_ENABLED=1 \
+		-e GOMODCACHE=/go/pkg/mod \
 		-e TM_VERSION=$(TM_VERSION) \
 		-e COSMWASM_VERSION=$(COSMWASM_VERSION) \
 		-v `pwd`:/go/src/kiichaind \
+		-v $(GOMODCACHE):/go/pkg/mod:ro \
 		-w /go/src/kiichaind \
 		$(GORELEASER_IMAGE) \
 		release \
 		--snapshot \
 		--skip=publish \
-		--release-notes ./RELEASE_NOTES.md \
 		--timeout 90m \
-		--verbose
+		--verbose \
+		--clean
 
 # uses goreleaser to create static binaries for linux an darwin
 # requires access to GITHUB_TOKEN which has to be available in the CI environment
 ifdef GITHUB_TOKEN
 ci-release:
+	go mod download
 	docker run \
 		--rm \
 		-e CGO_ENABLED=1 \
 		-e GITHUB_TOKEN=$(GITHUB_TOKEN) \
+		-e GOMODCACHE=/go/pkg/mod \
 		-e TM_VERSION=$(TM_VERSION) \
 		-e COSMWASM_VERSION=$(COSMWASM_VERSION) \
 		-v `pwd`:/go/src/kiichaind \
+		-v $(GOMODCACHE):/go/pkg/mod:ro \
 		-w /go/src/kiichaind \
 		$(GORELEASER_IMAGE) \
 		release \
-		--release-notes ./RELEASE_NOTES.md \
 		--timeout=90m \
 		--clean
 else
