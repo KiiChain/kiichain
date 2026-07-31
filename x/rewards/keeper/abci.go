@@ -50,16 +50,12 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 		return nil
 	}
 
-	amountToDistribute, inflation, err := types.CalculateReward(
+	amountToDistribute, inflation := types.CalculateReward(
 		ctx.BlockTime(),
 		rewardPool.LastReleaseTime,
 		bondedRatio,
 		params,
 	)
-	if err != nil {
-		k.Logger(ctx).Error("failed to calculate reward", "error", err)
-		return nil
-	}
 
 	// Cap at remaining pool balance so emissions run until the pool is dry
 	amountToDistribute.Amount = math.MinInt(amountToDistribute.Amount, poolBalance)

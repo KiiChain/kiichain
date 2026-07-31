@@ -44,12 +44,12 @@ func CalculateReward(
 	lastReleaseTime time.Time,
 	bondedRatio math.LegacyDec,
 	p Params,
-) (sdk.Coin, math.LegacyDec, error) {
+) (sdk.Coin, math.LegacyDec) {
 	denom := p.TokenDenom
 	zero := sdk.NewCoin(denom, math.ZeroInt())
 
 	if p.SupplyBase.IsZero() {
-		return zero, math.LegacyZeroDec(), nil
+		return zero, math.LegacyZeroDec()
 	}
 
 	inflation := CalculateInflation(bondedRatio, p)
@@ -57,7 +57,7 @@ func CalculateReward(
 
 	elapsedNs := blockTime.Sub(lastReleaseTime).Nanoseconds()
 	if elapsedNs <= 0 {
-		return zero, inflation, nil
+		return zero, inflation
 	}
 
 	const nsPerYear = int64(SecondsPerYear) * 1_000_000_000
@@ -66,9 +66,5 @@ func CalculateReward(
 		QuoInt64(nsPerYear).
 		TruncateInt()
 
-	if amount.IsNegative() {
-		amount = math.ZeroInt()
-	}
-
-	return sdk.NewCoin(denom, amount), inflation, nil
+	return sdk.NewCoin(denom, amount), inflation
 }

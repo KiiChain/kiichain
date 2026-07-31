@@ -80,6 +80,7 @@ need_cmd() {
 
 need_cmd jq
 need_cmd curl
+need_cmd python3
 
 log "Building kiichaind"
 make build >/dev/null

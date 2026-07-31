@@ -33,6 +33,7 @@ func (suite *KeeperTestSuite) TestBeginBlocker() {
 		expectTransfer       bool
 		expectedChangeAmount func(bonded math.LegacyDec) sdk.Coin
 		expectLastReleaseSet bool
+		expectLastReleaseAdv bool
 	}{
 		{
 			name: "supply base zero - no action",
@@ -49,11 +50,22 @@ func (suite *KeeperTestSuite) TestBeginBlocker() {
 			expectTransfer: false,
 		},
 		{
-			name:   "empty pool - no action",
+			name:   "empty pool with prior release - advances last release time",
 			params: defaultParams,
 			initialPool: types.RewardPool{
 				CommunityPool:   sdk.DecCoins{},
 				LastReleaseTime: now,
+			},
+			blockTime:            now.Add(time.Hour),
+			expectTransfer:       false,
+			expectLastReleaseAdv: true,
+		},
+		{
+			name:   "empty pool with zero last release - no action",
+			params: defaultParams,
+			initialPool: types.RewardPool{
+				CommunityPool:   sdk.DecCoins{},
+				LastReleaseTime: time.Time{},
 			},
 			blockTime:      now.Add(time.Hour),
 			expectTransfer: false,
@@ -70,6 +82,16 @@ func (suite *KeeperTestSuite) TestBeginBlocker() {
 			expectLastReleaseSet: true,
 		},
 		{
+			name:   "sub-unit release - zero amount skip",
+			params: defaultParams,
+			initialPool: types.RewardPool{
+				CommunityPool:   sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(100000))),
+				LastReleaseTime: now,
+			},
+			blockTime:      now.Add(time.Nanosecond),
+			expectTransfer: false,
+		},
+		{
 			name:   "normal distribution",
 			params: defaultParams,
 			initialPool: types.RewardPool{
@@ -79,8 +101,23 @@ func (suite *KeeperTestSuite) TestBeginBlocker() {
 			blockTime:      now.Add(time.Hour),
 			expectTransfer: true,
 			expectedChangeAmount: func(bonded math.LegacyDec) sdk.Coin {
-				coin, _, err := types.CalculateReward(now.Add(time.Hour), now, bonded, defaultParams)
-				suite.Require().NoError(err)
+				coin, _ := types.CalculateReward(now.Add(time.Hour), now, bonded, defaultParams)
+				coin.Amount = math.MinInt(coin.Amount, math.NewInt(100000))
+				return coin
+			},
+		},
+		{
+			name:   "accumulates total released on subsequent release",
+			params: defaultParams,
+			initialPool: types.RewardPool{
+				CommunityPool:   sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(100000))),
+				LastReleaseTime: now,
+				TotalReleased:   sdk.NewCoin(denom, math.NewInt(7)),
+			},
+			blockTime:      now.Add(time.Hour),
+			expectTransfer: true,
+			expectedChangeAmount: func(bonded math.LegacyDec) sdk.Coin {
+				coin, _ := types.CalculateReward(now.Add(time.Hour), now, bonded, defaultParams)
 				coin.Amount = math.MinInt(coin.Amount, math.NewInt(100000))
 				return coin
 			},
@@ -97,6 +134,17 @@ func (suite *KeeperTestSuite) TestBeginBlocker() {
 			expectedChangeAmount: func(bonded math.LegacyDec) sdk.Coin {
 				return sdk.NewCoin(denom, math.NewInt(10))
 			},
+		},
+		{
+			name:   "bank transfer failure - logs and skips without panic",
+			params: defaultParams,
+			initialPool: types.RewardPool{
+				// Accounting claims far more than the module account holds
+				CommunityPool:   sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(1_000_000_000))),
+				LastReleaseTime: now,
+			},
+			blockTime:      now.Add(365 * 24 * time.Hour),
+			expectTransfer: false,
 		},
 	}
 
@@ -125,8 +173,15 @@ func (suite *KeeperTestSuite) TestBeginBlocker() {
 				return
 			}
 
+			if tc.expectLastReleaseAdv {
+				suite.Require().True(tc.blockTime.Equal(pool.LastReleaseTime))
+				suite.Require().True(tc.initialPool.CommunityPool.Equal(pool.CommunityPool))
+				return
+			}
+
 			if !tc.expectTransfer {
 				suite.Require().True(tc.initialPool.CommunityPool.Equal(pool.CommunityPool))
+				suite.Require().True(tc.initialPool.LastReleaseTime.Equal(pool.LastReleaseTime))
 				return
 			}
 
@@ -140,10 +195,51 @@ func (suite *KeeperTestSuite) TestBeginBlocker() {
 			expectedPool := tc.initialPool.CommunityPool.Sub(sdk.NewDecCoinsFromCoins(expected))
 			suite.Require().Equal(expectedPool, pool.CommunityPool)
 			suite.Require().True(tc.blockTime.Equal(pool.LastReleaseTime))
-			suite.Require().Equal(expected, pool.TotalReleased)
+
+			if !tc.initialPool.TotalReleased.IsNil() && !tc.initialPool.TotalReleased.IsZero() {
+				suite.Require().Equal(tc.initialPool.TotalReleased.Add(expected), pool.TotalReleased)
+			} else {
+				suite.Require().Equal(expected, pool.TotalReleased)
+			}
 
 			currentFeeCollectorBalance := suite.App.BankKeeper.GetBalance(ctx, feeCollectorAddr, denom)
 			suite.Require().Equal(initialFeeCollectorBalance.Add(expected), currentFeeCollectorBalance)
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) TestGenesisInitExport() {
+	denom := types.DefaultParams().TokenDenom
+	params := types.DefaultParams()
+	params.SupplyBase = math.NewInt(42)
+
+	pool := types.RewardPool{
+		CommunityPool:   sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(1000))),
+		LastReleaseTime: time.Now().UTC(),
+		TotalReleased:   sdk.NewCoin(denom, math.NewInt(5)),
+	}
+
+	// Fund the module account so InitGenesis accounting check is quiet
+	err := suite.App.RewardsKeeper.FundCommunityPool(suite.Ctx, sdk.NewCoin(denom, math.NewInt(1000)), suite.TestAccs[0])
+	suite.Require().NoError(err)
+
+	suite.App.RewardsKeeper.InitGenesis(suite.Ctx, types.GenesisState{
+		Params:     params,
+		RewardPool: pool,
+	})
+
+	exported := suite.App.RewardsKeeper.ExportGenesis(suite.Ctx)
+	suite.Require().Equal(params, exported.Params)
+	suite.Require().True(pool.CommunityPool.Equal(exported.RewardPool.CommunityPool))
+	suite.Require().True(pool.LastReleaseTime.Equal(exported.RewardPool.LastReleaseTime))
+	suite.Require().Equal(pool.TotalReleased, exported.RewardPool.TotalReleased)
+
+	// Accounting mismatch is logged, not fatal
+	badPool := pool
+	badPool.CommunityPool = badPool.CommunityPool.Add(sdk.NewDecCoin(denom, math.NewInt(1)))
+	suite.App.RewardsKeeper.InitGenesis(suite.Ctx, types.GenesisState{
+		Params:     params,
+		RewardPool: badPool,
+	})
+	suite.Require().Error(suite.App.RewardsKeeper.ValidateModuleAccounting(suite.Ctx))
 }

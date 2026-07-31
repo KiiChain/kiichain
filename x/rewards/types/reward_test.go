@@ -78,27 +78,24 @@ func TestCalculateReward(t *testing.T) {
 	t.Run("zero supply base", func(t *testing.T) {
 		p := params
 		p.SupplyBase = math.ZeroInt()
-		coin, inf, err := types.CalculateReward(now.Add(time.Hour), now, bonded, p)
-		require.NoError(t, err)
+		coin, inf := types.CalculateReward(now.Add(time.Hour), now, bonded, p)
 		require.True(t, coin.IsZero())
 		require.True(t, inf.IsZero())
 	})
 
 	t.Run("non-positive elapsed", func(t *testing.T) {
-		coin, inf, err := types.CalculateReward(now, now, bonded, params)
-		require.NoError(t, err)
+		coin, inf := types.CalculateReward(now, now, bonded, params)
 		require.True(t, coin.IsZero())
 		require.True(t, inflation.Equal(inf))
 	})
 
 	t.Run("one year elapsed releases annual provision", func(t *testing.T) {
-		coin, inf, err := types.CalculateReward(
+		coin, inf := types.CalculateReward(
 			now.Add(time.Duration(types.SecondsPerYear)*time.Second),
 			now,
 			bonded,
 			params,
 		)
-		require.NoError(t, err)
 		require.True(t, inflation.Equal(inf))
 
 		expected := inflation.MulInt(params.SupplyBase).TruncateInt()
@@ -107,13 +104,12 @@ func TestCalculateReward(t *testing.T) {
 	})
 
 	t.Run("half year is half annual provision", func(t *testing.T) {
-		coin, _, err := types.CalculateReward(
+		coin, _ := types.CalculateReward(
 			now.Add(time.Duration(types.SecondsPerYear/2)*time.Second),
 			now,
 			bonded,
 			params,
 		)
-		require.NoError(t, err)
 
 		annual := inflation.MulInt(params.SupplyBase).TruncateInt()
 		require.True(t, coin.Amount.LTE(annual))
