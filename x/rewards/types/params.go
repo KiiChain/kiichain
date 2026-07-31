@@ -14,7 +14,7 @@ import (
 // SupplyBase defaults to zero => zero emissions until governance sets it.
 func DefaultParams() Params {
 	return Params{
-		TokenDenom:   params.BaseDenom,               // akii
+		TokenDenom:   params.BaseDenom,                 // akii
 		GoalBonded:   math.LegacyNewDecWithPrec(67, 2), // 0.67
 		InflationMin: math.LegacyZeroDec(),             // 0.00
 		InflationMax: math.LegacyNewDecWithPrec(20, 2), // 0.20

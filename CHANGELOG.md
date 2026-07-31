@@ -9,7 +9,8 @@
 
 ### Added
 
-- Emit `update_params`, `fund_pool`, `change_schedule`, and `reward_distributed` events from x/rewards
+- Replace timed linear `ReleaseSchedule` emissions in `x/rewards` with continuous inflation-based utility rewards driven by bonded ratio: `inflation = clamp((1 - bonded/goal) × 0.13 × bonded, min, max)`, amount = `inflation × supply_base × Δt / year`, capped at remaining pool balance (emits until pool runs dry). Adds staking `BondedRatio` dependency and gov params `goal_bonded`, `inflation_min`, `inflation_max`, `supply_base` (default `0` disables emissions); `inflation_rate_change` is hardcoded at `0.13`. Enable via `MsgFundPool` + gov `MsgUpdateParams`
+- Emit `update_params`, `fund_pool`, and `reward_distributed` events from x/rewards (`reward_distributed` now includes `inflation_rate` and `bonded_ratio`)
 - Emit `update_params` and `set_denom_metadata` events from tokenfactory
 - Emit `update_params`, `update_fee_tokens`, `module_disabled` and `token_disabled` events on fee abstraction
 - Emit `update_params` event on oracle module
@@ -49,6 +50,7 @@
 
 ### Removed
 
+- Remove `ReleaseSchedule`, `MsgChangeSchedule`, and the release-schedule query/CLI from `x/rewards`; emissions are continuous while `supply_base > 0` and the pool has funds (`last_release_time` / `total_released` live on `RewardPool`)
 - Removed price field input in updateTokenMetadata request
 
 ## v7.3.1 - 2026-08-06
