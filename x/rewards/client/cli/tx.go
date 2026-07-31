@@ -26,7 +26,6 @@ func GetTxCmd() *cobra.Command {
 	cmd.AddCommand(
 		NewFundPoolCmd(),
 		NewUpdateParamsCmd(),
-		NewChangeScheduleCmd(),
 	)
 
 	return cmd
@@ -80,36 +79,6 @@ $ %s tx gov submit-proposal update-rewards-params <path/to/params.json> --from m
 			}
 
 			msg := types.NewMsgUpdateParams(clientCtx.GetFromAddress().String(), params)
-
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-		},
-	}
-
-	flags.AddTxFlagsToCmd(cmd)
-	return cmd
-}
-
-// NewChangeScheduleCmd implements the change-schedule tx command.
-func NewChangeScheduleCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "change-schedule [schedule-json]",
-		Short: "Change schedule information (gov proposal)",
-		Long: `Change schedule information through a governance proposal. Example:
-$ %s tx gov submit-proposal change-schedule <path/to/schedule.json> --from mykey
-`,
-		Args: cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			var schedule types.ReleaseSchedule
-			if err := clientCtx.Codec.UnmarshalJSON([]byte(args[0]), &schedule); err != nil {
-				return fmt.Errorf("failed to parse params: %w", err)
-			}
-
-			msg := types.NewMsgChangeSchedule(clientCtx.GetFromAddress().String(), schedule)
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

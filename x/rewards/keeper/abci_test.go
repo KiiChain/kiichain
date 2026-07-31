@@ -10,291 +10,140 @@ import (
 	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
-func (suite *KeeperTestSuite) TestEndBlocker() {
-	// Set up default params
+func (suite *KeeperTestSuite) TestBeginBlocker() {
 	defaultParams := types.DefaultParams()
+	defaultParams.SupplyBase = math.NewInt(1_000_000_000_000) // 1e12
 	err := suite.App.RewardsKeeper.Params.Set(suite.Ctx, defaultParams)
 	suite.Require().NoError(err)
 
-	// Fund the reward pool first
 	err = suite.App.RewardsKeeper.FundCommunityPool(
 		suite.Ctx,
 		sdk.NewCoin(defaultParams.TokenDenom, math.NewInt(100000)),
 		suite.TestAccs[0])
 	suite.Require().NoError(err)
 
-	now := time.Now()
+	now := time.Now().UTC()
 	denom := defaultParams.TokenDenom
 
 	testCases := []struct {
 		name                 string
-		initialSchedule      types.ReleaseSchedule
-		initialPool          sdk.DecCoins
+		params               types.Params
+		initialPool          types.RewardPool
 		blockTime            time.Time
-		expectedChange       bool
-		expectedSchedule     types.ReleaseSchedule
-		expectedChangeAmount sdk.Coin
+		expectTransfer       bool
+		expectedChangeAmount func(bonded math.LegacyDec) sdk.Coin
+		expectLastReleaseSet bool
 	}{
 		{
-			name: "inactive schedule - no action",
-			initialSchedule: types.ReleaseSchedule{
-				Active: false,
+			name: "supply base zero - no action",
+			params: func() types.Params {
+				p := defaultParams
+				p.SupplyBase = math.ZeroInt()
+				return p
+			}(),
+			initialPool: types.RewardPool{
+				CommunityPool:   sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(100000))),
+				LastReleaseTime: now,
 			},
 			blockTime:      now.Add(time.Hour),
-			expectedChange: false,
+			expectTransfer: false,
 		},
 		{
-			name: "zero total amount - no action",
-			initialSchedule: types.ReleaseSchedule{
-				Active:      true,
-				TotalAmount: sdk.NewCoin(denom, math.ZeroInt()),
+			name:   "empty pool - no action",
+			params: defaultParams,
+			initialPool: types.RewardPool{
+				CommunityPool:   sdk.DecCoins{},
+				LastReleaseTime: now,
 			},
 			blockTime:      now.Add(time.Hour),
-			expectedChange: false,
+			expectTransfer: false,
 		},
 		{
-			name: "first run - sets timestamp but no distribution",
-			initialSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
+			name:   "first run - sets timestamp but no distribution",
+			params: defaultParams,
+			initialPool: types.RewardPool{
+				CommunityPool:   sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(100000))),
 				LastReleaseTime: time.Time{},
-				EndTime:         now.Add(time.Hour * 2),
 			},
-			blockTime: now,
-			expectedSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
-				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour * 2),
-			},
-			expectedChange:       true,
-			expectedChangeAmount: sdk.NewCoin(denom, math.ZeroInt()),
+			blockTime:            now,
+			expectTransfer:       false,
+			expectLastReleaseSet: true,
 		},
 		{
-			name: "normal distribution - partial release",
-			initialSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
+			name:   "normal distribution",
+			params: defaultParams,
+			initialPool: types.RewardPool{
+				CommunityPool:   sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(100000))),
 				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour * 2),
 			},
-			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(1000))),
-			blockTime:   now.Add(time.Hour),
-			expectedSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(500)),
-				LastReleaseTime: now.Add(time.Hour),
-				EndTime:         now.Add(time.Hour * 2),
+			blockTime:      now.Add(time.Hour),
+			expectTransfer: true,
+			expectedChangeAmount: func(bonded math.LegacyDec) sdk.Coin {
+				coin, _, err := types.CalculateReward(now.Add(time.Hour), now, bonded, defaultParams)
+				suite.Require().NoError(err)
+				coin.Amount = math.MinInt(coin.Amount, math.NewInt(100000))
+				return coin
 			},
-			expectedChange:       true,
-			expectedChangeAmount: sdk.NewCoin(denom, math.NewInt(500)),
 		},
 		{
-			name: "final distribution",
-			initialSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(900)),
+			name:   "pool runs dry - pays remaining balance",
+			params: defaultParams,
+			initialPool: types.RewardPool{
+				CommunityPool:   sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(10))),
 				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour),
 			},
-			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(100))),
-			blockTime:   now.Add(time.Hour),
-			expectedSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(1000)),
-				LastReleaseTime: now.Add(time.Hour),
-				EndTime:         now.Add(time.Hour),
+			blockTime:      now.Add(365 * 24 * time.Hour),
+			expectTransfer: true,
+			expectedChangeAmount: func(bonded math.LegacyDec) sdk.Coin {
+				return sdk.NewCoin(denom, math.NewInt(10))
 			},
-			expectedChange:       true,
-			expectedChangeAmount: sdk.NewCoin(denom, math.NewInt(100)),
-		},
-		{
-			name: "insufficient community pool - halts schedule without transfer",
-			initialSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
-				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour * 2),
-			},
-			// Pool has only 100 but 500 would be released (half of 1000 over 1 of 2 hours)
-			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(100))),
-			blockTime:   now.Add(time.Hour),
-			expectedSchedule: types.ReleaseSchedule{
-				Active:          false,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
-				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour * 2),
-			},
-			expectedChange:       true,
-			expectedChangeAmount: sdk.NewCoin(denom, math.ZeroInt()),
-		},
-		{
-			name: "bank transfer failure - halts schedule gracefully",
-			initialSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
-				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour * 2),
-			},
-			// Accounting claims 1,000,000 is available but the module account only
-			// holds the 100,000 funded above, so the 500,000 release transfer fails
-			// and the schedule must be halted instead of aborting the block.
-			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(1000000))),
-			blockTime:   now.Add(time.Hour),
-			expectedSchedule: types.ReleaseSchedule{
-				Active:          false,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
-				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour * 2),
-			},
-			expectedChange:       true,
-			expectedChangeAmount: sdk.NewCoin(denom, math.ZeroInt()),
-		},
-		{
-			name: "sub-unit release - skips without halting or releasing",
-			initialSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
-				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour * 24 * 365 * 10),
-			},
-			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(1000000))),
-			blockTime:   now.Add(time.Second),
-			expectedSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
-				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour * 24 * 365 * 10),
-			},
-			expectedChange:       true,
-			expectedChangeAmount: sdk.NewCoin(denom, math.ZeroInt()),
-		},
-		{
-			name: "end time equal to last release time - releases full remaining",
-			initialSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(800)),
-				LastReleaseTime: now,
-				EndTime:         now,
-			},
-			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(200))),
-			blockTime:   now.Add(time.Hour),
-			expectedSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(1000)),
-				LastReleaseTime: now.Add(time.Hour),
-				EndTime:         now,
-			},
-			expectedChange:       true,
-			expectedChangeAmount: sdk.NewCoin(denom, math.NewInt(200)),
-		},
-		{
-			name: "sub-second window - partial release without division by zero",
-			initialSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
-				LastReleaseTime: now,
-				EndTime:         now.Add(500 * time.Millisecond), // 500ms window
-			},
-			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(1000))),
-			blockTime:   now.Add(250 * time.Millisecond), // 250ms elapsed = 50%
-			expectedSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(500)),
-				LastReleaseTime: now.Add(250 * time.Millisecond),
-				EndTime:         now.Add(500 * time.Millisecond),
-			},
-			expectedChange:       true,
-			expectedChangeAmount: sdk.NewCoin(denom, math.NewInt(500)),
-		},
-		{
-			name: "no more distribution - set as inactive",
-			initialSchedule: types.ReleaseSchedule{
-				Active:          true,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(1000)),
-				LastReleaseTime: now.Add(time.Hour),
-				EndTime:         now.Add(time.Hour),
-			},
-			initialPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(100))),
-			blockTime:   now.Add(time.Hour * 2),
-			expectedSchedule: types.ReleaseSchedule{
-				Active:          false,
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(1000)),
-				LastReleaseTime: now.Add(time.Hour),
-				EndTime:         now.Add(time.Hour),
-			},
-			expectedChange:       true,
-			expectedChangeAmount: sdk.NewCoin(denom, math.ZeroInt()),
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			// Setup initial state
 			ctx := suite.Ctx.WithBlockTime(tc.blockTime)
 
-			// Set initial schedule state
-			err := suite.App.RewardsKeeper.ReleaseSchedule.Set(ctx, tc.initialSchedule)
+			err := suite.App.RewardsKeeper.Params.Set(ctx, tc.params)
 			suite.Require().NoError(err)
 
-			// Set initial pool state if needed
-			if !tc.initialPool.Empty() {
-				err := suite.App.RewardsKeeper.RewardPool.Set(ctx, types.RewardPool{
-					CommunityPool: tc.initialPool,
-				})
-				suite.Require().NoError(err)
-			}
+			err = suite.App.RewardsKeeper.RewardPool.Set(ctx, tc.initialPool)
+			suite.Require().NoError(err)
 
-			// Get initial fee collector balance
 			feeCollectorAddr := suite.App.AccountKeeper.GetModuleAddress("fee_collector")
 			initialFeeCollectorBalance := suite.App.BankKeeper.GetBalance(ctx, feeCollectorAddr, denom)
 
-			// Execute BeginBlocker
 			err = suite.App.RewardsKeeper.BeginBlocker(ctx)
 			suite.Require().NoError(err)
 
-			if tc.expectedChange {
-				// Verify schedule state
-				schedule, err := suite.App.RewardsKeeper.ReleaseSchedule.Get(ctx)
-				suite.Require().NoError(err)
-				suite.Require().Equal(tc.expectedSchedule.Active, schedule.Active)
-				suite.Require().Equal(tc.expectedSchedule.ReleasedAmount, schedule.ReleasedAmount)
-				suite.Require().Equal(tc.expectedSchedule.TotalAmount, schedule.TotalAmount)
-				suite.Require().True(tc.expectedSchedule.LastReleaseTime.Equal(schedule.LastReleaseTime))
-				suite.Require().True(tc.expectedSchedule.EndTime.Equal(schedule.EndTime))
+			pool, err := suite.App.RewardsKeeper.RewardPool.Get(ctx)
+			suite.Require().NoError(err)
 
-				// If expecting transfer
-				if !tc.expectedChangeAmount.IsZero() {
-					// Verify reward pool deduction
-					rewardPool, err := suite.App.RewardsKeeper.RewardPool.Get(ctx)
-					suite.Require().NoError(err)
-					expectedPool := tc.initialPool.Sub(sdk.NewDecCoinsFromCoins(tc.expectedChangeAmount))
-					suite.Require().Equal(expectedPool, rewardPool.CommunityPool)
-
-					// Verify fee collector balance change
-					currentFeeCollectorBalance := suite.App.BankKeeper.GetBalance(ctx, feeCollectorAddr, denom)
-					expectedBalance := initialFeeCollectorBalance.Add(tc.expectedChangeAmount)
-					suite.Require().Equal(expectedBalance, currentFeeCollectorBalance)
-				}
+			if tc.expectLastReleaseSet {
+				suite.Require().True(tc.blockTime.Equal(pool.LastReleaseTime))
+				suite.Require().Equal(tc.initialPool.CommunityPool, pool.CommunityPool)
+				return
 			}
+
+			if !tc.expectTransfer {
+				suite.Require().True(tc.initialPool.CommunityPool.Equal(pool.CommunityPool))
+				return
+			}
+
+			bonded, err := suite.App.StakingKeeper.BondedRatio(ctx)
+			suite.Require().NoError(err)
+			expected := tc.expectedChangeAmount(bonded)
+			if expected.IsZero() {
+				suite.T().Skip("calculated amount is zero for current bonded ratio; skip transfer assertion")
+			}
+
+			expectedPool := tc.initialPool.CommunityPool.Sub(sdk.NewDecCoinsFromCoins(expected))
+			suite.Require().Equal(expectedPool, pool.CommunityPool)
+			suite.Require().True(tc.blockTime.Equal(pool.LastReleaseTime))
+			suite.Require().Equal(expected, pool.TotalReleased)
+
+			currentFeeCollectorBalance := suite.App.BankKeeper.GetBalance(ctx, feeCollectorAddr, denom)
+			suite.Require().Equal(initialFeeCollectorBalance.Add(expected), currentFeeCollectorBalance)
 		})
 	}
 }

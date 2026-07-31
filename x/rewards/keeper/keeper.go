@@ -18,39 +18,40 @@ type (
 	Keeper struct {
 		cdc codec.BinaryCodec
 
-		bankKeeper types.BankKeeper
+		bankKeeper    types.BankKeeper
+		stakingKeeper types.StakingKeeper
 
 		// the address capable of executing a MsgUpdateParams message. Typically, this
 		// should be the x/gov module account.
 		authority        string
 		feeCollectorName string // name of the FeeCollector ModuleAccount
 
-		Schema          collections.Schema
-		Params          collections.Item[types.Params]
-		RewardPool      collections.Item[types.RewardPool]
-		ReleaseSchedule collections.Item[types.ReleaseSchedule]
+		Schema     collections.Schema
+		Params     collections.Item[types.Params]
+		RewardPool collections.Item[types.RewardPool]
 	}
 )
 
-// NewKeeper returns a new instance of the x/tokenfactory keeper
+// NewKeeper returns a new instance of the x/rewards keeper
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeService store.KVStoreService,
 	bankKeeper types.BankKeeper,
+	stakingKeeper types.StakingKeeper,
 	authority, feeCollectorName string,
 ) Keeper {
 	sb := collections.NewSchemaBuilder(storeService)
 	k := Keeper{
 		cdc: cdc,
 
-		bankKeeper: bankKeeper,
+		bankKeeper:    bankKeeper,
+		stakingKeeper: stakingKeeper,
 
 		authority:        authority,
 		feeCollectorName: feeCollectorName,
 
-		Params:          collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
-		RewardPool:      collections.NewItem(sb, types.RewardPoolKey, "reward_pool", codec.CollValue[types.RewardPool](cdc)),
-		ReleaseSchedule: collections.NewItem(sb, types.ReleaseScheduleKey, "release_schedule", codec.CollValue[types.ReleaseSchedule](cdc)),
+		Params:     collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
+		RewardPool: collections.NewItem(sb, types.RewardPoolKey, "reward_pool", codec.CollValue[types.RewardPool](cdc)),
 	}
 
 	schema, err := sb.Build()

@@ -2,12 +2,35 @@ syntax = "proto3";
 package kiichain.rewards.v1beta1;
 
 import "gogoproto/gogo.proto";
-import "kiichain/rewards/v1beta1/types.proto";
 
 option go_package = "github.com/kiichain/kiichain/x/rewards/types";
 
 // Params defines the parameters for the rewards module.
 message Params {
-  // Denom used
+  // Denom used for emissions
   string token_denom = 1;
+
+  // Target fraction of supply staked (e.g. "0.67")
+  string goal_bonded = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Floor on the emission rate (e.g. "0.00")
+  string inflation_min = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Ceiling on the emission rate (e.g. "0.20")
+  string inflation_max = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Base used to size annual provisions (in token base units)
+  string supply_base = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
 }
