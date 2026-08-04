@@ -41,7 +41,7 @@ func TestKiichainApp_BlockedModuleAccountAddrs(t *testing.T) {
 	moduleAccountAddresses := app.ModuleAccountAddrs()
 	blockedAddrs := app.BlockedModuleAccountAddrs(moduleAccountAddresses)
 
-	require.NotContains(t, blockedAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	require.Contains(t, blockedAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
 }
 
 func TestKiichainApp_Export(t *testing.T) {
