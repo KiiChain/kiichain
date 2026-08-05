@@ -51,7 +51,6 @@ import (
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -411,9 +410,6 @@ func (app *KiichainApp) ModuleAccountAddrs() map[string]bool {
 // BlockedModuleAccountAddrs returns all the app's blocked module account
 // addresses.
 func (app *KiichainApp) BlockedModuleAccountAddrs(modAccAddrs map[string]bool) map[string]bool {
-	// remove module accounts that are ALLOWED to received funds
-	delete(modAccAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
-
 	return modAccAddrs
 }
 
