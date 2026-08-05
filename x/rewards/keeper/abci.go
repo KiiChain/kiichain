@@ -103,26 +103,11 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 	return nil
 }
 
-// WriteRewardMetrics writes reward information to telemetry metrics
-func (k Keeper) WriteRewardMetrics(ctx sdk.Context, distributed, total sdk.Coin) {
-	distFloat, err := distributed.Amount.ToLegacyDec().Float64()
-	if err != nil {
-		k.Logger(ctx).Error("failed to convert distributed amount to float64",
-			"error", err,
-			"distributed", distributed.String(),
-			"denom", distributed.Denom,
-		)
-		return
-	}
-	totalFloat, err := total.Amount.ToLegacyDec().Float64()
-	if err != nil {
-		k.Logger(ctx).Error("failed to convert total release amount to float64",
-			"error", err,
-			"total", total.String(),
-			"denom", total.Denom,
-		)
-		return
-	}
+// WriteRewardMetrics writes reward information to telemetry metrics.
+// Conversion failures yield zero gauges; telemetry is best-effort.
+func (k Keeper) WriteRewardMetrics(_ sdk.Context, distributed, total sdk.Coin) {
+	distFloat, _ := distributed.Amount.ToLegacyDec().Float64()
+	totalFloat, _ := total.Amount.ToLegacyDec().Float64()
 
 	telemetry.ModuleSetGauge(
 		types.ModuleName,
