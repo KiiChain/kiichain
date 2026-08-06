@@ -16,7 +16,6 @@
 
 ### Fixed
 
-- Keep the gov module account on the bank blocked list so EVM BalanceHandler does not mirror gov deposits into StateDB (fixes Safe → gov precompile `deposit` failing on commit with `unauthorized`)
 - Close an expedited-governance whitelist bypass in `GovExpeditedProposalsDecorator` where the check only inspected top-level messages: a non-whitelisted `MsgSubmitProposal` wrapped in `authz.MsgExec` could enter the expedited voting path. The decorator now recurses into `authz.MsgExec` (including nested execs) and applies the expedited whitelist validation to wrapped proposals
 - Compute the oracle ballot `StandardDeviation` as a stake-weighted variance (weight each squared deviation by the vote's power and divide by total voting power) instead of an unweighted average divided by the vote count, aligning the reward-band width with the stake-weighted median and preventing a group of low-stake validators from inflating the deviation to widen the accepted vote window
 - Close an oracle slashing bypass in the `EndBlocker` where validators were scored against the post-filtered `voteTargets` map: a denom that received votes but was pushed below the vote threshold (e.g. by a coordinated group abstaining) was dropped from the scoring denominator, letting the abstainers avoid miss penalties. Participation is now scored against the configured targets that received votes (passing targets plus below-threshold targets), crediting validators that voted on a below-threshold target while counting abstention on it as a miss; targets that received no votes at all are still excluded so a legitimately unpriceable denom cannot mass-slash the validator set
@@ -51,6 +50,12 @@
 ### Removed
 
 - Removed price field input in updateTokenMetadata request
+
+## v7.3.1 - 2026-08-06
+
+### Fixed
+
+- Keep the gov module account on the bank blocked list so EVM BalanceHandler does not mirror gov deposits into StateDB (fixes Safe → gov precompile `deposit` failing on commit with `unauthorized`) ([#368](https://github.com/KiiChain/kiichain/pull/368))
 
 ## v7.1.0-mainnet - 2026-03-13
 
