@@ -8,14 +8,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	dbm "github.com/cosmos/cosmos-db"
+
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 	"cosmossdk.io/store"
 	"cosmossdk.io/store/metrics"
 	storetypes "cosmossdk.io/store/types"
-
-	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	dbm "github.com/cosmos/cosmos-db"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -119,6 +120,8 @@ func TestBeginBlockerErrorPaths(t *testing.T) {
 		pool, err := k.RewardPool.Get(ctx)
 		require.NoError(t, err)
 		require.True(t, pool.TotalReleased.IsZero() || pool.TotalReleased.IsNil() || pool.TotalReleased.Amount.IsZero())
+		// Clock advances so a later successful block does not dump accrued Δt
+		require.True(t, pool.LastReleaseTime.Equal(now))
 	})
 
 	t.Run("bank send failure skips without failing block", func(t *testing.T) {
@@ -141,7 +144,8 @@ func TestBeginBlockerErrorPaths(t *testing.T) {
 
 		pool, err := k.RewardPool.Get(ctx)
 		require.NoError(t, err)
-		require.True(t, pool.LastReleaseTime.Equal(now.Add(-time.Hour)))
+		require.True(t, pool.LastReleaseTime.Equal(now))
+		require.True(t, pool.TotalReleased.IsZero() || pool.TotalReleased.IsNil() || pool.TotalReleased.Amount.IsZero())
 	})
 }
 

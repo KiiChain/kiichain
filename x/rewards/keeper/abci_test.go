@@ -143,8 +143,9 @@ func (suite *KeeperTestSuite) TestBeginBlocker() {
 				CommunityPool:   sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(1_000_000_000))),
 				LastReleaseTime: now,
 			},
-			blockTime:      now.Add(365 * 24 * time.Hour),
-			expectTransfer: false,
+			blockTime:            now.Add(365 * 24 * time.Hour),
+			expectTransfer:       false,
+			expectLastReleaseAdv: true,
 		},
 	}
 

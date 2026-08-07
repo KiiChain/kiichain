@@ -38,14 +38,14 @@ func TestCalculateInflation(t *testing.T) {
 			name:        "peak at goalBonded/2",
 			bondedRatio: params.GoalBonded.QuoInt64(2),
 			// peak = rateChange * goalBonded / 4 = 0.13 * 0.67 / 4
-			want: types.InflationRateChange.Mul(params.GoalBonded).QuoInt64(4),
+			want: math.LegacyNewDecWithPrec(13, 2).Mul(params.GoalBonded).QuoInt64(4),
 		},
 		{
 			name:        "mid curve below peak",
 			bondedRatio: math.LegacyNewDecWithPrec(20, 2),
 			want: math.LegacyOneDec().
 				Sub(math.LegacyNewDecWithPrec(20, 2).Quo(params.GoalBonded)).
-				Mul(types.InflationRateChange).
+				Mul(math.LegacyNewDecWithPrec(13, 2)).
 				Mul(math.LegacyNewDecWithPrec(20, 2)),
 		},
 	}

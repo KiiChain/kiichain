@@ -47,7 +47,8 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 	bondedRatio, err := k.stakingKeeper.BondedRatio(ctx)
 	if err != nil {
 		k.Logger(ctx).Error("failed to read bonded ratio", "error", err)
-		return nil
+		// Advance the clock so a transient staking read failure does not accrue Δt
+		return k.advanceLastReleaseTime(ctx, rewardPool)
 	}
 
 	amountToDistribute, inflation := types.CalculateReward(
@@ -68,14 +69,16 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 
 	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, k.feeCollectorName, coinsToDistribute); err != nil {
 		k.Logger(ctx).Error("failed to send rewards to fee collector", "error", err)
-		return nil
+		// Skip this interval rather than dumping a catch-up emission once bank recovers
+		return k.advanceLastReleaseTime(ctx, rewardPool)
 	}
 
 	remaining, hasNeg := rewardPool.CommunityPool.SafeSub(sdk.NewDecCoinsFromCoins(coinsToDistribute...))
 	if hasNeg {
 		k.Logger(ctx).Error("community pool subtraction resulted in negative balance",
 			"denom", amountToDistribute.Denom)
-		return nil
+		// Funds may already have left the module account; still advance the clock
+		return k.advanceLastReleaseTime(ctx, rewardPool)
 	}
 	rewardPool.CommunityPool = remaining
 	rewardPool.LastReleaseTime = ctx.BlockTime()
@@ -101,6 +104,16 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 	k.WriteRewardMetrics(ctx, amountToDistribute, rewardPool.TotalReleased)
 
 	return nil
+}
+
+// advanceLastReleaseTime persists the current block time so a skipped release
+// interval does not accumulate into a later catch-up emission.
+func (k Keeper) advanceLastReleaseTime(ctx sdk.Context, rewardPool types.RewardPool) error {
+	if rewardPool.LastReleaseTime.IsZero() || !ctx.BlockTime().After(rewardPool.LastReleaseTime) {
+		return nil
+	}
+	rewardPool.LastReleaseTime = ctx.BlockTime()
+	return k.RewardPool.Set(ctx, rewardPool)
 }
 
 // WriteRewardMetrics writes reward information to telemetry metrics.
