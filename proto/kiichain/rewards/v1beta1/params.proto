@@ -28,7 +28,9 @@ message Params {
     (gogoproto.nullable) = false
   ];
 
-  // Base used to size annual provisions (in token base units)
+  // Notional base (in token base units) used to size annual provisions:
+  // annual_provision = inflation * supply_base. This is NOT chain total supply;
+  // it is a governance knob for emission scale. Zero disables emissions.
   string supply_base = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false

@@ -12,6 +12,7 @@ import (
 
 // DefaultParams returns default rewards parameters.
 // SupplyBase defaults to zero => zero emissions until governance sets it.
+// SupplyBase is a notional emission-scale base (not chain total supply).
 func DefaultParams() Params {
 	return Params{
 		TokenDenom:   params.BaseDenom,                 // akii

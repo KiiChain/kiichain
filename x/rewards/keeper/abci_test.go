@@ -16,19 +16,17 @@ func (suite *KeeperTestSuite) TestBeginBlocker() {
 	err := suite.App.RewardsKeeper.Params.Set(suite.Ctx, defaultParams)
 	suite.Require().NoError(err)
 
-	err = suite.App.RewardsKeeper.FundCommunityPool(
-		suite.Ctx,
-		sdk.NewCoin(defaultParams.TokenDenom, math.NewInt(100000)),
-		suite.TestAccs[0])
-	suite.Require().NoError(err)
-
 	now := time.Now().UTC()
 	denom := defaultParams.TokenDenom
 
 	testCases := []struct {
-		name                 string
-		params               types.Params
-		initialPool          types.RewardPool
+		name        string
+		params      types.Params
+		initialPool types.RewardPool
+		// moduleBankBalance is the actual coins placed in the rewards module
+		// account before BeginBlocker. Defaults to TruncateInt(CommunityPool)
+		// when nil; set explicitly for bank-failure cases.
+		moduleBankBalance    *math.Int
 		blockTime            time.Time
 		expectTransfer       bool
 		expectedChangeAmount func(bonded math.LegacyDec) sdk.Coin
@@ -143,6 +141,7 @@ func (suite *KeeperTestSuite) TestBeginBlocker() {
 				CommunityPool:   sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(1_000_000_000))),
 				LastReleaseTime: now,
 			},
+			moduleBankBalance:    ptrInt(math.ZeroInt()),
 			blockTime:            now.Add(365 * 24 * time.Hour),
 			expectTransfer:       false,
 			expectLastReleaseAdv: true,
@@ -155,6 +154,12 @@ func (suite *KeeperTestSuite) TestBeginBlocker() {
 
 			err := suite.App.RewardsKeeper.Params.Set(ctx, tc.params)
 			suite.Require().NoError(err)
+
+			wantBank := tc.initialPool.CommunityPool.AmountOf(denom).TruncateInt()
+			if tc.moduleBankBalance != nil {
+				wantBank = *tc.moduleBankBalance
+			}
+			suite.resetRewardsModuleBalance(ctx, denom, wantBank)
 
 			err = suite.App.RewardsKeeper.RewardPool.Set(ctx, tc.initialPool)
 			suite.Require().NoError(err)
@@ -207,6 +212,25 @@ func (suite *KeeperTestSuite) TestBeginBlocker() {
 			suite.Require().Equal(initialFeeCollectorBalance.Add(expected), currentFeeCollectorBalance)
 		})
 	}
+}
+
+func ptrInt(v math.Int) *math.Int { return &v }
+
+// resetRewardsModuleBalance drains the rewards module account, then funds it to want.
+func (suite *KeeperTestSuite) resetRewardsModuleBalance(ctx sdk.Context, denom string, want math.Int) {
+	moduleAddr := suite.App.AccountKeeper.GetModuleAddress(types.ModuleName)
+	cur := suite.App.BankKeeper.GetBalance(ctx, moduleAddr, denom)
+	if cur.IsPositive() {
+		err := suite.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, suite.TestAccs[0], sdk.NewCoins(cur))
+		suite.Require().NoError(err)
+	}
+	if !want.IsPositive() {
+		return
+	}
+	coin := sdk.NewCoin(denom, want)
+	suite.FundAcc(suite.TestAccs[0], sdk.NewCoins(coin))
+	err := suite.App.BankKeeper.SendCoinsFromAccountToModule(ctx, suite.TestAccs[0], types.ModuleName, sdk.NewCoins(coin))
+	suite.Require().NoError(err)
 }
 
 func (suite *KeeperTestSuite) TestGenesisInitExport() {

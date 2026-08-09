@@ -18,6 +18,7 @@ type (
 	Keeper struct {
 		cdc codec.BinaryCodec
 
+		storeService  store.KVStoreService
 		bankKeeper    types.BankKeeper
 		stakingKeeper types.StakingKeeper
 
@@ -44,6 +45,7 @@ func NewKeeper(
 	k := Keeper{
 		cdc: cdc,
 
+		storeService:  storeService,
 		bankKeeper:    bankKeeper,
 		stakingKeeper: stakingKeeper,
 
@@ -66,6 +68,11 @@ func NewKeeper(
 // GetAuthority returns the x/rewards module's authority.
 func (k Keeper) GetAuthority() string {
 	return k.authority
+}
+
+// StoreService returns the module KV store service (used by migrations).
+func (k Keeper) StoreService() store.KVStoreService {
+	return k.storeService
 }
 
 // Logger returns a logger for the x/rewards module

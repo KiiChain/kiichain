@@ -9,7 +9,7 @@
 
 ### Added
 
-- Replace timed linear `ReleaseSchedule` emissions in `x/rewards` with continuous inflation-based utility rewards driven by bonded ratio: `inflation = clamp((1 - bonded/goal) × 0.13 × bonded, min, max)`, amount = `inflation × supply_base × Δt / year`, capped at remaining pool balance (emits until pool runs dry). Adds staking `BondedRatio` dependency and gov params `goal_bonded`, `inflation_min`, `inflation_max`, `supply_base` (default `0` disables emissions); `inflation_rate_change` is hardcoded at `0.13`. Enable via `MsgFundPool` + gov `MsgUpdateParams`
+- Replace timed linear `ReleaseSchedule` emissions in `x/rewards` with continuous inflation-based utility rewards driven by bonded ratio: `inflation = clamp((1 - bonded/goal) × 0.13 × bonded, min, max)`, amount = `inflation × supply_base × Δt / year`, capped at remaining pool balance (emits until pool runs dry). Adds staking `BondedRatio` dependency and gov params `goal_bonded`, `inflation_min`, `inflation_max`, `supply_base` (default `0` disables emissions; notional emission scale, not chain total supply); `inflation_rate_change` is hardcoded at `0.13`. Enable via `MsgFundPool` + gov `MsgUpdateParams`. Module consensus version bumped to `2` with a store migration that deletes obsolete `ReleaseSchedule` state and backfills default inflation params
 - Emit `update_params`, `fund_pool`, and `reward_distributed` events from x/rewards (`reward_distributed` now includes `inflation_rate` and `bonded_ratio`)
 - Emit `update_params` and `set_denom_metadata` events from tokenfactory
 - Emit `update_params`, `update_fee_tokens`, `module_disabled` and `token_disabled` events on fee abstraction
