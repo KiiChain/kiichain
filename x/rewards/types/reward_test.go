@@ -38,14 +38,14 @@ func TestCalculateInflation(t *testing.T) {
 			name:        "peak at goalBonded/2",
 			bondedRatio: params.GoalBonded.QuoInt64(2),
 			// peak = rateChange * goalBonded / 4 = 0.13 * 0.67 / 4
-			want: math.LegacyNewDecWithPrec(13, 2).Mul(params.GoalBonded).QuoInt64(4),
+			want: params.InflationRateChange.Mul(params.GoalBonded).QuoInt64(4),
 		},
 		{
 			name:        "mid curve below peak",
 			bondedRatio: math.LegacyNewDecWithPrec(20, 2),
 			want: math.LegacyOneDec().
 				Sub(math.LegacyNewDecWithPrec(20, 2).Quo(params.GoalBonded)).
-				Mul(math.LegacyNewDecWithPrec(13, 2)).
+				Mul(params.InflationRateChange).
 				Mul(math.LegacyNewDecWithPrec(20, 2)),
 		},
 	}
@@ -71,9 +71,9 @@ func TestCalculateInflationClampsToMax(t *testing.T) {
 // "Inflation Calculation (2).xlsx" (goalBonded=0.67, inflationRateChange=0.13).
 // wantInflation is the KiiChain column; wantAnnual is TruncateInt(inflation * 1.8e9).
 var spreadsheetInflationCases = []struct {
-	bonded       string
+	bonded        string
 	wantInflation string
-	wantAnnual   int64
+	wantAnnual    int64
 }{
 	{"0", "0.000000000000000000", 0},
 	{"0.02", "0.002522388059701493", 4_540_298},

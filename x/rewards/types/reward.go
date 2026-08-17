@@ -12,10 +12,6 @@ import (
 // annual emission rate into a per-block provision.
 const SecondsPerYear = 31_536_000
 
-// inflationRateChange is the max annual swing of the emission rate.
-// Hardcoded (not a gov param) so emission math stays consensus-stable.
-var inflationRateChange = math.LegacyNewDecWithPrec(13, 2) // 0.13
-
 // CalculateInflation returns the KiiChain emission rate for a bonded ratio.
 // The bonded-ratio multiplier forms a distribution (bell) curve, then clamps
 // to [InflationMin, InflationMax].
@@ -24,7 +20,7 @@ var inflationRateChange = math.LegacyNewDecWithPrec(13, 2) // 0.13
 func CalculateInflation(bondedRatio math.LegacyDec, p Params) math.LegacyDec {
 	inflation := math.LegacyOneDec().
 		Sub(bondedRatio.Quo(p.GoalBonded)).
-		Mul(inflationRateChange).
+		Mul(p.InflationRateChange).
 		Mul(bondedRatio)
 
 	if inflation.LT(p.InflationMin) {

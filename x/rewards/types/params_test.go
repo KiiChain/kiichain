@@ -66,6 +66,20 @@ func TestParamsValidateBasic(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "invalid - inflation rate change zero",
+			mutate: func(p *types.Params) {
+				p.InflationRateChange = math.LegacyZeroDec()
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid - inflation rate change above one",
+			mutate: func(p *types.Params) {
+				p.InflationRateChange = math.LegacyNewDecWithPrec(101, 2)
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -90,4 +104,5 @@ func TestDefaultParams(t *testing.T) {
 	require.True(t, math.LegacyNewDecWithPrec(67, 2).Equal(defaultParams.GoalBonded))
 	require.True(t, math.LegacyNewDecWithPrec(20, 2).Equal(defaultParams.InflationMax))
 	require.True(t, defaultParams.InflationMin.IsZero())
+	require.True(t, math.LegacyNewDecWithPrec(13, 2).Equal(defaultParams.InflationRateChange))
 }

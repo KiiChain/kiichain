@@ -53,5 +53,6 @@ func (suite *MigrateTestSuite) TestMigrateStore() {
 	defaults := types.DefaultParams()
 	suite.Require().True(params.GoalBonded.Equal(defaults.GoalBonded), "got GoalBonded=%s want %s", params.GoalBonded, defaults.GoalBonded)
 	suite.Require().True(params.InflationMax.Equal(defaults.InflationMax), "got InflationMax=%s want %s", params.InflationMax, defaults.InflationMax)
+	suite.Require().True(params.InflationRateChange.Equal(defaults.InflationRateChange), "got InflationRateChange=%s want %s", params.InflationRateChange, defaults.InflationRateChange)
 	suite.Require().True(params.SupplyBase.IsZero())
 }

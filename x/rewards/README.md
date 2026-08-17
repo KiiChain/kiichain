@@ -14,12 +14,20 @@ Anyone can fund the pool; governance enables emissions by setting `supply_base`.
 ## Emission formula
 
 ```
-inflation = clamp((1 - bondedRatio/goalBonded) × 0.13 × bondedRatio, inflationMin, inflationMax)
+inflation = clamp((1 - bondedRatio/goalBonded) × inflationRateChange × bondedRatio, inflationMin, inflationMax)
 amount    = inflation × supplyBase × elapsedNs / nsPerYear
 pay       = min(amount, poolBalance)
 ```
 
-`inflation_rate_change` is a fixed constant (`0.13`). `supply_base` defaults to `0` (emissions off).
+Where:
+
+- `bondedRatio` — fraction of the token supply currently staked (read from x/staking)
+- `goalBonded` — target stake ratio; the curve peaks at `goalBonded/2` and hits zero at `goalBonded`
+- `inflationRateChange` — curve steepness (default `0.13`)
+- `inflationMin` / `inflationMax` — floor and ceiling on the emission rate
+- `supplyBase` — notional base that sizes annual provisions (`annual = inflation × supplyBase`).
+  It is **not** the chain total supply; it is a governance knob for emission scale.
+  Defaults to `0` (emissions off).
 
 ## Internal state
 
@@ -35,11 +43,12 @@ Params:
 
 ```go
 type Params struct {
-    TokenDenom   string
-    GoalBonded   math.LegacyDec // default 0.67
-    InflationMin math.LegacyDec // default 0
-    InflationMax math.LegacyDec // default 0.20
-    SupplyBase   math.Int       // default 0
+    TokenDenom          string
+    GoalBonded          math.LegacyDec // default 0.67
+    InflationMin        math.LegacyDec // default 0
+    InflationMax        math.LegacyDec // default 0.20
+    SupplyBase          math.Int       // default 0
+    InflationRateChange math.LegacyDec // default 0.13
 }
 ```
 

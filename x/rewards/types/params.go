@@ -15,11 +15,12 @@ import (
 // SupplyBase is a notional emission-scale base (not chain total supply).
 func DefaultParams() Params {
 	return Params{
-		TokenDenom:   params.BaseDenom,                 // akii
-		GoalBonded:   math.LegacyNewDecWithPrec(67, 2), // 0.67
-		InflationMin: math.LegacyZeroDec(),             // 0.00
-		InflationMax: math.LegacyNewDecWithPrec(20, 2), // 0.20
-		SupplyBase:   math.ZeroInt(),                   // TBD via governance
+		TokenDenom:          params.BaseDenom,                 // akii
+		GoalBonded:          math.LegacyNewDecWithPrec(67, 2), // 0.67
+		InflationMin:        math.LegacyZeroDec(),             // 0.00
+		InflationMax:        math.LegacyNewDecWithPrec(20, 2), // 0.20
+		SupplyBase:          math.ZeroInt(),                   // TBD via governance
+		InflationRateChange: math.LegacyNewDecWithPrec(13, 2), // 0.13
 	}
 }
 
@@ -43,6 +44,10 @@ func (p Params) ValidateBasic() error {
 
 	if p.SupplyBase.IsNegative() {
 		return fmt.Errorf("supplyBase cannot be negative, got %s", p.SupplyBase)
+	}
+
+	if !p.InflationRateChange.IsPositive() || p.InflationRateChange.GT(math.LegacyOneDec()) {
+		return fmt.Errorf("inflationRateChange must be in (0,1], got %s", p.InflationRateChange)
 	}
 
 	return nil

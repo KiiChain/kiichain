@@ -166,7 +166,8 @@ func (s *IntegrationTestSuite) writeRewardsParamsProposal(c *chain, supplyBase m
                 "goal_bonded": "0.670000000000000000",
                 "inflation_min": "0.000000000000000000",
                 "inflation_max": "0.200000000000000000",
-                "supply_base": "%s"
+                "supply_base": "%s",
+                "inflation_rate_change": "0.130000000000000000"
             }
         }
     ],
