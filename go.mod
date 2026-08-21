@@ -311,7 +311,8 @@ replace (
 	// Use cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
-	// Private August 2026 EVM hotfix; switch back to KiiChain/evm after disclosure
+	// Private August 2026 EVM hotfix for v7.3.2.
+	// Switch back to github.com/KiiChain/evm v0.6.2-fork.1 on 2026-08-28 (GHSA public).
 	github.com/cosmos/evm => github.com/KiiChain/evm-private v0.6.2-fork.1
 
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
