@@ -311,8 +311,8 @@ replace (
 	// Use cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
-	// Use our fork w/ fee abstraction possibility
-	github.com/cosmos/evm => github.com/KiiChain/evm v0.6.1-fork.1
+	// Private August 2026 EVM hotfix; switch back to KiiChain/evm after disclosure
+	github.com/cosmos/evm => github.com/KiiChain/evm-private v0.6.2-fork.1
 
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
