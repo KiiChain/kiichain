@@ -112,8 +112,12 @@ func CreateUpgradeHandler(
 // into stagingAddr, pay out the computed amounts from stagingAddr, then send
 // whatever remains in stagingAddr to remainderAddr. Each stage must finish
 // before the next reads stagingAddr's balance, which holds here because all
-// three run sequentially against the same, still-uncommitted block context
+// three run sequentially against the same, still-uncommitted block context.
 func recoverFunds(ctx sdk.Context, k *keepers.AppKeepers) error {
+	if ctx.ChainID() != MainnetChainID {
+		return fmt.Errorf("refusing to move funds: chain-id %q is not mainnet (%q)", ctx.ChainID(), MainnetChainID)
+	}
+
 	staging, err := sdk.AccAddressFromBech32(stagingAddr)
 	if err != nil {
 		return fmt.Errorf("invalid staging address: %w", err)
@@ -127,7 +131,7 @@ func recoverFunds(ctx sdk.Context, k *keepers.AppKeepers) error {
 		return err
 	}
 
-	return sweepRemainder(ctx, k, staging)
+	return distributeRemainder(ctx, k, staging)
 }
 
 // sweepAttackerFunds moves every attacker wallet's full balance into staging
@@ -176,8 +180,8 @@ func distributePayouts(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccAd
 	return nil
 }
 
-// sweepRemainder sends whatever is left in staging to remainderAddr
-func sweepRemainder(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccAddress) error {
+// distributeRemainder sends whatever is left in staging to remainderAddr.
+func distributeRemainder(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccAddress) error {
 	remainder, err := sdk.AccAddressFromBech32(remainderAddr)
 	if err != nil {
 		return fmt.Errorf("invalid remainder address: %w", err)
@@ -188,9 +192,9 @@ func sweepRemainder(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccAddre
 		return nil
 	}
 	if err := k.BankKeeper.SendCoins(ctx, staging, remainder, balance); err != nil {
-		return fmt.Errorf("remainder sweep: %w", err)
+		return fmt.Errorf("remainder distribution: %w", err)
 	}
-	ctx.Logger().Info("emergency-fix: remainder swept", "amount", balance.String())
+	ctx.Logger().Info("emergency-fix: remainder distributed", "amount", balance.String())
 
 	return nil
 }

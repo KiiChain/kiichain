@@ -80,6 +80,7 @@ func totalPayouts(t *testing.T) math.Int {
 // whatever remains to remainderAddr.
 func TestCreateUpgradeHandler_RecoversAndRedistributesFunds(t *testing.T) {
 	app, ctx := kiihelpers.SetupWithContext(t)
+	ctx = ctx.WithChainID(v740.MainnetChainID)
 
 	remainder := math.NewIntWithDecimal(500, 18) // 500 KII left over, on purpose
 	total := totalPayouts(t).Add(remainder)
@@ -123,6 +124,7 @@ func TestCreateUpgradeHandler_RecoversAndRedistributesFunds(t *testing.T) {
 // list, it panics instead of sending partial or incorrect amounts.
 func TestCreateUpgradeHandler_PanicsWhenStagingCannotCoverPayouts(t *testing.T) {
 	app, ctx := kiihelpers.SetupWithContext(t)
+	ctx = ctx.WithChainID(v740.MainnetChainID)
 
 	// Fund the attacker with far less than the fixed payout list requires.
 	fund(t, app, ctx, attacker1, math.OneInt())
@@ -133,4 +135,28 @@ func TestCreateUpgradeHandler_PanicsWhenStagingCannotCoverPayouts(t *testing.T) 
 	require.Panics(t, func() {
 		_, _ = handler(ctx, upgradetypes.Plan{Name: v740.UpgradeName}, mm.GetVersionMap())
 	})
+}
+
+// TestCreateUpgradeHandler_PanicsWhenNotMainnet verifies the second,
+// independent chain-id guard inside recoverFunds: even with staging funded
+// generously enough to cover every payout, the handler must still refuse to
+// move funds on a non-mainnet chain-id.
+func TestCreateUpgradeHandler_PanicsWhenNotMainnet(t *testing.T) {
+	app, ctx := kiihelpers.SetupWithContext(t) // default test chain-id, not v740.MainnetChainID
+
+	fund(t, app, ctx, attacker1, totalPayouts(t).Add(math.NewIntWithDecimal(1, 18)))
+
+	mm := app.GetModuleManager()
+	handler := v740.CreateUpgradeHandler(mm, app.GetConfigurator(), &app.AppKeepers)
+
+	defer func() {
+		r := recover()
+		require.NotNil(t, r, "expected a panic")
+		err, ok := r.(error)
+		require.True(t, ok, "panic value should be an error, got %T", r)
+		require.Contains(t, err.Error(), "not mainnet")
+	}()
+
+	_, _ = handler(ctx, upgradetypes.Plan{Name: v740.UpgradeName}, mm.GetVersionMap())
+	t.Fatal("expected handler to panic")
 }

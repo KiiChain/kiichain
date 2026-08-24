@@ -364,7 +364,7 @@ func (app *KiichainApp) Name() string { return app.BaseApp.Name() }
 
 // PreBlocker application updates every pre block
 func (app *KiichainApp) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
-	if ctx.BlockHeight() == v7_4_0.UpgradeHeight {
+	if ctx.BlockHeight() == v7_4_0.UpgradeHeight && ctx.ChainID() == v7_4_0.MainnetChainID {
 		if _, err := app.UpgradeKeeper.GetUpgradePlan(ctx); err != nil {
 			plan := upgradetypes.Plan{
 				Name:   v7_4_0.UpgradeName,

@@ -8,8 +8,14 @@ const (
 
 	// UpgradeHeight is the height at which the Plan is scheduled and applied
 	// within the same PreBlocker pass — the first height produced after the
-	// manual halt (H+1). Mainnet was halted at height 9355722.
-	UpgradeHeight = int64(9355723)
+	// manual halt (H+1). Mainnet's last committed height before the halt was
+	// 9355723, per `latest_block_height` on the halted node's RPC.
+	UpgradeHeight = int64(9355724)
+
+	// MainnetChainID is the only chain-id this emergency upgrade is allowed to
+	// move funds on, confirmed via the halted mainnet node's own RPC status
+	// ("network": "kiichain_1783-1").
+	MainnetChainID = "kiichain_1783-1"
 )
 
 // Upgrade registers the emergency fund-recovery handler with x/upgrade. The
