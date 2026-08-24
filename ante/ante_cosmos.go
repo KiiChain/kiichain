@@ -29,7 +29,10 @@ func NewCosmosAnteHandler(ctx sdk.Context, options HandlerOptions) sdk.AnteHandl
 		evmcosmosante.NewAuthzLimiterDecorator( // disable the Msg types that cannot be included on an authz.MsgExec msgs field
 			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
 			sdk.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{}),
+			sdk.MsgTypeURL(&sdkvesting.MsgCreatePeriodicVestingAccount{}),
+			sdk.MsgTypeURL(&sdkvesting.MsgCreatePermanentLockedAccount{}),
 		),
+		NewVestingAccountCreationDecorator(options.Cdc), // reject vesting-create msgs at the top level and inside authz
 
 		ante.NewSetUpContextDecorator(),
 		oracle.NewVoteAloneDecorator(), // Since this only iterate TXs, it must be executed early
