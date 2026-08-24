@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+- Reject `MsgCreateVestingAccount`, `MsgCreatePeriodicVestingAccount`, and `MsgCreatePermanentLockedAccount` in the Cosmos ante (top-level and nested in `authz.MsgExec`) so new vesting / locked accounts cannot be opened after the v7.3.2 upgrade
+
 ### Dependencies
 
 - Bump EVM fork to `v0.6.2-fork.1`, applied via the coordinated `v7.3.2` upgrade (private Cosmos EVM security hotfix; cannot build from public source until 2026-08-28)
