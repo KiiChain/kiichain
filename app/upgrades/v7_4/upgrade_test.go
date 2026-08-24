@@ -82,7 +82,7 @@ func totalPayouts(t *testing.T) math.Int {
 // whatever remains to remainderAddr.
 func TestCreateUpgradeHandler_RecoversAndRedistributesFunds(t *testing.T) {
 	app, ctx := kiihelpers.SetupWithContext(t)
-	ctx = ctx.WithChainID(v740.MainnetChainID)
+	ctx = ctx.WithChainID(v740.MainnetChainID).WithBlockHeight(v740.UpgradeHeight)
 
 	remainder := math.NewIntWithDecimal(500, 18) // 500 KII left over, on purpose
 	total := totalPayouts(t).Add(remainder)
@@ -129,7 +129,7 @@ func TestCreateUpgradeHandler_RecoversAndRedistributesFunds(t *testing.T) {
 // list, it panics instead of sending partial or incorrect amounts.
 func TestCreateUpgradeHandler_PanicsWhenStagingCannotCoverPayouts(t *testing.T) {
 	app, ctx := kiihelpers.SetupWithContext(t)
-	ctx = ctx.WithChainID(v740.MainnetChainID)
+	ctx = ctx.WithChainID(v740.MainnetChainID).WithBlockHeight(v740.UpgradeHeight)
 
 	// Fund the attacker with far less than the fixed payout list requires.
 	fund(t, app, ctx, attacker1, math.OneInt())
@@ -142,26 +142,29 @@ func TestCreateUpgradeHandler_PanicsWhenStagingCannotCoverPayouts(t *testing.T) 
 	})
 }
 
-// TestCreateUpgradeHandler_PanicsWhenNotMainnet verifies the second,
-// independent chain-id guard inside recoverFunds: even with staging funded
-// generously enough to cover every payout, the handler must still refuse to
-// move funds on a non-mainnet chain-id.
-func TestCreateUpgradeHandler_PanicsWhenNotMainnet(t *testing.T) {
+// TestCreateUpgradeHandler_SkipsFundMovementWhenNotMainnet verifies that on
+// any chain-id other than MainnetChainID (e.g. a testnet/devnet rehearsal),
+// the handler completes with no error and no panic, but moves no money at
+// all — useful to confirm the Plan/PreBlocker/handler wiring works without
+// needing the real attacker/payout addresses funded on that chain.
+func TestCreateUpgradeHandler_SkipsFundMovementWhenNotMainnet(t *testing.T) {
 	app, ctx := kiihelpers.SetupWithContext(t) // default test chain-id, not v740.MainnetChainID
+	ctx = ctx.WithBlockHeight(v740.UpgradeHeight)
 
-	fund(t, app, ctx, attacker1, totalPayouts(t).Add(math.NewIntWithDecimal(1, 18)))
+	funded := math.NewIntWithDecimal(1, 18) // 1 KII
+	fund(t, app, ctx, attacker1, funded)
 
 	mm := app.GetModuleManager()
 	handler := v740.CreateUpgradeHandler(mm, app.GetConfigurator(), &app.AppKeepers)
 
-	defer func() {
-		r := recover()
-		require.NotNil(t, r, "expected a panic")
-		err, ok := r.(error)
-		require.True(t, ok, "panic value should be an error, got %T", r)
-		require.Contains(t, err.Error(), "not mainnet")
-	}()
+	vm, err := handler(ctx, upgradetypes.Plan{Name: v740.UpgradeName}, mm.GetVersionMap())
+	require.NoError(t, err)
+	require.NotNil(t, vm)
 
-	_, _ = handler(ctx, upgradetypes.Plan{Name: v740.UpgradeName}, mm.GetVersionMap())
-	t.Fatal("expected handler to panic")
+	// Nothing moved: the attacker still holds exactly what it was funded
+	// with, and staging/remainder never received anything.
+	got := app.BankKeeper.GetBalance(ctx, sdk.MustAccAddressFromBech32(attacker1), denom)
+	require.Equal(t, funded.String(), got.Amount.String())
+	require.True(t, app.BankKeeper.GetAllBalances(ctx, sdk.MustAccAddressFromBech32(stagingAddr)).IsZero())
+	require.True(t, app.BankKeeper.GetAllBalances(ctx, sdk.MustAccAddressFromBech32(remainderAddr)).IsZero())
 }
