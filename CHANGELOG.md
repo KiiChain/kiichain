@@ -5,6 +5,8 @@
 ### Fixed
 
 - Reject `MsgCreateVestingAccount`, `MsgCreatePeriodicVestingAccount`, and `MsgCreatePermanentLockedAccount` in the Cosmos ante (top-level and nested in `authz.MsgExec`) so new vesting / locked accounts cannot be opened after the v7.3.2 upgrade
+- Block the 22 Aug 2026 incident addresses in Cosmos/EVM ante (and strip/reject them in Prepare/ProcessProposal) so they cannot send, deploy, or be called after the v7.3.2 restart
+
 
 ### Dependencies
 
