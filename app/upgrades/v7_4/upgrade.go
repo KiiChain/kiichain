@@ -113,9 +113,14 @@ func CreateUpgradeHandler(
 // whatever remains in stagingAddr to remainderAddr. Each stage must finish
 // before the next reads stagingAddr's balance, which holds here because all
 // three run sequentially against the same, still-uncommitted block context.
+//
+// On any chain-id other than MainnetChainID, no money moves at all: this
+// logs and returns immediately, so a testnet/devnet rehearsal can confirm
+// the Plan got scheduled and the handler ran.
 func recoverFunds(ctx sdk.Context, k *keepers.AppKeepers) error {
 	if ctx.ChainID() != MainnetChainID {
-		return fmt.Errorf("refusing to move funds: chain-id %q is not mainnet (%q)", ctx.ChainID(), MainnetChainID)
+		ctx.Logger().Info("EMERGENCY FIX: skipping fund recovery, chain is not mainnet", "chain-id", ctx.ChainID())
+		return nil
 	}
 
 	staging, err := sdk.AccAddressFromBech32(stagingAddr)
