@@ -221,7 +221,7 @@ func NewAppKeeper(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		logger,
 	)
-	appKeepers.BankKeeper.AppendSendRestriction(blockedaddrs.SendRestriction)
+	appKeepers.BankKeeper.AppendSendRestriction(blockedaddrs.NewSendRestriction(appKeepers.GetKey(banktypes.StoreKey)))
 
 	appKeepers.AuthzKeeper = authzkeeper.NewKeeper(
 		runtime.NewKVStoreService(appKeepers.keys[authzkeeper.StoreKey]),

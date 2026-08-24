@@ -47,9 +47,7 @@ func (app *KiichainApp) configureEVMMempool(appOpts servertypes.AppOptions, logg
 			sdkmempool.NewDefaultSignerExtractionAdapter(),
 		),
 	)
-	decoder := app.txConfig.TxDecoder()
-	app.SetPrepareProposal(WrapPrepareProposal(app.appCodec, decoder, abciProposalHandler.PrepareProposalHandler()))
-	app.SetProcessProposal(WrapProcessProposal(app.appCodec, decoder, abciProposalHandler.ProcessProposalHandler()))
+	app.SetPrepareProposal(abciProposalHandler.PrepareProposalHandler())
 }
 
 // createMempoolConfig creates a new EVMMempoolConfig with the default configuration

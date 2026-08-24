@@ -279,9 +279,6 @@ func NewKiichainApp(
 	if evmtypes.GetChainConfig() != nil {
 		app.configureEVMMempool(appOpts, logger)
 	}
-	if app.EVMMempool == nil {
-		app.SetProcessProposal(WrapProcessProposal(app.appCodec, app.txConfig.TxDecoder(), nil))
-	}
 
 	if manager := app.SnapshotManager(); manager != nil {
 		err = manager.RegisterExtensions(wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.WasmKeeper))
