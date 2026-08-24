@@ -1,6 +1,4 @@
-//go:build test
-
-package ante_test
+package ante
 
 import (
 	"testing"
@@ -9,19 +7,29 @@ import (
 
 	"cosmossdk.io/math"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	"github.com/kiichain/kiichain/v7/ante"
-	"github.com/kiichain/kiichain/v7/app/helpers"
 )
 
 func TestVestingAccountCreationDecorator(t *testing.T) {
-	kiiApp := helpers.Setup(t)
+	registry := codectypes.NewInterfaceRegistry()
+	authz.RegisterInterfaces(registry)
+	sdkvesting.RegisterInterfaces(registry)
+	banktypes.RegisterInterfaces(registry)
+	decorator := NewVestingAccountCreationDecorator(codec.NewProtoCodec(registry))
+
 	from := sdk.AccAddress("from________________")
 	to := sdk.AccAddress("to__________________")
 	coins := sdk.NewCoins(sdk.NewCoin("akii", math.NewInt(1)))
+
+	exec := func(msgs ...sdk.Msg) sdk.Msg {
+		m := authz.NewMsgExec(from, msgs)
+		return &m
+	}
 
 	testCases := []struct {
 		name      string
@@ -35,7 +43,6 @@ func TestVestingAccountCreationDecorator(t *testing.T) {
 				ToAddress:   to.String(),
 				Amount:      coins,
 			}},
-			expectErr: false,
 		},
 		{
 			name:      "block MsgCreateVestingAccount",
@@ -62,32 +69,27 @@ func TestVestingAccountCreationDecorator(t *testing.T) {
 		},
 		{
 			name:      "block MsgCreateVestingAccount inside authz.MsgExec",
-			msgs:      []sdk.Msg{newAuthzExec(sdkvesting.NewMsgCreateVestingAccount(from, to, coins, 1, false))},
+			msgs:      []sdk.Msg{exec(sdkvesting.NewMsgCreateVestingAccount(from, to, coins, 1, false))},
 			expectErr: true,
 		},
 		{
-			name:      "block MsgCreatePeriodicVestingAccount inside nested authz.MsgExec",
-			msgs:      []sdk.Msg{newAuthzExec(newAuthzExec(sdkvesting.NewMsgCreatePeriodicVestingAccount(from, to, 1, []sdkvesting.Period{{Length: 1, Amount: coins}})))},
+			name: "block MsgCreatePeriodicVestingAccount inside nested authz.MsgExec",
+			msgs: []sdk.Msg{exec(exec(sdkvesting.NewMsgCreatePeriodicVestingAccount(from, to, 1, []sdkvesting.Period{{
+				Length: 1,
+				Amount: coins,
+			}})))},
 			expectErr: true,
 		},
 		{
 			name:      "block MsgCreatePermanentLockedAccount inside authz.MsgExec",
-			msgs:      []sdk.Msg{newAuthzExec(sdkvesting.NewMsgCreatePermanentLockedAccount(from, to, coins))},
+			msgs:      []sdk.Msg{exec(sdkvesting.NewMsgCreatePermanentLockedAccount(from, to, coins))},
 			expectErr: true,
 		},
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			txCfg := kiiApp.GetTxConfig()
-			decorator := ante.NewVestingAccountCreationDecorator(kiiApp.AppCodec())
-
-			txBuilder := txCfg.NewTxBuilder()
-			require.NoError(t, txBuilder.SetMsgs(tc.msgs...))
-
-			_, err := decorator.AnteHandle(sdk.Context{}, txBuilder.GetTx(), false,
-				func(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) { return ctx, nil })
+			err := decorator.validateMsgs(tc.msgs)
 			if tc.expectErr {
 				require.Error(t, err)
 				require.ErrorContains(t, err, "vesting account creation is disabled")
