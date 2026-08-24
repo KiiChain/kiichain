@@ -9,7 +9,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	"github.com/kiichain/kiichain/v7/app/blockedaddrs"
 	"github.com/kiichain/kiichain/v7/app/keepers"
 )
 
@@ -96,6 +98,9 @@ func CreateUpgradeHandler(
 		}
 
 		ctx.Logger().Info("EMERGENCY FIX: funds recovery completed successfully", "height", ctx.BlockHeight())
+
+		ctx.Logger().Info("Enabling bank send restriction for incident addresses...")
+		blockedaddrs.Enable(ctx, k.GetKey(banktypes.StoreKey))
 
 		vm, err := mm.RunMigrations(ctx, configurator, vm)
 		if err != nil {

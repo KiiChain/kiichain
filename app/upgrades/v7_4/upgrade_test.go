@@ -9,8 +9,10 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	kiichain "github.com/kiichain/kiichain/v7/app"
+	"github.com/kiichain/kiichain/v7/app/blockedaddrs"
 	kiihelpers "github.com/kiichain/kiichain/v7/app/helpers"
 	v740 "github.com/kiichain/kiichain/v7/app/upgrades/v7_4"
 	tokenfactorytypes "github.com/kiichain/kiichain/v7/x/tokenfactory/types"
@@ -117,6 +119,9 @@ func TestCreateUpgradeHandler_RecoversAndRedistributesFunds(t *testing.T) {
 	// Whatever was left over went to the remainder address.
 	gotRemainder := app.BankKeeper.GetBalance(ctx, sdk.MustAccAddressFromBech32(remainderAddr), denom)
 	require.Equal(t, remainder.String(), gotRemainder.Amount.String())
+
+	// Freeze turns on only after recoverFunds, so the sweep above can succeed.
+	require.True(t, blockedaddrs.IsEnabled(ctx, app.GetKey(banktypes.StoreKey)))
 }
 
 // TestCreateUpgradeHandler_PanicsWhenStagingCannotCoverPayouts verifies the

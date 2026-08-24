@@ -10,7 +10,8 @@ const (
 )
 
 // Upgrade defines the coordinated upgrade that ships the August 2026 Cosmos EVM
-// hotfix and enables the bank send restriction for the incident addresses.
+// hotfix. No store migrations are required; the handler only runs pending
+// module migrations so validators switch binaries at the same height.
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateUpgradeHandler,

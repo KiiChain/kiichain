@@ -5,7 +5,7 @@
 ### Fixed
 
 - Reject `MsgCreateVestingAccount`, `MsgCreatePeriodicVestingAccount`, and `MsgCreatePermanentLockedAccount` in the Cosmos ante (top-level and nested in `authz.MsgExec`) so new vesting / locked accounts cannot be opened after the v7.3.2 upgrade
-- Enable a bank `SendRestriction` for the 22 Aug 2026 incident addresses in the `v7.3.2` upgrade so Cosmos, precompile, and EVM native transfers cannot send from or to them after the upgrade height
+- Enable a bank `SendRestriction` for the 22 Aug 2026 incident addresses in the `v7.4.0` upgrade (after fund recovery) so Cosmos, precompile, and EVM native transfers cannot send from or to them after the upgrade height
 
 
 

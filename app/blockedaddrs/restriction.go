@@ -15,8 +15,8 @@ import (
 // x/bank collections prefixes.
 var enabledKey = []byte{0xF1, 'i', 'n', 'c', 'i', 'd', 'e', 'n', 't', '-', 'b', 'l', 'o', 'c', 'k'}
 
-// Enable turns on the incident send restriction. Called from the v7.3.2
-// upgrade handler after migrations.
+// Enable turns on the incident send restriction. Called from the v7.4.0
+// upgrade handler after fund recovery.
 func Enable(ctx sdk.Context, key storetypes.StoreKey) {
 	ctx.KVStore(key).Set(enabledKey, []byte{1})
 }
