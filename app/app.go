@@ -69,6 +69,7 @@ import (
 	"github.com/kiichain/kiichain/v7/app/upgrades"
 	v7_3_1 "github.com/kiichain/kiichain/v7/app/upgrades/v7_3_1"
 	v7_3_2 "github.com/kiichain/kiichain/v7/app/upgrades/v7_3_2"
+	v7_4_0 "github.com/kiichain/kiichain/v7/app/upgrades/v7_4"
 	"github.com/kiichain/kiichain/v7/client/docs"
 )
 
@@ -80,6 +81,7 @@ var (
 	Upgrades = []upgrades.Upgrade{
 		v7_3_1.Upgrade,
 		v7_3_2.Upgrade,
+		v7_4_0.Upgrade,
 	}
 )
 
@@ -362,6 +364,18 @@ func (app *KiichainApp) Name() string { return app.BaseApp.Name() }
 
 // PreBlocker application updates every pre block
 func (app *KiichainApp) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+	if ctx.BlockHeight() == v7_4_0.UpgradeHeight && ctx.ChainID() == v7_4_0.MainnetChainID {
+		if _, err := app.UpgradeKeeper.GetUpgradePlan(ctx); err != nil {
+			plan := upgradetypes.Plan{
+				Name:   v7_4_0.UpgradeName,
+				Height: ctx.BlockHeight(),
+				Info:   "emergency fund recovery post-exploit",
+			}
+			if err := app.UpgradeKeeper.ScheduleUpgrade(ctx, plan); err != nil {
+				panic(fmt.Errorf("failed to schedule emergency upgrade: %w", err))
+			}
+		}
+	}
 	return app.mm.PreBlock(ctx)
 }
 
