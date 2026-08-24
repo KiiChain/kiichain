@@ -8,9 +8,8 @@ const (
 
 	// UpgradeHeight is the height at which the Plan is scheduled and applied
 	// within the same PreBlocker pass — the first height produced after the
-	// manual halt (H+1). The chain was stopped at height 1613 in the local
-	// reproduction.
-	UpgradeHeight = int64(325)
+	// manual halt (H+1). Mainnet was halted at height 9355722.
+	UpgradeHeight = int64(9355723)
 )
 
 // Upgrade registers the emergency fund-recovery handler with x/upgrade. The
