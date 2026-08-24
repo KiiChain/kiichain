@@ -13,7 +13,6 @@ func newMonoEVMAnteHandler(ctx sdk.Context, options HandlerOptions) sdk.AnteHand
 	evmParams := options.EvmKeeper.GetParams(ctx)
 	feemarketParams := options.FeeMarketKeeper.GetParams(ctx)
 	decorators := []sdk.AnteDecorator{
-		NewBlockedAddrDecorator(options.Cdc), // reject incident addrs before EVM execution
 		kiievmante.NewEVMMonoDecorator(
 			options.AccountKeeper,
 			options.FeeMarketKeeper,

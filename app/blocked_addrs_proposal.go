@@ -70,7 +70,7 @@ func logBlockedFinalizeTxs(ctx sdk.Context, cdc codec.BinaryCodec, decoder sdk.T
 			continue
 		}
 		if err := kiiante.CheckBlockedTx(cdc, tx); err != nil {
-			ctx.Logger().Error("blocked address tx in finalize block; ante will reject it", "index", i, "err", err)
+			ctx.Logger().Error("blocked address tx in finalize block; bank send restriction will reject transfers", "index", i, "err", err)
 		}
 	}
 }

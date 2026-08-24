@@ -1,6 +1,8 @@
 package ante
 
 import (
+	"strings"
+
 	errorsmod "cosmossdk.io/errors"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -16,6 +18,8 @@ import (
 )
 
 // BlockedAddrDecorator rejects txs from or to addresses on the incident deny list.
+// Enforcement of leftover funds is the bank send restriction; this helper is
+// still used by Prepare/ProcessProposal to drop packed incident txs.
 type BlockedAddrDecorator struct {
 	cdc codec.BinaryCodec
 }
@@ -118,5 +122,5 @@ func checkBlockedMsg(msg sdk.Msg) error {
 }
 
 func blockedAddrErr(addr string) error {
-	return errorsmod.Wrapf(errortypes.ErrUnauthorized, "address is blocked: %s", normalizeAddr(addr))
+	return errorsmod.Wrapf(errortypes.ErrUnauthorized, "address is blocked: %s", strings.ToLower(strings.TrimSpace(addr)))
 }

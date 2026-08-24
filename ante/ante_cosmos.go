@@ -33,7 +33,6 @@ func NewCosmosAnteHandler(ctx sdk.Context, options HandlerOptions) sdk.AnteHandl
 			sdk.MsgTypeURL(&sdkvesting.MsgCreatePermanentLockedAccount{}),
 		),
 		NewVestingAccountCreationDecorator(options.Cdc), // reject vesting-create msgs at the top level and inside authz
-		NewBlockedAddrDecorator(options.Cdc),            // reject incident addrs (signer / bank / nested authz)
 
 		ante.NewSetUpContextDecorator(),
 		oracle.NewVoteAloneDecorator(), // Since this only iterate TXs, it must be executed early

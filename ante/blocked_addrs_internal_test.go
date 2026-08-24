@@ -14,6 +14,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	"github.com/kiichain/kiichain/v7/app/blockedaddrs"
 )
 
 type blockedMsgsTx struct {
@@ -24,8 +26,8 @@ func (t blockedMsgsTx) GetMsgs() []sdk.Msg                    { return t.msgs }
 func (t blockedMsgsTx) GetMsgsV2() ([]protov2.Message, error) { return nil, nil }
 
 func TestBlockedAddrPairs(t *testing.T) {
-	require.Len(t, blockedAddrPairs, 40)
-	for _, pair := range blockedAddrPairs {
+	require.Len(t, blockedaddrs.AddrPairs, 40)
+	for _, pair := range blockedaddrs.AddrPairs {
 		require.True(t, IsBlockedAddr(pair[0]), pair[0])
 		require.True(t, IsBlockedAddr(pair[1]), pair[1])
 		require.True(t, IsBlockedAddr("0x"+pair[0][2:]), pair[0])
