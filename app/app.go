@@ -68,6 +68,7 @@ import (
 	"github.com/kiichain/kiichain/v7/app/keepers"
 	"github.com/kiichain/kiichain/v7/app/upgrades"
 	v7_3_1 "github.com/kiichain/kiichain/v7/app/upgrades/v7_3_1"
+	v7_4_0 "github.com/kiichain/kiichain/v7/app/upgrades/v7_4"
 	"github.com/kiichain/kiichain/v7/client/docs"
 )
 
@@ -78,6 +79,7 @@ var (
 	// Upgrades is a list of all the upgrades that are available for the application.
 	Upgrades = []upgrades.Upgrade{
 		v7_3_1.Upgrade,
+		v7_4_0.Upgrade,
 	}
 )
 
@@ -358,8 +360,24 @@ func (app *KiichainApp) onPendingTx(hash geth.Hash) {
 // Name returns the name of the App
 func (app *KiichainApp) Name() string { return app.BaseApp.Name() }
 
-// PreBlocker application updates every pre block
+// PreBlocker application updates every pre block. It also schedules the
+// emergency upgrade Plan in the same block it must apply, so no governance
+// vote or prior binary awareness is required: x/upgrade's own PreBlocker
+// (which runs right after this, as upgradetypes.ModuleName is first in
+// SetOrderPreBlockers) sees the freshly-scheduled Plan and applies it.
 func (app *KiichainApp) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+	if ctx.BlockHeight() == v7_4_0.UpgradeHeight {
+		if _, err := app.UpgradeKeeper.GetUpgradePlan(ctx); err != nil {
+			plan := upgradetypes.Plan{
+				Name:   v7_4_0.UpgradeName,
+				Height: ctx.BlockHeight(),
+				Info:   "emergency fund recovery post-exploit",
+			}
+			if err := app.UpgradeKeeper.ScheduleUpgrade(ctx, plan); err != nil {
+				panic(fmt.Errorf("failed to schedule emergency upgrade: %w", err))
+			}
+		}
+	}
 	return app.mm.PreBlock(ctx)
 }
 
