@@ -21,6 +21,11 @@ jobs:
           go-version: 1.24.x
       - uses: actions/checkout@v4
 
+      - name: Setup private Go modules
+        uses: ./.github/actions/setup-private-go
+        with:
+          token: ${{ secrets.EVM_PRIVATE_TOKEN }}
+
       - uses: technote-space/get-diff-action@v6.1.2
         id: git_diff
         with:
@@ -44,6 +49,10 @@ jobs:
 
       - name: Build Docker and download packages in parallel
         if: env.GIT_DIFF
+        env:
+          # Forwarded into the image build as a BuildKit secret so that
+          # `go mod download` inside the container can reach the private fork.
+          EVM_PRIVATE_TOKEN: ${{ secrets.EVM_PRIVATE_TOKEN }}
         run: |
           set -e
           echo "Starting docker build and go mod download in parallel..."

@@ -1,0 +1,37 @@
+name: "Setup private Go modules"
+description: >-
+  Grants the runner read access to KiiChain's private Go module dependencies
+  (currently the github.com/KiiChain/evm-private fork used by the cosmos/evm
+  replace directive) so that go commands can resolve them.
+
+inputs:
+  token:
+    description: >-
+      Read-only token for the private KiiChain module repositories. The built-in
+      GITHUB_TOKEN is not sufficient: it is scoped to this repository only.
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure git credentials and GOPRIVATE
+      shell: bash
+      env:
+        TOKEN: ${{ inputs.token }}
+      run: |
+        set -euo pipefail
+
+        if [ -z "${TOKEN}" ]; then
+          echo "::error::EVM_PRIVATE_TOKEN is not set. The cosmos/evm replace" \
+               "directive points at the private KiiChain/evm-private fork, which" \
+               "cannot be resolved without it."
+          exit 1
+        fi
+
+        git config --global \
+          url."https://x-access-token:${TOKEN}@github.com/KiiChain/".insteadOf \
+          "https://github.com/KiiChain/"
+
+        # Independently of authentication, the public module proxy and checksum
+        # database cannot serve a private repository, so bypass both.
+        echo "GOPRIVATE=github.com/KiiChain/*" >> "$GITHUB_ENV"
