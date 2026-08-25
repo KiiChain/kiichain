@@ -12,6 +12,7 @@
 ### Dependencies
 
 - Bump EVM fork to `v0.6.2-fork.1`, applied via the coordinated `v7.3.2` upgrade (private Cosmos EVM security hotfix; cannot build from public source until 2026-08-28)
+- Bump EVM fork to `v0.6.2-fork.2`
 
 ## v7.3.1 - 2026-08-06
 
