@@ -2,6 +2,7 @@ package blockedaddrs
 
 import (
 	"encoding/hex"
+	"sort"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,6 +32,21 @@ var AttackerAddrs = map[string]string{
 	"kii16tr429kvneexqf4jttueuecm75ptc5l3gtj34q": "0xd2c75516cc9e726026b25af99e671bf502bc53f1",
 	"kii1mkhdmdgklsskgcgzz699nzhafav2hkea4qp2dj": "0xddaeddb516fc21646102168a598afd4f58abdb3d",
 	"kii1a5v3eaeaugdh3vk57nlh8q8xcu7z46w0ttlrw9": "0xed191cf73de21b78b2d4f4ff7380e6c73c2ae9cf",
+}
+
+// SortedAttackerAddresses returns AttackerAddrs' keys in a fixed,
+// deterministic order. Range over AttackerAddrs directly only where
+// iteration order can't matter (e.g. IsBlockedAccAddress's lookup) — Go
+// randomizes map iteration order per process, and code that walks this list
+// from a consensus-critical upgrade handler must behave identically, in the
+// same order, on every validator.
+func SortedAttackerAddresses() []string {
+	addrs := make([]string, 0, len(AttackerAddrs))
+	for addr := range AttackerAddrs {
+		addrs = append(addrs, addr)
+	}
+	sort.Strings(addrs)
+	return addrs
 }
 
 // IsBlockedAccAddress reports whether addr is one of AttackerAddrs.

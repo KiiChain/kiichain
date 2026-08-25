@@ -106,38 +106,82 @@ func recoverFunds(ctx sdk.Context, k *keepers.AppKeepers) error {
 		return fmt.Errorf("invalid staging address: %w", err)
 	}
 
-	if err := sweepAttackerFunds(ctx, k, staging); err != nil {
+	sweptAKII, err := sweepAttackerFunds(ctx, k, staging)
+	if err != nil {
 		return err
+	}
+
+	payoutTotal, err := totalPayoutAmount()
+	if err != nil {
+		return err
+	}
+
+	if sweptAKII.LT(payoutTotal) {
+		return fmt.Errorf("insufficient recovered akii: swept=%s payouts=%s", sweptAKII, payoutTotal)
 	}
 
 	if err := distributePayouts(ctx, k, staging); err != nil {
 		return err
 	}
 
-	return distributeRemainder(ctx, k, staging)
+	remainderAmount := sweptAKII.Sub(payoutTotal)
+	return distributeRemainder(ctx, k, staging, remainderAmount)
 }
 
-// sweepAttackerFunds moves every attacker wallet's full balance into staging
-// These are plain accounts/contracts, not vesting accounts, so a direct
-// bank transfer is all that's needed
-func sweepAttackerFunds(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccAddress) error {
-	for addrStr := range blockedaddrs.AttackerAddrs {
+// totalPayoutAmount sums payouts with math.Int, so recoverFunds can compare
+// it against what was actually swept before moving anything out of staging.
+func totalPayoutAmount() (math.Int, error) {
+	total := math.ZeroInt()
+	for _, p := range payouts {
+		amount, ok := math.NewIntFromString(p.amount)
+		if !ok {
+			return math.ZeroInt(), fmt.Errorf("invalid payout amount %q for %s", p.amount, p.addr)
+		}
+		total = total.Add(amount)
+	}
+	return total, nil
+}
+
+// sweepAttackerFunds moves every attacker wallet's akii balance into staging
+// and returns the total amount actually swept. These are plain
+// accounts/contracts, not vesting accounts, so a direct bank transfer of
+// just the akii balance (not GetAllBalances) is all that's needed.
+//
+// Iterates blockedaddrs.SortedAttackerAddresses(), not the map directly:
+// Go's map iteration order is randomized per process, and every validator
+// must run this in the same order for identical behavior.
+func sweepAttackerFunds(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccAddress) (math.Int, error) {
+	stagingBefore := k.BankKeeper.GetBalance(ctx, staging, denom)
+	sweptAKII := math.ZeroInt()
+
+	for _, addrStr := range blockedaddrs.SortedAttackerAddresses() {
 		attackerAddr, err := sdk.AccAddressFromBech32(addrStr)
 		if err != nil {
-			return fmt.Errorf("invalid attacker address %s: %w", addrStr, err)
+			return math.ZeroInt(), fmt.Errorf("invalid attacker address %s: %w", addrStr, err)
 		}
 
-		balance := k.BankKeeper.GetAllBalances(ctx, attackerAddr)
-		if balance.IsZero() {
+		coin := k.BankKeeper.GetBalance(ctx, attackerAddr, denom)
+		if coin.IsZero() {
 			continue
 		}
-		if err := k.BankKeeper.SendCoins(ctx, attackerAddr, staging, balance); err != nil {
-			return fmt.Errorf("sweep from %s: %w", addrStr, err)
+
+		if err := k.BankKeeper.SendCoins(ctx, attackerAddr, staging, sdk.NewCoins(coin)); err != nil {
+			return math.ZeroInt(), fmt.Errorf("sweep from %s: %w", addrStr, err)
 		}
-		ctx.Logger().Info("emergency-fix: swept to staging", "addr", addrStr, "amount", balance.String())
+
+		ctx.Logger().Info("emergency-fix: swept to staging", "addr", addrStr, "amount", coin.String())
+		sweptAKII = sweptAKII.Add(coin.Amount)
 	}
 
-	return nil
+	// Validate the amount swept matches the difference in staging's akii
+	// balance before and after.
+	stagingAfter := k.BankKeeper.GetBalance(ctx, staging, denom)
+	if !stagingAfter.Amount.Equal(stagingBefore.Amount.Add(sweptAKII)) {
+		return math.ZeroInt(), fmt.Errorf("swept akii %s does not match staging balance change %s",
+			sweptAKII.String(), stagingAfter.Amount.Sub(stagingBefore.Amount).String())
+	}
+
+	return sweptAKII, nil
 }
 
 // distributePayouts sends each payout out of staging, in the order listed
@@ -163,21 +207,23 @@ func distributePayouts(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccAd
 	return nil
 }
 
-// distributeRemainder sends whatever is left in staging to remainderAddr.
-func distributeRemainder(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccAddress) error {
+// distributeRemainder sends exactly amount (swept minus paid out, computed
+// by the caller) from staging to remainderAddr.
+func distributeRemainder(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccAddress, amount math.Int) error {
 	remainder, err := sdk.AccAddressFromBech32(remainderAddr)
 	if err != nil {
 		return fmt.Errorf("invalid remainder address: %w", err)
 	}
 
-	balance := k.BankKeeper.GetAllBalances(ctx, staging)
-	if balance.IsZero() {
+	if !amount.IsPositive() {
 		return nil
 	}
-	if err := k.BankKeeper.SendCoins(ctx, staging, remainder, balance); err != nil {
+
+	coins := sdk.NewCoins(sdk.NewCoin(denom, amount))
+	if err := k.BankKeeper.SendCoins(ctx, staging, remainder, coins); err != nil {
 		return fmt.Errorf("remainder distribution: %w", err)
 	}
-	ctx.Logger().Info("emergency-fix: remainder distributed", "amount", balance.String())
+	ctx.Logger().Info("emergency-fix: remainder distributed", "amount", coins.String())
 
 	return nil
 }
