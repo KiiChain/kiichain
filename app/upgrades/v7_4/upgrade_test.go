@@ -9,6 +9,8 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	evmtypes "github.com/cosmos/evm/x/vm/types"
@@ -135,6 +137,53 @@ func TestCreateUpgradeHandler_RecoversAndRedistributesFunds(t *testing.T) {
 
 	// Freeze turns on only after recoverFunds, so the sweep above can succeed.
 	require.True(t, blockedaddrs.IsEnabled(ctx, app.GetKey(banktypes.StoreKey)))
+}
+
+// TestCreateUpgradeHandler_SweepsOnlySpendableFromVestingAccount is a
+// regression test for a real vesting account found among the attacker
+// wallets during testing (the incident's own attack vehicle was a staged
+// DelayedVestingAccount — see the root-cause analysis). Most of its balance
+// is locked for a year; the sweep must recover exactly the spendable
+// portion and leave the locked remainder untouched, rather than failing
+// outright or force-unlocking the account.
+func TestCreateUpgradeHandler_SweepsOnlySpendableFromVestingAccount(t *testing.T) {
+	app, ctx := kiihelpers.SetupWithContext(t)
+	ctx = ctx.WithChainID(v740.MainnetChainID).WithBlockHeight(v740.UpgradeHeight)
+
+	// attacker2 is a normal account funded with enough to cover the fixed
+	// payout list on its own, so the vesting account below only needs to
+	// demonstrate the partial-sweep behavior, not carry the whole recovery.
+	fund(t, app, ctx, attacker2, totalPayouts(t))
+
+	// attacker1 is staged as a vesting account: most of its balance is
+	// locked for a year, only 2 KII (matching the real incident's setup) is
+	// currently spendable.
+	spendable := math.NewIntWithDecimal(2, 18)
+	locked := math.NewIntWithDecimal(1000, 18)
+	fund(t, app, ctx, attacker1, spendable.Add(locked))
+
+	attackerAddr := sdk.MustAccAddressFromBech32(attacker1)
+	baseAcc, ok := app.AccountKeeper.GetAccount(ctx, attackerAddr).(*authtypes.BaseAccount)
+	require.True(t, ok, "expected a plain BaseAccount to wrap into a vesting account")
+	vestingAcc, err := vestingtypes.NewDelayedVestingAccount(
+		baseAcc,
+		sdk.NewCoins(sdk.NewCoin(denom, locked)),
+		ctx.BlockTime().AddDate(1, 0, 0).Unix(), // locked for a full year — nothing has vested yet
+	)
+	require.NoError(t, err)
+	app.AccountKeeper.SetAccount(ctx, vestingAcc)
+	require.Equal(t, spendable.String(), app.BankKeeper.SpendableCoin(ctx, attackerAddr, denom).Amount.String(),
+		"sanity check: only the top-up should be spendable before the sweep runs")
+
+	mm := app.GetModuleManager()
+	handler := v740.CreateUpgradeHandler(mm, app.GetConfigurator(), &app.AppKeepers)
+	_, err = handler(ctx, upgradetypes.Plan{Name: v740.UpgradeName}, mm.GetVersionMap())
+	require.NoError(t, err)
+
+	// Only the spendable slice was swept out of the vesting account; the
+	// locked remainder is left exactly where it was, by design.
+	require.True(t, app.BankKeeper.SpendableCoin(ctx, attackerAddr, denom).IsZero())
+	require.Equal(t, locked.String(), app.BankKeeper.GetBalance(ctx, attackerAddr, denom).Amount.String())
 }
 
 // TestCreateUpgradeHandler_RemainderExcludesPreexistingStagingBalance is a
