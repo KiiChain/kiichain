@@ -1,6 +1,7 @@
 package kiichain
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -365,15 +366,22 @@ func (app *KiichainApp) Name() string { return app.BaseApp.Name() }
 // PreBlocker application updates every pre block
 func (app *KiichainApp) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
 	if ctx.BlockHeight() == v7_4_0.UpgradeHeight && ctx.ChainID() == v7_4_0.MainnetChainID {
-		if _, err := app.UpgradeKeeper.GetUpgradePlan(ctx); err != nil {
-			plan := upgradetypes.Plan{
-				Name:   v7_4_0.UpgradeName,
-				Height: ctx.BlockHeight(),
-				Info:   "emergency fund recovery post-exploit",
-			}
-			if err := app.UpgradeKeeper.ScheduleUpgrade(ctx, plan); err != nil {
+		expected := upgradetypes.Plan{
+			Name:   v7_4_0.UpgradeName,
+			Height: ctx.BlockHeight(),
+			Info:   "emergency fund recovery post-exploit",
+		}
+
+		current, err := app.UpgradeKeeper.GetUpgradePlan(ctx)
+		switch {
+		case errors.Is(err, upgradetypes.ErrNoUpgradePlanFound):
+			if err := app.UpgradeKeeper.ScheduleUpgrade(ctx, expected); err != nil {
 				panic(fmt.Errorf("failed to schedule emergency upgrade: %w", err))
 			}
+		case err != nil:
+			panic(fmt.Errorf("cannot read active upgrade plan: %w", err))
+		case current != expected:
+			panic(fmt.Errorf("unexpected active upgrade plan: %+v", current))
 		}
 	}
 	return app.mm.PreBlock(ctx)
