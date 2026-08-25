@@ -307,8 +307,12 @@ test-unit-cover-html: test-unit-cover
 	@echo "--> Generating HTML coverage report"
 	@go tool cover -html=coverage.txt -o coverage.html
 
+ifdef EVM_PRIVATE_TOKEN
+DOCKER_BUILD_SECRETS := --secret id=gh_token,env=EVM_PRIVATE_TOKEN
+endif
+
 docker-build-debug:
-	@docker build -t kiichain/kiichaind-e2e -f Dockerfile .
+	@DOCKER_BUILDKIT=1 docker build $(DOCKER_BUILD_SECRETS) -t kiichain/kiichaind-e2e -f Dockerfile .
 
 docker-build-hermes:
 	@cd tests/e2e/docker; docker build -t kiichain/hermes-e2e:1.0.0 -f hermes.Dockerfile .
