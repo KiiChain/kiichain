@@ -11,6 +11,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	evmtypes "github.com/cosmos/evm/x/vm/types"
+
 	kiichain "github.com/kiichain/kiichain/v7/app"
 	"github.com/kiichain/kiichain/v7/app/blockedaddrs"
 	kiihelpers "github.com/kiichain/kiichain/v7/app/helpers"
@@ -61,6 +63,17 @@ func fund(t *testing.T, app *kiichain.KiichainApp, ctx sdk.Context, addr string,
 	coins := sdk.NewCoins(sdk.NewCoin(denom, amount))
 	require.NoError(t, app.BankKeeper.MintCoins(ctx, tokenfactorytypes.ModuleName, coins))
 	require.NoError(t, app.BankKeeper.SendCoinsFromModuleToAccount(ctx, tokenfactorytypes.ModuleName, sdk.MustAccAddressFromBech32(addr), coins))
+}
+
+// fundStaging mints coins via tokenfactory and sends them into the "evm"
+// module account by name. stagingAddr is a real module account, and bank's
+// SendCoinsFromModuleToAccount rejects it as a recipient (blocked-address
+// check), so module-to-module is the only way to fund it directly in a test.
+func fundStaging(t *testing.T, app *kiichain.KiichainApp, ctx sdk.Context, amount math.Int) {
+	t.Helper()
+	coins := sdk.NewCoins(sdk.NewCoin(denom, amount))
+	require.NoError(t, app.BankKeeper.MintCoins(ctx, tokenfactorytypes.ModuleName, coins))
+	require.NoError(t, app.BankKeeper.SendCoinsFromModuleToModule(ctx, tokenfactorytypes.ModuleName, evmtypes.ModuleName, coins))
 }
 
 // totalPayouts sums payouts using math.Int so the huge amounts aren't
@@ -122,6 +135,36 @@ func TestCreateUpgradeHandler_RecoversAndRedistributesFunds(t *testing.T) {
 
 	// Freeze turns on only after recoverFunds, so the sweep above can succeed.
 	require.True(t, blockedaddrs.IsEnabled(ctx, app.GetKey(banktypes.StoreKey)))
+}
+
+// TestCreateUpgradeHandler_RemainderExcludesPreexistingStagingBalance is a
+// regression test: stagingAddr is the real "evm" module account, so it can
+// hold akii that has nothing to do with this recovery. The remainder step
+// must send only (swept - payouts), never staging's full balance.
+func TestCreateUpgradeHandler_RemainderExcludesPreexistingStagingBalance(t *testing.T) {
+	app, ctx := kiihelpers.SetupWithContext(t)
+	ctx = ctx.WithChainID(v740.MainnetChainID).WithBlockHeight(v740.UpgradeHeight)
+
+	// staging already holds akii unrelated to the incident before the
+	// handler ever runs.
+	preexisting := math.NewIntWithDecimal(777, 18)
+	fundStaging(t, app, ctx, preexisting)
+
+	extraRemainder := math.NewIntWithDecimal(500, 18)
+	fund(t, app, ctx, attacker1, totalPayouts(t).Add(extraRemainder))
+
+	mm := app.GetModuleManager()
+	handler := v740.CreateUpgradeHandler(mm, app.GetConfigurator(), &app.AppKeepers)
+	_, err := handler(ctx, upgradetypes.Plan{Name: v740.UpgradeName}, mm.GetVersionMap())
+	require.NoError(t, err)
+
+	// Only the swept-minus-payouts delta reached remainderAddr...
+	gotRemainder := app.BankKeeper.GetBalance(ctx, sdk.MustAccAddressFromBech32(remainderAddr), denom)
+	require.Equal(t, extraRemainder.String(), gotRemainder.Amount.String())
+
+	// ...and staging's pre-existing balance was left exactly where it was.
+	stagingBal := app.BankKeeper.GetBalance(ctx, sdk.MustAccAddressFromBech32(stagingAddr), denom)
+	require.Equal(t, preexisting.String(), stagingBal.Amount.String())
 }
 
 // TestCreateUpgradeHandler_PanicsWhenStagingCannotCoverPayouts verifies the
