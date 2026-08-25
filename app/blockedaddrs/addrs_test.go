@@ -1,24 +1,42 @@
 package blockedaddrs
 
 import (
-	"encoding/hex"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	// Sets the global "kii" bech32 prefix via its init(), same as the real
+	// binary — without this, sdk.AccAddressFromBech32 rejects "kii1..."
+	// addresses (default prefix is "cosmos").
+	_ "github.com/kiichain/kiichain/v7/app/params"
 )
 
-func TestAddrPairs(t *testing.T) {
-	require.Len(t, AddrPairs, 40)
-	for _, pair := range AddrPairs {
-		require.True(t, IsBlockedAddr(pair[0]), pair[0])
-		require.True(t, IsBlockedAddr(pair[1]), pair[1])
-		require.True(t, IsBlockedAddr("0x"+pair[0][2:]), pair[0])
+func TestIsBlockedAddr(t *testing.T) {
+	require.Len(t, AttackerAddrs, 22)
 
-		raw, err := hex.DecodeString(pair[0][2:])
-		require.NoError(t, err)
-		require.True(t, IsBlockedAccAddress(sdk.AccAddress(raw)), pair[0])
+	for _, bech32Addr := range AttackerAddrs {
+		require.True(t, IsBlockedAddr(bech32Addr), bech32Addr)
+
+		accAddr := sdk.MustAccAddressFromBech32(bech32Addr)
+		require.True(t, IsBlockedAccAddress(accAddr), bech32Addr)
 	}
+}
+
+func TestIsBlockedAddr_HexForm(t *testing.T) {
+	// kii1peafvgnleuyl20tyfwnyvtvvwwvnaujxmqe5qe, confirmed via `kiichaind
+	// debug addr` against its bech32 form.
+	require.True(t, IsBlockedAddr("0x0e7a96227fcf09f53d644ba6462d8c73993ef246"))
+	require.True(t, IsBlockedAddr("0X0E7A96227FCF09F53D644BA6462D8C73993EF246"))
+}
+
+func TestIsBlockedAddr_NotBlocked(t *testing.T) {
+	require.False(t, IsBlockedAddr("kii1c6cgjmsx0ewl6j552sp06musutmfcvxcaq4n9h"))
 	require.False(t, IsBlockedAddr("0x0000000000000000000000000000000000000001"))
+	require.False(t, IsBlockedAddr("not-an-address"))
+}
+
+func TestIsBlockedAccAddress_Empty(t *testing.T) {
+	require.False(t, IsBlockedAccAddress(sdk.AccAddress{}))
 }

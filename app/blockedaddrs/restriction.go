@@ -48,5 +48,5 @@ func NewSendRestriction(key storetypes.StoreKey) banktypes.SendRestrictionFn {
 }
 
 func blockedSendErr(addr string) error {
-	return errorsmod.Wrapf(errortypes.ErrUnauthorized, "address is blocked: %s", normalizeAddr(addr))
+	return errorsmod.Wrapf(errortypes.ErrUnauthorized, "address is blocked: %s", addr)
 }
