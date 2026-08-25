@@ -1,6 +1,7 @@
 package kiichain
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -50,6 +51,7 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
@@ -65,6 +67,7 @@ import (
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	kiiante "github.com/kiichain/kiichain/v7/ante"
+	"github.com/kiichain/kiichain/v7/app/blockedaddrs"
 	"github.com/kiichain/kiichain/v7/app/keepers"
 	"github.com/kiichain/kiichain/v7/app/upgrades"
 	v7_3_1 "github.com/kiichain/kiichain/v7/app/upgrades/v7_3_1"
@@ -364,19 +367,47 @@ func (app *KiichainApp) Name() string { return app.BaseApp.Name() }
 
 // PreBlocker application updates every pre block
 func (app *KiichainApp) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
-	if ctx.BlockHeight() == v7_4_0.UpgradeHeight && ctx.ChainID() == v7_4_0.MainnetChainID {
-		if _, err := app.UpgradeKeeper.GetUpgradePlan(ctx); err != nil {
-			plan := upgradetypes.Plan{
+	if ctx.ChainID() == v7_4_0.MainnetChainID {
+		if ctx.BlockHeight() == v7_4_0.UpgradeHeight {
+			expected := upgradetypes.Plan{
 				Name:   v7_4_0.UpgradeName,
 				Height: ctx.BlockHeight(),
 				Info:   "emergency fund recovery post-exploit",
 			}
-			if err := app.UpgradeKeeper.ScheduleUpgrade(ctx, plan); err != nil {
-				panic(fmt.Errorf("failed to schedule emergency upgrade: %w", err))
+
+			current, err := app.UpgradeKeeper.GetUpgradePlan(ctx)
+			switch {
+			case errors.Is(err, upgradetypes.ErrNoUpgradePlanFound):
+				if err := app.UpgradeKeeper.ScheduleUpgrade(ctx, expected); err != nil {
+					panic(fmt.Errorf("failed to schedule emergency upgrade: %w", err))
+				}
+			case err != nil:
+				panic(fmt.Errorf("cannot read active upgrade plan: %w", err))
+			case current != expected:
+				panic(fmt.Errorf("unexpected active upgrade plan: %+v", current))
 			}
+		} else if ctx.BlockHeight() > v7_4_0.UpgradeHeight {
+			app.assertEmergencyRecoveryApplied(ctx)
 		}
 	}
 	return app.mm.PreBlock(ctx)
+}
+
+// assertEmergencyRecoveryApplied refuses to let this node keep processing
+// mainnet blocks past UpgradeHeight unless the v7.4.0 recovery genuinely ran
+// at that exact height and the incident address restriction is active.
+func (app *KiichainApp) assertEmergencyRecoveryApplied(ctx sdk.Context) {
+	doneHeight, err := app.UpgradeKeeper.GetDoneHeight(ctx, v7_4_0.UpgradeName)
+	if err != nil {
+		panic(fmt.Errorf("cannot verify emergency recovery: %w", err))
+	}
+	if doneHeight != v7_4_0.UpgradeHeight {
+		panic(fmt.Errorf("emergency recovery missing: expected done at height %d, got %d", v7_4_0.UpgradeHeight, doneHeight))
+	}
+
+	if !blockedaddrs.IsEnabled(ctx, app.GetKey(banktypes.StoreKey)) {
+		panic(errors.New("emergency recovery incomplete: incident address restriction is not enabled"))
+	}
 }
 
 // BeginBlocker application updates every begin block
