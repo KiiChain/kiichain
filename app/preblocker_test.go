@@ -1,6 +1,7 @@
 package kiichain_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -142,4 +143,59 @@ func TestPreBlocker_PanicsWhenExistingPlanDoesNotMatch(t *testing.T) {
 
 	_, _ = app.PreBlocker(ctx, nil)
 	t.Fatal("expected PreBlocker to panic")
+}
+
+// farFutureOffset stands in for "long after the incident" — e.g. a node that
+// joins via state-sync, whose first PreBlocker call ever is at whatever
+// height its snapshot targets, not UpgradeHeight+1. The guard must not have
+// a blind spot that only covers the immediately-following block.
+const farFutureOffset = 1_000_000
+
+// TestPreBlocker_ContinuesPastUpgradeHeightOnceRecoveryVerified verifies the
+// guard added for blocks after UpgradeHeight: once the recovery has genuinely
+// run (done-height recorded, incident restriction enabled), every later
+// block on mainnet processes normally — not just the one right after it.
+func TestPreBlocker_ContinuesPastUpgradeHeightOnceRecoveryVerified(t *testing.T) {
+	for _, offset := range []int64{1, farFutureOffset} {
+		t.Run(fmt.Sprintf("height+%d", offset), func(t *testing.T) {
+			app, ctx := kiihelpers.SetupWithContext(t)
+			ctx = withHeight(ctx.WithChainID(v740.MainnetChainID), v740.UpgradeHeight)
+			fundAnAttacker(t, app, ctx)
+
+			_, err := app.PreBlocker(ctx, nil)
+			require.NoError(t, err)
+
+			ctx = withHeight(ctx, v740.UpgradeHeight+offset)
+			require.NotPanics(t, func() {
+				_, err := app.PreBlocker(ctx, nil)
+				require.NoError(t, err)
+			})
+		})
+	}
+}
+
+// TestPreBlocker_PanicsWhenRecoveryNeverApplied is the regression test for
+// this guard: a node past UpgradeHeight on mainnet that never actually ran
+// the recovery (e.g. it skipped the upgrade, or state-synced from a snapshot
+// that predates the fix) must refuse to keep processing blocks — at any
+// height past the target, not just the very next one — rather than silently
+// running on with the exploited funds unfrozen.
+func TestPreBlocker_PanicsWhenRecoveryNeverApplied(t *testing.T) {
+	for _, offset := range []int64{1, farFutureOffset} {
+		t.Run(fmt.Sprintf("height+%d", offset), func(t *testing.T) {
+			app, ctx := kiihelpers.SetupWithContext(t)
+			ctx = withHeight(ctx.WithChainID(v740.MainnetChainID), v740.UpgradeHeight+offset)
+
+			defer func() {
+				r := recover()
+				require.NotNil(t, r, "expected a panic")
+				err, ok := r.(error)
+				require.True(t, ok, "panic value should be an error, got %T", r)
+				require.ErrorContains(t, err, "emergency recovery missing")
+			}()
+
+			_, _ = app.PreBlocker(ctx, nil)
+			t.Fatal("expected PreBlocker to panic")
+		})
+	}
 }
