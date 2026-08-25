@@ -121,7 +121,7 @@ func recoverFunds(ctx sdk.Context, k *keepers.AppKeepers) error {
 // These are plain accounts/contracts, not vesting accounts, so a direct
 // bank transfer is all that's needed
 func sweepAttackerFunds(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccAddress) error {
-	for _, addrStr := range blockedaddrs.AttackerAddrs {
+	for addrStr := range blockedaddrs.AttackerAddrs {
 		attackerAddr, err := sdk.AccAddressFromBech32(addrStr)
 		if err != nil {
 			return fmt.Errorf("invalid attacker address %s: %w", addrStr, err)

@@ -16,7 +16,7 @@ import (
 func TestIsBlockedAddr(t *testing.T) {
 	require.Len(t, AttackerAddrs, 22)
 
-	for _, bech32Addr := range AttackerAddrs {
+	for bech32Addr := range AttackerAddrs {
 		require.True(t, IsBlockedAddr(bech32Addr), bech32Addr)
 
 		accAddr := sdk.MustAccAddressFromBech32(bech32Addr)
