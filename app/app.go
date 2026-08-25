@@ -68,7 +68,6 @@ import (
 	"github.com/kiichain/kiichain/v7/app/keepers"
 	"github.com/kiichain/kiichain/v7/app/upgrades"
 	v7_3_1 "github.com/kiichain/kiichain/v7/app/upgrades/v7_3_1"
-	v7_3_2 "github.com/kiichain/kiichain/v7/app/upgrades/v7_3_2"
 	v7_4_0 "github.com/kiichain/kiichain/v7/app/upgrades/v7_4"
 	"github.com/kiichain/kiichain/v7/client/docs"
 )
@@ -80,7 +79,6 @@ var (
 	// Upgrades is a list of all the upgrades that are available for the application.
 	Upgrades = []upgrades.Upgrade{
 		v7_3_1.Upgrade,
-		v7_3_2.Upgrade,
 		v7_4_0.Upgrade,
 	}
 )
