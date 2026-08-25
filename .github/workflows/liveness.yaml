@@ -19,6 +19,11 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: 1.24.x
+      - name: Setup private Go modules
+        uses: ./.github/actions/setup-private-go
+        with:
+          token: ${{ secrets.EVM_PRIVATE_TOKEN }}
+
       - uses: technote-space/get-diff-action@v6.1.2
         id: git_diff
         with:

@@ -27,6 +27,11 @@ jobs:
         go-version: "1.24"
         check-latest: true
 
+    - name: Setup private Go modules
+      uses: ./.github/actions/setup-private-go
+      with:
+        token: ${{ secrets.EVM_PRIVATE_TOKEN }}
+
    # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3

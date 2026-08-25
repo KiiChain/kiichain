@@ -24,6 +24,12 @@ jobs:
           check-latest: true
           cache: true
           cache-dependency-path: go.sum
+
+      - name: Setup private Go modules
+        uses: ./.github/actions/setup-private-go
+        with:
+          token: ${{ secrets.EVM_PRIVATE_TOKEN }}
+
       - uses: technote-space/get-diff-action@v6.1.2
         id: git_diff
         with:
