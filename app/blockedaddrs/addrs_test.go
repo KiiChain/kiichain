@@ -5,12 +5,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	// Sets the global "kii" bech32 prefix via its init(), same as the real
 	// binary — without this, sdk.AccAddressFromBech32 rejects "kii1..."
 	// addresses (default prefix is "cosmos").
 	_ "github.com/kiichain/kiichain/v7/app/params"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestIsBlockedAddr(t *testing.T) {
