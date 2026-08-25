@@ -55,8 +55,10 @@ var payouts = []payout{
 }
 
 // CreateUpgradeHandler creates the handler for the emergency fund recovery.
-// It runs when the Plan scheduled from app.PreBlocker (see app.go) is applied
-// by x/upgrade's own PreBlocker, in that same block
+// It runs when the Plan scheduled from app.PreBlocker (on app.go) is applied
+// by x/upgrade's own PreBlocker, in that same block. All incident-response
+// logic lives in runEmergencyRecovery; this function only wires it into the
+// shape x/upgrade expects and runs the module migrations afterward.
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
@@ -64,58 +66,71 @@ func CreateUpgradeHandler(
 ) upgradetypes.UpgradeHandler {
 	return func(c context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		ctx := sdk.UnwrapSDKContext(c)
-		ctx.Logger().Info("EMERGENCY FIX: starting funds recovery", "height", ctx.BlockHeight())
 
-		if err := recoverFunds(ctx, k); err != nil {
+		if err := runEmergencyRecovery(ctx, k); err != nil {
 			panic(fmt.Errorf("emergency fix failed: %w", err))
 		}
-
-		ctx.Logger().Info("EMERGENCY FIX: funds recovery completed successfully", "height", ctx.BlockHeight())
-
-		ctx.Logger().Info("Enabling bank send restriction for incident addresses...")
-		blockedaddrs.Enable(ctx, k.GetKey(banktypes.StoreKey))
 
 		vm, err := mm.RunMigrations(ctx, configurator, vm)
 		if err != nil {
 			return vm, err
 		}
 
-		// Log the upgrade completion
-		ctx.Logger().Info("Upgrade v7.2.0 complete")
+		ctx.Logger().Info("Upgrade v7.4.0 complete", "height", ctx.BlockHeight())
 		return vm, nil
 	}
 }
 
-// recoverFunds runs the three-stage recovery: sweep the exploited wallets
-// into stagingAddr, pay out the computed amounts from stagingAddr, then send
-// whatever remains in stagingAddr to remainderAddr. Each stage must finish
-// before the next reads stagingAddr's balance, which holds here because all
-// three run sequentially against the same, still-uncommitted block context.
+// runEmergencyRecovery executes the incident response, in this exact order:
 //
-// On any chain-id other than MainnetChainID, no money moves at all: this
-// logs and returns immediately, so a testnet/devnet rehearsal can confirm
-// the Plan got scheduled and the handler ran.
-func recoverFunds(ctx sdk.Context, k *keepers.AppKeepers) error {
+//  1. Bail out immediately on any non-mainnet chain-id — no money moves, no
+//     invariants are checked, nothing below this point runs.
+//  2. Snapshot every balance this recovery is about to touch, before
+//     anything moves, so step 6 has a "before" to compare against.
+//  3. Sweep every attacker wallet's akii into staging (the "evm" module
+//     account).
+//  4. Confirm the swept total actually covers the fixed payout list; fail
+//     closed here rather than send partial amounts.
+//  5. Pay out the fixed list from staging, then send the remainder of the swept funds
+//     (swept - payouts) to the remainder wallet.
+//  6. Re-derive every balance touched above and confirm the whole operation
+//     balanced exactly This must pass before the upgrade is allowed to complete.
+//  7. Only now, with the recovery fully verified, permanently enable the
+//     incident address block.
+func runEmergencyRecovery(ctx sdk.Context, k *keepers.AppKeepers) error {
 	if ctx.ChainID() != MainnetChainID {
 		ctx.Logger().Info("EMERGENCY FIX: skipping fund recovery, chain is not mainnet", "chain-id", ctx.ChainID())
 		return nil
 	}
+
+	ctx.Logger().Info("EMERGENCY FIX: starting funds recovery", "height", ctx.BlockHeight())
 
 	staging, err := sdk.AccAddressFromBech32(stagingAddr)
 	if err != nil {
 		return fmt.Errorf("invalid staging address: %w", err)
 	}
 
+	pre, err := captureInvariantSnapshot(ctx, k, staging)
+	if err != nil {
+		return err
+	}
+
+	// sweepAttackerFunds returns the total amount actually swept, so we can
+	// compare it against the total payouts before moving anything out of staging.
 	sweptAKII, err := sweepAttackerFunds(ctx, k, staging)
 	if err != nil {
 		return err
 	}
 
+	// totalPayoutAmount sums payouts with math.Int, so runEmergencyRecovery can
+	// compare it against what was actually swept before moving anything out of
+	// staging.
 	payoutTotal, err := totalPayoutAmount()
 	if err != nil {
 		return err
 	}
 
+	// Fail closed if the total swept from attackers is less than the total
 	if sweptAKII.LT(payoutTotal) {
 		return fmt.Errorf("insufficient recovered akii: swept=%s payouts=%s", sweptAKII, payoutTotal)
 	}
@@ -125,11 +140,25 @@ func recoverFunds(ctx sdk.Context, k *keepers.AppKeepers) error {
 	}
 
 	remainderAmount := sweptAKII.Sub(payoutTotal)
-	return distributeRemainder(ctx, k, staging, remainderAmount)
+	if err := distributeRemainder(ctx, k, staging, remainderAmount); err != nil {
+		return err
+	}
+
+	if err := verifyInvariants(ctx, k, staging, pre, remainderAmount); err != nil {
+		return err
+	}
+
+	ctx.Logger().Info("EMERGENCY FIX: funds recovery completed successfully", "height", ctx.BlockHeight())
+
+	ctx.Logger().Info("Enabling bank send restriction for incident addresses...")
+	blockedaddrs.Enable(ctx, k.GetKey(banktypes.StoreKey))
+
+	return nil
 }
 
-// totalPayoutAmount sums payouts with math.Int, so recoverFunds can compare
-// it against what was actually swept before moving anything out of staging.
+// totalPayoutAmount sums payouts with math.Int, so runEmergencyRecovery can
+// compare it against what was actually swept before moving anything out of
+// staging.
 func totalPayoutAmount() (math.Int, error) {
 	total := math.ZeroInt()
 	for _, p := range payouts {
@@ -173,8 +202,10 @@ func sweepAttackerFunds(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccA
 		sweptAKII = sweptAKII.Add(coin.Amount)
 	}
 
-	// Validate the amount swept matches the difference in staging's akii
-	// balance before and after.
+	// Fail fast, with a sweep-specific error, if the amount swept doesn't
+	// match the difference in staging's akii balance before and after.
+	// verifyInvariants re-checks staging's balance again at the very end of
+	// the whole recovery; this one catches a problem right where it happens.
 	stagingAfter := k.BankKeeper.GetBalance(ctx, staging, denom)
 	if !stagingAfter.Amount.Equal(stagingBefore.Amount.Add(sweptAKII)) {
 		return math.ZeroInt(), fmt.Errorf("swept akii %s does not match staging balance change %s",
@@ -224,6 +255,110 @@ func distributeRemainder(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.Acc
 		return fmt.Errorf("remainder distribution: %w", err)
 	}
 	ctx.Logger().Info("emergency-fix: remainder distributed", "amount", coins.String())
+
+	return nil
+}
+
+// invariantSnapshot captures every balance the recovery is about to touch,
+// before it moves anything, so verifyInvariants has a "before" to compare
+// against once every transfer has run.
+type invariantSnapshot struct {
+	totalSupply      math.Int
+	stagingAKII      math.Int
+	payoutRecipients map[string]math.Int // bech32 -> pre-recovery akii balance
+	remainderAKII    math.Int
+}
+
+// captureInvariantSnapshot reads every balance verifyInvariants will need,
+// before sweepAttackerFunds/distributePayouts/distributeRemainder run.
+func captureInvariantSnapshot(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccAddress) (invariantSnapshot, error) {
+	remainder, err := sdk.AccAddressFromBech32(remainderAddr)
+	if err != nil {
+		return invariantSnapshot{}, fmt.Errorf("invalid remainder address: %w", err)
+	}
+
+	recipients := make(map[string]math.Int, len(payouts))
+	for _, p := range payouts {
+		addr, err := sdk.AccAddressFromBech32(p.addr)
+		if err != nil {
+			return invariantSnapshot{}, fmt.Errorf("invalid payout address %s: %w", p.addr, err)
+		}
+		recipients[p.addr] = k.BankKeeper.GetBalance(ctx, addr, denom).Amount
+	}
+
+	return invariantSnapshot{
+		totalSupply:      k.BankKeeper.GetSupply(ctx, denom).Amount,
+		stagingAKII:      k.BankKeeper.GetBalance(ctx, staging, denom).Amount,
+		payoutRecipients: recipients,
+		remainderAKII:    k.BankKeeper.GetBalance(ctx, remainder, denom).Amount,
+	}, nil
+}
+
+// verifyInvariants re-derives every balance the recovery touched, after
+// every transfer above has run, and confirms the whole operation balanced
+// exactly:
+//   - total akii supply is unchanged — this recovery only ever moves
+//     existing coins between accounts, it never mints or burns.
+//   - every attacker wallet ended at exactly zero.
+//   - staging (the evm module account) is back to its pre-recovery
+//     balance — everything swept in was paid back out exactly, none of
+//     staging's own funds were touched.
+//   - every payout recipient's balance increased by exactly its fixed
+//     amount, and the remainder address's balance increased by exactly
+//     remainderAmount.
+//
+// A failure here means the transfers above didn't do what the code assumes
+// they did, and the upgrade must not be allowed to complete — see the
+// caller, which treats any error from this as fatal.
+func verifyInvariants(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccAddress, pre invariantSnapshot, remainderAmount math.Int) error {
+	postSupply := k.BankKeeper.GetSupply(ctx, denom).Amount
+	if !postSupply.Equal(pre.totalSupply) {
+		return fmt.Errorf("invariant violated: total akii supply changed from %s to %s", pre.totalSupply, postSupply)
+	}
+
+	for _, addrStr := range blockedaddrs.SortedAttackerAddresses() {
+		addr, err := sdk.AccAddressFromBech32(addrStr)
+		if err != nil {
+			return fmt.Errorf("invalid attacker address %s: %w", addrStr, err)
+		}
+		if balance := k.BankKeeper.GetBalance(ctx, addr, denom); !balance.IsZero() {
+			return fmt.Errorf("invariant violated: attacker %s still holds %s", addrStr, balance)
+		}
+	}
+
+	postStaging := k.BankKeeper.GetBalance(ctx, staging, denom).Amount
+	if !postStaging.Equal(pre.stagingAKII) {
+		return fmt.Errorf("invariant violated: staging akii changed from %s to %s, want back to its starting balance",
+			pre.stagingAKII, postStaging)
+	}
+
+	for _, p := range payouts {
+		expected, ok := math.NewIntFromString(p.amount)
+		if !ok {
+			return fmt.Errorf("invalid payout amount %q for %s", p.amount, p.addr)
+		}
+
+		addr, err := sdk.AccAddressFromBech32(p.addr)
+		if err != nil {
+			return fmt.Errorf("invalid payout address %s: %w", p.addr, err)
+		}
+
+		want := pre.payoutRecipients[p.addr].Add(expected)
+		got := k.BankKeeper.GetBalance(ctx, addr, denom).Amount
+		if !got.Equal(want) {
+			return fmt.Errorf("invariant violated: payout to %s: want balance %s, got %s", p.addr, want, got)
+		}
+	}
+
+	remainder, err := sdk.AccAddressFromBech32(remainderAddr)
+	if err != nil {
+		return fmt.Errorf("invalid remainder address: %w", err)
+	}
+	wantRemainder := pre.remainderAKII.Add(remainderAmount)
+	gotRemainder := k.BankKeeper.GetBalance(ctx, remainder, denom).Amount
+	if !gotRemainder.Equal(wantRemainder) {
+		return fmt.Errorf("invariant violated: remainder: want balance %s, got %s", wantRemainder, gotRemainder)
+	}
 
 	return nil
 }
