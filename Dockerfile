@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # Info on how to use this docker image can be found in DOCKER_README.md
 ARG IMG_TAG=latest
 
@@ -16,7 +17,21 @@ RUN sha256sum /lib/libwasmvm_muslc.x86_64.a | grep cefe73f0caa5a9eaba3733c639cdf
 RUN cp "/lib/libwasmvm_muslc.$(uname -m).a" /lib/libwasmvm_muslc.a
 
 COPY go.mod go.sum* ./
-RUN go mod download
+
+RUN --mount=type=secret,id=gh_token \
+    set -e; \
+    from_mod="$(awk '{
+      for (i = 1; i <= NF; i++) {
+        if ($i == "=>" && $(i+1) ~ /^github\.com\//) print $(i+1)
+      }
+    }' go.mod | sort -u | paste -sd, -)"; \
+    export GOPRIVATE="${from_mod:+$from_mod,}github.com/KiiChain/*"; \
+    if [ -s /run/secrets/gh_token ]; then \
+      export GIT_CONFIG_COUNT=1; \
+      export GIT_CONFIG_KEY_0="url.https://x-access-token:$(cat /run/secrets/gh_token)@github.com/.insteadOf"; \
+      export GIT_CONFIG_VALUE_0="https://github.com/"; \
+    fi; \
+    go mod download
 
 COPY . .
 RUN LEDGER_ENABLED=false LINK_STATICALLY=true BUILD_TAGS=muslc make build

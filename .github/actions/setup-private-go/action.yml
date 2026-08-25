@@ -1,0 +1,73 @@
+name: "Setup private Go modules"
+description: >-
+  Grants the runner read access to private GitHub Go module dependencies so
+  that go commands can resolve them. The built-in GITHUB_TOKEN is not
+  sufficient: it is scoped to this repository only.
+
+inputs:
+  token:
+    description: >-
+      Read-only GitHub token that can access every private module repository
+      referenced by go.mod (replace directives or direct requires).
+    required: true
+  goprivate:
+    description: >-
+      Extra GOPRIVATE patterns (comma-separated), merged with replace
+      destinations parsed from go.mod and the current GitHub org.
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure git credentials and GOPRIVATE
+      shell: bash
+      env:
+        TOKEN: ${{ inputs.token }}
+        GOPRIVATE_EXTRA: ${{ inputs.goprivate }}
+      run: |
+        set -euo pipefail
+
+        if [ -z "${TOKEN}" ]; then
+          echo "::error::GH_READ_TOKEN is not set. Private Go module" \
+               "dependencies cannot be fetched with the default GITHUB_TOKEN" \
+               "(it is scoped to this repository only)."
+          exit 1
+        fi
+
+        # Authenticate any github.com fetch the token is allowed to read,
+        # not a single repository or org.
+        git config --global \
+          url."https://x-access-token:${TOKEN}@github.com/".insteadOf \
+          "https://github.com/"
+
+        # Public proxy / checksum DB cannot serve private modules. Include:
+        #  - replace destinations already listed in go.mod
+        #  - the current GitHub org (private require without a replace)
+        #  - any extra patterns passed to this action
+        from_mod=""
+        if [ -f go.mod ]; then
+          from_mod="$(awk '
+            {
+              for (i = 1; i <= NF; i++) {
+                if ($i == "=>" && $(i+1) ~ /^github\.com\//) print $(i+1)
+              }
+            }
+          ' go.mod | sort -u | paste -sd, -)"
+        fi
+
+        org=""
+        if [ -n "${GITHUB_REPOSITORY_OWNER:-}" ]; then
+          org="github.com/${GITHUB_REPOSITORY_OWNER}/*"
+        fi
+
+        goprivate=""
+        for part in "$from_mod" "$org" "${GOPRIVATE_EXTRA:-}"; do
+          [ -z "$part" ] && continue
+          case ",$goprivate," in
+            *",$part,"*) ;;
+            *) goprivate="${goprivate:+$goprivate,}$part" ;;
+          esac
+        done
+
+        echo "GOPRIVATE=${goprivate}" >> "$GITHUB_ENV"
