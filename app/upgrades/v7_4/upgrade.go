@@ -171,10 +171,11 @@ func totalPayoutAmount() (math.Int, error) {
 	return total, nil
 }
 
-// sweepAttackerFunds moves every attacker wallet's akii balance into staging
-// and returns the total amount actually swept. These are plain
-// accounts/contracts, not vesting accounts, so a direct bank transfer of
-// just the akii balance (not GetAllBalances) is all that's needed.
+// sweepAttackerFunds moves each attacker wallet's spendable akii balance
+// into staging and returns the total amount actually swept. Uses
+// SpendableCoin rather than GetBalance: some attacker addresses are vesting
+// accounts, so this may recover less than the full balance for those,
+// leaving any locked remainder in place.
 //
 // Iterates blockedaddrs.SortedAttackerAddresses(), not the map directly:
 // Go's map iteration order is randomized per process, and every validator
@@ -189,7 +190,7 @@ func sweepAttackerFunds(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccA
 			return math.ZeroInt(), fmt.Errorf("invalid attacker address %s: %w", addrStr, err)
 		}
 
-		coin := k.BankKeeper.GetBalance(ctx, attackerAddr, denom)
+		coin := k.BankKeeper.SpendableCoin(ctx, attackerAddr, denom)
 		if coin.IsZero() {
 			continue
 		}
@@ -299,7 +300,7 @@ func captureInvariantSnapshot(ctx sdk.Context, k *keepers.AppKeepers, staging sd
 // exactly:
 //   - total akii supply is unchanged — this recovery only ever moves
 //     existing coins between accounts, it never mints or burns.
-//   - every attacker wallet ended at exactly zero.
+//   - every attacker wallet has nothing left spendable.
 //   - staging (the evm module account) is back to its pre-recovery
 //     balance — everything swept in was paid back out exactly, none of
 //     staging's own funds were touched.
@@ -321,8 +322,9 @@ func verifyInvariants(ctx sdk.Context, k *keepers.AppKeepers, staging sdk.AccAdd
 		if err != nil {
 			return fmt.Errorf("invalid attacker address %s: %w", addrStr, err)
 		}
-		if balance := k.BankKeeper.GetBalance(ctx, addr, denom); !balance.IsZero() {
-			return fmt.Errorf("invariant violated: attacker %s still holds %s", addrStr, balance)
+
+		if spendable := k.BankKeeper.SpendableCoin(ctx, addr, denom); !spendable.IsZero() {
+			return fmt.Errorf("invariant violated: attacker %s still has %s spendable", addrStr, spendable)
 		}
 	}
 
