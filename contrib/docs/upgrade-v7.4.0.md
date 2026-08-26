@@ -8,7 +8,7 @@ Validator instructions for the coordinated restart of `kiichain_1783-1` after th
 - [What is next](#what-is-next)
 - [Install the binary with Cosmovisor](#install-the-binary-with-cosmovisor)
   - [Confirm you are still at the halt height](#confirm-you-are-still-at-the-halt-height)
-  - [Back up data before you touch Cosmovisor](#back-up-data-before-you-touch-cosmovisor)
+  - [Back up the node home before you touch Cosmovisor](#back-up-the-node-home-before-you-touch-cosmovisor)
   - [Download and verify the official binary](#download-and-verify-the-official-binary)
   - [Register the off-chain upgrade](#register-the-off-chain-upgrade)
   - [Verify before the start time](#verify-before-the-start-time)
@@ -70,7 +70,7 @@ The same binary is safe to run on testnet or a local rehearsal: fund recovery is
 **What validators must do**
 
 1. Keep the node stopped until the coordinated start time.
-2. Take (or confirm) a backup of `$DAEMON_HOME/data` at the halt height. You need this if the first new block fails.
+2. Take (or confirm) a backup of the whole `$DAEMON_HOME` at the halt height. You need this if the first new block fails.
 3. Install the official `v7.4.0` binary into Cosmovisor using the steps below.
 4. Confirm Cosmovisor will start `v7.4.0` for the first new block. Do not resume the pre-incident binary.
 5. Start with the rest of the set at the announced time.
@@ -107,17 +107,20 @@ If RPC is down, use the last height from `journalctl -u kiichain` (or your unit 
 
 If your local height is **below** the halt height, sync from a peer or snapshot that is still on the pre-upgrade binary, then stop again. If your local height is **above** the halt height, stop and contact the team before you start `v7.4.0`.
 
+<a id="back-up-the-node-home-before-you-touch-cosmovisor"></a>
 <a id="back-up-data-before-you-touch-cosmovisor"></a>
 
-### 3.2 Back up data before you touch Cosmovisor
+### 3.2 Back up the node home before you touch Cosmovisor
+
+Copy the whole `$DAEMON_HOME` (`data`, `wasm`, `config`, Cosmovisor layout), not only `data`. Keep that copy on the same machine or a private disk. Do not upload `config/priv_validator_key.json` or `config/node_key.json` anywhere public.
 
 ```bash
 sudo systemctl stop kiichain   # use your unit name
-mkdir -p "$DAEMON_HOME/cosmovisor/backup"
-cp -a "$DAEMON_HOME/data" "$DAEMON_HOME/cosmovisor/backup/data-pre-v7.4.0"
+mkdir -p "$HOME/kiichain-backup"
+cp -a "$DAEMON_HOME" "$HOME/kiichain-backup/home-pre-v7.4.0"
 ```
 
-Keep `priv_validator_key.json` where it is. Do not copy it into a public location.
+If disk is tight, at minimum copy `data` (and `wasm` if it sits next to `data`). A full home copy is the safer default.
 
 <a id="download-and-verify-the-official-binary"></a>
 
@@ -164,7 +167,7 @@ That command:
 ln -sfn "$DAEMON_HOME/cosmovisor/upgrades/v7.4.0" "$DAEMON_HOME/cosmovisor/current"
 ```
 
-If you prefer not to use `add-upgrade`, the equivalent manual layout is:
+If you prefer not to use `add-upgrade`, the equivalent manual layout is (this is what Kii-operated nodes will use):
 
 ```bash
 mkdir -p "$DAEMON_HOME/cosmovisor/upgrades/v7.4.0/bin"
@@ -190,7 +193,7 @@ sha256sum "$DAEMON_HOME/cosmovisor/current/bin/kiichaind"
 # must match SHA256SUMS-v7.4.0.txt
 ```
 
-Turn off state sync for the restart. You already have halt-height state; a trust hash from a live RPC will be wrong until the network is producing again.
+Turn off state sync for the restart. The join script often leaves `[statesync] enable = true`. You already have halt-height state and must apply the first new block locally. If state sync stays on, CometBFT can throw that state away and fetch from an RPC using a `trust_height` / `trust_hash` from before the halt (or from a peer that has already diverged). There is no live chain to trust until this set produces the upgrade block.
 
 ```toml
 # $DAEMON_HOME/config/config.toml
@@ -255,11 +258,14 @@ Do not keep restarting the service. Each retry can move `current` or rewrite `up
    sudo systemctl stop kiichain
    ```
 
-2. Restore data from the pre-upgrade backup you took in §3.2. Replace `data` only. Leave `config/priv_validator_key.json` and `config/node_key.json` alone.
+2. Restore **data** from the pre-upgrade backup you took in §3.2. Do not restore the whole home over the live node: that would also revert the `v7.4.0` binary you just installed. Leave the live `config/priv_validator_key.json` and `config/node_key.json` alone.
 
    ```bash
    rm -rf "$DAEMON_HOME/data"
-   cp -a "$DAEMON_HOME/cosmovisor/backup/data-pre-v7.4.0" "$DAEMON_HOME/data"
+   cp -a "$HOME/kiichain-backup/home-pre-v7.4.0/data" "$DAEMON_HOME/data"
+   # if you keep wasm outside data:
+   # rm -rf "$DAEMON_HOME/wasm"
+   # cp -a "$HOME/kiichain-backup/home-pre-v7.4.0/wasm" "$DAEMON_HOME/wasm"
    ```
 
    If Cosmovisor wrote its own backup under `$DAEMON_HOME/cosmovisor/backup` during a failed switch, use the snapshot whose height is the halt height, not a copy taken after the failed block.
@@ -279,6 +285,8 @@ Do not keep restarting the service. Each retry can move `current` or rewrite `up
    ```
 
 5. Confirm local height is the halt height, state sync is off, then start with the set again.
+
+`kiichaind rollback` is **not** a substitute for that backup. It only undoes the last *committed* height. If the upgrade block never committed (typical `CONSENSUS FAILURE` / `wrong AppHash` while still at the halt height), rollback would delete the last good block. If you did commit exactly one extra height, rollback can return you to the halt height, but it does not fix Cosmovisor `current` or `$DAEMON_HOME/data/upgrade-info.json` — you still have to do steps 3–4. Prefer restoring the halt-height copy.
 
 If you have no halt-height backup, do not run `unsafe-reset-all` on a validator. Ask the team for a snapshot taken at the halt height and restore that, then start `v7.4.0`.
 
