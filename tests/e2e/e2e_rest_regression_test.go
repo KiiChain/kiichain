@@ -62,9 +62,8 @@ const (
 	tokenFactoryParams = "/kiichain/tokenfactory/v1beta1/params"
 
 	// Rewards endpoints
-	rewardsParams   = "/kiichain/rewards/v1beta1/params"
-	rewardsPool     = "/kiichain/rewards/v1beta1/reward-pool"
-	rewardsSchedule = "/kiichain/rewards/v1beta1/release-schedule"
+	rewardsParams = "/kiichain/rewards/v1beta1/params"
+	rewardsPool   = "/kiichain/rewards/v1beta1/reward-pool"
 
 	// Oracle Endpoints
 	oracleExchangeRates        = "/kiichain/oracle/v1beta1/denoms/exchange_rates"
@@ -106,7 +105,6 @@ func (s *IntegrationTestSuite) testRestInterfaces() {
 				{tokenFactoryParams, 200},
 				{rewardsParams, 200},
 				{rewardsPool, 200},
-				{rewardsSchedule, 200},
 				// EVM endpoints
 				{evmBaseFee, 200},
 				{evmParams, 200},

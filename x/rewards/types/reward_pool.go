@@ -10,6 +10,7 @@ import (
 func InitialRewardPool() RewardPool {
 	return RewardPool{
 		CommunityPool: sdk.DecCoins{},
+		TotalReleased: sdk.Coin{},
 	}
 }
 
@@ -17,6 +18,12 @@ func InitialRewardPool() RewardPool {
 func (rp RewardPool) ValidateGenesis() error {
 	if err := rp.CommunityPool.Validate(); err != nil {
 		return fmt.Errorf("invalid CommunityPool: %w", err)
+	}
+
+	if !rp.TotalReleased.IsNil() && !rp.TotalReleased.IsZero() {
+		if err := rp.TotalReleased.Validate(); err != nil {
+			return fmt.Errorf("invalid TotalReleased: %w", err)
+		}
 	}
 
 	return nil

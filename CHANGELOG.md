@@ -2,17 +2,27 @@
 
 ## Unreleased
 
+### Added
+
+- Replace timed linear `ReleaseSchedule` emissions in `x/rewards` with continuous inflation-based utility rewards driven by bonded ratio: `inflation = clamp((1 - bonded/goal) × rate_change × bonded, min, max)`, amount = `inflation × supply_base / blocks_per_year`, capped at remaining pool balance (emits until pool runs dry). Adds staking `BondedRatio` dependency and gov params `goal_bonded`, `inflation_min`, `inflation_max`, `inflation_rate_change` (default `0.13`), `blocks_per_year` (default `15778800` for 2s blocks), and `supply_base` (default `0` disables emissions; notional emission scale, not chain total supply). Enable via `MsgFundPool` + gov `MsgUpdateParams`. Module consensus version bumped to `2` with a store migration that deletes obsolete `ReleaseSchedule` state and backfills default inflation params
+- Emit `update_params`, `fund_pool`, and `reward_distributed` events from x/rewards (`reward_distributed` now includes `inflation_rate` and `bonded_ratio`)
+
+### Removed
+
+- Remove `ReleaseSchedule`, `MsgChangeSchedule`, and the release-schedule query/CLI from `x/rewards`; emissions are continuous while `supply_base > 0` and the pool has funds (`total_released` lives on `RewardPool`)
+
+## v7.3.1 - 2026-08-06
+
+### Fixed
+
+- Keep the gov module account on the bank blocked list so EVM BalanceHandler does not mirror gov deposits into StateDB (fixes Safe → gov precompile `deposit` failing on commit with `unauthorized`) ([#368](https://github.com/KiiChain/kiichain/pull/368))
+
+## v7.3.0 - 2026-07-28
+
 ### Dependencies
 
 - [EVM](https://github.com/KiiChain/evm) fork from v0.6.0-fork.1 to [v0.6.0-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.0-fork.2): bounded internal EVM call gas limit, EVM fee refunds, distribution precompile 32-byte withdraw fix, and CosmWasm EVM query undercharge fix
 - [EVM](https://github.com/KiiChain/evm) fork bump from `v0.6.0-fork.2` to [v0.6.1-fork.1](https://github.com/KiiChain/evm/releases/tag/v0.6.1-fork.1), applied via the coordinated `v7.3.0` upgrade: the July 2026 Cosmos EVM hotfix (precompile gas accounting alignment and StateDB locked-balance snapshotting), published upstream as [cosmos/evm v0.6.1](https://github.com/cosmos/evm/releases/tag/v0.6.1)
-
-### Added
-
-- Emit `update_params`, `fund_pool`, `change_schedule`, and `reward_distributed` events from x/rewards
-- Emit `update_params` and `set_denom_metadata` events from tokenfactory
-- Emit `update_params`, `update_fee_tokens`, `module_disabled` and `token_disabled` events on fee abstraction
-- Emit `update_params` event on oracle module
 
 ### Fixed
 
@@ -20,13 +30,26 @@
 - Compute the oracle ballot `StandardDeviation` as a stake-weighted variance (weight each squared deviation by the vote's power and divide by total voting power) instead of an unweighted average divided by the vote count, aligning the reward-band width with the stake-weighted median and preventing a group of low-stake validators from inflating the deviation to widen the accepted vote window
 - Close an oracle slashing bypass in the `EndBlocker` where validators were scored against the post-filtered `voteTargets` map: a denom that received votes but was pushed below the vote threshold (e.g. by a coordinated group abstaining) was dropped from the scoring denominator, letting the abstainers avoid miss penalties. Participation is now scored against the configured targets that received votes (passing targets plus below-threshold targets), crediting validators that voted on a below-threshold target while counting abstention on it as a miss; targets that received no votes at all are still excluded so a legitimately unpriceable denom cannot mass-slash the validator set
 - Allow EIP-7702 delegated EOAs to send direct EVM transactions by exempting delegation-designator code from the externally-owned-account-only check in `VerifyIfAccountExists`, so accounts that delegate via `SetCodeTx` can still manage (and revoke) their own delegation without a sponsored transaction
-- Remove the forced minimum 1-unit-per-block reward release in `CalculateReward` and skip (instead of deactivating) sub-unit blocks in the rewards `BeginBlocker`, so the proportional share accumulates and the pool follows the configured schedule independent of block time (previously a 10-year, 1M-unit schedule drained in ~12 days at the 1s target block time and ~28 days at the current ~2.4s rate, regardless of the configured duration)
 - Reject `MsgEthereumTx` from being dispatched through the authz keeper (including when nested inside `authz.MsgExec`), closing an EVM ante bypass on message-router execution paths that skip the ante handler
 - Fix feegrant denomination bypass in the cosmos fee ante handler by converting the fee before consuming the grant, so `UseGrantedFees` is checked against the same coins later deducted (prevents a grantee from forcing the granter to pay in a non-granted fee-abstraction denom)
+- Bound tokenfactory denom metadata size (`MaxDenomMetadataSize`) in `MsgSetDenomMetadata.ValidateBasic` and `msgServer.SetDenomMetadata` to prevent oversized metadata rewrites (including via the CosmWasm binding) from forcing unbounded native store writes that overrun the transaction's declared gas
+- Fix native token supply inflation from the stateful precompiles by wrapping the account address codec (`evmAddressCodec`) to reject non-20-byte accounts (e.g. a 32-byte bech32 withdraw, module, or CosmWasm contract address) at decode time, preventing such addresses from being truncated and minted a duplicate balance when mirrored into the EVM StateDB
+- Close governance vote minimum-stake bypass in `GovVoteDecorator` by enforcing the stake check on `MsgVoteWeighted` (`govv1` and `govv1beta1`) and recursing into nested `authz.MsgExec` messages so wrapped votes can no longer skip the requirement
+- Add a `ValidateModuleAccounting` check (rewards module bank balance must cover the `CommunityPool`) and run it at genesis to surface accounting/bank divergences early
+
+## v7.2.0 - 2026-04-16
+
+### Added
+
+- Emit `update_params` and `set_denom_metadata` events from tokenfactory
+- Emit `update_params`, `update_fee_tokens`, `module_disabled` and `token_disabled` events on fee abstraction
+- Emit `update_params` event on oracle module
+
+### Fixed
+
 - Refactor `PerformSetMetadata` in wasmbinding to delegate to `msgServer.SetDenomMetadata`, ensuring the `EnableSetMetadata` capability check is enforced
 - Ensure that `UpdateTokenMetadata.Decimals` matches the ERC20 or bank records
 - Fixed odd validation on tokenfactory change admin that blocked removing admin from the token
-- Fix division-by-zero chain halt in `CalculateReward` caused by sub-second schedule durations; replace `Seconds()` truncation with `Nanoseconds()` precision and release full remaining reward when `EndTime <= LastReleaseTime` ([#267](https://github.com/KiiChain/kiichain/issues/267))
 - Add denom string length validation (max 128 bytes) to oracle precompile and query server to prevent memory exhaustion via oversized inputs
 - Add result limits to oracle list queries (ExchangeRates, Actives, VoteTargets capped at 1000; PriceSnapshotHistory capped at 500) to prevent unbounded iteration
 - Fix NewClaim constructor assigning power to Weight field instead of the weight parameter (x/oracle/types/ballot.go)
@@ -39,13 +62,8 @@
 - Ensure feeTokenMetadata initial prices after updateFeeTokenMetadata is picked up from oracle
 - Use `DecCoins.Validate()` on `RewardPool.ValidateGenesis` to catch malformed denom formats, duplicate denoms, bad ordering
 - Enforce denom consistency in `GenesisState.Validate` with `Params.TokenDenom`
-- Bound tokenfactory denom metadata size (`MaxDenomMetadataSize`) in `MsgSetDenomMetadata.ValidateBasic` and `msgServer.SetDenomMetadata` to prevent oversized metadata rewrites (including via the CosmWasm binding) from forcing unbounded native store writes that overrun the transaction's declared gas
 - Limited tokenfactory queries, removing denial of service possibility
 - Indexed admins to reduce query space on tokenfactory denom queries
-- Fix native token supply inflation from the stateful precompiles by wrapping the account address codec (`evmAddressCodec`) to reject non-20-byte accounts (e.g. a 32-byte bech32 withdraw, module, or CosmWasm contract address) at decode time, preventing such addresses from being truncated and minted a duplicate balance when mirrored into the EVM StateDB
-- Close governance vote minimum-stake bypass in `GovVoteDecorator` by enforcing the stake check on `MsgVoteWeighted` (`govv1` and `govv1beta1`) and recursing into nested `authz.MsgExec` messages so wrapped votes can no longer skip the requirement
-- Prevent a chain halt in the rewards `BeginBlocker` by routing `SendCoinsFromModuleToModule` failures through `haltSchedule` (graceful schedule deactivation) instead of returning a fatal error, matching the other reward release error paths
-- Add a `ValidateModuleAccounting` check (rewards module bank balance must cover the `CommunityPool`) and run it at genesis to surface accounting/bank divergences early
 
 ### Removed
 

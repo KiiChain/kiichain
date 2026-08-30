@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -11,122 +9,88 @@ import (
 	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
-// haltSchedule logs err, marks the release schedule inactive, and returns nil so
-// the error never reaches FinalizeBlock and halts the chain
-func (k Keeper) haltSchedule(ctx sdk.Context, schedule types.ReleaseSchedule, err error) error {
-	k.Logger(ctx).Error("halting release schedule due to error", "error", err)
-	schedule.Active = false
-	return k.ReleaseSchedule.Set(ctx, schedule)
-}
-
-// BeginBlocker calculates reward amt and sends it to the distribution pool
+// BeginBlocker calculates the inflation-based reward amount and sends it to the fee collector.
 func (k Keeper) BeginBlocker(ctx sdk.Context) error {
-	// Apply telemetry metrics
 	defer telemetry.ModuleMeasureSince(types.ModuleName, telemetry.Now(), telemetry.MetricKeyBeginBlocker)
 
-	// Get release schedule
-	schedule, err := k.ReleaseSchedule.Get(ctx)
+	params, err := k.Params.Get(ctx)
 	if err != nil {
 		return err
 	}
 
-	// Early exit if inactive or nothing to release
-	if !schedule.Active || schedule.TotalAmount.IsZero() {
+	// supply_base == 0 disables emissions until governance configures it
+	if params.SupplyBase.IsZero() {
 		return nil
 	}
 
-	// If active and there is no previous time stamp, set it as current block's and skip this time
-	if schedule.LastReleaseTime.IsZero() {
-		schedule.LastReleaseTime = ctx.BlockTime()
-		return k.ReleaseSchedule.Set(ctx, schedule)
-	}
-
-	// Calculate the amount to distribute this block
-	amountToDistribute, err := types.CalculateReward(ctx.BlockTime(), schedule)
-	if err != nil {
-		return k.haltSchedule(ctx, schedule, err)
-	}
-
-	if amountToDistribute.IsZero() {
-		if schedule.ReleasedAmount.IsGTE(schedule.TotalAmount) {
-			schedule.Active = false
-			return k.ReleaseSchedule.Set(ctx, schedule)
-		}
-		return nil
-	}
-
-	// Get the current RewardPool from state
 	rewardPool, err := k.RewardPool.Get(ctx)
 	if err != nil {
 		return err
 	}
 
-	// Set up coins
+	poolBalance := rewardPool.CommunityPool.AmountOf(params.TokenDenom).TruncateInt()
+	if !poolBalance.IsPositive() {
+		return nil
+	}
+
+	bondedRatio, err := k.stakingKeeper.BondedRatio(ctx)
+	if err != nil {
+		k.Logger(ctx).Error("failed to read bonded ratio", "error", err)
+		return nil
+	}
+
+	amountToDistribute, inflation := types.CalculateReward(bondedRatio, params)
+
+	// Cap at remaining pool balance so emissions run until the pool is dry
+	amountToDistribute.Amount = math.MinInt(amountToDistribute.Amount, poolBalance)
+
+	if amountToDistribute.IsZero() {
+		return nil
+	}
+
 	coinsToDistribute := sdk.NewCoins(amountToDistribute)
 
-	// Verify the CommunityPool has sufficient balance for the denom before transferring
-	poolAmount := rewardPool.CommunityPool.AmountOf(amountToDistribute.Denom)
-	if math.LegacyNewDecFromInt(amountToDistribute.Amount).GT(poolAmount) {
-		return k.haltSchedule(ctx, schedule, fmt.Errorf("community pool has insufficient balance for %s: pool has %s, need %s",
-			amountToDistribute.Denom, poolAmount, amountToDistribute.Amount))
-	}
-
-	// Send to distribution pool
 	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, k.feeCollectorName, coinsToDistribute); err != nil {
-		return k.haltSchedule(ctx, schedule, fmt.Errorf("failed to send rewards to fee collector: %w", err))
+		k.Logger(ctx).Error("failed to send rewards to fee collector", "error", err)
+		return nil
 	}
 
-	// Deduct from RewardPool using SafeSub so a divergence cannot panic the chain.
 	remaining, hasNeg := rewardPool.CommunityPool.SafeSub(sdk.NewDecCoinsFromCoins(coinsToDistribute...))
 	if hasNeg {
-		return k.haltSchedule(ctx, schedule, fmt.Errorf("community pool subtraction resulted in negative balance for denom %s", amountToDistribute.Denom))
+		k.Logger(ctx).Error("community pool subtraction resulted in negative balance",
+			"denom", amountToDistribute.Denom)
+		return nil
 	}
 	rewardPool.CommunityPool = remaining
 
-	// Save change
-	if err := k.RewardPool.Set(ctx, rewardPool); err != nil {
-		return err
+	if rewardPool.TotalReleased.IsNil() || rewardPool.TotalReleased.IsZero() {
+		rewardPool.TotalReleased = amountToDistribute
+	} else {
+		rewardPool.TotalReleased = rewardPool.TotalReleased.Add(amountToDistribute)
 	}
 
-	// Update release schedule
-	schedule.LastReleaseTime = ctx.BlockTime()
-	schedule.ReleasedAmount = schedule.ReleasedAmount.Add(amountToDistribute)
-	if err := k.ReleaseSchedule.Set(ctx, schedule); err != nil {
+	if err := k.RewardPool.Set(ctx, rewardPool); err != nil {
 		return err
 	}
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeRewardDistributed,
 		sdk.NewAttribute(types.AttributeKeyAmount, amountToDistribute.String()),
-		sdk.NewAttribute(types.AttributeKeyTotalReleased, schedule.ReleasedAmount.String()),
+		sdk.NewAttribute(types.AttributeKeyTotalReleased, rewardPool.TotalReleased.String()),
+		sdk.NewAttribute(types.AttributeKeyInflationRate, inflation.String()),
+		sdk.NewAttribute(types.AttributeKeyBondedRatio, bondedRatio.String()),
 	))
 
-	k.WriteRewardMetrics(ctx, amountToDistribute, schedule.ReleasedAmount)
+	k.WriteRewardMetrics(ctx, amountToDistribute, rewardPool.TotalReleased)
 
 	return nil
 }
 
-// WriteRewardMetrics writes reward information to telemetry metrics
-func (k Keeper) WriteRewardMetrics(ctx sdk.Context, distributed, total sdk.Coin) {
-	// Forgo telemetry on conversion errors
-	distFloat, err := distributed.Amount.ToLegacyDec().Float64()
-	if err != nil {
-		k.Logger(ctx).Error("failed to convert distributed amount to float64",
-			"error", err,
-			"distributed", distributed.String(),
-			"denom", distributed.Denom,
-		)
-		return
-	}
-	totalFloat, err := total.Amount.ToLegacyDec().Float64()
-	if err != nil {
-		k.Logger(ctx).Error("failed to convert total release amount to float64",
-			"error", err,
-			"total", total.String(),
-			"denom", total.Denom,
-		)
-		return
-	}
+// WriteRewardMetrics writes reward information to telemetry metrics.
+// Conversion failures yield zero gauges; telemetry is best-effort.
+func (k Keeper) WriteRewardMetrics(_ sdk.Context, distributed, total sdk.Coin) {
+	distFloat, _ := distributed.Amount.ToLegacyDec().Float64()
+	totalFloat, _ := total.Amount.ToLegacyDec().Float64()
 
 	telemetry.ModuleSetGauge(
 		types.ModuleName,

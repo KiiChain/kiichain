@@ -2,12 +2,48 @@ syntax = "proto3";
 package kiichain.rewards.v1beta1;
 
 import "gogoproto/gogo.proto";
-import "kiichain/rewards/v1beta1/types.proto";
 
 option go_package = "github.com/kiichain/kiichain/x/rewards/types";
 
 // Params defines the parameters for the rewards module.
 message Params {
-  // Denom used
+  // Denom used for emissions
   string token_denom = 1;
+
+  // Target fraction of supply staked (e.g. "0.67")
+  string goal_bonded = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Floor on the emission rate (e.g. "0.00")
+  string inflation_min = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Ceiling on the emission rate (e.g. "0.20")
+  string inflation_max = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Notional base (in token base units) used to size annual provisions:
+  // annual_provision = inflation * supply_base. This is NOT chain total supply;
+  // it is a governance knob for emission scale. Zero disables emissions.
+  string supply_base = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // Steepness of the emission curve (e.g. "0.13")
+  string inflation_rate_change = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Expected blocks per year used to convert annual provisions into a
+  // per-block release (same model as cosmos-sdk x/mint). Default assumes a
+  // 2s block time: 60 * 60 * 8766 / 2 = 15778800.
+  uint64 blocks_per_year = 7;
 }

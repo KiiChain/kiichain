@@ -9,12 +9,10 @@ import (
 
 // RegisterInterfaces register interfaces into the app
 func RegisterInterfaces(registry types.InterfaceRegistry) {
-	// Register messages
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
 		&MsgUpdateParams{},
 		&MsgFundPool{},
-		&MsgChangeSchedule{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
@@ -24,8 +22,6 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 // and concrete types on the provided LegacyAmino codec. These types are used
 // for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	// Register all your concrete types
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "rewards/update-params", nil)
 	cdc.RegisterConcrete(&MsgFundPool{}, "rewards/fund-pool", nil)
-	cdc.RegisterConcrete(&MsgChangeSchedule{}, "rewards/change-schedule", nil)
 }
