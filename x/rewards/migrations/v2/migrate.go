@@ -81,6 +81,9 @@ func migrateParams(ctx sdk.Context, k keeper.Keeper) error {
 	if params.InflationRateChange.IsNil() || !params.InflationRateChange.IsPositive() {
 		params.InflationRateChange = defaults.InflationRateChange
 	}
+	if params.BlocksPerYear == 0 {
+		params.BlocksPerYear = defaults.BlocksPerYear
+	}
 	return k.Params.Set(ctx, params)
 }
 

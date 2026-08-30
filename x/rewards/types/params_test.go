@@ -80,6 +80,13 @@ func TestParamsValidateBasic(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "invalid - blocks per year zero",
+			mutate: func(p *types.Params) {
+				p.BlocksPerYear = 0
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -105,4 +112,5 @@ func TestDefaultParams(t *testing.T) {
 	require.True(t, math.LegacyNewDecWithPrec(20, 2).Equal(defaultParams.InflationMax))
 	require.True(t, defaultParams.InflationMin.IsZero())
 	require.True(t, math.LegacyNewDecWithPrec(13, 2).Equal(defaultParams.InflationRateChange))
+	require.Equal(t, types.DefaultBlocksPerYear, defaultParams.BlocksPerYear)
 }

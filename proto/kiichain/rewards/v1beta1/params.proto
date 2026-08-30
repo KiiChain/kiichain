@@ -41,4 +41,9 @@ message Params {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+
+  // Expected blocks per year used to convert annual provisions into a
+  // per-block release (same model as cosmos-sdk x/mint). Default assumes a
+  // 2s block time: 60 * 60 * 8766 / 2 = 15778800.
+  uint64 blocks_per_year = 7;
 }

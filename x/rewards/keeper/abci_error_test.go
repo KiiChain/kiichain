@@ -109,19 +109,16 @@ func TestBeginBlockerErrorPaths(t *testing.T) {
 		params.SupplyBase = math.NewInt(1_000_000)
 		require.NoError(t, k.Params.Set(ctx, params))
 
-		now := ctx.BlockTime()
 		require.NoError(t, k.RewardPool.Set(ctx, types.RewardPool{
-			CommunityPool:   sdk.NewDecCoins(sdk.NewDecCoin(params.TokenDenom, math.NewInt(1_000_000))),
-			LastReleaseTime: now.Add(-time.Hour),
+			CommunityPool: sdk.NewDecCoins(sdk.NewDecCoin(params.TokenDenom, math.NewInt(1_000_000))),
 		}))
 
 		require.NoError(t, k.BeginBlocker(ctx))
 
 		pool, err := k.RewardPool.Get(ctx)
 		require.NoError(t, err)
+		require.True(t, pool.CommunityPool.AmountOf(params.TokenDenom).Equal(math.LegacyNewDec(1_000_000)))
 		require.True(t, pool.TotalReleased.IsZero() || pool.TotalReleased.IsNil() || pool.TotalReleased.Amount.IsZero())
-		// Clock advances so a later successful block does not dump accrued Δt
-		require.True(t, pool.LastReleaseTime.Equal(now))
 	})
 
 	t.Run("bank send failure skips without failing block", func(t *testing.T) {
@@ -134,17 +131,15 @@ func TestBeginBlockerErrorPaths(t *testing.T) {
 		params.SupplyBase = math.NewInt(1_000_000_000_000)
 		require.NoError(t, k.Params.Set(ctx, params))
 
-		now := ctx.BlockTime()
 		require.NoError(t, k.RewardPool.Set(ctx, types.RewardPool{
-			CommunityPool:   sdk.NewDecCoins(sdk.NewDecCoin(params.TokenDenom, math.NewInt(1_000_000))),
-			LastReleaseTime: now.Add(-time.Hour),
+			CommunityPool: sdk.NewDecCoins(sdk.NewDecCoin(params.TokenDenom, math.NewInt(1_000_000))),
 		}))
 
 		require.NoError(t, k.BeginBlocker(ctx))
 
 		pool, err := k.RewardPool.Get(ctx)
 		require.NoError(t, err)
-		require.True(t, pool.LastReleaseTime.Equal(now))
+		require.True(t, pool.CommunityPool.AmountOf(params.TokenDenom).Equal(math.LegacyNewDec(1_000_000)))
 		require.True(t, pool.TotalReleased.IsZero() || pool.TotalReleased.IsNil() || pool.TotalReleased.Amount.IsZero())
 	})
 }

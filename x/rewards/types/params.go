@@ -10,6 +10,10 @@ import (
 	"github.com/kiichain/kiichain/v7/app/params"
 )
 
+// DefaultBlocksPerYear assumes a 2s block time (app TimeoutCommit):
+// 60 * 60 * 8766 / 2 = 15_778_800.
+const DefaultBlocksPerYear uint64 = 60 * 60 * 8766 / 2
+
 // DefaultParams returns default rewards parameters.
 // SupplyBase defaults to zero => zero emissions until governance sets it.
 // SupplyBase is a notional emission-scale base (not chain total supply).
@@ -21,6 +25,7 @@ func DefaultParams() Params {
 		InflationMax:        math.LegacyNewDecWithPrec(20, 2), // 0.20
 		SupplyBase:          math.ZeroInt(),                   // TBD via governance
 		InflationRateChange: math.LegacyNewDecWithPrec(13, 2), // 0.13
+		BlocksPerYear:       DefaultBlocksPerYear,
 	}
 }
 
@@ -48,6 +53,10 @@ func (p Params) ValidateBasic() error {
 
 	if !p.InflationRateChange.IsPositive() || p.InflationRateChange.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("inflationRateChange must be in (0,1], got %s", p.InflationRateChange)
+	}
+
+	if p.BlocksPerYear == 0 {
+		return fmt.Errorf("blocksPerYear must be positive, got %d", p.BlocksPerYear)
 	}
 
 	return nil

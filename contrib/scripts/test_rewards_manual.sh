@@ -156,7 +156,7 @@ for i in $(seq 1 60); do
 done
 # Wait until height > 1
 for i in $(seq 1 30); do
-  height="$(curl -sf "$RPC_URL/status" | jq -r '.result.sync_info.latest_block_height')"
+  height="$(curl -sf "$RPC_URL/status" | jq -r '.result.sync_info.latest_block_height' || true)"
   if [[ "$height" =~ ^[0-9]+$ ]] && (( height > 1 )); then
     log "Node ready at height $height"
     break
@@ -212,7 +212,8 @@ cat >"$PROPOSAL_FILE" <<EOF
         "inflation_min": "0.000000000000000000",
         "inflation_max": "0.200000000000000000",
         "supply_base": "$SUPPLY_BASE",
-        "inflation_rate_change": "0.130000000000000000"
+        "inflation_rate_change": "0.130000000000000000",
+        "blocks_per_year": 15778800
       }
     }
   ],
@@ -253,7 +254,7 @@ UPDATED_SUPPLY_BASE="$(
 log "Updated supply_base=$UPDATED_SUPPLY_BASE"
 [[ "$UPDATED_SUPPLY_BASE" == "$SUPPLY_BASE" ]] || die "supply_base not updated"
 
-# First begin-blocker after enable only stamps last_release_time; wait for releases
+# Wait for several begin-block emissions
 log "Waiting for emissions across several blocks"
 sleep 12
 
@@ -266,14 +267,10 @@ FINAL_AMOUNT="$(echo "$FINAL_POOL" | jq -r '
 TOTAL_RELEASED="$(echo "$FINAL_POOL" | jq -r '
   (.reward_pool.total_released.amount // .total_released.amount // "0")
 ')"
-LAST_RELEASE="$(echo "$FINAL_POOL" | jq -r '
-  (.reward_pool.last_release_time // .last_release_time // "")
-')"
 
 log "Funded amount = $FUNDED_AMOUNT"
 log "Final amount  = $FINAL_AMOUNT"
 log "Total released= $TOTAL_RELEASED"
-log "Last release  = $LAST_RELEASE"
 
 # Compare as integers (strip decimal portion from DecCoin strings)
 python3 - "$FUNDED_AMOUNT" "$FINAL_AMOUNT" "$TOTAL_RELEASED" <<'PY'

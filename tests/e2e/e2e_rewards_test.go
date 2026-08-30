@@ -167,12 +167,13 @@ func (s *IntegrationTestSuite) writeRewardsParamsProposal(c *chain, supplyBase m
                 "inflation_min": "0.000000000000000000",
                 "inflation_max": "0.200000000000000000",
                 "supply_base": "%s",
-                "inflation_rate_change": "0.130000000000000000"
+                "inflation_rate_change": "0.130000000000000000",
+                "blocks_per_year": 15778800
             }
         }
     ],
     "metadata": "ipfs://CID",
-    "deposit": "1000akii",
+    "deposit": "100akii",
     "title": "Enable Rewards Emissions",
     "summary": "set supply_base to enable inflation-based emissions"
 }`

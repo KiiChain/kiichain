@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -10,9 +9,8 @@ import (
 // InitialRewardPool returns a zero reward pool
 func InitialRewardPool() RewardPool {
 	return RewardPool{
-		CommunityPool:   sdk.DecCoins{},
-		LastReleaseTime: time.Time{},
-		TotalReleased:   sdk.Coin{},
+		CommunityPool: sdk.DecCoins{},
+		TotalReleased: sdk.Coin{},
 	}
 }
 

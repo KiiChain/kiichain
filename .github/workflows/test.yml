@@ -46,6 +46,9 @@ jobs:
       - name: test & coverage report creation
         if: env.GIT_DIFF
         run: |
+          # Primary profile omits -tags=test. Packages that boot the full app
+          # (wasmbinding, x/rewards) need cosmos/evm's test-tagged helpers, so
+          # they get separate tagged coverage profiles below.
           go test -v -coverprofile=profile.txt -covermode=atomic -coverpkg=./... $(go list ./... | grep -v -e '/tests/e2e' | grep -v -e '/tests/interchain') | grep -v "store.go:" | grep -v "mutable_tree.go:"
       - name: wasmbinding coverage (test build tag)
         if: env.GIT_DIFF

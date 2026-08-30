@@ -2,7 +2,6 @@ package types_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -128,22 +127,27 @@ func TestCalculateInflationSpreadsheet(t *testing.T) {
 }
 
 func TestCalculateRewardSpreadsheetAnnual(t *testing.T) {
-	// Spreadsheet "Total inflation (KiiChain)" column uses supply_base = 1.8e9
+	// Spreadsheet "Total inflation (KiiChain)" column uses supply_base = 1.8e9.
+	// Annual provision = inflation * supply_base; per-block is annual / blocks_per_year.
 	params := types.DefaultParams()
 	params.SupplyBase = math.NewInt(1_800_000_000)
-
-	now := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
-	oneYearLater := now.Add(time.Duration(types.SecondsPerYear) * time.Second)
 
 	for _, tc := range spreadsheetInflationCases {
 		t.Run("bonded_"+tc.bonded, func(t *testing.T) {
 			bonded := math.LegacyMustNewDecFromStr(tc.bonded)
-			coin, inf := types.CalculateReward(oneYearLater, now, bonded, params)
+			coin, inf := types.CalculateReward(bonded, params)
 
 			wantInf := math.LegacyMustNewDecFromStr(tc.wantInflation)
 			require.True(t, wantInf.Equal(inf), "inflation want %s got %s", wantInf, inf)
-			require.True(t, math.NewInt(tc.wantAnnual).Equal(coin.Amount),
-				"annual want %d got %s", tc.wantAnnual, coin.Amount)
+
+			wantAnnual := math.NewInt(tc.wantAnnual)
+			gotAnnual := inf.MulInt(params.SupplyBase).TruncateInt()
+			require.True(t, wantAnnual.Equal(gotAnnual),
+				"annual want %d got %s", tc.wantAnnual, gotAnnual)
+
+			wantBlock := wantAnnual.Quo(math.NewIntFromUint64(params.BlocksPerYear))
+			require.True(t, wantBlock.Equal(coin.Amount),
+				"block want %s got %s", wantBlock, coin.Amount)
 			require.Equal(t, params.TokenDenom, coin.Denom)
 		})
 	}
@@ -153,48 +157,32 @@ func TestCalculateReward(t *testing.T) {
 	params := types.DefaultParams()
 	params.SupplyBase = math.NewInt(1_000_000_000_000) // 1e12
 
-	now := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	bonded := params.GoalBonded.QuoInt64(2) // peak
 	inflation := types.CalculateInflation(bonded, params)
 
 	t.Run("zero supply base", func(t *testing.T) {
 		p := params
 		p.SupplyBase = math.ZeroInt()
-		coin, inf := types.CalculateReward(now.Add(time.Hour), now, bonded, p)
+		coin, inf := types.CalculateReward(bonded, p)
 		require.True(t, coin.IsZero())
 		require.True(t, inf.IsZero())
 	})
 
-	t.Run("non-positive elapsed", func(t *testing.T) {
-		coin, inf := types.CalculateReward(now, now, bonded, params)
+	t.Run("zero blocks per year", func(t *testing.T) {
+		p := params
+		p.BlocksPerYear = 0
+		coin, inf := types.CalculateReward(bonded, p)
 		require.True(t, coin.IsZero())
-		require.True(t, inflation.Equal(inf))
+		require.True(t, inf.IsZero())
 	})
 
-	t.Run("one year elapsed releases annual provision", func(t *testing.T) {
-		coin, inf := types.CalculateReward(
-			now.Add(time.Duration(types.SecondsPerYear)*time.Second),
-			now,
-			bonded,
-			params,
-		)
+	t.Run("per block is annual provision over blocks_per_year", func(t *testing.T) {
+		coin, inf := types.CalculateReward(bonded, params)
 		require.True(t, inflation.Equal(inf))
 
-		expected := inflation.MulInt(params.SupplyBase).TruncateInt()
+		annual := inflation.MulInt(params.SupplyBase)
+		expected := annual.QuoInt(math.NewIntFromUint64(params.BlocksPerYear)).TruncateInt()
 		require.True(t, expected.Equal(coin.Amount), "want %s got %s", expected, coin.Amount)
 		require.Equal(t, params.TokenDenom, coin.Denom)
-	})
-
-	t.Run("half year is half annual provision", func(t *testing.T) {
-		coin, _ := types.CalculateReward(
-			now.Add(time.Duration(types.SecondsPerYear/2)*time.Second),
-			now,
-			bonded,
-			params,
-		)
-
-		annual := inflation.MulInt(params.SupplyBase).TruncateInt()
-		require.True(t, coin.Amount.LTE(annual))
-		require.True(t, coin.Amount.GTE(annual.QuoRaw(2).Sub(math.NewInt(1))))
 	})
 }
