@@ -20,6 +20,20 @@ func InitialReleaseSchedule() ReleaseSchedule {
 
 // ValidateGenesis validates the release schedule for a genesis state
 func (rr ReleaseSchedule) ValidateGenesis() error {
+	// Validate denom consistency between TotalAmount and ReleasedAmount regardless
+	// of active state. An inactive schedule with mismatched denoms can corrupt
+	// state the moment it is activated.
+	if !rr.TotalAmount.IsZero() && !rr.ReleasedAmount.IsZero() {
+		if rr.ReleasedAmount.Denom != rr.TotalAmount.Denom {
+			return fmt.Errorf("released amount denom %s doesn't match total amount denom %s",
+				rr.ReleasedAmount.Denom, rr.TotalAmount.Denom)
+		}
+		if rr.ReleasedAmount.Amount.GT(rr.TotalAmount.Amount) {
+			return fmt.Errorf("released amount %s cannot be greater than total amount %s",
+				rr.ReleasedAmount.String(), rr.TotalAmount.String())
+		}
+	}
+
 	// Some validations just make sense if active
 	if rr.Active {
 		// Validate TotalAmount
@@ -36,17 +50,6 @@ func (rr ReleaseSchedule) ValidateGenesis() error {
 		if !rr.ReleasedAmount.IsZero() {
 			if err := rr.ReleasedAmount.Validate(); err != nil {
 				return fmt.Errorf("invalid released amount: %w", err)
-			}
-
-			// Check ReleasedAmount doesn't exceed TotalAmount
-			if rr.ReleasedAmount.Denom != rr.TotalAmount.Denom {
-				return fmt.Errorf("released amount denom %s doesn't match total amount denom %s",
-					rr.ReleasedAmount.Denom, rr.TotalAmount.Denom)
-			}
-
-			if rr.ReleasedAmount.Amount.GT(rr.TotalAmount.Amount) {
-				return fmt.Errorf("released amount %s cannot be greater than total amount %s",
-					rr.ReleasedAmount.String(), rr.TotalAmount.String())
 			}
 		}
 	}
