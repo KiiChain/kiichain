@@ -76,7 +76,19 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // The amount is first added to the rewards module account and then directly
 // added to the pool. An error is returned if the amount cannot be sent to the
 // module account.
+// Only coins whose denom matches the module's configured TokenDenom are accepted;
+// funding with a foreign denom would corrupt the single-denom CommunityPool
+// invariant and cause subsequent bank sends to fail.
 func (k Keeper) FundCommunityPool(ctx context.Context, amount sdk.Coin, sender sdk.AccAddress) error {
+	params, err := k.Params.Get(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get module params: %w", err)
+	}
+	if amount.Denom != params.TokenDenom {
+		return fmt.Errorf("cannot fund community pool with denom %s: module only accepts %s",
+			amount.Denom, params.TokenDenom)
+	}
+
 	coins := sdk.Coins{amount}
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, coins); err != nil {
 		return err
