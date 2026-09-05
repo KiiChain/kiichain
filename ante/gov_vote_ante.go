@@ -97,7 +97,9 @@ func (g GovVoteDecorator) ValidateVoteMsgs(ctx sdk.Context, msgs []sdk.Msg) erro
 		err = g.stakingKeeper.IterateDelegatorDelegations(ctx, accAddr, func(delegation stakingtypes.Delegation) bool {
 			validatorAddr, err := sdk.ValAddressFromBech32(delegation.ValidatorAddress)
 			if err != nil {
-				panic(err) // shouldn't happen
+				// Malformed validator address in state: skip this delegation rather
+				// than panicking and halting the node.
+				return false
 			}
 			validator, err := g.stakingKeeper.GetValidator(ctx, validatorAddr)
 			if err == nil {
