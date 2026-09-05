@@ -37,6 +37,7 @@ var (
 
 	_ appmodule.AppModule       = AppModule{}
 	_ appmodule.HasBeginBlocker = AppModule{}
+	_ module.HasInvariants      = AppModule{}
 )
 
 // ConsensusVersion defines the current x/rewards module consensus version.
@@ -124,7 +125,7 @@ func NewAppModule(
 	bankKeeper types.BankKeeper,
 ) AppModule {
 	return AppModule{
-		AppModuleBasic: NewAppModuleBasic(), // Does this need something else?
+		AppModuleBasic: NewAppModuleBasic(),
 		keeper:         keeper,
 		bankKeeper:     bankKeeper,
 	}
@@ -143,6 +144,13 @@ func (AppModule) QuerierRoute() string { return types.QuerierRoute }
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQuerier(am.keeper))
+}
+
+// RegisterInvariants registers the rewards module invariants with the
+// invariant registry. This wires up the keeper-level accounting check so
+// it runs during simulation and crisis-module sweeps.
+func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
+	keeper.RegisterInvariants(ir, am.keeper)
 }
 
 // InitGenesis performs the x/rewards module's genesis initialization. It
