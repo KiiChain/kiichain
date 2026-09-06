@@ -24,23 +24,26 @@ import (
 func queryKiichainTx(endpoint, txHash string) error {
 	resp, err := http.Get(fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/%s", endpoint, txHash))
 	if err != nil {
-		return fmt.Errorf("failed to execute HTTP request: %w", err)
+		return fmt.Errorf("failed to query tx %s at %s: %w", txHash, endpoint, err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("tx query returned non-200 status: %d", resp.StatusCode)
+		return fmt.Errorf("tx %s query returned non-200 status: %d (endpoint: %s)", txHash, resp.StatusCode, endpoint)
 	}
 
 	var result map[string]interface{}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return fmt.Errorf("failed to read response body: %w", err)
+		return fmt.Errorf("failed to decode tx %s response: %w", txHash, err)
 	}
 
-	txResp := result["tx_response"].(map[string]interface{})
+	txResp, ok := result["tx_response"].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("tx %s response missing tx_response field", txHash)
+	}
 	if v := txResp["code"]; v.(float64) != 0 {
-		return fmt.Errorf("tx %s failed with status code %v", txHash, v)
+		return fmt.Errorf("tx %s failed with code %v", txHash, v)
 	}
 
 	return nil
