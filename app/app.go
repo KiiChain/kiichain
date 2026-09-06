@@ -377,16 +377,38 @@ func (app *KiichainApp) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
 func (app *KiichainApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
 	var genesisState GenesisState
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to unmarshal genesis state: %w", err)
 	}
 
 	if err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap()); err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to set module version map: %w", err)
 	}
 
-	response, err := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
-	if err != nil {
-		panic(err)
+	var (
+		response *abci.ResponseInitChain
+		initErr  error
+	)
+
+	// Use recover() as a safety net for module InitGenesis panics.
+	// Cosmos SDK v0.53.6's Manager.InitGenesis does NOT recover panics, so a
+	// panic in any module's InitGenesis would crash the node.  This guard
+	// converts module panics to returned errors, allowing the app to shut
+	// down cleanly instead of crashing mid-genesis.
+	//
+	// Long-term fix: refactor the four custom modules (x/tokenfactory,
+	// x/rewards, x/feeabstraction, x/oracle) to return errors instead of
+	// panicking in their InitGenesis implementations.
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				initErr = fmt.Errorf("panic recovered during InitGenesis: %v", r)
+			}
+		}()
+		response, initErr = app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+	}()
+
+	if initErr != nil {
+		return nil, fmt.Errorf("failed to run InitGenesis: %w", initErr)
 	}
 
 	return response, nil

@@ -145,7 +145,9 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 // InitGenesis trigger the genesis initialization
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	genesis := &types.GenesisState{}
-	cdc.MustUnmarshalJSON(data, genesis)
+	if err := cdc.UnmarshalJSON(data, genesis); err != nil {
+		panic(fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err))
+	}
 	// Initialize the genesis state
 	err := InitGenesis(ctx, am.Kepper, genesis)
 	if err != nil {
