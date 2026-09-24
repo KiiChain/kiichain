@@ -14,6 +14,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+const methodUpdateParams = "UpdateParams"
+
 type mockCircuitBreaker struct {
 	denied map[string]bool
 	err    error
@@ -43,28 +45,34 @@ func (m *mockStakingMsgServer) CreateValidator(context.Context, *stakingtypes.Ms
 	m.called = "CreateValidator"
 	return &stakingtypes.MsgCreateValidatorResponse{}, nil
 }
+
 func (m *mockStakingMsgServer) EditValidator(context.Context, *stakingtypes.MsgEditValidator) (*stakingtypes.MsgEditValidatorResponse, error) {
 	m.called = "EditValidator"
 	return &stakingtypes.MsgEditValidatorResponse{}, nil
 }
+
 func (m *mockStakingMsgServer) Delegate(context.Context, *stakingtypes.MsgDelegate) (*stakingtypes.MsgDelegateResponse, error) {
 	m.called = "Delegate"
 	return &stakingtypes.MsgDelegateResponse{}, nil
 }
+
 func (m *mockStakingMsgServer) BeginRedelegate(context.Context, *stakingtypes.MsgBeginRedelegate) (*stakingtypes.MsgBeginRedelegateResponse, error) {
 	m.called = "BeginRedelegate"
 	return &stakingtypes.MsgBeginRedelegateResponse{}, nil
 }
+
 func (m *mockStakingMsgServer) Undelegate(context.Context, *stakingtypes.MsgUndelegate) (*stakingtypes.MsgUndelegateResponse, error) {
 	m.called = "Undelegate"
 	return &stakingtypes.MsgUndelegateResponse{}, nil
 }
+
 func (m *mockStakingMsgServer) CancelUnbondingDelegation(context.Context, *stakingtypes.MsgCancelUnbondingDelegation) (*stakingtypes.MsgCancelUnbondingDelegationResponse, error) {
 	m.called = "CancelUnbondingDelegation"
 	return &stakingtypes.MsgCancelUnbondingDelegationResponse{}, nil
 }
+
 func (m *mockStakingMsgServer) UpdateParams(context.Context, *stakingtypes.MsgUpdateParams) (*stakingtypes.MsgUpdateParamsResponse, error) {
-	m.called = "UpdateParams"
+	m.called = methodUpdateParams
 	return &stakingtypes.MsgUpdateParamsResponse{}, nil
 }
 
@@ -77,26 +85,32 @@ func (m *mockDistrMsgServer) SetWithdrawAddress(context.Context, *distrtypes.Msg
 	m.called = "SetWithdrawAddress"
 	return &distrtypes.MsgSetWithdrawAddressResponse{}, nil
 }
+
 func (m *mockDistrMsgServer) WithdrawDelegatorReward(context.Context, *distrtypes.MsgWithdrawDelegatorReward) (*distrtypes.MsgWithdrawDelegatorRewardResponse, error) {
 	m.called = "WithdrawDelegatorReward"
 	return &distrtypes.MsgWithdrawDelegatorRewardResponse{}, nil
 }
+
 func (m *mockDistrMsgServer) WithdrawValidatorCommission(context.Context, *distrtypes.MsgWithdrawValidatorCommission) (*distrtypes.MsgWithdrawValidatorCommissionResponse, error) {
 	m.called = "WithdrawValidatorCommission"
 	return &distrtypes.MsgWithdrawValidatorCommissionResponse{}, nil
 }
+
 func (m *mockDistrMsgServer) FundCommunityPool(context.Context, *distrtypes.MsgFundCommunityPool) (*distrtypes.MsgFundCommunityPoolResponse, error) {
 	m.called = "FundCommunityPool"
 	return &distrtypes.MsgFundCommunityPoolResponse{}, nil
 }
+
 func (m *mockDistrMsgServer) UpdateParams(context.Context, *distrtypes.MsgUpdateParams) (*distrtypes.MsgUpdateParamsResponse, error) {
-	m.called = "UpdateParams"
+	m.called = methodUpdateParams
 	return &distrtypes.MsgUpdateParamsResponse{}, nil
 }
+
 func (m *mockDistrMsgServer) CommunityPoolSpend(context.Context, *distrtypes.MsgCommunityPoolSpend) (*distrtypes.MsgCommunityPoolSpendResponse, error) {
 	m.called = "CommunityPoolSpend"
 	return &distrtypes.MsgCommunityPoolSpendResponse{}, nil
 }
+
 func (m *mockDistrMsgServer) DepositValidatorRewardsPool(context.Context, *distrtypes.MsgDepositValidatorRewardsPool) (*distrtypes.MsgDepositValidatorRewardsPoolResponse, error) {
 	m.called = "DepositValidatorRewardsPool"
 	return &distrtypes.MsgDepositValidatorRewardsPoolResponse{}, nil
@@ -111,26 +125,32 @@ func (m *mockGovMsgServer) SubmitProposal(context.Context, *govv1.MsgSubmitPropo
 	m.called = "SubmitProposal"
 	return &govv1.MsgSubmitProposalResponse{}, nil
 }
+
 func (m *mockGovMsgServer) ExecLegacyContent(context.Context, *govv1.MsgExecLegacyContent) (*govv1.MsgExecLegacyContentResponse, error) {
 	m.called = "ExecLegacyContent"
 	return &govv1.MsgExecLegacyContentResponse{}, nil
 }
+
 func (m *mockGovMsgServer) Vote(context.Context, *govv1.MsgVote) (*govv1.MsgVoteResponse, error) {
 	m.called = "Vote"
 	return &govv1.MsgVoteResponse{}, nil
 }
+
 func (m *mockGovMsgServer) VoteWeighted(context.Context, *govv1.MsgVoteWeighted) (*govv1.MsgVoteWeightedResponse, error) {
 	m.called = "VoteWeighted"
 	return &govv1.MsgVoteWeightedResponse{}, nil
 }
+
 func (m *mockGovMsgServer) Deposit(context.Context, *govv1.MsgDeposit) (*govv1.MsgDepositResponse, error) {
 	m.called = "Deposit"
 	return &govv1.MsgDepositResponse{}, nil
 }
+
 func (m *mockGovMsgServer) UpdateParams(context.Context, *govv1.MsgUpdateParams) (*govv1.MsgUpdateParamsResponse, error) {
-	m.called = "UpdateParams"
+	m.called = methodUpdateParams
 	return &govv1.MsgUpdateParamsResponse{}, nil
 }
+
 func (m *mockGovMsgServer) CancelProposal(context.Context, *govv1.MsgCancelProposal) (*govv1.MsgCancelProposalResponse, error) {
 	m.called = "CancelProposal"
 	return &govv1.MsgCancelProposalResponse{}, nil
@@ -145,8 +165,9 @@ func (m *mockSlashingMsgServer) Unjail(context.Context, *slashingtypes.MsgUnjail
 	m.called = "Unjail"
 	return &slashingtypes.MsgUnjailResponse{}, nil
 }
+
 func (m *mockSlashingMsgServer) UpdateParams(context.Context, *slashingtypes.MsgUpdateParams) (*slashingtypes.MsgUpdateParamsResponse, error) {
-	m.called = "UpdateParams"
+	m.called = methodUpdateParams
 	return &slashingtypes.MsgUpdateParamsResponse{}, nil
 }
 
@@ -202,7 +223,7 @@ func TestCircuitStakingMsgServer(t *testing.T) {
 			_, err := s.CancelUnbondingDelegation(context.Background(), &stakingtypes.MsgCancelUnbondingDelegation{})
 			return err
 		}},
-		{"UpdateParams", func(s stakingtypes.MsgServer) error {
+		{methodUpdateParams, func(s stakingtypes.MsgServer) error {
 			_, err := s.UpdateParams(context.Background(), &stakingtypes.MsgUpdateParams{})
 			return err
 		}},
@@ -255,7 +276,7 @@ func TestCircuitDistrMsgServer(t *testing.T) {
 			_, err := s.FundCommunityPool(context.Background(), &distrtypes.MsgFundCommunityPool{})
 			return err
 		}},
-		{"UpdateParams", func(s distrtypes.MsgServer) error {
+		{methodUpdateParams, func(s distrtypes.MsgServer) error {
 			_, err := s.UpdateParams(context.Background(), &distrtypes.MsgUpdateParams{})
 			return err
 		}},
@@ -320,7 +341,7 @@ func TestCircuitGovMsgServer(t *testing.T) {
 			_, err := s.Deposit(context.Background(), &govv1.MsgDeposit{})
 			return err
 		}},
-		{"UpdateParams", func(s govv1.MsgServer) error {
+		{methodUpdateParams, func(s govv1.MsgServer) error {
 			_, err := s.UpdateParams(context.Background(), &govv1.MsgUpdateParams{})
 			return err
 		}},
@@ -360,7 +381,7 @@ func TestCircuitSlashingMsgServer(t *testing.T) {
 			_, err := s.Unjail(context.Background(), &slashingtypes.MsgUnjail{})
 			return err
 		}},
-		{"UpdateParams", func(s slashingtypes.MsgServer) error {
+		{methodUpdateParams, func(s slashingtypes.MsgServer) error {
 			_, err := s.UpdateParams(context.Background(), &slashingtypes.MsgUpdateParams{})
 			return err
 		}},
