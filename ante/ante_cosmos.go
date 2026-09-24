@@ -3,6 +3,8 @@ package ante
 import (
 	ibcante "github.com/cosmos/ibc-go/v10/modules/core/ante"
 
+	circuitante "cosmossdk.io/x/circuit/ante"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -32,6 +34,7 @@ func NewCosmosAnteHandler(ctx sdk.Context, options HandlerOptions) sdk.AnteHandl
 		),
 
 		ante.NewSetUpContextDecorator(),
+		circuitante.NewCircuitBreakerDecorator(options.CircuitKeeper),
 		oracle.NewVoteAloneDecorator(), // Since this only iterate TXs, it must be executed early
 		oracle.NewSpammingPreventionDecorator(options.OracleKeeper),
 		wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit), // after setup context to enforce limits early

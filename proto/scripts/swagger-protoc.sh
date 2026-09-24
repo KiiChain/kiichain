@@ -18,7 +18,6 @@ rm -rf ./tmp-swagger-gen/cosmos/app
 rm -rf ./tmp-swagger-gen/cosmos/mint
 rm -rf ./tmp-swagger-gen/cosmos/nft
 rm -rf ./tmp-swagger-gen/cosmos/autocli
-rm -rf ./tmp-swagger-gen/cosmos/circuit
 rm -rf ./tmp-swagger-gen/cosmos/group
 rm -rf ./tmp-swagger-gen/cosmos/orm
 rm -rf ./tmp-swagger-gen/cosmos/params

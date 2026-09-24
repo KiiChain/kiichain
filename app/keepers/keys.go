@@ -9,6 +9,7 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v10/modules/core/exported"
 
 	storetypes "cosmossdk.io/store/types"
+	circuittypes "cosmossdk.io/x/circuit/types"
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
@@ -55,6 +56,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		icahosttypes.StoreKey,
 		icacontrollertypes.StoreKey,
 		feegrant.StoreKey,
+		circuittypes.StoreKey,
 		authzkeeper.StoreKey,
 		routertypes.StoreKey,
 		ratelimittypes.StoreKey,

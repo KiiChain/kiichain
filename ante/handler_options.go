@@ -6,6 +6,7 @@ import (
 	corestoretypes "cosmossdk.io/core/store"
 	errorsmod "cosmossdk.io/errors"
 	storetypes "cosmossdk.io/store/types"
+	circuitante "cosmossdk.io/x/circuit/ante"
 	txsigning "cosmossdk.io/x/tx/signing"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -35,6 +36,7 @@ type HandlerOptions struct {
 	EvmKeeper              anteinterfaces.EVMKeeper
 	FeeAbstractionKeeper   antetypes.FeeAbstractionKeeper
 	FeegrantKeeper         ante.FeegrantKeeper
+	CircuitKeeper          circuitante.CircuitBreaker
 	ExtensionOptionChecker ante.ExtensionOptionChecker
 	SignModeHandler        *txsigning.HandlerMap
 	SigGasConsumer         func(meter storetypes.GasMeter, sig signing.SignatureV2, params authtypes.Params) error
@@ -72,6 +74,9 @@ func (options HandlerOptions) Validate() error {
 	}
 	if options.FeeAbstractionKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "fee abstraction keeper is required for AnteHandler")
+	}
+	if options.CircuitKeeper == nil {
+		return errorsmod.Wrap(errortypes.ErrLogic, "circuit keeper is required for AnteHandler")
 	}
 	if options.SigGasConsumer == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "signature gas consumer is required for AnteHandler")
