@@ -1,4 +1,4 @@
-package v75
+package v80
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/kiichain/kiichain/v7/app/keepers"
 )
 
-// CreateUpgradeHandler creates the upgrade handler for the v7.5.0 upgrade.
+// CreateUpgradeHandler creates the upgrade handler for the v8.0.0 upgrade.
 // This upgrade adds the x/circuit store and runs module migrations so the
 // circuit module is initialized from its default genesis.
 func CreateUpgradeHandler(
@@ -22,14 +22,14 @@ func CreateUpgradeHandler(
 	return func(c context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		ctx := sdk.UnwrapSDKContext(c)
 
-		ctx.Logger().Info("Starting module migrations for v7.5.0...")
+		ctx.Logger().Info("Starting module migrations for v8.0.0...")
 
 		vm, err := mm.RunMigrations(ctx, configurator, vm)
 		if err != nil {
 			return vm, err
 		}
 
-		ctx.Logger().Info("Upgrade v7.5.0 complete")
+		ctx.Logger().Info("Upgrade v8.0.0 complete")
 		return vm, nil
 	}
 }

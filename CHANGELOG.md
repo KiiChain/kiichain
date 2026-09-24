@@ -4,7 +4,7 @@
 
 ### Added
 
-- Wire the Cosmos SDK `x/circuit` module (store, keeper, ante decorator, BaseApp circuit breaker) and add a `v7.5.0` upgrade that introduces the circuit store
+- Wire the Cosmos SDK `x/circuit` module (store, keeper, ante decorator, BaseApp circuit breaker) and add a `v8.0.0` upgrade that introduces the circuit store
 
 ### Docs
 

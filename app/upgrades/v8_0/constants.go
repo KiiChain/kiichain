@@ -1,4 +1,4 @@
-package v75
+package v80
 
 import (
 	store "cosmossdk.io/store/types"
@@ -9,7 +9,7 @@ import (
 
 const (
 	// UpgradeName is the name of the upgrade
-	UpgradeName = "v7.5.0"
+	UpgradeName = "v8.0.0"
 )
 
 // Upgrade defines the coordinated upgrade that adds the Cosmos SDK x/circuit
