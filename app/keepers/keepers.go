@@ -609,6 +609,7 @@ func NewAppKeeper(
 			appKeepers.WasmKeeper,
 			appKeepers.OracleKeeper,
 			appCodec,
+			&appKeepers.CircuitKeeper,
 		),
 	)
 
