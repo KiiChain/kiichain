@@ -1,4 +1,4 @@
-package keepers
+package circuit
 
 import (
 	"context"
@@ -6,6 +6,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	evmcmn "github.com/cosmos/evm/precompiles/common"
+	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -184,8 +187,8 @@ func TestEnsureMsgAllowed(t *testing.T) {
 
 func TestCircuitStakingMsgServer(t *testing.T) {
 	inner := &mockStakingMsgServer{}
-	allow := newCircuitStakingMsgServer(inner, mockCircuitBreaker{})
-	deny := newCircuitStakingMsgServer(inner, denyAll(
+	allow := NewStakingMsgServer(inner, mockCircuitBreaker{})
+	deny := NewStakingMsgServer(inner, denyAll(
 		&stakingtypes.MsgCreateValidator{},
 		&stakingtypes.MsgEditValidator{},
 		&stakingtypes.MsgDelegate{},
@@ -245,8 +248,8 @@ func TestCircuitStakingMsgServer(t *testing.T) {
 
 func TestCircuitDistrMsgServer(t *testing.T) {
 	inner := &mockDistrMsgServer{}
-	allow := newCircuitDistrMsgServer(inner, mockCircuitBreaker{})
-	deny := newCircuitDistrMsgServer(inner, denyAll(
+	allow := NewDistributionMsgServer(inner, mockCircuitBreaker{})
+	deny := NewDistributionMsgServer(inner, denyAll(
 		&distrtypes.MsgSetWithdrawAddress{},
 		&distrtypes.MsgWithdrawDelegatorReward{},
 		&distrtypes.MsgWithdrawValidatorCommission{},
@@ -306,8 +309,8 @@ func TestCircuitDistrMsgServer(t *testing.T) {
 
 func TestCircuitGovMsgServer(t *testing.T) {
 	inner := &mockGovMsgServer{}
-	allow := newCircuitGovMsgServer(inner, mockCircuitBreaker{})
-	deny := newCircuitGovMsgServer(inner, denyAll(
+	allow := NewGovMsgServer(inner, mockCircuitBreaker{})
+	deny := NewGovMsgServer(inner, denyAll(
 		&govv1.MsgSubmitProposal{},
 		&govv1.MsgExecLegacyContent{},
 		&govv1.MsgVote{},
@@ -367,8 +370,8 @@ func TestCircuitGovMsgServer(t *testing.T) {
 
 func TestCircuitSlashingMsgServer(t *testing.T) {
 	inner := &mockSlashingMsgServer{}
-	allow := newCircuitSlashingMsgServer(inner, mockCircuitBreaker{})
-	deny := newCircuitSlashingMsgServer(inner, denyAll(
+	allow := NewSlashingMsgServer(inner, mockCircuitBreaker{})
+	deny := NewSlashingMsgServer(inner, denyAll(
 		&slashingtypes.MsgUnjail{},
 		&slashingtypes.MsgUpdateParams{},
 	))
@@ -399,4 +402,46 @@ func TestCircuitSlashingMsgServer(t *testing.T) {
 			require.Empty(t, inner.called)
 		})
 	}
+}
+
+type mockTransferKeeper struct {
+	called string
+}
+
+func (m *mockTransferKeeper) Denom(context.Context, *ibctransfertypes.QueryDenomRequest) (*ibctransfertypes.QueryDenomResponse, error) {
+	return &ibctransfertypes.QueryDenomResponse{}, nil
+}
+
+func (m *mockTransferKeeper) Denoms(context.Context, *ibctransfertypes.QueryDenomsRequest) (*ibctransfertypes.QueryDenomsResponse, error) {
+	return &ibctransfertypes.QueryDenomsResponse{}, nil
+}
+
+func (m *mockTransferKeeper) DenomHash(context.Context, *ibctransfertypes.QueryDenomHashRequest) (*ibctransfertypes.QueryDenomHashResponse, error) {
+	return &ibctransfertypes.QueryDenomHashResponse{}, nil
+}
+
+func (m *mockTransferKeeper) Transfer(context.Context, *ibctransfertypes.MsgTransfer) (*ibctransfertypes.MsgTransferResponse, error) {
+	m.called = "Transfer"
+	return &ibctransfertypes.MsgTransferResponse{}, nil
+}
+
+func TestCircuitTransferKeeper(t *testing.T) {
+	inner := &mockTransferKeeper{}
+	msg := &ibctransfertypes.MsgTransfer{}
+
+	allow := NewTransferKeeper(inner, mockCircuitBreaker{})
+	_, err := allow.Transfer(context.Background(), msg)
+	require.NoError(t, err)
+	require.Equal(t, "Transfer", inner.called)
+
+	inner.called = ""
+	deny := NewTransferKeeper(inner, denyAll(msg))
+	_, err = deny.Transfer(context.Background(), msg)
+	require.Error(t, err)
+	require.Empty(t, inner.called)
+
+	// Queries pass through without a circuit check.
+	var _ evmcmn.TransferKeeper = allow
+	_, err = allow.Denom(context.Background(), &ibctransfertypes.QueryDenomRequest{})
+	require.NoError(t, err)
 }

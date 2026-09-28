@@ -1,10 +1,13 @@
-package keepers
+package circuit
 
 import (
 	"context"
 	"fmt"
 
 	circuitante "cosmossdk.io/x/circuit/ante"
+
+	evmcmn "github.com/cosmos/evm/precompiles/common"
+	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -32,7 +35,8 @@ type circuitStakingMsgServer struct {
 	breaker circuitante.CircuitBreaker
 }
 
-func newCircuitStakingMsgServer(inner stakingtypes.MsgServer, breaker circuitante.CircuitBreaker) stakingtypes.MsgServer {
+// NewStakingMsgServer wraps a staking MsgServer so precompile calls honor the circuit breaker.
+func NewStakingMsgServer(inner stakingtypes.MsgServer, breaker circuitante.CircuitBreaker) stakingtypes.MsgServer {
 	return &circuitStakingMsgServer{MsgServer: inner, breaker: breaker}
 }
 
@@ -90,7 +94,8 @@ type circuitDistrMsgServer struct {
 	breaker circuitante.CircuitBreaker
 }
 
-func newCircuitDistrMsgServer(inner distrtypes.MsgServer, breaker circuitante.CircuitBreaker) distrtypes.MsgServer {
+// NewDistributionMsgServer wraps a distribution MsgServer so precompile calls honor the circuit breaker.
+func NewDistributionMsgServer(inner distrtypes.MsgServer, breaker circuitante.CircuitBreaker) distrtypes.MsgServer {
 	return &circuitDistrMsgServer{MsgServer: inner, breaker: breaker}
 }
 
@@ -148,7 +153,8 @@ type circuitGovMsgServer struct {
 	breaker circuitante.CircuitBreaker
 }
 
-func newCircuitGovMsgServer(inner govv1.MsgServer, breaker circuitante.CircuitBreaker) govv1.MsgServer {
+// NewGovMsgServer wraps a gov MsgServer so precompile calls honor the circuit breaker.
+func NewGovMsgServer(inner govv1.MsgServer, breaker circuitante.CircuitBreaker) govv1.MsgServer {
 	return &circuitGovMsgServer{MsgServer: inner, breaker: breaker}
 }
 
@@ -206,7 +212,8 @@ type circuitSlashingMsgServer struct {
 	breaker circuitante.CircuitBreaker
 }
 
-func newCircuitSlashingMsgServer(inner slashingtypes.MsgServer, breaker circuitante.CircuitBreaker) slashingtypes.MsgServer {
+// NewSlashingMsgServer wraps a slashing MsgServer so precompile calls honor the circuit breaker.
+func NewSlashingMsgServer(inner slashingtypes.MsgServer, breaker circuitante.CircuitBreaker) slashingtypes.MsgServer {
 	return &circuitSlashingMsgServer{MsgServer: inner, breaker: breaker}
 }
 
@@ -222,4 +229,22 @@ func (s *circuitSlashingMsgServer) UpdateParams(ctx context.Context, msg *slashi
 		return nil, err
 	}
 	return s.MsgServer.UpdateParams(ctx, msg)
+}
+
+// circuitTransferKeeper checks MsgTransfer before the ICS20 precompile calls the keeper directly.
+type circuitTransferKeeper struct {
+	evmcmn.TransferKeeper
+	breaker circuitante.CircuitBreaker
+}
+
+// NewTransferKeeper wraps an ICS20 transfer keeper so precompile transfers honor the circuit breaker.
+func NewTransferKeeper(inner evmcmn.TransferKeeper, breaker circuitante.CircuitBreaker) evmcmn.TransferKeeper {
+	return &circuitTransferKeeper{TransferKeeper: inner, breaker: breaker}
+}
+
+func (k *circuitTransferKeeper) Transfer(ctx context.Context, msg *ibctransfertypes.MsgTransfer) (*ibctransfertypes.MsgTransferResponse, error) {
+	if err := ensureMsgAllowed(ctx, k.breaker, msg); err != nil {
+		return nil, err
+	}
+	return k.TransferKeeper.Transfer(ctx, msg)
 }

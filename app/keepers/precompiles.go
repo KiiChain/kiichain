@@ -38,6 +38,7 @@ import (
 	erc20Keeper "github.com/cosmos/evm/x/erc20/keeper"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 
+	circuitwrap "github.com/kiichain/kiichain/v7/precompiles/circuit"
 	"github.com/kiichain/kiichain/v7/precompiles/oracle"
 	oraclekeeper "github.com/kiichain/kiichain/v7/x/oracle/keeper"
 )
@@ -157,7 +158,7 @@ func NewAvailableStaticPrecompiles(
 	// Prepare the staking precompile
 	stakingPrecompile := stakingprecompile.NewPrecompile(
 		stakingKeeper,
-		newCircuitStakingMsgServer(stakingkeeper.NewMsgServerImpl(&stakingKeeper), circuitBreaker),
+		circuitwrap.NewStakingMsgServer(stakingkeeper.NewMsgServerImpl(&stakingKeeper), circuitBreaker),
 		stakingkeeper.NewQuerier(&stakingKeeper),
 		bankKeeper,
 		options.AddressCodec,
@@ -166,7 +167,7 @@ func NewAvailableStaticPrecompiles(
 	// Prepare the distribution precompile
 	distributionPrecompile := distprecompile.NewPrecompile(
 		distributionKeeper,
-		newCircuitDistrMsgServer(distributionkeeper.NewMsgServerImpl(distributionKeeper), circuitBreaker),
+		circuitwrap.NewDistributionMsgServer(distributionkeeper.NewMsgServerImpl(distributionKeeper), circuitBreaker),
 		distributionkeeper.NewQuerier(distributionKeeper),
 		stakingKeeper,
 		bankKeeper,
@@ -179,14 +180,14 @@ func NewAvailableStaticPrecompiles(
 	ics20precompile := ics20precompile.NewPrecompile(
 		bankKeeper,
 		stakingKeeper,
-		transferKeeper,
+		circuitwrap.NewTransferKeeper(transferKeeper, circuitBreaker),
 		channelKeeper,
 		erc20Keeper,
 	)
 
 	// Prepare the gov precompile
 	govPrecompile := govprecompile.NewPrecompile(
-		newCircuitGovMsgServer(govkeeper.NewMsgServerImpl(&govKeeper), circuitBreaker),
+		circuitwrap.NewGovMsgServer(govkeeper.NewMsgServerImpl(&govKeeper), circuitBreaker),
 		govkeeper.NewQueryServer(&govKeeper),
 		bankKeeper,
 		codec,
@@ -195,7 +196,7 @@ func NewAvailableStaticPrecompiles(
 	// Prepare the slashing precompile
 	slashingPrecompile := slashingprecompile.NewPrecompile(
 		slashingKeeper,
-		newCircuitSlashingMsgServer(slashingkeeper.NewMsgServerImpl(slashingKeeper), circuitBreaker),
+		circuitwrap.NewSlashingMsgServer(slashingkeeper.NewMsgServerImpl(slashingKeeper), circuitBreaker),
 		bankKeeper,
 		options.ValidatorAddrCodec,
 		options.ConsensusAddrCodec,

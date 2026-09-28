@@ -13,7 +13,8 @@ for dir in $proto_dirs; do
   fi
 done
 
-# Remove files we will not use
+# Remove swagger for modules this chain does not expose.
+# cosmos/circuit is kept: x/circuit is wired and its query routes are listed in client/docs/config.json.
 rm -rf ./tmp-swagger-gen/cosmos/app
 rm -rf ./tmp-swagger-gen/cosmos/mint
 rm -rf ./tmp-swagger-gen/cosmos/nft
