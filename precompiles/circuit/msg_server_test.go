@@ -7,7 +7,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	evmcmn "github.com/cosmos/evm/precompiles/common"
 	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -441,7 +440,6 @@ func TestCircuitTransferKeeper(t *testing.T) {
 	require.Empty(t, inner.called)
 
 	// Queries pass through without a circuit check.
-	var _ evmcmn.TransferKeeper = allow
 	_, err = allow.Denom(context.Background(), &ibctransfertypes.QueryDenomRequest{})
 	require.NoError(t, err)
 }

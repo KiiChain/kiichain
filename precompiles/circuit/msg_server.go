@@ -4,16 +4,17 @@ import (
 	"context"
 	"fmt"
 
-	circuitante "cosmossdk.io/x/circuit/ante"
-
-	evmcmn "github.com/cosmos/evm/precompiles/common"
 	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
+
+	circuitante "cosmossdk.io/x/circuit/ante"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	evmcmn "github.com/cosmos/evm/precompiles/common"
 )
 
 // ensureMsgAllowed rejects msgs that the circuit breaker has disabled.
@@ -230,6 +231,8 @@ func (s *circuitSlashingMsgServer) UpdateParams(ctx context.Context, msg *slashi
 	}
 	return s.MsgServer.UpdateParams(ctx, msg)
 }
+
+var _ evmcmn.TransferKeeper = (*circuitTransferKeeper)(nil)
 
 // circuitTransferKeeper checks MsgTransfer before the ICS20 precompile calls the keeper directly.
 type circuitTransferKeeper struct {
