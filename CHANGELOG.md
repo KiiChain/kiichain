@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Docs
+
+- Add validator instructions for the v7.4.0 off-chain mainnet upgrade ([#382](https://github.com/KiiChain/kiichain/pull/382))
+
+### Dependencies
+
+- [EVM](https://github.com/KiiChain/evm) fork bump from `v0.6.1-fork.1` to [v0.6.2-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.2-fork.2): August 2026 security backports (StateDB overflow/underflow guards, commit atomicity, `IsBaseAccountOrEmpty`, ERC20/IBC ack alignment)
+
 ### Added
 
 - Replace timed linear `ReleaseSchedule` emissions in `x/rewards` with continuous inflation-based utility rewards driven by bonded ratio: `inflation = clamp((1 - bonded/goal) × rate_change × bonded, min, max)`, amount = `inflation × supply_base / blocks_per_year`, capped at remaining pool balance (emits until pool runs dry). Adds staking `BondedRatio` dependency and gov params `goal_bonded`, `inflation_min`, `inflation_max`, `inflation_rate_change` (default `0.13`), `blocks_per_year` (default `15778800` for 2s blocks), and `supply_base` (default `0` disables emissions; notional emission scale, not chain total supply). Enable via `MsgFundPool` + gov `MsgUpdateParams`. Module consensus version bumped to `2` with a store migration that deletes obsolete `ReleaseSchedule` state and backfills default inflation params
@@ -68,12 +76,6 @@
 ### Removed
 
 - Removed price field input in updateTokenMetadata request
-
-## v7.3.1 - 2026-08-06
-
-### Fixed
-
-- Keep the gov module account on the bank blocked list so EVM BalanceHandler does not mirror gov deposits into StateDB (fixes Safe → gov precompile `deposit` failing on commit with `unauthorized`) ([#368](https://github.com/KiiChain/kiichain/pull/368))
 
 ## v7.1.0-mainnet - 2026-03-13
 
