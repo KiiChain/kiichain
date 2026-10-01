@@ -9,9 +9,10 @@ import (
 	"path/filepath"
 
 	geth "github.com/ethereum/go-ethereum/common"
-	// Force-load the native tracer engine so debug_traceTransaction can resolve
+	// Force-load the tracer engines so debug_traceTransaction can resolve
 	// callTracer and the other named tracers. Go-ethereum registers them in
-	// init(), and that only runs when this binary imports the package.
+	// init(), and that only runs when this binary imports the packages.
+	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
 	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cast"
