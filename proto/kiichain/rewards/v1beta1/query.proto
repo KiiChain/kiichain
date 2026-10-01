@@ -3,7 +3,6 @@ package kiichain.rewards.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "cosmos/base/query/v1beta1/pagination.proto";
 import "kiichain/rewards/v1beta1/types.proto";
 import "kiichain/rewards/v1beta1/params.proto";
 
@@ -15,14 +14,6 @@ service Query {
   // parameters.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/kiichain/rewards/v1beta1/params";
-  }
-
-  // ReleaseSchedule defines a gRPC query method for fetching
-  // ReleaseSchedule data.
-  rpc ReleaseSchedule(QueryReleaseScheduleRequest)
-      returns (QueryReleaseScheduleResponse) {
-    option (google.api.http).get =
-        "/kiichain/rewards/v1beta1/release-schedule";
   }
 
   // RewardPool defines a gRPC query method for fetching
@@ -41,19 +32,6 @@ message QueryParamsRequest {}
 message QueryParamsResponse {
   // params defines the parameters of the module.
   Params params = 1 [ (gogoproto.nullable) = false ];
-}
-
-// QueryReleaseScheduleRequest defines the request structure for the
-// ReleaseSchedule gRPC query.
-message QueryReleaseScheduleRequest {}
-
-// QueryReleaseScheduleResponse defines the response structure for the
-// ReleaseSchedule gRPC query.
-message QueryReleaseScheduleResponse {
-  ReleaseSchedule release_schedule = 1 [
-    (gogoproto.moretags) = "yaml:\"release_schedule\"",
-    (gogoproto.nullable) = false
-  ];
 }
 
 // QueryRewardPoolRequest defines the request structure for the

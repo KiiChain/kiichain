@@ -29,6 +29,7 @@ import (
 
 	"github.com/kiichain/kiichain/v7/x/rewards/client/cli"
 	"github.com/kiichain/kiichain/v7/x/rewards/keeper"
+	v2 "github.com/kiichain/kiichain/v7/x/rewards/migrations/v2"
 	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
@@ -40,7 +41,7 @@ var (
 )
 
 // ConsensusVersion defines the current x/rewards module consensus version.
-const ConsensusVersion = 1
+const ConsensusVersion = 2
 
 // ----------------------------------------------------------------------------
 // AppModuleBasic
@@ -143,6 +144,13 @@ func (AppModule) QuerierRoute() string { return types.QuerierRoute }
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQuerier(am.keeper))
+
+	// Consensus v1 -> v2: drop ReleaseSchedule state and backfill inflation params.
+	if err := cfg.RegisterMigration(types.ModuleName, 1, func(ctx sdk.Context) error {
+		return v2.MigrateStore(ctx, am.keeper)
+	}); err != nil {
+		panic(fmt.Errorf("failed to migrate x/%s to v2: %w", types.ModuleName, err))
+	}
 }
 
 // InitGenesis performs the x/rewards module's genesis initialization. It

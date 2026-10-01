@@ -70,6 +70,14 @@ func TestRewardPoolValidateGenesis(t *testing.T) {
 			},
 			expectErr: true,
 		},
+		{
+			name: "invalid total released coin",
+			pool: types.RewardPool{
+				CommunityPool: sdk.DecCoins{},
+				TotalReleased: sdk.Coin{Denom: "1bad", Amount: math.NewInt(1)},
+			},
+			expectErr: true,
+		},
 	}
 
 	for _, tc := range testCases {
