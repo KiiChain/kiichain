@@ -17,6 +17,8 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 
+	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
+	circuitv1 "cosmossdk.io/api/cosmos/circuit/v1"
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/log"
 	"cosmossdk.io/store"
@@ -25,6 +27,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
 	rosettaCmd "cosmossdk.io/tools/rosetta/cmd"
+	circuittypes "cosmossdk.io/x/circuit/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -44,6 +47,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"github.com/cosmos/cosmos-sdk/version"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtxconfig "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
@@ -182,7 +186,78 @@ func enrichAutoCliOpts(autoCliOpts autocli.AppOptions, clientCtx client.Context)
 
 	autoCliOpts.ClientCtx = clientCtx
 
+	// cosmossdk.io/client/v2@v2.0.0-beta.7 cannot resolve nested ProtoField paths
+	// like "permissions.level" that x/circuit@v0.2.0's AutoCLIOptions uses.
+	// Override with a flat "permissions" JSON arg (same approach as circuit v0.1.1).
+	autoCliOpts.ModuleOptions = map[string]*autocliv1.ModuleOptions{
+		circuittypes.ModuleName: circuitAutoCLIOptions(),
+	}
+
 	return autoCliOpts
+}
+
+// circuitAutoCLIOptions returns AutoCLI options for x/circuit that work with
+// cosmossdk.io/client/v2@v2.0.0-beta.7 (no nested positional ProtoField paths).
+func circuitAutoCLIOptions() *autocliv1.ModuleOptions {
+	return &autocliv1.ModuleOptions{
+		Query: &autocliv1.ServiceCommandDescriptor{
+			Service: circuitv1.Query_ServiceDesc.ServiceName,
+			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
+				{
+					RpcMethod:      "Account",
+					Use:            "account [address]",
+					Short:          "Query a specific account's permissions",
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "address"}},
+				},
+				{
+					RpcMethod: "Accounts",
+					Use:       "accounts",
+					Short:     "Query all account permissions",
+				},
+				{
+					RpcMethod: "DisabledList",
+					Use:       "disabled-list",
+					Short:     "Query a list of all disabled message types",
+				},
+			},
+		},
+		Tx: &autocliv1.ServiceCommandDescriptor{
+			Service: circuitv1.Msg_ServiceDesc.ServiceName,
+			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
+				{
+					RpcMethod: "AuthorizeCircuitBreaker",
+					Use:       "authorize [grantee] [permissions_json] --from [granter]",
+					Short:     "Authorize an account to trip the circuit breaker.",
+					Long: `Authorize an account to trip the circuit breaker.
+permissions_json is a JSON object, e.g. '{"level":"LEVEL_SUPER_ADMIN"}' or
+'{"level":"LEVEL_SOME_MSGS","limit_type_urls":["/cosmos.bank.v1beta1.MsgSend"]}'.`,
+					Example: fmt.Sprintf(`%s tx circuit authorize [address] '{"level":"LEVEL_SUPER_ADMIN"}'`, version.AppName),
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
+						{ProtoField: "grantee"},
+						{ProtoField: "permissions"},
+					},
+				},
+				{
+					RpcMethod: "TripCircuitBreaker",
+					Use:       "disable [msg_type_urls]",
+					Short:     "Disable a message from being executed",
+					Example:   fmt.Sprintf(`%s tx circuit disable "/cosmos.bank.v1beta1.MsgSend"`, version.AppName),
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
+						{ProtoField: "msg_type_urls", Varargs: true},
+					},
+				},
+				{
+					RpcMethod: "ResetCircuitBreaker",
+					Use:       "reset [msg_type_urls]",
+					Short:     "Enable a message to be executed",
+					Example:   fmt.Sprintf(`%s tx circuit reset "/cosmos.bank.v1beta1.MsgSend"`, version.AppName),
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
+						{ProtoField: "msg_type_urls", Varargs: true},
+					},
+				},
+			},
+		},
+	}
 }
 
 // initCometConfig helps to override default CometBFT Config values.
