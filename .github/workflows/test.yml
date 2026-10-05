@@ -59,7 +59,7 @@ jobs:
           name: "${{ github.sha }}-coverage"
           path: ./profile.txt
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5.5.5
         if: env.GIT_DIFF
         with:
           files: ./profile.txt,./profile-wasmbinding.txt

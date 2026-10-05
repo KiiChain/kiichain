@@ -21,7 +21,7 @@ RUN go mod download
 COPY . .
 RUN LEDGER_ENABLED=false LINK_STATICALLY=true BUILD_TAGS=muslc make build
 RUN echo "Ensuring binary is statically linked ..."  \
-    && file /src/app/build/kiichaind | grep "statically linked"
+    && file /src/app/build/kiichaind | grep -E "statically linked|static-pie linked"
 
 FROM alpine:$IMG_TAG
 RUN apk add --no-cache build-base jq
