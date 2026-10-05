@@ -12,6 +12,12 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/spf13/cast"
 
+	// Force-load the tracer engines so debug_traceTransaction can resolve
+	// callTracer and the other named tracers. Go-ethereum registers them in
+	// init(), and that only runs when this binary imports the packages.
+	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
+	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	tmos "github.com/cometbft/cometbft/libs/os"

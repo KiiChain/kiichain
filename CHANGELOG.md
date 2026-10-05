@@ -13,6 +13,7 @@
 
 ### Dependencies
 
+- [EVM](https://github.com/KiiChain/evm) fork bump from `v0.6.1-fork.1` to [v0.6.2-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.2-fork.2): August 2026 security backports (StateDB overflow/underflow guards, commit atomicity, `IsBaseAccountOrEmpty`, ERC20/IBC ack alignment)
 - [EVM](https://github.com/KiiChain/evm) fork from v0.6.0-fork.1 to [v0.6.0-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.0-fork.2): bounded internal EVM call gas limit, EVM fee refunds, distribution precompile 32-byte withdraw fix, and CosmWasm EVM query undercharge fix
 - [EVM](https://github.com/KiiChain/evm) fork bump from `v0.6.0-fork.2` to [v0.6.1-fork.1](https://github.com/KiiChain/evm/releases/tag/v0.6.1-fork.1), applied via the coordinated `v7.3.0` upgrade: the July 2026 Cosmos EVM hotfix (precompile gas accounting alignment and StateDB locked-balance snapshotting), published upstream as [cosmos/evm v0.6.1](https://github.com/cosmos/evm/releases/tag/v0.6.1)
 
@@ -25,6 +26,7 @@
 
 ### Fixed
 
+- Register the go-ethereum native and js tracers in `kiichaind` so `debug_traceTransaction` can resolve `callTracer` and the other named tracers
 - Close an expedited-governance whitelist bypass in `GovExpeditedProposalsDecorator` where the check only inspected top-level messages: a non-whitelisted `MsgSubmitProposal` wrapped in `authz.MsgExec` could enter the expedited voting path. The decorator now recurses into `authz.MsgExec` (including nested execs) and applies the expedited whitelist validation to wrapped proposals
 - Compute the oracle ballot `StandardDeviation` as a stake-weighted variance (weight each squared deviation by the vote's power and divide by total voting power) instead of an unweighted average divided by the vote count, aligning the reward-band width with the stake-weighted median and preventing a group of low-stake validators from inflating the deviation to widen the accepted vote window
 - Close an oracle slashing bypass in the `EndBlocker` where validators were scored against the post-filtered `voteTargets` map: a denom that received votes but was pushed below the vote threshold (e.g. by a coordinated group abstaining) was dropped from the scoring denominator, letting the abstainers avoid miss penalties. Participation is now scored against the configured targets that received votes (passing targets plus below-threshold targets), crediting validators that voted on a below-threshold target while counting abstention on it as a miss; targets that received no votes at all are still excluded so a legitimately unpriceable denom cannot mass-slash the validator set
