@@ -45,10 +45,12 @@ jobs:
             ${{ runner.os }}-go-
       - name: test & coverage report creation
         if: env.GIT_DIFF
+        shell: bash
         run: |
-          go test -v -coverprofile=profile.txt -covermode=atomic -coverpkg=./... $(go list ./... | grep -v -e '/tests/e2e' | grep -v -e '/tests/interchain') | grep -v "store.go:" | grep -v "mutable_tree.go:"
+          go test -tags=test -v -coverprofile=profile.txt -covermode=atomic -coverpkg=./... $(go list -tags=test ./... | grep -v -e '/tests/e2e' | grep -v -e '/tests/interchain') | grep -v "store.go:" | grep -v "mutable_tree.go:"
       - name: wasmbinding coverage (test build tag)
         if: env.GIT_DIFF
+        shell: bash
         run: |
           go test -tags=test -coverprofile=profile-wasmbinding.txt -covermode=atomic ./wasmbinding/...
       - uses: actions/upload-artifact@v4

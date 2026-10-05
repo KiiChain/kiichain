@@ -85,6 +85,7 @@ import (
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
+	"github.com/kiichain/kiichain/v7/app/blockedaddrs"
 	kiiparams "github.com/kiichain/kiichain/v7/app/params"
 	"github.com/kiichain/kiichain/v7/wasmbinding"
 	feeabstractionkeeper "github.com/kiichain/kiichain/v7/x/feeabstraction/keeper"
@@ -223,6 +224,7 @@ func NewAppKeeper(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		logger,
 	)
+	appKeepers.BankKeeper.AppendSendRestriction(blockedaddrs.NewSendRestriction(appKeepers.GetKey(banktypes.StoreKey)))
 
 	appKeepers.AuthzKeeper = authzkeeper.NewKeeper(
 		runtime.NewKVStoreService(appKeepers.keys[authzkeeper.StoreKey]),

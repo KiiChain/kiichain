@@ -62,6 +62,13 @@
 
 - Removed price field input in updateTokenMetadata request
 
+## v7.4.0
+
+### Fixed
+
+- Reject `MsgCreateVestingAccount`, `MsgCreatePeriodicVestingAccount`, and `MsgCreatePermanentLockedAccount` in the Cosmos ante (top-level and nested in `authz.MsgExec`) so new vesting / locked accounts cannot be opened after the v7.4.0 upgrade
+- Enable a bank `SendRestriction` for the 22 Aug 2026 incident addresses in the `v7.4.0` upgrade (after fund recovery) so Cosmos, precompile, and EVM native transfers cannot send from or to them after the upgrade height
+
 ## v7.3.1 - 2026-08-06
 
 ### Fixed
