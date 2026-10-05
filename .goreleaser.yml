@@ -93,6 +93,8 @@ builds:
     tags:
       - muslc
       - ledger
+    flags:
+      - -buildmode=pie
     hooks:
       pre:
         - wget -O /lib/libwasmvm_muslc.x86_64.a https://github.com/CosmWasm/wasmvm/releases/download/{{ .Env.COSMWASM_VERSION }}/libwasmvm_muslc.x86_64.a
@@ -105,7 +107,7 @@ builds:
     ldflags:
       - -s -w
       - -linkmode=external
-      - -extldflags "-Wl,-z,muldefs -static"
+      - -extldflags "-Wl,-z,muldefs -static-pie"
       - -X main.commit={{.Commit}}
       - -X main.date={{ .CommitDate }}
       - -X github.com/cosmos/cosmos-sdk/version.Name=kiichain
@@ -134,6 +136,8 @@ builds:
     tags:
       - muslc
       - ledger
+    flags:
+      - -buildmode=pie
     hooks:
       pre:
         - mkdir -p /lib/aarch64
@@ -147,7 +151,7 @@ builds:
     ldflags:
       - -s -w
       - -linkmode=external
-      - -extldflags "-Wl,-z,muldefs -static"
+      - -extldflags "-Wl,-z,muldefs -static-pie"
       - -X main.commit={{.Commit}}
       - -X main.date={{ .CommitDate }}
       - -X github.com/cosmos/cosmos-sdk/version.Name=kiichain

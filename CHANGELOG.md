@@ -62,6 +62,12 @@
 
 - Removed price field input in updateTokenMetadata request
 
+## v7.4.1
+
+### Fixed
+
+- Build static binaries as PIE (`-buildmode=pie` and `-static-pie`)
+
 ## v7.4.0
 
 ### Fixed
