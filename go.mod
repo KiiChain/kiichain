@@ -315,7 +315,7 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
 	// Use our fork w/ fee abstraction possibility
-	github.com/cosmos/evm => github.com/KiiChain/evm v0.6.2-fork.2
+	github.com/cosmos/evm => github.com/KiiChain/evm v0.1.1-0.20261005010327-700c82972cda
 
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
