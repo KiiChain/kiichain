@@ -62,6 +62,16 @@
 
 - Removed price field input in updateTokenMetadata request
 
+## v7.4.2
+
+### Dependencies
+
+- Bump CosmWasm to public [wasmd v0.61.15](https://github.com/CosmWasm/wasmd/releases/tag/v0.61.15) and [wasmvm v3.0.8](https://github.com/CosmWasm/wasmvm/releases/tag/v3.0.8)
+
+### Added
+
+- Register the `v7.4.2` upgrade handler, which runs pending module migrations
+
 ## v7.4.1
 
 ### Fixed
