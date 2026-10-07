@@ -15,13 +15,6 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 	if err := k.Params.Set(ctx, data.Params); err != nil {
 		panic(err)
 	}
-
-	// Consistency check: warn if the module bank balance cannot cover the
-	// CommunityPool accounting. This is only logged because module InitGenesis
-	// ordering may fund the module account after this runs.
-	if err := k.ValidateModuleAccounting(ctx); err != nil {
-		k.Logger(ctx).Error("rewards module accounting mismatch at genesis", "error", err)
-	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.

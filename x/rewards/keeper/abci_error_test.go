@@ -30,18 +30,18 @@ import (
 
 type mockBankKeeper struct {
 	sendErr error
+	balance sdk.Coin
 }
 
 func (m mockBankKeeper) SendCoinsFromModuleToModule(context.Context, string, string, sdk.Coins) error {
 	return m.sendErr
 }
 
-func (m mockBankKeeper) SendCoinsFromAccountToModule(context.Context, sdk.AccAddress, string, sdk.Coins) error {
-	return nil
-}
-
-func (m mockBankKeeper) GetBalance(context.Context, sdk.AccAddress, string) sdk.Coin {
-	return sdk.Coin{}
+func (m mockBankKeeper) GetBalance(_ context.Context, _ sdk.AccAddress, denom string) sdk.Coin {
+	if m.balance.Denom == "" {
+		return sdk.NewCoin(denom, math.ZeroInt())
+	}
+	return m.balance
 }
 
 type mockStakingKeeper struct {
@@ -90,9 +90,12 @@ func TestBeginBlockerErrorPaths(t *testing.T) {
 	})
 
 	t.Run("reward pool missing returns error", func(t *testing.T) {
-		ctx, k := setupRewardsKeeper(t, mockBankKeeper{}, mockStakingKeeper{})
+		ctx, k := setupRewardsKeeper(t,
+			mockBankKeeper{balance: sdk.NewCoin("akii", math.NewInt(1_000_000))},
+			mockStakingKeeper{ratio: math.LegacyNewDecWithPrec(30, 2)},
+		)
 		params := types.DefaultParams()
-		params.SupplyBase = math.NewInt(1_000_000)
+		params.SupplyBase = math.NewInt(1_000_000_000_000)
 		require.NoError(t, k.Params.Set(ctx, params))
 
 		err := k.BeginBlocker(ctx)
@@ -101,7 +104,7 @@ func TestBeginBlockerErrorPaths(t *testing.T) {
 
 	t.Run("bonded ratio error skips without failing block", func(t *testing.T) {
 		ctx, k := setupRewardsKeeper(t,
-			mockBankKeeper{},
+			mockBankKeeper{balance: sdk.NewCoin("akii", math.NewInt(1_000_000))},
 			mockStakingKeeper{err: errors.New("staking unavailable")},
 		)
 
@@ -109,21 +112,21 @@ func TestBeginBlockerErrorPaths(t *testing.T) {
 		params.SupplyBase = math.NewInt(1_000_000)
 		require.NoError(t, k.Params.Set(ctx, params))
 
-		require.NoError(t, k.RewardPool.Set(ctx, types.RewardPool{
-			CommunityPool: sdk.NewDecCoins(sdk.NewDecCoin(params.TokenDenom, math.NewInt(1_000_000))),
-		}))
+		require.NoError(t, k.RewardPool.Set(ctx, types.RewardPool{}))
 
 		require.NoError(t, k.BeginBlocker(ctx))
 
 		pool, err := k.RewardPool.Get(ctx)
 		require.NoError(t, err)
-		require.True(t, pool.CommunityPool.AmountOf(params.TokenDenom).Equal(math.LegacyNewDec(1_000_000)))
 		require.True(t, pool.TotalReleased.IsZero() || pool.TotalReleased.IsNil() || pool.TotalReleased.Amount.IsZero())
 	})
 
 	t.Run("bank send failure skips without failing block", func(t *testing.T) {
 		ctx, k := setupRewardsKeeper(t,
-			mockBankKeeper{sendErr: errors.New("insufficient funds")},
+			mockBankKeeper{
+				sendErr: errors.New("send failed"),
+				balance: sdk.NewCoin("akii", math.NewInt(1_000_000)),
+			},
 			mockStakingKeeper{ratio: math.LegacyNewDecWithPrec(30, 2)},
 		)
 
@@ -131,15 +134,12 @@ func TestBeginBlockerErrorPaths(t *testing.T) {
 		params.SupplyBase = math.NewInt(1_000_000_000_000)
 		require.NoError(t, k.Params.Set(ctx, params))
 
-		require.NoError(t, k.RewardPool.Set(ctx, types.RewardPool{
-			CommunityPool: sdk.NewDecCoins(sdk.NewDecCoin(params.TokenDenom, math.NewInt(1_000_000))),
-		}))
+		require.NoError(t, k.RewardPool.Set(ctx, types.RewardPool{}))
 
 		require.NoError(t, k.BeginBlocker(ctx))
 
 		pool, err := k.RewardPool.Get(ctx)
 		require.NoError(t, err)
-		require.True(t, pool.CommunityPool.AmountOf(params.TokenDenom).Equal(math.LegacyNewDec(1_000_000)))
 		require.True(t, pool.TotalReleased.IsZero() || pool.TotalReleased.IsNil() || pool.TotalReleased.Amount.IsZero())
 	})
 }

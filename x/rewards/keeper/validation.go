@@ -20,12 +20,3 @@ func (k *Keeper) validateAuthority(authority string) error {
 
 	return nil
 }
-
-// validateAmount check if amount is a valid coin
-func validateAmount(amount sdk.Coin) error {
-	if err := amount.Validate(); err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidCoins, amount.String())
-	}
-
-	return nil
-}

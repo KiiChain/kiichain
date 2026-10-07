@@ -6,9 +6,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"cosmossdk.io/collections"
-	"cosmossdk.io/math"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/kiichain/kiichain/v7/app/apptesting"
 	v2 "github.com/kiichain/kiichain/v7/x/rewards/migrations/v2"
@@ -33,9 +30,7 @@ func (suite *MigrateTestSuite) TestMigrateStore() {
 	suite.Require().NoError(k.Params.Set(suite.Ctx, types.Params{
 		TokenDenom: denom,
 	}))
-	suite.Require().NoError(k.RewardPool.Set(suite.Ctx, types.RewardPool{
-		CommunityPool: sdk.NewDecCoins(sdk.NewDecCoin(denom, math.NewInt(100))),
-	}))
+	suite.Require().NoError(k.RewardPool.Set(suite.Ctx, types.RewardPool{}))
 
 	// Write a dummy legacy ReleaseSchedule key under prefix 2.
 	legacyPrefix := collections.NewPrefix(2)

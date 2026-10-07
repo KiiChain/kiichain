@@ -79,8 +79,10 @@ import (
 	v7_3_1 "github.com/kiichain/kiichain/v7/app/upgrades/v7_3_1"
 	v7_4_0 "github.com/kiichain/kiichain/v7/app/upgrades/v7_4"
 	v7_4_2 "github.com/kiichain/kiichain/v7/app/upgrades/v7_4_2"
+	v7_5_0 "github.com/kiichain/kiichain/v7/app/upgrades/v7_5_0"
 	v8_0 "github.com/kiichain/kiichain/v7/app/upgrades/v8_0"
 	"github.com/kiichain/kiichain/v7/client/docs"
+	rewardstypes "github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
 var (
@@ -92,6 +94,7 @@ var (
 		v7_3_1.Upgrade,
 		v7_4_0.Upgrade,
 		v7_4_2.Upgrade,
+		v7_5_0.Upgrade,
 		v8_0.Upgrade,
 	}
 )
@@ -466,6 +469,8 @@ func (app *KiichainApp) ModuleAccountAddrs() map[string]bool {
 // BlockedModuleAccountAddrs returns all the app's blocked module account
 // addresses.
 func (app *KiichainApp) BlockedModuleAccountAddrs(modAccAddrs map[string]bool) map[string]bool {
+	// Rewards is funded by a bank send to the module account.
+	delete(modAccAddrs, authtypes.NewModuleAddress(rewardstypes.ModuleName).String())
 	return modAccAddrs
 }
 

@@ -17,8 +17,8 @@
 
 ### Added
 
-- Replace timed linear `ReleaseSchedule` emissions in `x/rewards` with continuous inflation-based utility rewards driven by bonded ratio: `inflation = clamp((1 - bonded/goal) × rate_change × bonded, min, max)`, amount = `inflation × supply_base / blocks_per_year`, capped at remaining pool balance (emits until pool runs dry). Adds staking `BondedRatio` dependency and gov params `goal_bonded`, `inflation_min`, `inflation_max`, `inflation_rate_change` (default `0.13`), `blocks_per_year` (default `15778800` for 2s blocks), and `supply_base` (default `0` disables emissions; notional emission scale, not chain total supply). Enable via `MsgFundPool` + gov `MsgUpdateParams`. Module consensus version bumped to `2` with a store migration that deletes obsolete `ReleaseSchedule` state and backfills default inflation params
-- Emit `update_params`, `fund_pool`, and `reward_distributed` events from x/rewards (`reward_distributed` now includes `inflation_rate` and `bonded_ratio`)
+- Replace timed linear `ReleaseSchedule` emissions in `x/rewards` with continuous inflation-based utility rewards driven by bonded ratio: `inflation = clamp((1 - bonded/goal) × rate_change × bonded, min, max)`, amount = `inflation × supply_base / blocks_per_year`, capped at the rewards module account bank balance (a short balance pays only what is there; an empty balance skips the block). Adds staking `BondedRatio` dependency and gov params `goal_bonded`, `inflation_min`, `inflation_max`, `inflation_rate_change` (default `0.13`), `blocks_per_year` (default `15778800` for 2s blocks), and `supply_base` (default `0` disables emissions; notional emission scale, not chain total supply). Fund the module with a bank send to its account, then enable via gov `MsgUpdateParams`. Proto package is `kiichain.rewards.v1`; mainnet `v1beta1` types stay registered. The `v7.5.0` upgrade runs the consensus v1→v2 store migration
+- Emit `update_params` and `reward_distributed` events from x/rewards (`reward_distributed` includes `inflation_rate` and `bonded_ratio`)
 
 ### Removed
 
@@ -72,7 +72,6 @@
 - Bound tokenfactory denom metadata size (`MaxDenomMetadataSize`) in `MsgSetDenomMetadata.ValidateBasic` and `msgServer.SetDenomMetadata` to prevent oversized metadata rewrites (including via the CosmWasm binding) from forcing unbounded native store writes that overrun the transaction's declared gas
 - Fix native token supply inflation from the stateful precompiles by wrapping the account address codec (`evmAddressCodec`) to reject non-20-byte accounts (e.g. a 32-byte bech32 withdraw, module, or CosmWasm contract address) at decode time, preventing such addresses from being truncated and minted a duplicate balance when mirrored into the EVM StateDB
 - Close governance vote minimum-stake bypass in `GovVoteDecorator` by enforcing the stake check on `MsgVoteWeighted` (`govv1` and `govv1beta1`) and recursing into nested `authz.MsgExec` messages so wrapped votes can no longer skip the requirement
-- Add a `ValidateModuleAccounting` check (rewards module bank balance must cover the `CommunityPool`) and run it at genesis to surface accounting/bank divergences early
 
 ## v7.2.0 - 2026-04-16
 
