@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Added
+
+- Wire the Cosmos SDK `x/circuit` module (store, keeper, ante decorator, BaseApp circuit breaker) and add a `v8.0.0` upgrade that introduces the circuit store
+- Enforce tripped circuit message type URLs on EVM precompile calls (staking, distribution, gov, slashing, and ICS20 `MsgTransfer`) so those paths cannot bypass ante/BaseApp checks
+
 ### Docs
 
 - Add validator instructions for the v7.4.0 off-chain mainnet upgrade ([#382](https://github.com/KiiChain/kiichain/pull/382))
@@ -56,6 +61,29 @@
 ### Removed
 
 - Removed price field input in updateTokenMetadata request
+
+## v7.4.2
+
+### Dependencies
+
+- Bump CosmWasm to public [wasmd v0.61.15](https://github.com/CosmWasm/wasmd/releases/tag/v0.61.15) and [wasmvm v3.0.8](https://github.com/CosmWasm/wasmvm/releases/tag/v3.0.8)
+
+### Added
+
+- Register the `v7.4.2` upgrade handler, which runs pending module migrations
+
+## v7.4.1
+
+### Fixed
+
+- Build static binaries as PIE (`-buildmode=pie` and `-static-pie`)
+
+## v7.4.0
+
+### Fixed
+
+- Reject `MsgCreateVestingAccount`, `MsgCreatePeriodicVestingAccount`, and `MsgCreatePermanentLockedAccount` in the Cosmos ante (top-level and nested in `authz.MsgExec`) so new vesting / locked accounts cannot be opened after the v7.4.0 upgrade
+- Enable a bank `SendRestriction` for the 22 Aug 2026 incident addresses in the `v7.4.0` upgrade (after fund recovery) so Cosmos, precompile, and EVM native transfers cannot send from or to them after the upgrade height
 
 ## v7.3.1 - 2026-08-06
 

@@ -75,7 +75,7 @@ ifeq (cleveldb,$(findstring cleveldb,$(KIICHAIN_BUILD_OPTIONS)))
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
 endif
 ifeq ($(LINK_STATICALLY),true)
-  ldflags += -linkmode=external -extldflags "-Wl,-z,muldefs -static"
+  ldflags += -linkmode=external -extldflags "-Wl,-z,muldefs -static-pie"
 endif
 ifeq (,$(findstring nostrip,$(KIICHAIN_BUILD_OPTIONS)))
   ldflags += -w -s
@@ -87,6 +87,9 @@ BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
 # check for nostrip option
 ifeq (,$(findstring nostrip,$(KIICHAIN_BUILD_OPTIONS)))
   BUILD_FLAGS += -trimpath
+endif
+ifeq ($(LINK_STATICALLY),true)
+  BUILD_FLAGS += -buildmode=pie
 endif
 
 #$(info $$BUILD_FLAGS is [$(BUILD_FLAGS)])

@@ -310,6 +310,17 @@
       }
     },
     {
+      "url": "./tmp-swagger-gen/cosmos/circuit/v1/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Account": "CircuitV1Account",
+          "Accounts": "CircuitV1Accounts",
+          "Query_Account": "CircuitV1Query_Account",
+          "Query_Accounts": "CircuitV1Query_Accounts"
+        }
+      }
+    },
+    {
       "url": "./tmp-swagger-gen/ibc/core/client/v1/query.swagger.json",
       "operationIds": {
         "rename": {

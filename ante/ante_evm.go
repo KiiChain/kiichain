@@ -1,6 +1,8 @@
 package ante
 
 import (
+	circuitante "cosmossdk.io/x/circuit/ante"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	txlistener "github.com/cosmos/evm/ante"
@@ -13,6 +15,7 @@ func newMonoEVMAnteHandler(ctx sdk.Context, options HandlerOptions) sdk.AnteHand
 	evmParams := options.EvmKeeper.GetParams(ctx)
 	feemarketParams := options.FeeMarketKeeper.GetParams(ctx)
 	decorators := []sdk.AnteDecorator{
+		circuitante.NewCircuitBreakerDecorator(options.CircuitKeeper),
 		kiievmante.NewEVMMonoDecorator(
 			options.AccountKeeper,
 			options.FeeMarketKeeper,

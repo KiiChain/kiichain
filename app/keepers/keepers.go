@@ -35,6 +35,8 @@ import (
 
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
+	circuitkeeper "cosmossdk.io/x/circuit/keeper"
+	circuittypes "cosmossdk.io/x/circuit/types"
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 	evidencetypes "cosmossdk.io/x/evidence/types"
 	"cosmossdk.io/x/feegrant"
@@ -83,6 +85,7 @@ import (
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
+	"github.com/kiichain/kiichain/v7/app/blockedaddrs"
 	kiiparams "github.com/kiichain/kiichain/v7/app/params"
 	"github.com/kiichain/kiichain/v7/wasmbinding"
 	feeabstractionkeeper "github.com/kiichain/kiichain/v7/x/feeabstraction/keeper"
@@ -130,6 +133,7 @@ type AppKeepers struct {
 	EvidenceKeeper        evidencekeeper.Keeper
 	TransferKeeper        ibctransferkeeper.Keeper
 	FeeGrantKeeper        feegrantkeeper.Keeper
+	CircuitKeeper         circuitkeeper.Keeper
 	AuthzKeeper           authzkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
@@ -220,6 +224,7 @@ func NewAppKeeper(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		logger,
 	)
+	appKeepers.BankKeeper.AppendSendRestriction(blockedaddrs.NewSendRestriction(appKeepers.GetKey(banktypes.StoreKey)))
 
 	appKeepers.AuthzKeeper = authzkeeper.NewKeeper(
 		runtime.NewKVStoreService(appKeepers.keys[authzkeeper.StoreKey]),
@@ -233,6 +238,14 @@ func NewAppKeeper(
 		runtime.NewKVStoreService(appKeepers.keys[feegrant.StoreKey]),
 		appKeepers.AccountKeeper,
 	)
+
+	appKeepers.CircuitKeeper = circuitkeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[circuittypes.StoreKey]),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		appKeepers.AccountKeeper.AddressCodec(),
+	)
+	bApp.SetCircuitBreaker(&appKeepers.CircuitKeeper)
 
 	appKeepers.StakingKeeper = stakingkeeper.NewKeeper(
 		appCodec,
@@ -598,6 +611,7 @@ func NewAppKeeper(
 			appKeepers.WasmKeeper,
 			appKeepers.OracleKeeper,
 			appCodec,
+			&appKeepers.CircuitKeeper,
 		),
 	)
 
