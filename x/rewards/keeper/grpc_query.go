@@ -34,12 +34,3 @@ func (k Querier) RewardPool(ctx context.Context, _ *types.QueryRewardPoolRequest
 	}
 	return &types.QueryRewardPoolResponse{RewardPool: pool}, nil
 }
-
-// ReleaseSchedule queries the schedule information
-func (k Querier) ReleaseSchedule(ctx context.Context, _ *types.QueryReleaseScheduleRequest) (*types.QueryReleaseScheduleResponse, error) {
-	schedule, err := k.Keeper.ReleaseSchedule.Get(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return &types.QueryReleaseScheduleResponse{ReleaseSchedule: schedule}, nil
-}

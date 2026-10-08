@@ -4,6 +4,7 @@
 package types
 
 import (
+	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -25,8 +26,24 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params defines the parameters for the rewards module.
 type Params struct {
-	// Denom used
+	// Denom used for emissions
 	TokenDenom string `protobuf:"bytes,1,opt,name=token_denom,json=tokenDenom,proto3" json:"token_denom,omitempty"`
+	// Target fraction of supply staked (e.g. "0.67")
+	GoalBonded cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=goal_bonded,json=goalBonded,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"goal_bonded"`
+	// Floor on the emission rate (e.g. "0.00")
+	InflationMin cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=inflation_min,json=inflationMin,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"inflation_min"`
+	// Ceiling on the emission rate (e.g. "0.20")
+	InflationMax cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=inflation_max,json=inflationMax,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"inflation_max"`
+	// Notional base (in token base units) used to size annual provisions:
+	// annual_provision = inflation * supply_base. This is NOT chain total supply;
+	// it is a governance knob for emission scale. Zero disables emissions.
+	SupplyBase cosmossdk_io_math.Int `protobuf:"bytes,5,opt,name=supply_base,json=supplyBase,proto3,customtype=cosmossdk.io/math.Int" json:"supply_base"`
+	// Steepness of the emission curve (e.g. "0.13")
+	InflationRateChange cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=inflation_rate_change,json=inflationRateChange,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"inflation_rate_change"`
+	// Expected blocks per year used to convert annual provisions into a
+	// per-block release (same model as cosmos-sdk x/mint). Default assumes a
+	// 2s block time: 60 * 60 * 8766 / 2 = 15778800.
+	BlocksPerYear uint64 `protobuf:"varint,7,opt,name=blocks_per_year,json=blocksPerYear,proto3" json:"blocks_per_year,omitempty"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -69,6 +86,13 @@ func (m *Params) GetTokenDenom() string {
 	return ""
 }
 
+func (m *Params) GetBlocksPerYear() uint64 {
+	if m != nil {
+		return m.BlocksPerYear
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*Params)(nil), "kiichain.rewards.v1beta1.Params")
 }
@@ -78,19 +102,31 @@ func init() {
 }
 
 var fileDescriptor_54abd846c753e163 = []byte{
-	// 186 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0xcd, 0xce, 0xcc, 0x4c,
-	0xce, 0x48, 0xcc, 0xcc, 0xd3, 0x2f, 0x4a, 0x2d, 0x4f, 0x2c, 0x4a, 0x29, 0xd6, 0x2f, 0x33, 0x4c,
-	0x4a, 0x2d, 0x49, 0x34, 0xd4, 0x2f, 0x48, 0x2c, 0x4a, 0xcc, 0x2d, 0xd6, 0x2b, 0x28, 0xca, 0x2f,
-	0xc9, 0x17, 0x92, 0x80, 0x29, 0xd3, 0x83, 0x2a, 0xd3, 0x83, 0x2a, 0x93, 0x12, 0x49, 0xcf, 0x4f,
-	0xcf, 0x07, 0x2b, 0xd2, 0x07, 0xb1, 0x20, 0xea, 0xa5, 0x54, 0x70, 0x1a, 0x5b, 0x52, 0x59, 0x90,
-	0x0a, 0x35, 0x55, 0x49, 0x93, 0x8b, 0x2d, 0x00, 0x6c, 0x8b, 0x90, 0x3c, 0x17, 0x77, 0x49, 0x7e,
-	0x76, 0x6a, 0x5e, 0x7c, 0x4a, 0x6a, 0x5e, 0x7e, 0xae, 0x04, 0xa3, 0x02, 0xa3, 0x06, 0x67, 0x10,
-	0x17, 0x58, 0xc8, 0x05, 0x24, 0xe2, 0xe4, 0x76, 0xe2, 0x91, 0x1c, 0xe3, 0x85, 0x47, 0x72, 0x8c,
-	0x0f, 0x1e, 0xc9, 0x31, 0x4e, 0x78, 0x2c, 0xc7, 0x70, 0xe1, 0xb1, 0x1c, 0xc3, 0x8d, 0xc7, 0x72,
-	0x0c, 0x51, 0x3a, 0xe9, 0x99, 0x25, 0x19, 0xa5, 0x49, 0x7a, 0xc9, 0xf9, 0xb9, 0xfa, 0x70, 0x5b,
-	0xe1, 0x8c, 0x0a, 0xb8, 0x03, 0xc0, 0x16, 0x27, 0xb1, 0x81, 0x6d, 0x36, 0x06, 0x04, 0x00, 0x00,
-	0xff, 0xff, 0x46, 0xe3, 0xb3, 0x7a, 0xf8, 0x00, 0x00, 0x00,
+	// 372 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x92, 0x31, 0x6b, 0xdb, 0x40,
+	0x18, 0x86, 0xa5, 0xda, 0x75, 0xe9, 0xb9, 0xa6, 0xa0, 0xd6, 0x70, 0xb4, 0x54, 0x36, 0x2d, 0x2d,
+	0x1e, 0x8a, 0x84, 0xe9, 0xde, 0x41, 0x35, 0xa5, 0x85, 0x16, 0x8c, 0x96, 0xd2, 0x2c, 0xe2, 0x93,
+	0xf4, 0x45, 0x3a, 0x24, 0xdd, 0x89, 0xbb, 0x73, 0x62, 0xfd, 0x8b, 0xfc, 0xa8, 0x0c, 0x1e, 0x3d,
+	0x86, 0x0c, 0x26, 0xd8, 0x7f, 0x24, 0x48, 0x76, 0x14, 0x48, 0x16, 0x93, 0xed, 0xe3, 0xe5, 0x79,
+	0x1f, 0xbe, 0xe1, 0x25, 0x9f, 0x33, 0xc6, 0xa2, 0x14, 0x18, 0x77, 0x25, 0x9e, 0x83, 0x8c, 0x95,
+	0x7b, 0x36, 0x0d, 0x51, 0xc3, 0xd4, 0x2d, 0x41, 0x42, 0xa1, 0x9c, 0x52, 0x0a, 0x2d, 0x2c, 0x7a,
+	0x87, 0x39, 0x07, 0xcc, 0x39, 0x60, 0xef, 0xde, 0x26, 0x22, 0x11, 0x0d, 0xe4, 0xd6, 0xd7, 0x9e,
+	0xff, 0x78, 0xd9, 0x21, 0xbd, 0x79, 0x23, 0xb0, 0x46, 0xa4, 0xaf, 0x45, 0x86, 0x3c, 0x88, 0x91,
+	0x8b, 0x82, 0x9a, 0x63, 0x73, 0xf2, 0xd2, 0x27, 0x4d, 0x34, 0xab, 0x13, 0x6b, 0x46, 0xfa, 0x89,
+	0x80, 0x3c, 0x08, 0x05, 0x8f, 0x31, 0xa6, 0xcf, 0x6a, 0xc0, 0xfb, 0xb4, 0xda, 0x8c, 0x8c, 0xeb,
+	0xcd, 0xe8, 0x7d, 0x24, 0x54, 0x21, 0x94, 0x8a, 0x33, 0x87, 0x09, 0xb7, 0x00, 0x9d, 0x3a, 0x7f,
+	0x30, 0x81, 0xa8, 0x9a, 0x61, 0xe4, 0x93, 0xba, 0xe7, 0x35, 0x35, 0xeb, 0x17, 0x19, 0x30, 0x7e,
+	0x9a, 0x83, 0x66, 0x82, 0x07, 0x05, 0xe3, 0xb4, 0x73, 0xbc, 0xe7, 0x55, 0xdb, 0xfc, 0xcb, 0xf8,
+	0x03, 0x13, 0x2c, 0x69, 0xf7, 0x49, 0x26, 0x58, 0x5a, 0xdf, 0x49, 0x5f, 0x2d, 0xca, 0x32, 0xaf,
+	0x82, 0x10, 0x14, 0xd2, 0xe7, 0x8d, 0xe7, 0xc3, 0xc1, 0x33, 0x7c, 0xec, 0xf9, 0xcd, 0xb5, 0x4f,
+	0xf6, 0x0d, 0x0f, 0x14, 0x5a, 0xff, 0xc8, 0xf0, 0xfe, 0x13, 0x09, 0x1a, 0x83, 0x28, 0x05, 0x9e,
+	0x20, 0xed, 0x1d, 0xff, 0xd1, 0x9b, 0xd6, 0xe0, 0x83, 0xc6, 0x1f, 0x4d, 0xdf, 0xfa, 0x42, 0x5e,
+	0x87, 0xb9, 0x88, 0x32, 0x15, 0x94, 0x28, 0x83, 0x0a, 0x41, 0xd2, 0x17, 0x63, 0x73, 0xd2, 0xf5,
+	0x07, 0xfb, 0x78, 0x8e, 0xf2, 0x3f, 0x82, 0xf4, 0x7e, 0xae, 0xb6, 0xb6, 0xb9, 0xde, 0xda, 0xe6,
+	0xcd, 0xd6, 0x36, 0x2f, 0x76, 0xb6, 0xb1, 0xde, 0xd9, 0xc6, 0xd5, 0xce, 0x36, 0x4e, 0xbe, 0x26,
+	0x4c, 0xa7, 0x8b, 0xd0, 0x89, 0x44, 0xe1, 0xb6, 0x13, 0x6a, 0x8f, 0x65, 0xbb, 0x26, 0x5d, 0x95,
+	0xa8, 0xc2, 0x5e, 0xb3, 0x8a, 0x6f, 0xb7, 0x01, 0x00, 0x00, 0xff, 0xff, 0x5b, 0x6f, 0x31, 0xad,
+	0x6e, 0x02, 0x00, 0x00,
 }
 
 func (m *Params) Marshal() (dAtA []byte, err error) {
@@ -113,6 +149,61 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.BlocksPerYear != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.BlocksPerYear))
+		i--
+		dAtA[i] = 0x38
+	}
+	{
+		size := m.InflationRateChange.Size()
+		i -= size
+		if _, err := m.InflationRateChange.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintParams(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x32
+	{
+		size := m.SupplyBase.Size()
+		i -= size
+		if _, err := m.SupplyBase.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintParams(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x2a
+	{
+		size := m.InflationMax.Size()
+		i -= size
+		if _, err := m.InflationMax.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintParams(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	{
+		size := m.InflationMin.Size()
+		i -= size
+		if _, err := m.InflationMin.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintParams(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	{
+		size := m.GoalBonded.Size()
+		i -= size
+		if _, err := m.GoalBonded.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintParams(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
 	if len(m.TokenDenom) > 0 {
 		i -= len(m.TokenDenom)
 		copy(dAtA[i:], m.TokenDenom)
@@ -143,6 +234,19 @@ func (m *Params) Size() (n int) {
 	l = len(m.TokenDenom)
 	if l > 0 {
 		n += 1 + l + sovParams(uint64(l))
+	}
+	l = m.GoalBonded.Size()
+	n += 1 + l + sovParams(uint64(l))
+	l = m.InflationMin.Size()
+	n += 1 + l + sovParams(uint64(l))
+	l = m.InflationMax.Size()
+	n += 1 + l + sovParams(uint64(l))
+	l = m.SupplyBase.Size()
+	n += 1 + l + sovParams(uint64(l))
+	l = m.InflationRateChange.Size()
+	n += 1 + l + sovParams(uint64(l))
+	if m.BlocksPerYear != 0 {
+		n += 1 + sovParams(uint64(m.BlocksPerYear))
 	}
 	return n
 }
@@ -214,6 +318,195 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			}
 			m.TokenDenom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GoalBonded", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.GoalBonded.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InflationMin", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.InflationMin.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InflationMax", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.InflationMax.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SupplyBase", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.SupplyBase.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InflationRateChange", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.InflationRateChange.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BlocksPerYear", wireType)
+			}
+			m.BlocksPerYear = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.BlocksPerYear |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipParams(dAtA[iNdEx:])

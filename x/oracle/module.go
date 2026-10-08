@@ -11,6 +11,8 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
+	"cosmossdk.io/core/appmodule"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -23,8 +25,8 @@ import (
 )
 
 var (
-	_ module.AppModule      = AppModule{}      //nolint:staticcheck
 	_ module.AppModuleBasic = AppModuleBasic{} // Indirect implement the AppModuleBasic interface
+	_ appmodule.AppModule   = AppModule{}
 )
 
 // ConsensusVersion defines the current x/oracle module consensus version.
