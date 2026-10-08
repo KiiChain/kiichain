@@ -23,6 +23,7 @@ var (
 	runERC20Test                  = true
 	runWasmTest                   = true
 	runOracleTest                 = true
+	runCircuitTest                = true
 
 	// skipIBCTests skips tests that uses IBC
 	skipIBCTests = os.Getenv("SKIP_IBC_TESTS") == "true"
@@ -193,4 +194,17 @@ func (s *IntegrationTestSuite) TestOracle() {
 	s.testFeelessTx()
 	s.testFeeder()
 	s.testSlash()
+}
+
+// TestCircuit runs the circuit breaker tests. It is skipped if the variable is set
+func (s *IntegrationTestSuite) TestCircuit() {
+	if !runCircuitTest {
+		s.T().Log("skipping circuit e2e tests...")
+		s.T().Skip()
+	}
+	jsonRPC := fmt.Sprintf("http://%s", s.valResources[s.chainA.id][0].GetHostPort("8545/tcp"))
+	s.testCircuitAuthorize()
+	s.testCircuitCosmosTx()
+	s.testCircuitEVMPrecompileTx(jsonRPC)
+	s.testCircuitEVMTx(jsonRPC)
 }

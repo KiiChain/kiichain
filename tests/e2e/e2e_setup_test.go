@@ -29,6 +29,7 @@ import (
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
 	"cosmossdk.io/math"
+	circuittypes "cosmossdk.io/x/circuit/types"
 	evidencetypes "cosmossdk.io/x/evidence/types"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -224,6 +225,7 @@ func (s *IntegrationTestSuite) initNodes(c *chain) {
 	c.genesisAccounts[1]: ICA Owner
 	c.genesisAccounts[2]: Test Account 1
 	c.genesisAccounts[3]: Test Account 2
+	c.genesisAccounts[4]: Circuit Super Admin
 	*/
 	s.Require().NoError(c.addAccountFromMnemonic(5))
 	// Initialize a genesis file for the first validator
@@ -490,6 +492,18 @@ func (s *IntegrationTestSuite) initGenesis(c *chain, vestingMnemonic, jailedValM
 		ExtendedDenom: keepers.CoinInfo.ExtendedDenom,
 	}
 	appGenState[evmtypes.ModuleName], err = cdc.MarshalJSON(&evmGenState)
+	s.Require().NoError(err)
+
+	// Grant a genesis account super admin on x/circuit so the circuit e2e
+	circuitAdmin, err := c.genesisAccounts[circuitAdminAccountIndex].keyInfo.GetAddress()
+	s.Require().NoError(err)
+	circuitGenState := circuittypes.GenesisState{
+		AccountPermissions: []*circuittypes.GenesisAccountPermissions{{
+			Address:     circuitAdmin.String(),
+			Permissions: &circuittypes.Permissions{Level: circuittypes.Permissions_LEVEL_SUPER_ADMIN},
+		}},
+	}
+	appGenState[circuittypes.ModuleName], err = cdc.MarshalJSON(&circuitGenState)
 	s.Require().NoError(err)
 
 	genDoc.AppState, err = json.MarshalIndent(appGenState, "", "  ")

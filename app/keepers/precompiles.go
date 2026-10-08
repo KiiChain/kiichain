@@ -13,6 +13,7 @@ import (
 	channelkeeper "github.com/cosmos/ibc-go/v10/modules/core/04-channel/keeper"
 
 	"cosmossdk.io/core/address"
+	circuitante "cosmossdk.io/x/circuit/ante"
 	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -37,6 +38,7 @@ import (
 	erc20Keeper "github.com/cosmos/evm/x/erc20/keeper"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 
+	circuitwrap "github.com/kiichain/kiichain/v7/precompiles/circuit"
 	"github.com/kiichain/kiichain/v7/precompiles/oracle"
 	oraclekeeper "github.com/kiichain/kiichain/v7/x/oracle/keeper"
 )
@@ -114,6 +116,8 @@ const bech32PrecompileBaseGas = 6_000
 // NewAvailableStaticPrecompiles returns the list of all available static precompiled contracts from EVM.
 //
 // NOTE: this should only be used during initialization of the Keeper.
+// circuitBreaker is applied to MsgServers used by stateful precompiles so tripped
+// message type URLs cannot be executed via the EVM path (which skips BaseApp routing).
 func NewAvailableStaticPrecompiles(
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
@@ -130,6 +134,7 @@ func NewAvailableStaticPrecompiles(
 	wasmdKeeper wasmkeeper.Keeper,
 	oracleKeeper oraclekeeper.Keeper,
 	codec codec.Codec,
+	circuitBreaker circuitante.CircuitBreaker,
 	opts ...Option,
 ) map[common.Address]vm.PrecompiledContract {
 	// Set options
@@ -153,7 +158,7 @@ func NewAvailableStaticPrecompiles(
 	// Prepare the staking precompile
 	stakingPrecompile := stakingprecompile.NewPrecompile(
 		stakingKeeper,
-		stakingkeeper.NewMsgServerImpl(&stakingKeeper),
+		circuitwrap.NewStakingMsgServer(stakingkeeper.NewMsgServerImpl(&stakingKeeper), circuitBreaker),
 		stakingkeeper.NewQuerier(&stakingKeeper),
 		bankKeeper,
 		options.AddressCodec,
@@ -162,7 +167,7 @@ func NewAvailableStaticPrecompiles(
 	// Prepare the distribution precompile
 	distributionPrecompile := distprecompile.NewPrecompile(
 		distributionKeeper,
-		distributionkeeper.NewMsgServerImpl(distributionKeeper),
+		circuitwrap.NewDistributionMsgServer(distributionkeeper.NewMsgServerImpl(distributionKeeper), circuitBreaker),
 		distributionkeeper.NewQuerier(distributionKeeper),
 		stakingKeeper,
 		bankKeeper,
@@ -175,14 +180,14 @@ func NewAvailableStaticPrecompiles(
 	ics20precompile := ics20precompile.NewPrecompile(
 		bankKeeper,
 		stakingKeeper,
-		transferKeeper,
+		circuitwrap.NewTransferKeeper(transferKeeper, circuitBreaker),
 		channelKeeper,
 		erc20Keeper,
 	)
 
 	// Prepare the gov precompile
 	govPrecompile := govprecompile.NewPrecompile(
-		govkeeper.NewMsgServerImpl(&govKeeper),
+		circuitwrap.NewGovMsgServer(govkeeper.NewMsgServerImpl(&govKeeper), circuitBreaker),
 		govkeeper.NewQueryServer(&govKeeper),
 		bankKeeper,
 		codec,
@@ -191,7 +196,7 @@ func NewAvailableStaticPrecompiles(
 	// Prepare the slashing precompile
 	slashingPrecompile := slashingprecompile.NewPrecompile(
 		slashingKeeper,
-		slashingkeeper.NewMsgServerImpl(slashingKeeper),
+		circuitwrap.NewSlashingMsgServer(slashingkeeper.NewMsgServerImpl(slashingKeeper), circuitBreaker),
 		bankKeeper,
 		options.ValidatorAddrCodec,
 		options.ConsensusAddrCodec,

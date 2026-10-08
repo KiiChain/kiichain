@@ -10,6 +10,7 @@ import (
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v10/types"
 	icacontrollertypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/controller/types"
 
+	circuittypes "cosmossdk.io/x/circuit/types"
 	evidencetypes "cosmossdk.io/x/evidence/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -312,4 +313,32 @@ func queryICAAccountAddress(endpoint, owner, connectionID string) (string, error
 	}
 
 	return icaAccountResp.Address, nil
+}
+
+func queryCircuitDisabledList(endpoint string) ([]string, error) {
+	var res circuittypes.DisabledListResponse
+
+	body, err := httpGet(fmt.Sprintf("%s/cosmos/circuit/v1/disable_list", endpoint))
+	if err != nil {
+		return nil, err
+	}
+
+	if err = cdc.UnmarshalJSON(body, &res); err != nil {
+		return nil, err
+	}
+	return res.DisabledList, nil
+}
+
+func queryCircuitAccount(endpoint, address string) (circuittypes.AccountResponse, error) {
+	var res circuittypes.AccountResponse
+
+	body, err := httpGet(fmt.Sprintf("%s/cosmos/circuit/v1/accounts/%s", endpoint, address))
+	if err != nil {
+		return res, err
+	}
+
+	if err = cdc.UnmarshalJSON(body, &res); err != nil {
+		return res, err
+	}
+	return res, nil
 }

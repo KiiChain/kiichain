@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Added
+
+- Wire the Cosmos SDK `x/circuit` module (store, keeper, ante decorator, BaseApp circuit breaker) and add a `v8.0.0` upgrade that introduces the circuit store
+- Enforce tripped circuit message type URLs on EVM precompile calls (staking, distribution, gov, slashing, and ICS20 `MsgTransfer`) so those paths cannot bypass ante/BaseApp checks
+
 ### Docs
 
 - Add validator instructions for the v7.4.0 off-chain mainnet upgrade ([#382](https://github.com/KiiChain/kiichain/pull/382))
@@ -19,6 +24,29 @@
 
 - Remove `ReleaseSchedule`, `MsgChangeSchedule`, and the release-schedule query/CLI from `x/rewards`; emissions are continuous while `supply_base > 0` and the pool has funds (`total_released` lives on `RewardPool`)
 
+## v7.4.2
+
+### Dependencies
+
+- Bump CosmWasm to public [wasmd v0.61.15](https://github.com/CosmWasm/wasmd/releases/tag/v0.61.15) and [wasmvm v3.0.8](https://github.com/CosmWasm/wasmvm/releases/tag/v3.0.8)
+
+### Added
+
+- Register the `v7.4.2` upgrade handler, which runs pending module migrations
+
+## v7.4.1
+
+### Fixed
+
+- Build static binaries as PIE (`-buildmode=pie` and `-static-pie`)
+
+## v7.4.0
+
+### Fixed
+
+- Reject `MsgCreateVestingAccount`, `MsgCreatePeriodicVestingAccount`, and `MsgCreatePermanentLockedAccount` in the Cosmos ante (top-level and nested in `authz.MsgExec`) so new vesting / locked accounts cannot be opened after the v7.4.0 upgrade
+- Enable a bank `SendRestriction` for the 22 Aug 2026 incident addresses in the `v7.4.0` upgrade (after fund recovery) so Cosmos, precompile, and EVM native transfers cannot send from or to them after the upgrade height
+
 ## v7.3.1 - 2026-08-06
 
 ### Fixed
@@ -34,6 +62,7 @@
 
 ### Fixed
 
+- Register the go-ethereum native and js tracers in `kiichaind` so `debug_traceTransaction` can resolve `callTracer` and the other named tracers
 - Close an expedited-governance whitelist bypass in `GovExpeditedProposalsDecorator` where the check only inspected top-level messages: a non-whitelisted `MsgSubmitProposal` wrapped in `authz.MsgExec` could enter the expedited voting path. The decorator now recurses into `authz.MsgExec` (including nested execs) and applies the expedited whitelist validation to wrapped proposals
 - Compute the oracle ballot `StandardDeviation` as a stake-weighted variance (weight each squared deviation by the vote's power and divide by total voting power) instead of an unweighted average divided by the vote count, aligning the reward-band width with the stake-weighted median and preventing a group of low-stake validators from inflating the deviation to widen the accepted vote window
 - Close an oracle slashing bypass in the `EndBlocker` where validators were scored against the post-filtered `voteTargets` map: a denom that received votes but was pushed below the vote threshold (e.g. by a coordinated group abstaining) was dropped from the scoring denominator, letting the abstainers avoid miss penalties. Participation is now scored against the configured targets that received votes (passing targets plus below-threshold targets), crediting validators that voted on a below-threshold target while counting abstention on it as a miss; targets that received no votes at all are still excluded so a legitimately unpriceable denom cannot mass-slash the validator set

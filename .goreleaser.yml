@@ -93,10 +93,12 @@ builds:
     tags:
       - muslc
       - ledger
+    flags:
+      - -buildmode=pie
     hooks:
       pre:
         - wget -O /lib/libwasmvm_muslc.x86_64.a https://github.com/CosmWasm/wasmvm/releases/download/{{ .Env.COSMWASM_VERSION }}/libwasmvm_muslc.x86_64.a
-        - echo "cefe73f0caa5a9eaba3733c639cdf5040c4746a93c20670ba6c9287fe39448ba /lib/libwasmvm_muslc.x86_64.a" | sha256sum -c
+        - echo "b2299c85d49faccf3dcbb84984f30f55e8870111df98c10f017f86204d007470 /lib/libwasmvm_muslc.x86_64.a" | sha256sum -c
         - cp /lib/libwasmvm_muslc.x86_64.a /lib/libwasmvm_muslc.a
         - curl -L -o /opt/x86_64-linux-musl-cross.tgz https://musl.cc/x86_64-linux-musl-cross.tgz
         - tar xf /opt/x86_64-linux-musl-cross.tgz -C /opt
@@ -105,7 +107,7 @@ builds:
     ldflags:
       - -s -w
       - -linkmode=external
-      - -extldflags "-Wl,-z,muldefs -static"
+      - -extldflags "-Wl,-z,muldefs -static-pie"
       - -X main.commit={{.Commit}}
       - -X main.date={{ .CommitDate }}
       - -X github.com/cosmos/cosmos-sdk/version.Name=kiichain
@@ -134,11 +136,13 @@ builds:
     tags:
       - muslc
       - ledger
+    flags:
+      - -buildmode=pie
     hooks:
       pre:
         - mkdir -p /lib/aarch64
         - wget -O /lib/aarch64/libwasmvm_muslc.aarch64.a https://github.com/CosmWasm/wasmvm/releases/download/{{ .Env.COSMWASM_VERSION }}/libwasmvm_muslc.aarch64.a
-        - echo "a04969b4f931be1d2e2f3f2313a68a20a202693f67559f7aaf1dd97250823aec /lib/aarch64/libwasmvm_muslc.aarch64.a" | sha256sum -c
+        - echo "c73a0d5d340e35188e138584ddd6662a160902adef1b08b209e38d16b43a4c28 /lib/aarch64/libwasmvm_muslc.aarch64.a" | sha256sum -c
         - cp /lib/aarch64/libwasmvm_muslc.aarch64.a /lib/aarch64/libwasmvm_muslc.a
         - curl -L -o /opt/aarch64-linux-musl-cross.tgz https://musl.cc/aarch64-linux-musl-cross.tgz
         - tar xf /opt/aarch64-linux-musl-cross.tgz -C /opt
@@ -147,7 +151,7 @@ builds:
     ldflags:
       - -s -w
       - -linkmode=external
-      - -extldflags "-Wl,-z,muldefs -static"
+      - -extldflags "-Wl,-z,muldefs -static-pie"
       - -X main.commit={{.Commit}}
       - -X main.date={{ .CommitDate }}
       - -X github.com/cosmos/cosmos-sdk/version.Name=kiichain

@@ -8,11 +8,11 @@ ENV PACKAGES="curl make git libc-dev bash file gcc linux-headers eudev-dev"
 RUN apk add --no-cache $PACKAGES
 
 # See https://github.com/CosmWasm/wasmvm/releases
-ARG WASMVM_VERSION=v3.0.0
+ARG WASMVM_VERSION=v3.0.8
 ADD https://github.com/CosmWasm/wasmvm/releases/download/${WASMVM_VERSION}/libwasmvm_muslc.aarch64.a /lib/libwasmvm_muslc.aarch64.a
 ADD https://github.com/CosmWasm/wasmvm/releases/download/${WASMVM_VERSION}/libwasmvm_muslc.x86_64.a /lib/libwasmvm_muslc.x86_64.a
-RUN sha256sum /lib/libwasmvm_muslc.aarch64.a | grep a04969b4f931be1d2e2f3f2313a68a20a202693f67559f7aaf1dd97250823aec
-RUN sha256sum /lib/libwasmvm_muslc.x86_64.a | grep cefe73f0caa5a9eaba3733c639cdf5040c4746a93c20670ba6c9287fe39448ba
+RUN sha256sum /lib/libwasmvm_muslc.aarch64.a | grep c73a0d5d340e35188e138584ddd6662a160902adef1b08b209e38d16b43a4c28
+RUN sha256sum /lib/libwasmvm_muslc.x86_64.a | grep b2299c85d49faccf3dcbb84984f30f55e8870111df98c10f017f86204d007470
 RUN cp "/lib/libwasmvm_muslc.$(uname -m).a" /lib/libwasmvm_muslc.a
 
 COPY go.mod go.sum* ./
@@ -21,7 +21,7 @@ RUN go mod download
 COPY . .
 RUN LEDGER_ENABLED=false LINK_STATICALLY=true BUILD_TAGS=muslc make build
 RUN echo "Ensuring binary is statically linked ..."  \
-    && file /src/app/build/kiichaind | grep "statically linked"
+    && file /src/app/build/kiichaind | grep -E "statically linked|static-pie linked"
 
 FROM alpine:$IMG_TAG
 RUN apk add --no-cache build-base jq
