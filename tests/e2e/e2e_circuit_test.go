@@ -13,8 +13,8 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 
 	"cosmossdk.io/math"
-	circuittypes "cosmossdk.io/x/circuit/types"
 
+	circuittypes "github.com/cosmos/cosmos-sdk/contrib/x/circuit/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"

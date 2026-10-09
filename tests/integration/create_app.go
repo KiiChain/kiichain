@@ -5,7 +5,7 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 
-	"cosmossdk.io/log"
+	"cosmossdk.io/log/v2"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -42,7 +42,6 @@ func CreateKiichain(chainID string, evmChaindID uint64, customBaseAppOptions ...
 	app := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
-		nil,
 		true,
 		map[int64]bool{},
 		dir,

@@ -12,13 +12,13 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 
-	"cosmossdk.io/log"
+	"cosmossdk.io/log/v2"
 	"cosmossdk.io/math"
-	"cosmossdk.io/store"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
+	"github.com/cosmos/cosmos-sdk/store/v2"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	simulation2 "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
@@ -88,7 +88,6 @@ func TestAppStateDeterminism(t *testing.T) {
 			app := kiichain.NewKiichainApp(
 				logger,
 				db,
-				nil,
 				true,
 				map[int64]bool{},
 				dir,

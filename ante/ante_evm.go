@@ -1,8 +1,7 @@
 package ante
 
 import (
-	circuitante "cosmossdk.io/x/circuit/ante"
-
+	circuitante "github.com/cosmos/cosmos-sdk/contrib/x/circuit/ante"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	txlistener "github.com/cosmos/evm/ante"

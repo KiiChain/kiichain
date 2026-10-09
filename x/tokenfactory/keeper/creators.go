@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"cosmossdk.io/errors"
-	cosmosstore "cosmossdk.io/store"
 
+	cosmosstore "github.com/cosmos/cosmos-sdk/store/v2"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	query "github.com/cosmos/cosmos-sdk/types/query"

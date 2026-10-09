@@ -3,7 +3,6 @@ package kiichain
 import (
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"net/http"
 	"os"
@@ -26,17 +25,17 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/gogoproto/proto"
-	ibctm "github.com/cosmos/ibc-go/v10/modules/light-clients/07-tendermint"
-	ibctesting "github.com/cosmos/ibc-go/v10/testing"
+	ibctm "github.com/cosmos/ibc-go/v11/modules/light-clients/07-tendermint"
+	ibctesting "github.com/cosmos/ibc-go/v11/testing"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
-	"cosmossdk.io/log"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
+	"cosmossdk.io/log/v2"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/baseapp/txnrunner"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	nodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
@@ -49,6 +48,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	sigtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -59,6 +59,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
@@ -68,8 +69,8 @@ import (
 	txlistener "github.com/cosmos/evm/ante"
 	cosmosevmantetypes "github.com/cosmos/evm/ante/types"
 	evmencoding "github.com/cosmos/evm/encoding"
-	evmmempool "github.com/cosmos/evm/mempool"
 	srvflags "github.com/cosmos/evm/server/flags"
+	vmrunner "github.com/cosmos/evm/x/vm/runner"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	kiiante "github.com/kiichain/kiichain/v7/ante"
@@ -116,7 +117,7 @@ type KiichainApp struct { //nolint: revive
 	// EVM v0.4.1
 	clientCtx          client.Context
 	pendingTxListeners []txlistener.PendingTxListener // from "github.com/cosmos/evm/ante"
-	EVMMempool         *evmmempool.ExperimentalEVMMempool
+	EVMMempool         mempool.ExtMempool
 
 	// the module manager
 	mm           *module.Manager
@@ -140,7 +141,6 @@ func init() {
 func NewKiichainApp(
 	logger log.Logger,
 	db dbm.DB,
-	traceStore io.Writer,
 	loadLatest bool,
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
@@ -163,7 +163,6 @@ func NewKiichainApp(
 		txConfig.TxDecoder(),
 		baseAppOptions...)
 
-	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 	bApp.SetTxEncoder(txConfig.TxEncoder())
@@ -274,6 +273,7 @@ func NewKiichainApp(
 
 	// initialize stores
 	app.MountKVStores(app.GetKVStoreKey())
+	app.MountObjectStores(app.GetObjectStoreKey())
 	app.MountTransientStores(app.GetTransientStoreKey())
 	app.MountMemoryStores(app.GetMemoryStoreKey())
 
@@ -287,8 +287,8 @@ func NewKiichainApp(
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 	app.setAnteHandler(app.txConfig, maxGasWanted, appOpts)
 
-	if evmtypes.GetChainConfig() != nil {
-		app.configureEVMMempool(appOpts, logger)
+	if err := app.configureEVMMempool(appOpts, logger); err != nil {
+		panic(err)
 	}
 
 	if manager := app.SnapshotManager(); manager != nil {
@@ -319,12 +319,16 @@ func NewKiichainApp(
 			tmos.Exit(fmt.Sprintf("failed to load latest version: %s", err))
 		}
 
-		ctx := app.NewUncachedContext(true, tmproto.Header{})
+		ctx := app.NewContextLegacy(true, tmproto.Header{})
 
 		if err := app.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
 			tmos.Exit(fmt.Sprintf("WasmKeeper failed initialize pinned codes %s", err))
 		}
+
+		app.hydrateEVMGlobals(ctx)
 	}
+
+	vmrunner.SetRunner(bApp, txnrunner.NewDefaultRunner(txConfig.TxDecoder()))
 
 	return app
 }
@@ -518,7 +522,9 @@ func (app *KiichainApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.A
 
 // RegisterNodeService allows query minimum-gas-prices in app.toml
 func (app *KiichainApp) RegisterNodeService(clientCtx client.Context, cfg config.Config) {
-	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter(), cfg)
+	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter(), cfg, func() int64 {
+		return app.CommitMultiStore().EarliestVersion()
+	})
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.

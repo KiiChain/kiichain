@@ -3,26 +3,25 @@ package keepers
 import (
 	routertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward/types"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v10/types"
-	icacontrollertypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/controller/types"
-	icahosttypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/host/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
-	ibcexported "github.com/cosmos/ibc-go/v10/modules/core/exported"
+	icacontrollertypes "github.com/cosmos/ibc-go/v11/modules/apps/27-interchain-accounts/controller/types"
+	icahosttypes "github.com/cosmos/ibc-go/v11/modules/apps/27-interchain-accounts/host/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v11/modules/apps/transfer/types"
+	ibcexported "github.com/cosmos/ibc-go/v11/modules/core/exported"
 
-	storetypes "cosmossdk.io/store/types"
-	circuittypes "cosmossdk.io/x/circuit/types"
-	evidencetypes "cosmossdk.io/x/evidence/types"
-	"cosmossdk.io/x/feegrant"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
-
+	circuittypes "github.com/cosmos/cosmos-sdk/contrib/x/circuit/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/v2/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
@@ -73,13 +72,15 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		feeabstractiontypes.StoreKey,
 	)
 
-	// Define transient store keys
-	appKeepers.tkeys = storetypes.NewTransientStoreKeys(
-		paramstypes.TStoreKey,
-		// EVM keys
-		evmtypes.TransientKey,
-		feemarkettypes.TransientKey,
-	)
+	// EVM per-tx scratch store. Transient keys for evm and feemarket were removed in v0.7.
+	appKeepers.oKeys = storetypes.NewObjectStoreKeys(evmtypes.ObjectKey)
+
+	// Params still use a transient store.
+	appKeepers.tkeys = storetypes.NewTransientStoreKeys(paramstypes.TStoreKey)
+}
+
+func (appKeepers *AppKeepers) GetObjectStoreKey() map[string]*storetypes.ObjectStoreKey {
+	return appKeepers.oKeys
 }
 
 func (appKeepers *AppKeepers) GetKVStoreKey() map[string]*storetypes.KVStoreKey {

@@ -239,8 +239,8 @@ func TestValidateFeeder(t *testing.T) {
 	require.NoError(t, err)
 
 	// Get the bonded tokens for each validator
-	bondedVal1 := val1.GetBondedTokens()
-	bondedVal2 := val2.GetBondedTokens()
+	bondedVal1 := val1.GetValidatorPower()
+	bondedVal2 := val2.GetValidatorPower()
 
 	// Validation
 	require.Equal(t, reference, balanceVal1)

@@ -8,16 +8,15 @@ import (
 	"strings"
 
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v10/types"
-	icacontrollertypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/controller/types"
+	icacontrollertypes "github.com/cosmos/ibc-go/v11/modules/apps/27-interchain-accounts/controller/types"
 
-	circuittypes "cosmossdk.io/x/circuit/types"
-	evidencetypes "cosmossdk.io/x/evidence/types"
-
+	circuittypes "github.com/cosmos/cosmos-sdk/contrib/x/circuit/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	disttypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
