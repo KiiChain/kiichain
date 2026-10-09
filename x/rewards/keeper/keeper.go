@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"context"
 	"fmt"
 
 	"cosmossdk.io/collections"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
@@ -80,21 +80,8 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// FundCommunityPool allows an account to directly fund the community fund pool.
-// The amount is first added to the rewards module account and then directly
-// added to the pool. An error is returned if the amount cannot be sent to the
-// module account.
-func (k Keeper) FundCommunityPool(ctx context.Context, amount sdk.Coin, sender sdk.AccAddress) error {
-	coins := sdk.Coins{amount}
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, coins); err != nil {
-		return err
-	}
-
-	rewardPool, err := k.RewardPool.Get(ctx)
-	if err != nil {
-		return err
-	}
-
-	rewardPool.CommunityPool = rewardPool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(coins...)...)
-	return k.RewardPool.Set(ctx, rewardPool)
+// ModuleAddress is the account that holds spendable reward funds.
+// Fund it with a bank send; there is no fund-pool message.
+func (k Keeper) ModuleAddress() sdk.AccAddress {
+	return authtypes.NewModuleAddress(types.ModuleName)
 }
