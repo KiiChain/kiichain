@@ -544,6 +544,7 @@ func (s *IntegrationTestSuite) initValidatorConfigs(c *chain) {
 
 		s.Require().NoError(vpr.Unmarshal(valConfig))
 
+		valConfig.Mempool.Type = tmconfig.MempoolTypeApp
 		valConfig.P2P.ListenAddress = "tcp://0.0.0.0:26656"
 		valConfig.P2P.AddrBookStrict = false
 		valConfig.P2P.ExternalAddress = fmt.Sprintf("%s:%d", val.instanceName(), 26656)

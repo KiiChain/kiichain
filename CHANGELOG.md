@@ -13,7 +13,7 @@
 
 ### Dependencies
 
-- Migrate onto cosmos/evm v0.7.3 following the [v0.6.x to v0.7.0 migration guide](https://github.com/cosmos/evm/blob/v0.7.3/docs/migrations/v0.6.x_to_v0.7.0.md): Go 1.25.9, cosmos-sdk v0.54.3, cometbft v0.39.3, ibc-go v11, wasmd v0.70.4, Krakatoa mempool, sequential execution (BlockSTM left off), precisebank removed, fee-abstraction refunds kept
+- Migrate onto cosmos/evm v0.7.3 following the [v0.6.x to v0.7.0 migration guide](https://github.com/cosmos/evm/blob/v0.7.3/docs/migrations/v0.6.x_to_v0.7.0.md): Go 1.25.9, cosmos-sdk v0.54.3, cometbft v0.39.3, ibc-go v11, wasmd v0.70.4, Krakatoa mempool, sequential execution (BlockSTM left off), precisebank removed, fee-abstraction refunds kept. `kiichaind init` sets `mempool.type = "app"` because Krakatoa rejects the CometBFT `"flood"` default
 - [EVM](https://github.com/KiiChain/evm) fork pin moved to [`feat/fork-v0.7.3`](https://github.com/KiiChain/evm/tree/feat/fork-v0.7.3) (`700c8297`), cosmos/evm v0.7.3 plus the Kii fee-refund, non-base account, 32-byte, EIP-712, and already-known mempool patches
 - [EVM](https://github.com/KiiChain/evm) fork bump from `v0.6.1-fork.1` to [v0.6.2-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.2-fork.2): August 2026 security backports (StateDB overflow/underflow guards, commit atomicity, `IsBaseAccountOrEmpty`, ERC20/IBC ack alignment)
 - [EVM](https://github.com/KiiChain/evm) fork from v0.6.0-fork.1 to [v0.6.0-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.0-fork.2): bounded internal EVM call gas limit, EVM fee refunds, distribution precompile 32-byte withdraw fix, and CosmWasm EVM query undercharge fix
