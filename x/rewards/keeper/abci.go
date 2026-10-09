@@ -15,6 +15,8 @@ import (
 // only what is there; an empty balance skips the block. A failed bank send is
 // logged and does not halt the chain.
 func (k *Keeper) BeginBlocker(ctx sdk.Context) error {
+	defer telemetry.ModuleMeasureSince(types.ModuleName, telemetry.Now(), telemetry.MetricKeyBeginBlocker)
+
 	params, err := k.Params.Get(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get rewards params: %w", err)
@@ -72,15 +74,16 @@ func (k *Keeper) BeginBlocker(ctx sdk.Context) error {
 		sdk.NewAttribute(types.AttributeKeyBondedRatio, bondedRatio.String()),
 	))
 
-	k.WriteRewardMetrics(ctx, amountToDistribute, rewardPool.TotalReleased)
+	balance := k.bankKeeper.GetBalance(ctx, moduleAddr, params.TokenDenom)
+	k.WriteRewardMetrics(ctx, amountToDistribute, balance)
 	return nil
 }
 
-// WriteRewardMetrics writes reward information to telemetry metrics.
-// Conversion failures yield zero gauges; telemetry is best-effort.
-func (k Keeper) WriteRewardMetrics(_ sdk.Context, distributed, total sdk.Coin) {
+// WriteRewardMetrics records the amount disbursed this block and the rewards
+// module account balance afterward. Conversion failures yield zero gauges.
+func (k Keeper) WriteRewardMetrics(_ sdk.Context, distributed, balance sdk.Coin) {
 	distFloat, _ := distributed.Amount.ToLegacyDec().Float64()
-	totalFloat, _ := total.Amount.ToLegacyDec().Float64()
+	balanceFloat, _ := balance.Amount.ToLegacyDec().Float64()
 
 	telemetry.ModuleSetGauge(
 		types.ModuleName,
@@ -90,7 +93,7 @@ func (k Keeper) WriteRewardMetrics(_ sdk.Context, distributed, total sdk.Coin) {
 
 	telemetry.ModuleSetGauge(
 		types.ModuleName,
-		float32(totalFloat),
-		"total_reward_released",
+		float32(balanceFloat),
+		"module_balance",
 	)
 }

@@ -1,4 +1,4 @@
-package v750
+package v90
 
 import (
 	"github.com/kiichain/kiichain/v7/app/upgrades"
@@ -6,7 +6,7 @@ import (
 
 const (
 	// UpgradeName is the name of the upgrade
-	UpgradeName = "v7.5.0"
+	UpgradeName = "v9.0.0"
 )
 
 // Upgrade runs pending module migrations, including x/rewards consensus v1 to v2.

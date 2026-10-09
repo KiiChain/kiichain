@@ -7,6 +7,7 @@ import (
 
 	"cosmossdk.io/math"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/kiichain/kiichain/v7/x/rewards/keeper"
@@ -58,6 +59,39 @@ func (suite *KeeperTestSuite) TestLegacyMsgServer() {
 	suite.Require().Error(err)
 	_, err = srv.ChangeSchedule(suite.Ctx, &v1beta1.MsgChangeSchedule{})
 	suite.Require().Error(err)
+}
+
+func (suite *KeeperTestSuite) TestLegacyProposalUpdateParamsRoundTrip() {
+	original := types.DefaultParams()
+	original.SupplyBase = math.NewInt(42)
+	suite.Require().NoError(suite.App.RewardsKeeper.Params.Set(suite.Ctx, original))
+
+	legacyMsg := &v1beta1.MsgUpdateParams{
+		Authority: suite.App.RewardsKeeper.GetAuthority(),
+		Params:    v1beta1.Params{TokenDenom: "ukii"},
+	}
+	packed, err := codectypes.NewAnyWithValue(legacyMsg)
+	suite.Require().NoError(err)
+	suite.Require().Equal("/kiichain.rewards.v1beta1.MsgUpdateParams", packed.TypeUrl)
+
+	var unpacked sdk.Msg
+	suite.Require().NoError(suite.App.InterfaceRegistry().UnpackAny(packed, &unpacked))
+	gotMsg, ok := unpacked.(*v1beta1.MsgUpdateParams)
+	suite.Require().True(ok)
+
+	srv := keeper.NewLegacyMsgServer(suite.App.RewardsKeeper)
+	_, err = srv.UpdateParams(suite.Ctx, gotMsg)
+	suite.Require().NoError(err)
+
+	got, err := suite.App.RewardsKeeper.Params.Get(suite.Ctx)
+	suite.Require().NoError(err)
+	suite.Require().Equal("ukii", got.TokenDenom)
+	suite.Require().True(got.SupplyBase.Equal(original.SupplyBase))
+	suite.Require().True(got.GoalBonded.Equal(original.GoalBonded))
+	suite.Require().True(got.InflationMin.Equal(original.InflationMin))
+	suite.Require().True(got.InflationMax.Equal(original.InflationMax))
+	suite.Require().True(got.InflationRateChange.Equal(original.InflationRateChange))
+	suite.Require().Equal(original.BlocksPerYear, got.BlocksPerYear)
 }
 
 func TestLegacyUpdateParamsMissingParams(t *testing.T) {

@@ -147,5 +147,5 @@ func TestBeginBlockerErrorPaths(t *testing.T) {
 func TestWriteRewardMetrics(t *testing.T) {
 	ctx, k := setupRewardsKeeper(t, mockBankKeeper{}, mockStakingKeeper{})
 	// Happy path: normal amounts convert cleanly
-	k.WriteRewardMetrics(ctx, sdk.NewCoin("akii", math.NewInt(100)), sdk.NewCoin("akii", math.NewInt(200)))
+	k.WriteRewardMetrics(ctx, sdk.NewCoin("akii", math.NewInt(100)), sdk.NewCoin("akii", math.NewInt(900)))
 }
