@@ -26,7 +26,6 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/gogoproto/proto"
 	ibctm "github.com/cosmos/ibc-go/v11/modules/light-clients/07-tendermint"
-	ibctesting "github.com/cosmos/ibc-go/v11/testing"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
@@ -100,7 +99,6 @@ var (
 var (
 	_ runtime.AppI            = (*KiichainApp)(nil)
 	_ servertypes.Application = (*KiichainApp)(nil)
-	_ ibctesting.TestingApp   = (*KiichainApp)(nil)
 )
 
 // KiichainApp extends an ABCI application, but with most of its parameters exported.
