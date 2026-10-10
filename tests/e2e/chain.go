@@ -9,9 +9,7 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v10/types"
 
-	"cosmossdk.io/log"
-	evidencetypes "cosmossdk.io/x/evidence/types"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
+	"cosmossdk.io/log/v2"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -21,10 +19,12 @@ import (
 	authvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distribtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	paramsproptypes "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
@@ -115,7 +115,6 @@ func (c *chain) createAndInitValidators(count int) error {
 	tempApplication := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
-		nil,
 		true,
 		map[int64]bool{},
 		tmpDir,
@@ -159,7 +158,6 @@ func (c *chain) createAndInitValidatorsWithMnemonics(count int, mnemonics []stri
 	tempApplication := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
-		nil,
 		true,
 		map[int64]bool{},
 		kiichain.DefaultNodeHome,

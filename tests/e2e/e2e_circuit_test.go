@@ -13,8 +13,8 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 
 	"cosmossdk.io/math"
-	circuittypes "cosmossdk.io/x/circuit/types"
 
+	circuittypes "github.com/cosmos/cosmos-sdk/contrib/x/circuit/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -226,20 +226,20 @@ func (s *IntegrationTestSuite) testCircuitEVMTx(jsonRPC string) {
 
 	s.Run("EVM txs are rejected while tripped", func() {
 		ctx := context.Background()
-		nonceBefore, err := client.PendingNonceAt(ctx, evmAccount.address)
+		nonceBefore, err := client.NonceAt(ctx, evmAccount.address, nil)
 		s.Require().NoError(err)
 		balanceBefore, err := client.BalanceAt(ctx, evmAccount.address, nil)
 		s.Require().NoError(err)
 
-		_, err = EVMSendWithNonce(client, evmAccount.key, evmAccount.address, s.chainB.evmAccount.address, big.NewInt(1), nil, nonceBefore)
-		s.Require().ErrorContains(err, circuitAnteErr)
+		// Krakatoa queues an EVM tx before ante. The circuit decorator runs on
+		// recheck and must drop the tx before it is included.
+		sent, err := EVMSendWithNonce(client, evmAccount.key, evmAccount.address, s.chainB.evmAccount.address, big.NewInt(1), nil, nonceBefore)
+		s.requireTrippedEVMTxDropped(client, sent, err)
 
-		_, err = counter.Increment(setupDefaultAuth(client, evmAccount.key))
-		s.Require().ErrorContains(err, circuitAnteErr)
+		incremented, err := counter.Increment(setupDefaultAuth(client, evmAccount.key))
+		s.requireTrippedEVMTxDropped(client, incremented, err)
 
-		// Nothing was charged: the circuit decorator runs before the EVM ante
-		// deducts fees and bumps the nonce
-		nonceAfter, err := client.PendingNonceAt(ctx, evmAccount.address)
+		nonceAfter, err := client.NonceAt(ctx, evmAccount.address, nil)
 		s.Require().NoError(err)
 		s.Require().Equal(nonceBefore, nonceAfter)
 		balanceAfter, err := client.BalanceAt(ctx, evmAccount.address, nil)
@@ -280,6 +280,23 @@ func (s *IntegrationTestSuite) delegationShares(endpoint, validator, delegator s
 		return math.LegacyZeroDec()
 	}
 	return res.DelegationResponse.Delegation.Shares
+}
+
+// requireTrippedEVMTxDropped accepts either an immediate ante rejection or a
+// Krakatoa queue that later drops the tx. A mined receipt is a failure.
+func (s *IntegrationTestSuite) requireTrippedEVMTxDropped(client *ethclient.Client, tx *geth.Transaction, sendErr error) {
+	if sendErr != nil {
+		s.Require().ErrorContains(sendErr, circuitAnteErr)
+		return
+	}
+	s.Require().NotNil(tx)
+	ctx := context.Background()
+	s.Require().Eventually(func() bool {
+		_, _, err := client.TransactionByHash(ctx, tx.Hash())
+		return err != nil
+	}, 30*time.Second, time.Second, "tripped EVM tx %s was not dropped", tx.Hash())
+	_, err := client.TransactionReceipt(ctx, tx.Hash())
+	s.Require().Error(err)
 }
 
 // tripCircuitBreaker disables msgTypeURL and waits until it shows in the disabled list

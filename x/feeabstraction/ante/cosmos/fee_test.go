@@ -11,7 +11,7 @@ import (
 	gomock "go.uber.org/mock/gomock"
 
 	"cosmossdk.io/math"
-	"cosmossdk.io/x/feegrant"
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtestutil "github.com/cosmos/cosmos-sdk/x/auth/testutil"
@@ -256,7 +256,7 @@ func TestDeductFeeDecorator(t *testing.T) {
 			feeGranter:  feeGranter,
 			fee:         sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
 			expected:    sdk.NewCoins(sdk.NewInt64Coin("akii", DefaultMinFeeValue)),
-			errContains: "fee-grant not found",
+			errContains: "not found",
 		},
 		{
 			name: "fail - feegrant denom bypass blocked when grant is akii but conversion picks erc20",

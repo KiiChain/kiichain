@@ -3,11 +3,8 @@ package kiichain
 import (
 	"encoding/json"
 
-	transferkeeper "github.com/cosmos/ibc-go/v10/modules/apps/transfer/keeper"
-	ibckeeper "github.com/cosmos/ibc-go/v10/modules/core/keeper"
-
-	evidencekeeper "cosmossdk.io/x/evidence/keeper"
-	feegrantkeeper "cosmossdk.io/x/feegrant/keeper"
+	transferkeeper "github.com/cosmos/ibc-go/v11/modules/apps/transfer/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v11/modules/core/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
@@ -17,6 +14,8 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
+	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
@@ -27,7 +26,6 @@ import (
 	erc20types "github.com/cosmos/evm/x/erc20/types"
 	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
 	ibccallbackskeeper "github.com/cosmos/evm/x/ibc/callbacks/keeper"
-	precisebankkeeper "github.com/cosmos/evm/x/precisebank/keeper"
 	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
@@ -108,24 +106,20 @@ func (app *KiichainApp) GetMintKeeper() mintkeeper.Keeper {
 	return mintkeeper.Keeper{}
 }
 
-func (app *KiichainApp) GetPreciseBankKeeper() *precisebankkeeper.Keeper {
-	return &precisebankkeeper.Keeper{}
-}
-
 func (app *KiichainApp) GetCallbackKeeper() ibccallbackskeeper.ContractKeeper {
 	return ibccallbackskeeper.ContractKeeper{}
 }
 
-func (app *KiichainApp) GetTransferKeeper() transferkeeper.Keeper {
+func (app *KiichainApp) GetTransferKeeper() *transferkeeper.Keeper {
 	return app.TransferKeeper
 }
 
-func (app *KiichainApp) SetTransferKeeper(transferKeeper transferkeeper.Keeper) {
+func (app *KiichainApp) SetTransferKeeper(transferKeeper *transferkeeper.Keeper) {
 	app.TransferKeeper = transferKeeper
 }
 
 func (app *KiichainApp) GetMempool() sdkmempool.ExtMempool {
-	return app.EVMKeeper.GetEvmMempool()
+	return app.EVMMempool
 }
 
 func (app *KiichainApp) GetAnteHandler() sdk.AnteHandler {

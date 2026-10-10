@@ -223,13 +223,13 @@ func TestPickReferenceDenomError(t *testing.T) {
 	require.Nil(t, belowThresholdVoteMap)
 }
 
-// MockStakingKeeperError is a mock that returns error for TotalBondedTokens
+// MockStakingKeeperError is a mock that returns error for TotalValidatorPower
 type MockStakingKeeperError struct {
 	types.StakingKeeper
 }
 
-// TotalBondedTokens returns an error to simulate staking keeper failure.
-func (m MockStakingKeeperError) TotalBondedTokens(ctx context.Context) (math.Int, error) {
+// TotalValidatorPower returns an error to simulate staking keeper failure.
+func (m MockStakingKeeperError) TotalValidatorPower(ctx context.Context) (math.Int, error) {
 	return math.Int{}, fmt.Errorf("mock error: failed to get total bonded tokens")
 }
 

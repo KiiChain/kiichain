@@ -16,7 +16,7 @@ import (
 
 	abci_server "github.com/cometbft/cometbft/abci/server"
 
-	"cosmossdk.io/log"
+	"cosmossdk.io/log/v2"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

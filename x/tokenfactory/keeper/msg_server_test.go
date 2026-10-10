@@ -317,6 +317,9 @@ func (suite *KeeperTestSuite) TestTF01_ChangeAdminEmptyStringBlockedByFullPipeli
 	suite.SetupTest()
 
 	app := suite.App
+	// FinalizeBlock executes against the finalize-mode store. Setup writes on
+	// the check-tx context, which that store does not see.
+	suite.Ctx = app.NewContextLegacy(false, suite.Ctx.BlockHeader())
 	ctx := suite.Ctx
 	txConfig := app.GetTxConfig()
 	chainID := app.ChainID()

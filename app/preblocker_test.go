@@ -7,9 +7,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/math"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	kiichain "github.com/kiichain/kiichain/v7/app"
 	"github.com/kiichain/kiichain/v7/app/blockedaddrs"

@@ -3,23 +3,17 @@ package kiichain
 import (
 	pfmroutertypes "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10/packetforward/types"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v10/types"
-	icatypes "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v10/modules/core"
-	ibcexported "github.com/cosmos/ibc-go/v10/modules/core/exported"
-	ibctm "github.com/cosmos/ibc-go/v10/modules/light-clients/07-tendermint"
-
-	"cosmossdk.io/x/circuit"
-	circuittypes "cosmossdk.io/x/circuit/types"
-	"cosmossdk.io/x/evidence"
-	evidencetypes "cosmossdk.io/x/evidence/types"
-	"cosmossdk.io/x/feegrant"
-	feegrantmodule "cosmossdk.io/x/feegrant/module"
-	"cosmossdk.io/x/upgrade"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
+	icatypes "github.com/cosmos/ibc-go/v11/modules/apps/27-interchain-accounts/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v11/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v11/modules/core"
+	ibcexported "github.com/cosmos/ibc-go/v11/modules/core/exported"
+	ibctm "github.com/cosmos/ibc-go/v11/modules/light-clients/07-tendermint"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/contrib/x/circuit"
+	circuittypes "github.com/cosmos/cosmos-sdk/contrib/x/circuit/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
@@ -34,6 +28,10 @@ import (
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	"github.com/cosmos/cosmos-sdk/x/evidence"
+	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
+	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/gov"
@@ -46,6 +44,8 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/cosmos/cosmos-sdk/x/upgrade"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	wasm "github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
@@ -86,6 +86,10 @@ var maccPerms = map[string][]string{
 	rewardstypes.ModuleName:        nil,
 	oracletypes.ModuleName:         nil,
 	feeabstractiontypes.ModuleName: nil,
+}
+
+func (app *KiichainApp) hydrateEVMGlobals(ctx sdk.Context) {
+	vm.NewAppModule(app.EVMKeeper, app.AccountKeeper, app.BankKeeper, app.AccountKeeper.AddressCodec()).HydrateGlobals(ctx)
 }
 
 func appModules(

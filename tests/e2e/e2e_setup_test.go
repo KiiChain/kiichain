@@ -29,10 +29,9 @@ import (
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
 	"cosmossdk.io/math"
-	circuittypes "cosmossdk.io/x/circuit/types"
-	evidencetypes "cosmossdk.io/x/evidence/types"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	circuittypes "github.com/cosmos/cosmos-sdk/contrib/x/circuit/types"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -42,6 +41,7 @@ import (
 	authvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -544,6 +544,7 @@ func (s *IntegrationTestSuite) initValidatorConfigs(c *chain) {
 
 		s.Require().NoError(vpr.Unmarshal(valConfig))
 
+		valConfig.Mempool.Type = tmconfig.MempoolTypeApp
 		valConfig.P2P.ListenAddress = "tcp://0.0.0.0:26656"
 		valConfig.P2P.AddrBookStrict = false
 		valConfig.P2P.ExternalAddress = fmt.Sprintf("%s:%d", val.instanceName(), 26656)

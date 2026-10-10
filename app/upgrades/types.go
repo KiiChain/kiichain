@@ -1,11 +1,10 @@
 package upgrades
 
 import (
-	store "cosmossdk.io/store/types"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
-
+	store "github.com/cosmos/cosmos-sdk/store/v2/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/kiichain/kiichain/v7/app/keepers"
 )

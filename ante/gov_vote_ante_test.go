@@ -25,7 +25,7 @@ import (
 // Submitting v1beta1.VoteMsg should not be possible through the CLI, but it's still possible to craft a transaction
 func TestVoteSpamDecoratorGovV1Beta1(t *testing.T) {
 	kiiApp := helpers.Setup(t)
-	ctx := kiiApp.NewUncachedContext(true, tmproto.Header{})
+	ctx := kiiApp.NewContextLegacy(true, tmproto.Header{})
 	decorator := ante.NewGovVoteDecorator(kiiApp.AppCodec(), kiiApp.StakingKeeper)
 	stakingKeeper := kiiApp.StakingKeeper
 
@@ -153,7 +153,7 @@ func TestVoteSpamDecoratorGovV1Beta1(t *testing.T) {
 // Usually, only v1.VoteMsg can be submitted using the CLI.
 func TestVoteSpamDecoratorGovV1(t *testing.T) {
 	kiiApp := helpers.Setup(t)
-	ctx := kiiApp.NewUncachedContext(true, tmproto.Header{})
+	ctx := kiiApp.NewContextLegacy(true, tmproto.Header{})
 	decorator := ante.NewGovVoteDecorator(kiiApp.AppCodec(), kiiApp.StakingKeeper)
 	stakingKeeper := kiiApp.StakingKeeper
 

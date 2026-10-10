@@ -7,20 +7,20 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	transferkeeper "github.com/cosmos/ibc-go/v10/modules/apps/transfer/keeper"
-	clientkeeper "github.com/cosmos/ibc-go/v10/modules/core/02-client/keeper"
-	connectionkeeper "github.com/cosmos/ibc-go/v10/modules/core/03-connection/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v10/modules/core/04-channel/keeper"
+	transferkeeper "github.com/cosmos/ibc-go/v11/modules/apps/transfer/keeper"
+	clientkeeper "github.com/cosmos/ibc-go/v11/modules/core/02-client/keeper"
+	connectionkeeper "github.com/cosmos/ibc-go/v11/modules/core/03-connection/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v11/modules/core/04-channel/keeper"
 
 	"cosmossdk.io/core/address"
-	circuitante "cosmossdk.io/x/circuit/ante"
-	evidencekeeper "cosmossdk.io/x/evidence/keeper"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
+	circuitante "github.com/cosmos/cosmos-sdk/contrib/x/circuit/ante"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -123,7 +123,7 @@ func NewAvailableStaticPrecompiles(
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20Keeper.Keeper,
-	transferKeeper transferkeeper.Keeper,
+	transferKeeper *transferkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
 	channelKeeper *channelkeeper.Keeper,

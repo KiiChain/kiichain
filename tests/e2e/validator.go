@@ -94,6 +94,7 @@ func (v *validator) init(genesisState map[string]json.RawMessage) error {
 		return fmt.Errorf("failed to export app genesis state: %w", err)
 	}
 
+	config.Mempool.Type = tmcfg.MempoolTypeApp
 	tmcfg.WriteConfigFile(filepath.Join(config.RootDir, "config", "config.toml"), config)
 	return nil
 }
