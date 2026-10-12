@@ -29,13 +29,6 @@ func (gs *GenesisState) Validate() error {
 	}
 
 	tokenDenom := gs.Params.TokenDenom
-	for _, coin := range gs.RewardPool.CommunityPool {
-		if coin.Denom != tokenDenom {
-			return fmt.Errorf("community pool coin denom %s does not match token denom %s",
-				coin.Denom, tokenDenom)
-		}
-	}
-
 	if !gs.RewardPool.TotalReleased.IsNil() && !gs.RewardPool.TotalReleased.IsZero() &&
 		gs.RewardPool.TotalReleased.Denom != tokenDenom {
 		return fmt.Errorf("total released denom %s does not match token denom %s",

@@ -1,7 +1,6 @@
 package e2e
 
 import (
-	"context"
 	"fmt"
 	"path/filepath"
 	"strconv"
@@ -9,8 +8,8 @@ import (
 
 	"cosmossdk.io/math"
 
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	rewardstypes "github.com/kiichain/kiichain/v7/x/rewards/types"
@@ -57,9 +56,8 @@ func (s *IntegrationTestSuite) testRewardUpdate() {
 
 	rewardResponse, err := queryRewardPool(chainEndpoint)
 	s.Require().NoError(err)
-	pool := rewardResponse.RewardPool.CommunityPool
-	s.Require().False(pool.AmountOf(denom).IsZero())
-	initialPoolAmount := pool.AmountOf(denom)
+	s.Require().False(rewardResponse.Balance.IsZero())
+	initialPoolAmount := rewardResponse.Balance.Amount
 	initialTotalReleased := rewardResponse.RewardPool.TotalReleased
 
 	s.passRewardsParamsProposal(chainEndpoint, senderAddress.String(), supplyBase)
@@ -69,8 +67,8 @@ func (s *IntegrationTestSuite) testRewardUpdate() {
 	rewardResponse, err = queryRewardPool(chainEndpoint)
 	s.Require().NoError(err)
 	finalPool := rewardResponse.RewardPool
-	s.T().Logf("Pool before %s vs after %s", initialPoolAmount.String(), finalPool.CommunityPool.AmountOf(denom).String())
-	s.Require().True(finalPool.CommunityPool.AmountOf(denom).LT(initialPoolAmount))
+	s.T().Logf("Pool before %s vs after %s", initialPoolAmount.String(), rewardResponse.Balance.Amount.String())
+	s.Require().True(rewardResponse.Balance.Amount.LT(initialPoolAmount))
 	if !initialTotalReleased.IsNil() && !initialTotalReleased.IsZero() {
 		s.Require().True(finalPool.TotalReleased.Amount.GT(initialTotalReleased.Amount))
 	} else {
@@ -91,7 +89,7 @@ func (s *IntegrationTestSuite) testRewardUpdate() {
 func queryRewardPool(endpoint string) (rewardstypes.QueryRewardPoolResponse, error) {
 	var res rewardstypes.QueryRewardPoolResponse
 
-	url := fmt.Sprintf("%s/kiichain/rewards/v1beta1/reward-pool", endpoint)
+	url := fmt.Sprintf("%s/kiichain/rewards/v1/reward-pool", endpoint)
 
 	body, err := httpGet(url)
 	if err != nil {
@@ -123,25 +121,8 @@ func queryRewardFrom(endpoint string, address string, valoperAddress string) (ty
 }
 
 func (s *IntegrationTestSuite) fundRewardPool(c *chain, valIdx int, amount sdk.Coin, sender string) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-
-	kiichainCommand := []string{
-		kiichaindBinary,
-		txCommand,
-		rewardstypes.ModuleName,
-		"fund-pool",
-		amount.String(),
-		fmt.Sprintf("--from=%s", sender),
-		fmt.Sprintf("--%s=%s", flags.FlagChainID, c.id),
-		fmt.Sprintf("--%s=%s", flags.FlagGasPrices, "300000000akii"),
-		fmt.Sprintf("--%s=%s", flags.FlagGas, "5000000"),
-		"--keyring-backend=test",
-		"--output=json",
-		"-y",
-	}
-
-	s.executeKiichainTxCommand(ctx, c, kiichainCommand, valIdx, s.defaultExecValidation(c, valIdx))
+	moduleAddr := authtypes.NewModuleAddress(rewardstypes.ModuleName).String()
+	s.execBankSend(c, valIdx, sender, moduleAddr, amount.String(), standardFees.String(), false)
 }
 
 func (s *IntegrationTestSuite) passRewardsParamsProposal(chainEndpoint string, sender string, supplyBase math.Int) {
@@ -159,7 +140,7 @@ func (s *IntegrationTestSuite) writeRewardsParamsProposal(c *chain, supplyBase m
 	body := `{
 		"messages": [
                 {
-			"@type": "/kiichain.rewards.v1beta1.MsgUpdateParams",
+			"@type": "/kiichain.rewards.v1.MsgUpdateParams",
             "authority": "kii10d07y265gmmuvt4z0w9aw880jnsr700jrff0qv",
             "params": {
                 "token_denom": "akii",

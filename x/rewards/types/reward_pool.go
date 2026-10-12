@@ -1,25 +1,15 @@
 package types
 
-import (
-	"fmt"
+import "fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
-
-// InitialRewardPool returns a zero reward pool
+// InitialRewardPool returns a zero reward pool. Spendable funds live on the
+// module account, not in this state.
 func InitialRewardPool() RewardPool {
-	return RewardPool{
-		CommunityPool: sdk.DecCoins{},
-		TotalReleased: sdk.Coin{},
-	}
+	return RewardPool{}
 }
 
-// ValidateGenesis validates the reward pool for a genesis state
+// ValidateGenesis validates the reward pool for a genesis state.
 func (rp RewardPool) ValidateGenesis() error {
-	if err := rp.CommunityPool.Validate(); err != nil {
-		return fmt.Errorf("invalid CommunityPool: %w", err)
-	}
-
 	if !rp.TotalReleased.IsNil() && !rp.TotalReleased.IsZero() {
 		if err := rp.TotalReleased.Validate(); err != nil {
 			return fmt.Errorf("invalid TotalReleased: %w", err)

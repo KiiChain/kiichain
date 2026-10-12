@@ -56,17 +56,6 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			expectedPass: false,
 		},
 		{
-			name: "community pool with foreign denom",
-			modifyFn: func(gs *types.GenesisState) {
-				gs.RewardPool = types.RewardPool{
-					CommunityPool: sdk.DecCoins{
-						{Denom: "notkii", Amount: math.LegacyNewDec(100)},
-					},
-				}
-			},
-			expectedPass: false,
-		},
-		{
 			name: "total released with foreign denom",
 			modifyFn: func(gs *types.GenesisState) {
 				gs.RewardPool.TotalReleased = sdk.NewCoin("notkii", math.NewInt(100))
@@ -77,9 +66,6 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "valid funded pool",
 			modifyFn: func(gs *types.GenesisState) {
 				gs.RewardPool = types.RewardPool{
-					CommunityPool: sdk.DecCoins{
-						{Denom: "akii", Amount: math.LegacyNewDec(100)},
-					},
 					TotalReleased: sdk.NewCoin("akii", math.NewInt(50)),
 				}
 			},

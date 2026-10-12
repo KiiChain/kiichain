@@ -24,56 +24,15 @@ func TestRewardPoolValidateGenesis(t *testing.T) {
 			expectErr: false,
 		},
 		{
-			name: "valid single coin",
+			name: "valid total released",
 			pool: types.RewardPool{
-				CommunityPool: sdk.DecCoins{
-					{Denom: "akii", Amount: math.LegacyNewDec(100)},
-				},
+				TotalReleased: sdk.NewCoin("akii", math.NewInt(100)),
 			},
 			expectErr: false,
 		},
 		{
-			name: "negative amount",
-			pool: types.RewardPool{
-				CommunityPool: sdk.DecCoins{
-					{Denom: "tkii", Amount: math.LegacyNewDec(-1)},
-				},
-			},
-			expectErr: true,
-		},
-		{
-			name: "invalid denom format (starts with digit)",
-			pool: types.RewardPool{
-				CommunityPool: sdk.DecCoins{
-					{Denom: "1invalid", Amount: math.LegacyNewDec(1)},
-				},
-			},
-			expectErr: true,
-		},
-		{
-			name: "duplicate denoms",
-			pool: types.RewardPool{
-				CommunityPool: sdk.DecCoins{
-					{Denom: "akii", Amount: math.LegacyNewDec(1)},
-					{Denom: "akii", Amount: math.LegacyNewDec(2)},
-				},
-			},
-			expectErr: true,
-		},
-		{
-			name: "non-canonical ordering",
-			pool: types.RewardPool{
-				CommunityPool: sdk.DecCoins{
-					{Denom: "tkii", Amount: math.LegacyNewDec(1)},
-					{Denom: "akii", Amount: math.LegacyNewDec(2)},
-				},
-			},
-			expectErr: true,
-		},
-		{
 			name: "invalid total released coin",
 			pool: types.RewardPool{
-				CommunityPool: sdk.DecCoins{},
 				TotalReleased: sdk.Coin{Denom: "1bad", Amount: math.NewInt(1)},
 			},
 			expectErr: true,

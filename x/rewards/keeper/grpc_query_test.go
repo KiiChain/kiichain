@@ -77,10 +77,9 @@ func (suite *KeeperTestSuite) TestQuerierRewardPool() {
 		{
 			name: "success - with funds",
 			setup: func() {
-				fundMsg := types.NewMsgFundPool(
-					suite.TestAccs[0],
-					sdk.NewCoin("akii", math.NewInt(100000)))
-				_, err := suite.msgServer.FundPool(suite.Ctx, fundMsg)
+				coin := sdk.NewCoin("akii", math.NewInt(100000))
+				err := suite.App.BankKeeper.SendCoinsFromAccountToModule(
+					suite.Ctx, suite.TestAccs[0], types.ModuleName, sdk.NewCoins(coin))
 				suite.Require().NoError(err)
 			},
 			expectedPass: true,
@@ -98,6 +97,11 @@ func (suite *KeeperTestSuite) TestQuerierRewardPool() {
 				expectedPool, err := suite.App.RewardsKeeper.RewardPool.Get(suite.Ctx)
 				suite.Require().NoError(err)
 				suite.Require().Equal(expectedPool, res.RewardPool)
+				moduleAddr := suite.App.AccountKeeper.GetModuleAddress(types.ModuleName)
+				suite.Require().Equal(
+					suite.App.BankKeeper.GetBalance(suite.Ctx, moduleAddr, "akii"),
+					res.Balance,
+				)
 			} else {
 				suite.Require().Error(err)
 			}

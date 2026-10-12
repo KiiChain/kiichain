@@ -187,16 +187,15 @@ INITIAL_SUPPLY_BASE="$(
 [[ "$INITIAL_SUPPLY_BASE" == "0" || "$INITIAL_SUPPLY_BASE" == "0.000000000000000000" ]] \
   || die "expected default supply_base=0, got $INITIAL_SUPPLY_BASE"
 
-log "Fund rewards pool with $FUND_AMOUNT"
-broadcast_tx "$BIN" tx rewards fund-pool "$FUND_AMOUNT" --from "$KEY" "${TX_FLAGS[@]}"
+log "Fund rewards module account with $FUND_AMOUNT"
+MODULE_ADDR="$("$BIN" q auth module-account rewards --node "$NODE" -o json | jq -r '.account.base_account.address // .account.value.address // .account.address')"
+[[ -n "$MODULE_ADDR" && "$MODULE_ADDR" != "null" ]] || die "could not resolve rewards module address"
+broadcast_tx "$BIN" tx bank send "$KEY" "$MODULE_ADDR" "$FUND_AMOUNT" "${TX_FLAGS[@]}"
 
 FUNDED_POOL="$("$BIN" q rewards reward-pool --node "$NODE" -o json)"
 echo "$FUNDED_POOL" | jq .
-FUNDED_AMOUNT="$(echo "$FUNDED_POOL" | jq -r '
-  (.reward_pool.community_pool // .community_pool // [])
-  | map(select(.denom=="akii")) | .[0].amount // "0"
-')"
-[[ "$FUNDED_AMOUNT" != "0" && "$FUNDED_AMOUNT" != "null" ]] || die "pool still empty after fund-pool"
+FUNDED_AMOUNT="$(echo "$FUNDED_POOL" | jq -r '.balance.amount // "0"')"
+[[ "$FUNDED_AMOUNT" != "0" && "$FUNDED_AMOUNT" != "null" ]] || die "module balance still empty after bank send"
 log "Pool funded amount=$FUNDED_AMOUNT"
 
 PROPOSAL_FILE="$HOME_DIR/proposal_update_rewards_params.json"
@@ -204,7 +203,7 @@ cat >"$PROPOSAL_FILE" <<EOF
 {
   "messages": [
     {
-      "@type": "/kiichain.rewards.v1beta1.MsgUpdateParams",
+      "@type": "/kiichain.rewards.v1.MsgUpdateParams",
       "authority": "$GOV_AUTHORITY",
       "params": {
         "token_denom": "akii",
@@ -260,10 +259,7 @@ sleep 12
 
 FINAL_POOL="$("$BIN" q rewards reward-pool --node "$NODE" -o json)"
 echo "$FINAL_POOL" | jq .
-FINAL_AMOUNT="$(echo "$FINAL_POOL" | jq -r '
-  (.reward_pool.community_pool // .community_pool // [])
-  | map(select(.denom=="akii")) | .[0].amount // "0"
-')"
+FINAL_AMOUNT="$(echo "$FINAL_POOL" | jq -r '.balance.amount // "0"')"
 TOTAL_RELEASED="$(echo "$FINAL_POOL" | jq -r '
   (.reward_pool.total_released.amount // .total_released.amount // "0")
 ')"
