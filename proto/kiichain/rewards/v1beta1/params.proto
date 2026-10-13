@@ -4,7 +4,7 @@ package kiichain.rewards.v1beta1;
 import "gogoproto/gogo.proto";
 import "kiichain/rewards/v1beta1/types.proto";
 
-option go_package = "github.com/kiichain/kiichain/x/rewards/types";
+option go_package = "github.com/kiichain/kiichain/x/rewards/types/v1beta1";
 
 // Params defines the parameters for the rewards module.
 message Params {

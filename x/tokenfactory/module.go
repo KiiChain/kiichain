@@ -19,6 +19,8 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
+	"cosmossdk.io/core/appmodule"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -35,8 +37,8 @@ import (
 )
 
 var (
-	_ module.AppModule      = AppModule{} //nolint:staticcheck
 	_ module.AppModuleBasic = AppModuleBasic{}
+	_ appmodule.AppModule   = AppModule{}
 )
 
 // ConsensusVersion defines the current x/tokenfactory module consensus version.

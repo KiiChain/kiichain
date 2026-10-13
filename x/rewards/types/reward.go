@@ -1,43 +1,47 @@
 package types
 
 import (
-	"time"
-
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// CalculateReward figures what amt to be released in the current block
-// Assumes invalid values are cleared before calling, does not handle invalid blockTime/no last release
-func CalculateReward(blockTime time.Time, schedule ReleaseSchedule) (sdk.Coin, error) {
-	// Calculate remaining amount
-	remaining := schedule.TotalAmount.Sub(schedule.ReleasedAmount)
-	if remaining.IsZero() {
-		return remaining, nil
+// CalculateInflation returns the KiiChain emission rate for a bonded ratio.
+// The bonded-ratio multiplier forms a distribution (bell) curve, then clamps
+// to [InflationMin, InflationMax].
+//
+//	inflation = (1 - bondedRatio/goalBonded) * inflationRateChange * bondedRatio
+func CalculateInflation(bondedRatio math.LegacyDec, p Params) math.LegacyDec {
+	inflation := math.LegacyOneDec().
+		Sub(bondedRatio.Quo(p.GoalBonded)).
+		Mul(p.InflationRateChange).
+		Mul(bondedRatio)
+
+	if inflation.LT(p.InflationMin) {
+		return p.InflationMin
+	}
+	if inflation.GT(p.InflationMax) {
+		return p.InflationMax
+	}
+	return inflation
+}
+
+// CalculateReward returns the amount to release this block and the inflation
+// rate used. Matches cosmos-sdk x/mint: annualProvision / blocksPerYear.
+// No tokens are minted; funds come from the prefunded pool.
+func CalculateReward(bondedRatio math.LegacyDec, p Params) (sdk.Coin, math.LegacyDec) {
+	denom := p.TokenDenom
+	zero := sdk.NewCoin(denom, math.ZeroInt())
+
+	if p.SupplyBase.IsZero() || p.BlocksPerYear == 0 {
+		return zero, math.LegacyZeroDec()
 	}
 
-	// If total duration is zero or negative, release the full remaining amount
-	totalDurationNs := schedule.EndTime.Sub(schedule.LastReleaseTime).Nanoseconds()
-	if totalDurationNs <= 0 {
-		return remaining, nil
-	}
+	inflation := CalculateInflation(bondedRatio, p)
+	annualProvision := inflation.MulInt(p.SupplyBase)
+	amount := annualProvision.
+		QuoInt(math.NewIntFromUint64(p.BlocksPerYear)).
+		TruncateInt()
 
-	// Get time parameters
-	timeElapsedStamp := blockTime.Sub(schedule.LastReleaseTime)          // Time since last release
-	totalDurationStamp := schedule.EndTime.Sub(schedule.LastReleaseTime) // Remaining release period
-
-	// Use nanoseconds for precise duration calculations
-	timeElapsedNs := math.NewInt(timeElapsedStamp.Nanoseconds()).BigInt()
-	totalDurationNsBig := math.NewInt(totalDurationStamp.Nanoseconds()).BigInt()
-
-	// Calculate linear release proportion between 0 and 1
-	releaseProportion := math.LegacyNewDecFromBigInt(timeElapsedNs).Quo(math.LegacyNewDecFromBigInt(totalDurationNsBig))
-	// Truncate to int, it will be a coin amt after all
-	amountToRelease := math.LegacyNewDecFromInt(remaining.Amount).Mul(releaseProportion).TruncateInt()
-
-	// Cap at remaining amount
-	amountToRelease = math.MinInt(amountToRelease, remaining.Amount)
-
-	return sdk.NewCoin(schedule.TotalAmount.Denom, amountToRelease), nil
+	return sdk.NewCoin(denom, amount), inflation
 }

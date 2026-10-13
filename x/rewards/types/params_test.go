@@ -5,72 +5,112 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"cosmossdk.io/math"
+
 	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
 func TestParamsValidateBasic(t *testing.T) {
-	type fields struct {
-		GovernanceMinDeposit string
-		TokenDenom           string
-	}
+	valid := types.DefaultParams()
+
 	tests := []struct {
 		name    string
-		fields  fields
+		mutate  func(p *types.Params)
 		wantErr bool
 	}{
 		{
-			name: "success - valid params",
-			fields: fields{
-				TokenDenom: "akii",
-			},
+			name:    "success - default params",
+			mutate:  func(p *types.Params) {},
 			wantErr: false,
 		},
 		{
 			name: "invalid - empty token denom",
-			fields: fields{
-				TokenDenom: "",
+			mutate: func(p *types.Params) {
+				p.TokenDenom = ""
 			},
 			wantErr: true,
 		},
 		{
-			name: "invalid - denom with invalid characters",
-			fields: fields{
-				TokenDenom: "ak ii",
+			name: "invalid - goal bonded zero",
+			mutate: func(p *types.Params) {
+				p.GoalBonded = math.LegacyZeroDec()
 			},
 			wantErr: true,
 		},
 		{
-			name: "invalid - denom too short",
-			fields: fields{
-				TokenDenom: "ak",
+			name: "invalid - goal bonded above one",
+			mutate: func(p *types.Params) {
+				p.GoalBonded = math.LegacyNewDecWithPrec(101, 2)
 			},
 			wantErr: true,
 		},
 		{
-			name: "invalid - denom starting with a number",
-			fields: fields{
-				TokenDenom: "1akii",
+			name: "invalid - inflation min negative",
+			mutate: func(p *types.Params) {
+				p.InflationMin = math.LegacyNewDec(-1)
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid - inflation max below min",
+			mutate: func(p *types.Params) {
+				p.InflationMin = math.LegacyNewDecWithPrec(10, 2)
+				p.InflationMax = math.LegacyNewDecWithPrec(5, 2)
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid - supply base negative",
+			mutate: func(p *types.Params) {
+				p.SupplyBase = math.NewInt(-1)
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid - inflation rate change zero",
+			mutate: func(p *types.Params) {
+				p.InflationRateChange = math.LegacyZeroDec()
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid - inflation rate change above one",
+			mutate: func(p *types.Params) {
+				p.InflationRateChange = math.LegacyNewDecWithPrec(101, 2)
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid - blocks per year zero",
+			mutate: func(p *types.Params) {
+				p.BlocksPerYear = 0
 			},
 			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := types.Params{
-				TokenDenom: tt.fields.TokenDenom,
-			}
-			if err := p.ValidateBasic(); (err != nil) != tt.wantErr {
-				t.Errorf("ValidateBasic() error = %v, wantErr %v", err, tt.wantErr)
+			p := valid
+			tt.mutate(&p)
+			err := p.ValidateBasic()
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
 			}
 		})
 	}
 }
 
 func TestDefaultParams(t *testing.T) {
-	// Test that default params are valid
 	defaultParams := types.DefaultParams()
 	require.NoError(t, defaultParams.ValidateBasic())
-
-	// Verify specific default values
 	require.Equal(t, "akii", defaultParams.TokenDenom)
+	require.True(t, defaultParams.SupplyBase.IsZero())
+	require.True(t, math.LegacyNewDecWithPrec(67, 2).Equal(defaultParams.GoalBonded))
+	require.True(t, math.LegacyNewDecWithPrec(20, 2).Equal(defaultParams.InflationMax))
+	require.True(t, defaultParams.InflationMin.IsZero())
+	require.True(t, math.LegacyNewDecWithPrec(13, 2).Equal(defaultParams.InflationRateChange))
+	require.Equal(t, types.DefaultBlocksPerYear, defaultParams.BlocksPerYear)
 }

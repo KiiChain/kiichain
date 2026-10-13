@@ -16,6 +16,7 @@ import (
 
 	kiichain "github.com/kiichain/kiichain/v7/app"
 	kiihelpers "github.com/kiichain/kiichain/v7/app/helpers"
+	rewardstypes "github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
 type EmptyAppOptions struct{}
@@ -42,6 +43,7 @@ func TestKiichainApp_BlockedModuleAccountAddrs(t *testing.T) {
 	blockedAddrs := app.BlockedModuleAccountAddrs(moduleAccountAddresses)
 
 	require.Contains(t, blockedAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	require.NotContains(t, blockedAddrs, authtypes.NewModuleAddress(rewardstypes.ModuleName).String())
 }
 
 func TestKiichainApp_Export(t *testing.T) {

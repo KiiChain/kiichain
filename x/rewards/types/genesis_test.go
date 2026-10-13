@@ -2,7 +2,6 @@ package types_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/suite"
 
@@ -22,17 +21,13 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) TestNewGenesisState() {
-	// Create test data
 	params := types.DefaultParams()
 	pool := types.InitialRewardPool()
-	schedule := types.InitialReleaseSchedule()
 
-	// Test creation
-	genesis := types.NewGenesisState(params, pool, schedule)
+	genesis := types.NewGenesisState(params, pool)
 
 	suite.Require().Equal(params, genesis.Params)
 	suite.Require().Equal(pool, genesis.RewardPool)
-	suite.Require().Equal(schedule, genesis.ReleaseSchedule)
 }
 
 func (suite *GenesisTestSuite) TestDefaultGenesisState() {
@@ -40,20 +35,9 @@ func (suite *GenesisTestSuite) TestDefaultGenesisState() {
 
 	suite.Require().Equal(types.DefaultParams(), defaultGenesis.Params)
 	suite.Require().Equal(types.InitialRewardPool(), defaultGenesis.RewardPool)
-	suite.Require().Equal(types.InitialReleaseSchedule(), defaultGenesis.ReleaseSchedule)
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	validParams := types.DefaultParams()
-	validPool := types.InitialRewardPool()
-	validSchedule := types.ReleaseSchedule{
-		TotalAmount:     sdk.NewCoin("akii", math.NewInt(1000)),
-		ReleasedAmount:  sdk.NewCoin("akii", math.NewInt(0)),
-		EndTime:         time.Now().Add(time.Hour * 24),
-		LastReleaseTime: time.Time{},
-		Active:          true,
-	}
-
 	testCases := []struct {
 		name         string
 		modifyFn     func(*types.GenesisState)
@@ -65,60 +49,27 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			expectedPass: true,
 		},
 		{
-			name: "custom valid genesis",
-			modifyFn: func(gs *types.GenesisState) {
-				gs.Params = validParams
-				gs.RewardPool = validPool
-				gs.ReleaseSchedule = validSchedule
-			},
-			expectedPass: true,
-		},
-		{
 			name: "invalid params",
 			modifyFn: func(gs *types.GenesisState) {
-				gs.Params.TokenDenom = "" // invalid empty denom
+				gs.Params.TokenDenom = ""
 			},
 			expectedPass: false,
 		},
 		{
-			name: "active schedule with mismatched total amount denom",
+			name: "total released with foreign denom",
 			modifyFn: func(gs *types.GenesisState) {
-				gs.ReleaseSchedule = types.ReleaseSchedule{
-					TotalAmount:    sdk.NewCoin("notkii", math.NewInt(1000)),
-					ReleasedAmount: sdk.NewCoin("notkii", math.NewInt(0)),
-					EndTime:        time.Now().Add(time.Hour * 24),
-					Active:         true,
-				}
+				gs.RewardPool.TotalReleased = sdk.NewCoin("notkii", math.NewInt(100))
 			},
 			expectedPass: false,
 		},
 		{
-			name: "community pool with foreign denom",
+			name: "valid funded pool",
 			modifyFn: func(gs *types.GenesisState) {
 				gs.RewardPool = types.RewardPool{
-					CommunityPool: sdk.DecCoins{
-						{Denom: "notkii", Amount: math.LegacyNewDec(100)},
-					},
+					TotalReleased: sdk.NewCoin("akii", math.NewInt(50)),
 				}
 			},
-			expectedPass: false,
-		},
-		{
-			name: "both active schedule and pool with mismatched denoms",
-			modifyFn: func(gs *types.GenesisState) {
-				gs.ReleaseSchedule = types.ReleaseSchedule{
-					TotalAmount:    sdk.NewCoin("notkii", math.NewInt(1000)),
-					ReleasedAmount: sdk.NewCoin("notkii", math.NewInt(0)),
-					EndTime:        time.Now().Add(time.Hour * 24),
-					Active:         true,
-				}
-				gs.RewardPool = types.RewardPool{
-					CommunityPool: sdk.DecCoins{
-						{Denom: "notkii", Amount: math.LegacyNewDec(100)},
-					},
-				}
-			},
-			expectedPass: false,
+			expectedPass: true,
 		},
 	}
 
