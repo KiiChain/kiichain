@@ -8,7 +8,7 @@ Security is very important for Kii Global and its community. This document outli
 
 1. **Refrain from testing vulnerabilities on our publicly accessible environments**, including but not limited to:
 
-- Kii mainnet (TBA) <!-- TODO: Update me with mainnet -->
+- Kii mainnet
 - Kii frontend
 - Kii public testnets
 - Kii testnet frontend
@@ -19,7 +19,7 @@ To privately report a security vulnerability, please choose one of the following
 
 ### 1. Email
 
-Send your detailed vulnerability report to `devs@kiiglobal.io`. <!-- TODO: Update me better email -->
+Send your detailed vulnerability report to `devs@kiiglobal.io`.
 
 ### 2. GitHub Private Vulnerability Reporting
 
@@ -56,12 +56,33 @@ For a feature request, e.g. module inclusion, please make a GitHub issue. Clearl
 
 ## Severity Characterization
 
-| Severity     | Description                                                             |
-| ------------ | ----------------------------------------------------------------------- |
-| **CRITICAL** | Immediate threat to critical systems (e.g., chain halts, funds at risk) |
-| **HIGH**     | Significant impact on major functionality                               |
-| **MEDIUM**   | Impacts minor features or exposes non-sensitive data                    |
-| **LOW**      | Minimal impact                                                          |
+| Severity     | Description                                                                                                                                                                                                                                                                         |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **CRITICAL** | Direct theft of funds; permanent freezing of funds (irrecoverable protocol-level lock); total network shutdown, meaning the network can’t confirm transactions and recovery requires a hard fork; consensus manipulation or fork creation, including chain splits or invalid blocks |
+| **HIGH**     | Application-level DoS that crashes any node under specific payloads; Temporary freezing of network transactions; Unintended temporary freezing of funds                                                                                                                             |
+| **MEDIUM**   | Application-level DoS affecting a subset of nodes; unintended protocol behavior caused by protocol quirks or edge-case consensus rules; minor block reorg exploits affecting specific dApps                                                                                         |
+| **LOW**      | Transaction fee modification or miscalculation without economic impact; P2P gossip layer issues such as propagation delays or non-malicious message flooding                                                                                                                        |
+
+Examples of severity characterization:
+
+- **CRITICAL**:
+    - Panic in BeginBlocker/EndBlocker/FinalizeBlock that any user can trigger, halting the chain until a coordinated upgrade.
+    - Unauthorized mint/burn through x/bank or a custom module.
+    - Ante handler bypass that skips signature checks.
+    - IBC light client or packet forgery.
+    - Precompile or EVM-state desync that drains funds.
+- **HIGH**:
+    - A crafted tx or query that crashes nodes.
+    - Liveness stalls that recover without a hard fork.
+    - Stuck unbonding, or IBC escrow locked until governance acts.
+- **MEDIUM**:
+    - Gas metering gaps, such as unmetered loops in a module or iterators over unbounded stores, that let an attacker slow down some nodes.
+    - EVM/precompile edge cases that diverge from Ethereum semantics.
+    - Proposer-influenced BlockTime abuse.
+- **LOW**:
+    - Fee or gas estimation inaccuracies.
+    - CometBFT peer-handling quirks.
+    - Crashes limited to RPC or sentry nodes.
 
 ## Feedback on this Policy
 
