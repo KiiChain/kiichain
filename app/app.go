@@ -68,6 +68,7 @@ import (
 	txlistener "github.com/cosmos/evm/ante"
 	cosmosevmantetypes "github.com/cosmos/evm/ante/types"
 	evmencoding "github.com/cosmos/evm/encoding"
+	evmmempool "github.com/cosmos/evm/mempool"
 	srvflags "github.com/cosmos/evm/server/flags"
 	vmrunner "github.com/cosmos/evm/x/vm/runner"
 	evmtypes "github.com/cosmos/evm/x/vm/types"
@@ -378,6 +379,25 @@ func (app *KiichainApp) onPendingTx(hash geth.Hash) {
 
 // Name returns the name of the App
 func (app *KiichainApp) Name() string { return app.BaseApp.Name() }
+
+// Close stops the EVM mempool goroutines before closing the BaseApp stores.
+func (app *KiichainApp) Close() error {
+	var err error
+	if m, ok := app.EVMMempool.(*evmmempool.Mempool); ok && m != nil {
+		app.Logger().Info("Shutting down mempool")
+		err = m.Close()
+	}
+
+	msg := "Application gracefully shutdown"
+	err = errors.Join(err, app.BaseApp.Close())
+	if err == nil {
+		app.Logger().Info(msg)
+	} else {
+		app.Logger().Error(msg, "error", err)
+	}
+
+	return err
+}
 
 // PreBlocker application updates every pre block
 func (app *KiichainApp) PreBlocker(ctx sdk.Context, _ *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
