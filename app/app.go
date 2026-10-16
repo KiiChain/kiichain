@@ -82,6 +82,7 @@ import (
 	v7_4_0 "github.com/kiichain/kiichain/v7/app/upgrades/v7_4"
 	v7_4_2 "github.com/kiichain/kiichain/v7/app/upgrades/v7_4_2"
 	v8_0 "github.com/kiichain/kiichain/v7/app/upgrades/v8_0"
+	v9_0 "github.com/kiichain/kiichain/v7/app/upgrades/v9_0"
 	"github.com/kiichain/kiichain/v7/client/docs"
 )
 
@@ -95,6 +96,7 @@ var (
 		v7_4_0.Upgrade,
 		v7_4_2.Upgrade,
 		v8_0.Upgrade,
+		v9_0.Upgrade,
 	}
 )
 
