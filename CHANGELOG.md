@@ -10,6 +10,7 @@
 ### CI
 
 - Free unused preinstalled toolchains on the E2E runner before the Docker builds so the job does not run out of disk
+- Raise the `make lint` golangci-lint timeout from 10m to 30m so it completes on smaller CI runners
 
 ### Docs
 
