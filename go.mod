@@ -9,7 +9,6 @@ require (
 	cosmossdk.io/errors v1.1.0
 	cosmossdk.io/log/v2 v2.1.0
 	cosmossdk.io/math v1.5.3
-	cosmossdk.io/store v1.1.2
 	cosmossdk.io/tools/confix v0.1.2
 	github.com/CosmWasm/wasmd v0.70.4
 	github.com/CosmWasm/wasmvm/v3 v3.0.8
@@ -17,7 +16,7 @@ require (
 	github.com/cosmos/cosmos-db v1.1.3
 	github.com/cosmos/cosmos-sdk v0.54.3
 	github.com/cosmos/cosmos-sdk/store/v2 v2.0.0
-	github.com/cosmos/evm v0.6.0
+	github.com/cosmos/evm v0.7.3
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.7.2
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10 v10.1.0
@@ -407,7 +406,7 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
 	// Use our fork w/ fee abstraction possibility
-	github.com/cosmos/evm => github.com/KiiChain/evm v0.1.1-0.20261005010327-700c82972cda
+	github.com/cosmos/evm => github.com/KiiChain/evm v0.7.3-fork.1
 
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10 => ./third_party/packet-forward-middleware
 	github.com/cosmos/ibc-apps/modules/rate-limiting/v10 => ./third_party/rate-limiting
