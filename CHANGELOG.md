@@ -31,6 +31,7 @@
 
 ### Fixed
 
+- Charge the SDK gas meter for the EVM execution performed by the CosmWasm `eth_call` query (`HandleEthCall`), including calls that revert or run out of gas, so contracts can no longer trigger unmetered EVM work
 - Register the go-ethereum native and js tracers in `kiichaind` so `debug_traceTransaction` can resolve `callTracer` and the other named tracers
 - Close an expedited-governance whitelist bypass in `GovExpeditedProposalsDecorator` where the check only inspected top-level messages: a non-whitelisted `MsgSubmitProposal` wrapped in `authz.MsgExec` could enter the expedited voting path. The decorator now recurses into `authz.MsgExec` (including nested execs) and applies the expedited whitelist validation to wrapped proposals
 - Compute the oracle ballot `StandardDeviation` as a stake-weighted variance (weight each squared deviation by the vote's power and divide by total voting power) instead of an unweighted average divided by the vote count, aligning the reward-band width with the stake-weighted median and preventing a group of low-stake validators from inflating the deviation to widen the accepted vote window
