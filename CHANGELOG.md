@@ -10,6 +10,7 @@
 ### Docs
 
 - Add validator instructions for the v7.4.0 off-chain mainnet upgrade ([#382](https://github.com/KiiChain/kiichain/pull/382))
+- Document the vendored `third_party` IBC middleware sources and local patches
 
 ### Dependencies
 
