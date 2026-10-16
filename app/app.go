@@ -52,6 +52,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	sigtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/version"
+	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
@@ -366,6 +367,10 @@ func (app *KiichainApp) setAnteHandler(txConfig client.TxConfig, maxGasWanted ui
 	if err := options.Validate(); err != nil {
 		panic(err)
 	}
+
+	// The EVM keeper deducts fees through authante.DeductFees, which sends to
+	// this package-level module name. Set it before any tx reaches the ante chain.
+	authante.FeeRecipientModule = authtypes.FeeCollectorName
 
 	app.SetAnteHandler(kiiante.NewAnteHandler(options))
 }

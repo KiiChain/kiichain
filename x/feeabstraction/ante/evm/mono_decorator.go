@@ -22,8 +22,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
-	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	evmante "github.com/cosmos/evm/ante/evm"
 	anteinterfaces "github.com/cosmos/evm/ante/interfaces"
@@ -75,12 +73,6 @@ func NewEVMMonoDecorator(
 
 // AnteHandle handles the entire decorator chain using a mono decorator.
 func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	// EVM fee deduction sends to this module. The SDK sets it when the Cosmos
-	// deduct-fee decorator is constructed; keep the default if that has not run.
-	if authante.FeeRecipientModule == "" {
-		authante.FeeRecipientModule = authtypes.FeeCollectorName
-	}
-
 	var txFeeInfo *txtypes.Fee
 	if !ctx.IsReCheckTx() {
 		txFeeInfo, err = evmante.ValidateTx(tx)
