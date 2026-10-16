@@ -74,4 +74,7 @@ func init() {
 func SetTendermintConfigs(config *cmtcfg.Config) {
 	// Consensus Configs
 	config.Consensus.TimeoutCommit = 2000 * time.Millisecond
+	// Krakatoa requires CometBFT's application mempool. The default "flood"
+	// type fails startup. See the v0.6 to v0.7 migration guide.
+	config.Mempool.Type = cmtcfg.MempoolTypeApp
 }

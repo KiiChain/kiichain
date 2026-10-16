@@ -41,7 +41,6 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 	app := kiichain.NewKiichainApp(
 		logger,
 		db,
-		nil,
 		true,
 		map[int64]bool{},
 		kiichain.DefaultNodeHome,

@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	upgradetypes "cosmossdk.io/x/upgrade/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	kiihelpers "github.com/kiichain/kiichain/v7/app/helpers"
 	"github.com/kiichain/kiichain/v7/app/params"

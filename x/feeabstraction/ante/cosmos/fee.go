@@ -39,6 +39,9 @@ func NewDeductFeeDecorator(ak ante.AccountKeeper, bk types.BankKeeper, fk ante.F
 		panic("txFeeChecker cannot be nil")
 	}
 
+	// EVM fee deduction reads this package-level recipient.
+	ante.FeeRecipientModule = types.FeeCollectorName
+
 	// Return the DeductFeeDecorator
 	return DeductFeeDecorator{
 		accountKeeper:        ak,

@@ -5,9 +5,9 @@ import (
 	"math/rand"
 
 	sdkmath "cosmossdk.io/math"
-	sdkstore "cosmossdk.io/store"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	sdkstore "github.com/cosmos/cosmos-sdk/store/v2"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/query"

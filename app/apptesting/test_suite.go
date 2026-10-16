@@ -12,16 +12,14 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 
-	"cosmossdk.io/log"
+	"cosmossdk.io/log/v2"
 	"cosmossdk.io/math"
-	"cosmossdk.io/store/metrics"
-	"cosmossdk.io/store/rootmulti"
-	storetypes "cosmossdk.io/store/types"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	"github.com/cosmos/cosmos-sdk/store/v2/rootmulti"
+	storetypes "github.com/cosmos/cosmos-sdk/store/v2/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -30,6 +28,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakinghelper "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	app "github.com/kiichain/kiichain/v7/app"
 	helpers "github.com/kiichain/kiichain/v7/app/helpers"
@@ -52,7 +51,7 @@ type KeeperTestHelper struct {
 func (s *KeeperTestHelper) Setup() {
 	t := s.T()
 	s.App = helpers.Setup(t)
-	s.Ctx = s.App.NewUncachedContext(true, tmtypes.Header{Height: 1, ChainID: "testing", Time: time.Now().UTC()})
+	s.Ctx = s.App.NewContextLegacy(true, tmtypes.Header{Height: 1, ChainID: "testing", Time: time.Now().UTC()})
 
 	s.QueryHelper = &baseapp.QueryServiceTestHelper{
 		GRPCQueryRouter: s.App.GRPCQueryRouter(),
@@ -86,7 +85,7 @@ func (s *KeeperTestHelper) CreateTestContextWithMultiStore() (sdk.Context, store
 	db := dbm.NewMemDB()
 	logger := log.NewNopLogger()
 
-	ms := rootmulti.NewStore(db, logger, metrics.NewNoOpMetrics())
+	ms := rootmulti.NewStore(db, logger)
 
 	return sdk.NewContext(ms, tmtypes.Header{}, false, logger), ms
 }

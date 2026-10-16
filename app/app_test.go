@@ -7,7 +7,7 @@ import (
 
 	db "github.com/cosmos/cosmos-db"
 
-	"cosmossdk.io/log"
+	"cosmossdk.io/log/v2"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -30,7 +30,6 @@ func TestKiichainApp_BlockedModuleAccountAddrs(t *testing.T) {
 	app := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		db.NewMemDB(),
-		nil,
 		true,
 		map[int64]bool{},
 		kiichain.DefaultNodeHome,

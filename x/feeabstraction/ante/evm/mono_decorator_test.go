@@ -10,9 +10,11 @@ import (
 	"github.com/holiman/uint256"
 	"github.com/stretchr/testify/require"
 
-	"cosmossdk.io/math"
-	storetypes "cosmossdk.io/store/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
+	"cosmossdk.io/math"
+
+	storetypes "github.com/cosmos/cosmos-sdk/store/v2/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -424,6 +426,9 @@ func TestMonoDecorator(t *testing.T) {
 			// Create a cached context
 			cacheCtx, _ := ctx.CacheContext()
 			cacheCtx = cacheCtx.WithBlockGasMeter(storetypes.NewGasMeter(20000000))
+			cacheCtx = cacheCtx.WithConsensusParams(cmtproto.ConsensusParams{
+				Block: &cmtproto.BlockParams{MaxGas: 100_000_000},
+			})
 
 			// Malleate the context
 			if tc.malleate != nil {

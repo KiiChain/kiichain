@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	ibctransfertypes "github.com/cosmos/ibc-go/v10/modules/apps/transfer/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v11/modules/apps/transfer/types"
 
-	circuitante "cosmossdk.io/x/circuit/ante"
-
+	circuitante "github.com/cosmos/cosmos-sdk/contrib/x/circuit/ante"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"

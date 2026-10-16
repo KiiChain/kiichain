@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 
@@ -18,16 +17,9 @@ import (
 	dbm "github.com/cosmos/cosmos-db"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
-	circuitv1 "cosmossdk.io/api/cosmos/circuit/v1"
 	"cosmossdk.io/client/v2/autocli"
-	"cosmossdk.io/log"
-	"cosmossdk.io/store"
-	"cosmossdk.io/store/snapshots"
-	snapshottypes "cosmossdk.io/store/snapshots/types"
-	storetypes "cosmossdk.io/store/types"
+	"cosmossdk.io/log/v2"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
-	rosettaCmd "cosmossdk.io/tools/rosetta/cmd"
-	circuittypes "cosmossdk.io/x/circuit/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -38,12 +30,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
-	"github.com/cosmos/cosmos-sdk/codec"
 	addresscodec "github.com/cosmos/cosmos-sdk/codec/address"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	circuitv1 "github.com/cosmos/cosmos-sdk/contrib/api/cosmos/circuit/v1"
+	circuittypes "github.com/cosmos/cosmos-sdk/contrib/x/circuit/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/store/v2"
+	"github.com/cosmos/cosmos-sdk/store/v2/snapshots"
+	snapshottypes "github.com/cosmos/cosmos-sdk/store/v2/snapshots/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/v2/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -91,7 +87,6 @@ func NewRootCmd() *cobra.Command {
 	tempApplication := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
-		nil,
 		true,
 		map[int64]bool{},
 		tempDir,
@@ -169,7 +164,7 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
-	initRootCmd(rootCmd, tempApplication.ModuleBasics, tempApplication.AppCodec(), tempApplication.InterfaceRegistry(), tempApplication.GetTxConfig())
+	initRootCmd(rootCmd, tempApplication.ModuleBasics, tempApplication.GetTxConfig())
 
 	autoCliOpts := enrichAutoCliOpts(tempApplication.AutoCliOpts(), initClientCtx)
 	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
@@ -301,8 +296,6 @@ func initAppConfig(evmChainID uint64) (string, interface{}) {
 
 func initRootCmd(rootCmd *cobra.Command,
 	basicManager module.BasicManager,
-	cdc codec.Codec,
-	interfaceRegistry codectypes.InterfaceRegistry,
 	txConfig client.TxConfig,
 ) {
 	cfg := sdk.GetConfig()
@@ -310,8 +303,8 @@ func initRootCmd(rootCmd *cobra.Command,
 
 	ac := appCreator{}
 
-	sdkAppCreatorWrapper := func(l log.Logger, d dbm.DB, w io.Writer, ao servertypes.AppOptions) servertypes.Application {
-		return ac.newApp(l, d, w, ao)
+	sdkAppCreatorWrapper := func(l log.Logger, d dbm.DB, ao servertypes.AppOptions) servertypes.Application {
+		return ac.newApp(l, d, ao)
 	}
 	rootCmd.AddCommand(
 		initCmd(basicManager, kiichain.DefaultNodeHome),
@@ -343,9 +336,6 @@ func initRootCmd(rootCmd *cobra.Command,
 		txCommand(basicManager),
 		keys.Commands(),
 	)
-
-	// add rosetta
-	rootCmd.AddCommand(rosettaCmd.RosettaCommand(interfaceRegistry, cdc))
 
 	// Add tx flags
 	var err error
@@ -428,7 +418,6 @@ type appCreator struct{}
 func (a appCreator) newApp(
 	logger log.Logger,
 	db dbm.DB,
-	traceStore io.Writer,
 	appOpts servertypes.AppOptions,
 ) evmserver.Application {
 	var cache storetypes.MultiStorePersistentCache
@@ -511,7 +500,6 @@ func (a appCreator) newApp(
 	return kiichain.NewKiichainApp(
 		logger,
 		db,
-		traceStore,
 		true,
 		skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
@@ -524,7 +512,6 @@ func (a appCreator) newApp(
 func (a appCreator) appExport(
 	logger log.Logger,
 	db dbm.DB,
-	traceStore io.Writer,
 	height int64,
 	forZeroHeight bool,
 	jailAllowedAddrs []string,
@@ -562,7 +549,6 @@ func (a appCreator) appExport(
 	kiichainApp = kiichain.NewKiichainApp(
 		logger,
 		db,
-		traceStore,
 		loadLatest,
 		map[int64]bool{},
 		homePath,

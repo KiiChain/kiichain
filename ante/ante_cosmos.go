@@ -1,10 +1,9 @@
 package ante
 
 import (
-	ibcante "github.com/cosmos/ibc-go/v10/modules/core/ante"
+	ibcante "github.com/cosmos/ibc-go/v11/modules/core/ante"
 
-	circuitante "cosmossdk.io/x/circuit/ante"
-
+	circuitante "github.com/cosmos/cosmos-sdk/contrib/x/circuit/ante"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -57,7 +56,6 @@ func NewCosmosAnteHandler(ctx sdk.Context, options HandlerOptions) sdk.AnteHandl
 		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
-		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper, &feemarketParams),
 	}
 
 	// Skip the feemarket decorator is needed

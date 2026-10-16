@@ -1,8 +1,8 @@
 package v80
 
 import (
-	store "cosmossdk.io/store/types"
-	circuittypes "cosmossdk.io/x/circuit/types"
+	circuittypes "github.com/cosmos/cosmos-sdk/contrib/x/circuit/types"
+	store "github.com/cosmos/cosmos-sdk/store/v2/types"
 
 	"github.com/kiichain/kiichain/v7/app/upgrades"
 )
