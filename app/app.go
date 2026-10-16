@@ -317,7 +317,10 @@ func NewKiichainApp(
 			tmos.Exit(fmt.Sprintf("failed to load latest version: %s", err))
 		}
 
-		ctx := app.NewContextLegacy(true, tmproto.Header{})
+		ctx := app.NewContextLegacy(true, tmproto.Header{
+			Height:  app.LastBlockHeight(),
+			ChainID: app.ChainID(),
+		})
 
 		if err := app.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
 			tmos.Exit(fmt.Sprintf("WasmKeeper failed initialize pinned codes %s", err))
