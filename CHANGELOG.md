@@ -6,6 +6,7 @@
 
 - Wire the Cosmos SDK `x/circuit` module (store, keeper, ante decorator, BaseApp circuit breaker) and add a `v8.0.0` upgrade that introduces the circuit store
 - Enforce tripped circuit message type URLs on EVM precompile calls (staking, distribution, gov, slashing, and ICS20 `MsgTransfer`) so those paths cannot bypass ante/BaseApp checks
+- Register the `v8.0.1` upgrade handler, which runs pending module migrations
 
 ### CI
 
@@ -18,6 +19,7 @@
 
 ### Dependencies
 
+- Bump `github.com/cosmos/cosmos-sdk` from `v0.53.6` to `v0.53.8` (and CometBFT from `v0.38.21` to `v0.38.23`): distribution rewards withdrawn inside block hooks now fall back to the delegator or the community pool when the withdraw address is blocked, instead of failing the block
 - [EVM](https://github.com/KiiChain/evm) fork bump from `v0.6.1-fork.1` to [v0.6.2-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.2-fork.2): August 2026 security backports (StateDB overflow/underflow guards, commit atomicity, `IsBaseAccountOrEmpty`, ERC20/IBC ack alignment)
 - [EVM](https://github.com/KiiChain/evm) fork from v0.6.0-fork.1 to [v0.6.0-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.0-fork.2): bounded internal EVM call gas limit, EVM fee refunds, distribution precompile 32-byte withdraw fix, and CosmWasm EVM query undercharge fix
 - [EVM](https://github.com/KiiChain/evm) fork bump from `v0.6.0-fork.2` to [v0.6.1-fork.1](https://github.com/KiiChain/evm/releases/tag/v0.6.1-fork.1), applied via the coordinated `v7.3.0` upgrade: the July 2026 Cosmos EVM hotfix (precompile gas accounting alignment and StateDB locked-balance snapshotting), published upstream as [cosmos/evm v0.6.1](https://github.com/cosmos/evm/releases/tag/v0.6.1)
@@ -31,6 +33,7 @@
 
 ### Fixed
 
+- Add the incident addresses to the bank `BlockedAddr` set so they cannot be used as distribution withdraw addresses. A reward payout to an incident address inside a block hook (e.g. a slash unbonding a redelegation) failed `BeginBlocker` and halted the chain
 - Charge the SDK gas meter for the EVM execution performed by the CosmWasm `eth_call` query (`HandleEthCall`), including calls that revert or run out of gas, so contracts can no longer trigger unmetered EVM work
 - Register the go-ethereum native and js tracers in `kiichaind` so `debug_traceTransaction` can resolve `callTracer` and the other named tracers
 - Close an expedited-governance whitelist bypass in `GovExpeditedProposalsDecorator` where the check only inspected top-level messages: a non-whitelisted `MsgSubmitProposal` wrapped in `authz.MsgExec` could enter the expedited voting path. The decorator now recurses into `authz.MsgExec` (including nested execs) and applies the expedited whitelist validation to wrapped proposals

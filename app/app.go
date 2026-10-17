@@ -80,6 +80,7 @@ import (
 	v7_4_0 "github.com/kiichain/kiichain/v7/app/upgrades/v7_4"
 	v7_4_2 "github.com/kiichain/kiichain/v7/app/upgrades/v7_4_2"
 	v8_0 "github.com/kiichain/kiichain/v7/app/upgrades/v8_0"
+	v8_0_1 "github.com/kiichain/kiichain/v7/app/upgrades/v8_0_1"
 	"github.com/kiichain/kiichain/v7/client/docs"
 )
 
@@ -93,6 +94,7 @@ var (
 		v7_4_0.Upgrade,
 		v7_4_2.Upgrade,
 		v8_0.Upgrade,
+		v8_0_1.Upgrade,
 	}
 )
 
@@ -464,9 +466,17 @@ func (app *KiichainApp) ModuleAccountAddrs() map[string]bool {
 }
 
 // BlockedModuleAccountAddrs returns all the app's blocked module account
-// addresses.
+// addresses plus the incident addresses, so they are rejected anywhere the
+// bank BlockedAddr set is checked (e.g. as a distribution withdraw address).
 func (app *KiichainApp) BlockedModuleAccountAddrs(modAccAddrs map[string]bool) map[string]bool {
-	return modAccAddrs
+	blockedAddrs := make(map[string]bool, len(modAccAddrs)+len(blockedaddrs.AttackerAddrs))
+	for addr, blocked := range modAccAddrs {
+		blockedAddrs[addr] = blocked
+	}
+	for addr := range blockedaddrs.AttackerAddrs {
+		blockedAddrs[addr] = true
+	}
+	return blockedAddrs
 }
 
 // LegacyAmino returns KiichainApp's amino codec.
