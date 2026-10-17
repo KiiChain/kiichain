@@ -7,6 +7,11 @@
 - Wire the Cosmos SDK `x/circuit` module (store, keeper, ante decorator, BaseApp circuit breaker) and add a `v8.0.0` upgrade that introduces the circuit store
 - Enforce tripped circuit message type URLs on EVM precompile calls (staking, distribution, gov, slashing, and ICS20 `MsgTransfer`) so those paths cannot bypass ante/BaseApp checks
 
+### CI
+
+- Free unused preinstalled toolchains on the E2E runner before the Docker builds so the job does not run out of disk
+- Raise the `make lint` golangci-lint timeout from 10m to 30m so it completes on smaller CI runners
+
 ### Docs
 
 - Add validator instructions for the v7.4.0 off-chain mainnet upgrade ([#382](https://github.com/KiiChain/kiichain/pull/382))
