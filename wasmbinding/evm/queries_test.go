@@ -1,6 +1,7 @@
 package evm_test
 
 import (
+	"encoding/json"
 	"math/big"
 	"testing"
 
@@ -9,6 +10,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	storetypes "cosmossdk.io/store/types"
+
+	"github.com/cosmos/evm/x/vm/statedb"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 
 	"github.com/kiichain/kiichain/v7/app/apptesting"
 	mock "github.com/kiichain/kiichain/v7/tests/e2e/mock"
@@ -377,6 +381,78 @@ func TestEthCall_explodeGas(t *testing.T) {
 		_, err = evmQueryPlugin.HandleEthCall(ctx, &evmbindingtypes.EthCallRequest{
 			Contract: contractAddr.String(),
 			Data:     hexutil.Encode(inputData),
+		})
+	})
+}
+
+// TestEthCall_ChargesEVMExecutionGas tests that EthCall charges the SDK gas meter for the EVM work,
+// not only for the store reads it performs
+func TestEthCall_ChargesEVMExecutionGas(t *testing.T) {
+	// Set the app
+	actor := apptesting.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, actor)
+
+	// Install a contract that loops 100_000 times and stops, without touching storage
+	// PUSH3 0x0186a0; JUMPDEST; PUSH1 1; SWAP1; SUB; DUP1; PUSH1 4; JUMPI; STOP
+	loopCode := common.FromHex("620186a05b600190038060045700")
+	contractAddr := common.HexToAddress("0x000000000000000000000000000000000000c0de")
+	stateDB := statedb.New(ctx, app.EVMKeeper, statedb.NewEmptyTxConfig())
+	stateDB.SetCode(contractAddr, loopCode)
+	require.NoError(t, stateDB.Commit())
+
+	// Measure the EVM work of the call directly on the keeper
+	data := hexutil.Bytes{}
+	args, err := json.Marshal(evmtypes.TransactionArgs{To: &contractAddr, Data: &data})
+	require.NoError(t, err)
+	refCtx, _ := ctx.CacheContext()
+	refCtx = refCtx.WithGasMeter(storetypes.NewInfiniteGasMeter())
+	ref, err := app.EVMKeeper.EthCall(refCtx, &evmtypes.EthCallRequest{
+		Args:    args,
+		GasCap:  10_000_000,
+		ChainId: evmtypes.GetEthChainConfig().ChainID.Int64(),
+	})
+	require.NoError(t, err)
+	require.Empty(t, ref.VmError)
+	require.Greater(t, ref.MaxUsedGas, uint64(2_000_000))
+
+	// Give to the sdk a budget
+	ctx = ctx.WithGasMeter(storetypes.NewGasMeter(10_000_000))
+	initialGas := ctx.GasMeter().GasConsumed()
+
+	// Apply the query
+	evmQueryPlugin := evmwasmbinding.NewQueryPlugin(app.EVMKeeper)
+	_, err = evmQueryPlugin.HandleEthCall(ctx, &evmbindingtypes.EthCallRequest{
+		Contract: contractAddr.String(),
+		Data:     "0x",
+	})
+	require.NoError(t, err)
+
+	// The caller must pay at least the EVM work
+	require.GreaterOrEqual(t, ctx.GasMeter().GasConsumed()-initialGas, ref.MaxUsedGas)
+}
+
+// TestEthCall_ChargesGasOnRevert tests that EthCall charges the SDK gas meter when the call fails
+func TestEthCall_ChargesGasOnRevert(t *testing.T) {
+	// Set the app
+	actor := apptesting.RandomAccountAddress()
+	app, ctx := helpers.SetupCustomApp(t, actor)
+
+	// Install a contract that loops forever, so the call runs out of gas
+	// JUMPDEST; PUSH1 0; JUMP
+	contractAddr := common.HexToAddress("0x000000000000000000000000000000000000dead")
+	stateDB := statedb.New(ctx, app.EVMKeeper, statedb.NewEmptyTxConfig())
+	stateDB.SetCode(contractAddr, common.FromHex("5b600056"))
+	require.NoError(t, stateDB.Commit())
+
+	// Give to the sdk a budget
+	ctx = ctx.WithGasMeter(storetypes.NewGasMeter(5_000_000))
+
+	// Apply the query, the failed EVM execution is charged and exhausts the budget
+	evmQueryPlugin := evmwasmbinding.NewQueryPlugin(app.EVMKeeper)
+	require.PanicsWithValue(t, storetypes.ErrorOutOfGas{Descriptor: "evm eth_call query"}, func() {
+		_, _ = evmQueryPlugin.HandleEthCall(ctx, &evmbindingtypes.EthCallRequest{
+			Contract: contractAddr.String(),
+			Data:     "0x",
 		})
 	})
 }

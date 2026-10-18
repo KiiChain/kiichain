@@ -119,8 +119,17 @@ func (qp *QueryPlugin) HandleEthCall(ctx sdk.Context, call *evmbindingtypes.EthC
 	defer cancel()
 
 	// Call the EVM keeper
-	res, err := qp.callEVMAndHandleRevertError(ctxWrapped, req)
+	res, err := qp.evmKeeper.EthCall(ctxWrapped, req)
 	if err != nil {
+		return nil, err
+	}
+
+	// Charge the SDK gas meter for the actual EVM work, including calls that revert or run out of gas.
+	// GasUsed is not used since it is floored by the fee market MinGasMultiplier.
+	ctx.GasMeter().ConsumeGas(res.MaxUsedGas, "evm eth_call query")
+
+	// Handle reverts
+	if err := handleRevertError(res.VmError, res.Ret); err != nil {
 		return nil, err
 	}
 
@@ -269,22 +278,6 @@ func (qp *QueryPlugin) HandleERC20Allowance(ctx sdk.Context, call *evmbindingtyp
 		return nil, errors.New("allowance is not a big.Int")
 	}
 	res.Allowance = allowance.String()
-
-	return res, nil
-}
-
-// callEVMAndHandleRevertError calls the EVM and handles revert errors
-func (qp *QueryPlugin) callEVMAndHandleRevertError(ctx context.Context, req *evmtypes.EthCallRequest) (*evmtypes.MsgEthereumTxResponse, error) {
-	// Call the EVM keeper
-	res, err := qp.evmKeeper.EthCall(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	// Handle reverts
-	if err = handleRevertError(res.VmError, res.Ret); err != nil {
-		return nil, err
-	}
 
 	return res, nil
 }
