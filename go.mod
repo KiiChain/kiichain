@@ -406,7 +406,7 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 
 	// Use our fork w/ fee abstraction possibility
-	github.com/cosmos/evm => github.com/KiiChain/evm v0.7.3-fork.1
+	github.com/cosmos/evm => github.com/KiiChain/evm v0.7.3-fork.2
 
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v10 => ./third_party/packet-forward-middleware
 	github.com/cosmos/ibc-apps/modules/rate-limiting/v10 => ./third_party/rate-limiting
