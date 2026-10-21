@@ -187,7 +187,7 @@ func NewKiichainApp(
 		legacyAmino,
 		maccPerms,
 		moduleAccountAddresses,
-		app.BlockedModuleAccountAddrs(moduleAccountAddresses),
+		app.BlockedAccountAddrs(moduleAccountAddresses),
 		skipUpgradeHeights,
 		homePath,
 		logger,
@@ -465,10 +465,10 @@ func (app *KiichainApp) ModuleAccountAddrs() map[string]bool {
 	return modAccAddrs
 }
 
-// BlockedModuleAccountAddrs returns all the app's blocked module account
+// BlockedAccountAddrs returns all the app's blocked module account
 // addresses plus the incident addresses, so they are rejected anywhere the
 // bank BlockedAddr set is checked (e.g. as a distribution withdraw address).
-func (app *KiichainApp) BlockedModuleAccountAddrs(modAccAddrs map[string]bool) map[string]bool {
+func (app *KiichainApp) BlockedAccountAddrs(modAccAddrs map[string]bool) map[string]bool {
 	blockedAddrs := make(map[string]bool, len(modAccAddrs)+len(blockedaddrs.AttackerAddrs))
 	for addr, blocked := range modAccAddrs {
 		blockedAddrs[addr] = blocked

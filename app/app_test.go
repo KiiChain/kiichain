@@ -27,7 +27,7 @@ func (ao EmptyAppOptions) Get(_ string) interface{} {
 	return nil
 }
 
-func TestKiichainApp_BlockedModuleAccountAddrs(t *testing.T) {
+func TestKiichainApp_BlockedAccountAddrs(t *testing.T) {
 	app := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		db.NewMemDB(),
@@ -40,7 +40,7 @@ func TestKiichainApp_BlockedModuleAccountAddrs(t *testing.T) {
 	)
 
 	moduleAccountAddresses := app.ModuleAccountAddrs()
-	blockedAddrs := app.BlockedModuleAccountAddrs(moduleAccountAddresses)
+	blockedAddrs := app.BlockedAccountAddrs(moduleAccountAddresses)
 
 	require.Contains(t, blockedAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
 	for addr := range blockedaddrs.AttackerAddrs {
