@@ -111,7 +111,7 @@ func TestAppStateDeterminism(t *testing.T) {
 				config.Seed, i+1, numSeeds, j+1, numTimesToRunPerSeed,
 			)
 
-			blockedAddresses := app.BlockedModuleAccountAddrs(app.ModuleAccountAddrs())
+			blockedAddresses := app.BlockedAccountAddrs(app.ModuleAccountAddrs())
 
 			_, _, err = simulation.SimulateFromSeed(
 				t,
