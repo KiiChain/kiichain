@@ -29,6 +29,7 @@ ignore:
   - "docs"
   - "proto"
   - "tests/e2e"
+  - "third_party"
   - "app/app_helpers.go"
   - "app/sim"
   - "app/upgrades"

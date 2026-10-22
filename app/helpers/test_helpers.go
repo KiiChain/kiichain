@@ -15,7 +15,7 @@ import (
 
 	dbm "github.com/cosmos/cosmos-db"
 
-	"cosmossdk.io/log"
+	"cosmossdk.io/log/v2"
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -193,7 +193,6 @@ func setup() (*kiichain.KiichainApp, kiichain.GenesisState) {
 	kiichainApp := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		db,
-		nil,
 		true,
 		map[int64]bool{},
 		dir,
@@ -272,7 +271,7 @@ func genesisStateWithValSet(t *testing.T,
 func SetupWithContext(t *testing.T) (*kiichain.KiichainApp, sdk.Context) {
 	t.Helper()
 	chain := Setup(t)
-	ctx := chain.NewUncachedContext(true, tmproto.Header{Height: 1, ChainID: "testing_262144-1", Time: time.Now().UTC()})
+	ctx := chain.NewContextLegacy(true, tmproto.Header{Height: 1, ChainID: "testing_262144-1", Time: time.Now().UTC()})
 	allVal, err := chain.StakingKeeper.GetAllValidators(ctx)
 	require.NoError(t, err)
 
@@ -281,7 +280,7 @@ func SetupWithContext(t *testing.T) (*kiichain.KiichainApp, sdk.Context) {
 	require.NoError(t, err)
 
 	// Set a final context with the proposer address for the EVM module
-	ctx = chain.NewUncachedContext(true, tmproto.Header{Height: 1, ChainID: "testing_262144-1", Time: time.Now().UTC(), ProposerAddress: valConsAddr})
+	ctx = chain.NewContextLegacy(true, tmproto.Header{Height: 1, ChainID: "testing_262144-1", Time: time.Now().UTC(), ProposerAddress: valConsAddr})
 	return chain, sdk.UnwrapSDKContext(ctx)
 }
 

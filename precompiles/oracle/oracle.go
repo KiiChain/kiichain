@@ -1,16 +1,19 @@
 package oracle
 
 import (
-	"embed"
+	"bytes"
+	"encoding/json"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	"cosmossdk.io/log"
-	storetypes "cosmossdk.io/store/types"
+	_ "embed"
 
+	"cosmossdk.io/log/v2"
+
+	storetypes "github.com/cosmos/cosmos-sdk/store/v2/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cmn "github.com/cosmos/evm/precompiles/common"
@@ -30,14 +33,19 @@ var (
 	// Embed abi json file to the executable binary. Needed when importing as dependency.
 	//
 	//go:embed abi.json
-	f   embed.FS
+	f   []byte
 	ABI abi.ABI
 )
 
-// inits the abi for the precompile
 func init() {
+	var artifact struct {
+		ABI json.RawMessage `json:"abi"`
+	}
+	if err := json.Unmarshal(f, &artifact); err != nil {
+		panic(err)
+	}
 	var err error
-	ABI, err = cmn.LoadABI(f, "abi.json")
+	ABI, err = abi.JSON(bytes.NewReader(artifact.ABI))
 	if err != nil {
 		panic(err)
 	}
@@ -63,6 +71,10 @@ func NewPrecompile(
 		ABI:          ABI,
 		oracleKeeper: oracleKeeper,
 	}
+}
+
+func (Precompile) Name() string {
+	return "oracle"
 }
 
 // RequiredGas returns the required gas for the precompile

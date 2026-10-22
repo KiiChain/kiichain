@@ -24,7 +24,7 @@ import (
 
 func TestGovVoteDecoratorWeightedAndNestedAuthz(t *testing.T) {
 	kiiApp := helpers.Setup(t)
-	ctx := kiiApp.NewUncachedContext(true, tmproto.Header{})
+	ctx := kiiApp.NewContextLegacy(true, tmproto.Header{})
 	decorator := ante.NewGovVoteDecorator(kiiApp.AppCodec(), kiiApp.StakingKeeper)
 	stakingKeeper := kiiApp.StakingKeeper
 

@@ -2,7 +2,7 @@
 ARG IMG_TAG=latest
 
 # Compile the kiichaind binary
-FROM golang:1.24-alpine AS kiichaind-builder
+FROM golang:1.25-alpine AS kiichaind-builder
 WORKDIR /src/app/
 ENV PACKAGES="curl make git libc-dev bash file gcc linux-headers eudev-dev"
 RUN apk add --no-cache $PACKAGES
@@ -16,6 +16,8 @@ RUN sha256sum /lib/libwasmvm_muslc.x86_64.a | grep b2299c85d49faccf3dcbb84984f30
 RUN cp "/lib/libwasmvm_muslc.$(uname -m).a" /lib/libwasmvm_muslc.a
 
 COPY go.mod go.sum* ./
+COPY third_party/packet-forward-middleware/go.mod third_party/packet-forward-middleware/go.sum third_party/packet-forward-middleware/
+COPY third_party/rate-limiting/go.mod third_party/rate-limiting/go.sum third_party/rate-limiting/
 RUN go mod download
 
 COPY . .

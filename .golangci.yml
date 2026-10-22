@@ -2,7 +2,7 @@ version: "2"
 
 run:
   tests: true
-  go: "1.24"
+  go: "1.25"
 
 linters:
   default: none
@@ -89,6 +89,9 @@ linters:
           - staticcheck
         path: migrations
         text: 'SA1019:'
+      - linters:
+          - staticcheck
+        text: 'SA1019: telemetry\.'
     paths:
       - third_party$
       - builtin$
