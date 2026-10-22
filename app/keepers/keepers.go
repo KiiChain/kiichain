@@ -247,11 +247,12 @@ func NewAppKeeper(
 	)
 	bApp.SetCircuitBreaker(&appKeepers.CircuitKeeper)
 
+	stakingBankKeeper := &slashRedirectBankKeeper{Keeper: appKeepers.BankKeeper}
 	appKeepers.StakingKeeper = stakingkeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[stakingtypes.StoreKey]),
 		appKeepers.AccountKeeper,
-		appKeepers.BankKeeper,
+		stakingBankKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
@@ -266,6 +267,7 @@ func NewAppKeeper(
 		authtypes.FeeCollectorName,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
+	stakingBankKeeper.distrKeeper = appKeepers.DistrKeeper
 
 	appKeepers.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec,
