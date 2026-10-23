@@ -13,6 +13,7 @@
 
 ### Dependencies
 
+- Bump `google.golang.org/grpc` from v1.79.1 to v1.83.2 ([#386](https://github.com/KiiChain/kiichain/pull/386)); the new dependencies require Go 1.25, so the go directive moves to 1.25.9 and the Dockerfile, Makefile, golangci config, and CI workflows move to the Go 1.25 toolchain
 - [EVM](https://github.com/KiiChain/evm) fork bump from `v0.6.1-fork.1` to [v0.6.2-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.2-fork.2): August 2026 security backports (StateDB overflow/underflow guards, commit atomicity, `IsBaseAccountOrEmpty`, ERC20/IBC ack alignment)
 - [EVM](https://github.com/KiiChain/evm) fork from v0.6.0-fork.1 to [v0.6.0-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.0-fork.2): bounded internal EVM call gas limit, EVM fee refunds, distribution precompile 32-byte withdraw fix, and CosmWasm EVM query undercharge fix
 - [EVM](https://github.com/KiiChain/evm) fork bump from `v0.6.0-fork.2` to [v0.6.1-fork.1](https://github.com/KiiChain/evm/releases/tag/v0.6.1-fork.1), applied via the coordinated `v7.3.0` upgrade: the July 2026 Cosmos EVM hotfix (precompile gas accounting alignment and StateDB locked-balance snapshotting), published upstream as [cosmos/evm v0.6.1](https://github.com/cosmos/evm/releases/tag/v0.6.1)
