@@ -238,6 +238,8 @@ GORELEASER_CROSS_VERSION ?= v1.24.4
 GO_TOOLCHAIN := $(shell sed -n 's/^toolchain //p' go.mod)
 
 # Builds the release binaries without publishing
+# By default skip building for Darwin
+SKIP_DARWIN ?= 1
 goreleaser-build-reproducible:
 	go mod download
 ifneq ($(GO_TOOLCHAIN),)

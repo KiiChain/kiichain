@@ -10,7 +10,7 @@ builds:
   - id: "kiichaind-darwin-arm64"
     main: ./cmd/kiichaind
     binary: kiichaind
-    skip: '{{ ne .Env.SKIP_DARWIN "" }}'
+    skip: '{{ eq (envOrDefault "SKIP_DARWIN" "") "1" "true" }}'
     goos:
       - darwin
     goarch:
@@ -46,7 +46,7 @@ builds:
   - id: "kiichaind-darwin-amd64"
     main: ./cmd/kiichaind
     binary: kiichaind
-    skip: '{{ ne .Env.SKIP_DARWIN "" }}'
+    skip: '{{ eq (envOrDefault "SKIP_DARWIN" "") "1" "true" }}'
     goos:
       - darwin
     goarch:
