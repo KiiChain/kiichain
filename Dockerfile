@@ -17,8 +17,11 @@ RUN cp "/lib/libwasmvm_muslc.$(uname -m).a" /lib/libwasmvm_muslc.a
 
 COPY . .
 
-# The make docker targets vendor modules on the host
-RUN if [ -f vendor/modules.txt ]; then export GO_MOD_FLAG=-mod=vendor; else go mod download; fi \
+# The make docker targets put the needed modules in .modproxy
+RUN if [ -d .modproxy ]; then \
+      export GOPROXY="file:///src/app/.modproxy,$(go env GOPROXY)" GONOPROXY=none; \
+    fi \
+    && go mod download \
     && LEDGER_ENABLED=false LINK_STATICALLY=true BUILD_TAGS=muslc make build
 RUN echo "Ensuring binary is statically linked ..."  \
     && file /src/app/build/kiichaind | grep -E "statically linked|static-pie linked"
