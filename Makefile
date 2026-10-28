@@ -234,6 +234,34 @@ goreleaser-build-local:
 		--verbose \
 		--clean
 
+GORELEASER_CROSS_VERSION ?= v1.24.4
+GO_TOOLCHAIN := $(shell sed -n 's/^toolchain //p' go.mod)
+
+# Builds the release binaries without publishing
+goreleaser-build-reproducible:
+	go mod download
+ifneq ($(GO_TOOLCHAIN),)
+	go mod download golang.org/toolchain@v0.0.1-$(GO_TOOLCHAIN).linux-amd64
+endif
+	docker run \
+		--rm \
+		--platform linux/amd64 \
+		-e CGO_ENABLED=1 \
+		-e GOPRIVATE="$(GOPRIVATE)" \
+		-e GOMODCACHE=/go/pkg/mod \
+		-e TM_VERSION=$(TM_VERSION) \
+		-e COSMWASM_VERSION=$(COSMWASM_VERSION) \
+		-v "$(CURDIR)":/go/src/kiichaind \
+		-v "$(GOMODCACHE)":/go/pkg/mod:ro \
+		-w /go/src/kiichaind \
+		ghcr.io/goreleaser/goreleaser-cross:$(GORELEASER_CROSS_VERSION) \
+		release \
+		--skip=publish \
+		--timeout 90m \
+		--clean \
+		$(GORELEASER_ARGS)
+	@cat dist/SHA256SUMS-*.txt
+
 # uses goreleaser to create static binaries for linux an darwin
 # requires access to GITHUB_TOKEN which has to be available in the CI environment
 ifdef GITHUB_TOKEN
@@ -386,7 +414,8 @@ test-docker-push: test-docker
 	@docker push ${TEST_DOCKER_REPO}:latest
 
 .PHONY: all build-linux install format lint draw-deps clean build \
-	docker-build-debug docker-build-hermes docker-build-all
+	docker-build-debug docker-build-hermes docker-build-all \
+	goreleaser-build-reproducible
 
 
 ###############################################################################

@@ -7,6 +7,7 @@
 - Wire the Cosmos SDK `x/circuit` module (store, keeper, ante decorator, BaseApp circuit breaker) and add a `v8.0.0` upgrade that introduces the circuit store
 - Enforce tripped circuit message type URLs on EVM precompile calls (staking, distribution, gov, slashing, and ICS20 `MsgTransfer`) so those paths cannot bypass ante/BaseApp checks
 - Register the `v8.0.1` upgrade handler, which runs pending module migrations
+- Register the `v8.0.2` upgrade handler, which runs pending module migrations
 
 ### CI
 
