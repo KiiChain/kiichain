@@ -251,6 +251,7 @@ endif
 		-e GOMODCACHE=/go/pkg/mod \
 		-e TM_VERSION=$(TM_VERSION) \
 		-e COSMWASM_VERSION=$(COSMWASM_VERSION) \
+		-e SKIP_DARWIN=$(SKIP_DARWIN) \
 		-v "$(CURDIR)":/go/src/kiichaind \
 		-v "$(GOMODCACHE)":/go/pkg/mod:ro \
 		-w /go/src/kiichaind \
