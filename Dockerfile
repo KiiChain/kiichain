@@ -15,11 +15,11 @@ RUN sha256sum /lib/libwasmvm_muslc.aarch64.a | grep c73a0d5d340e35188e138584ddd6
 RUN sha256sum /lib/libwasmvm_muslc.x86_64.a | grep b2299c85d49faccf3dcbb84984f30f55e8870111df98c10f017f86204d007470
 RUN cp "/lib/libwasmvm_muslc.$(uname -m).a" /lib/libwasmvm_muslc.a
 
-COPY go.mod go.sum* ./
-RUN go mod download
-
 COPY . .
-RUN LEDGER_ENABLED=false LINK_STATICALLY=true BUILD_TAGS=muslc make build
+
+# The make docker targets vendor modules on the host
+RUN if [ -f vendor/modules.txt ]; then export GO_MOD_FLAG=-mod=vendor; else go mod download; fi \
+    && LEDGER_ENABLED=false LINK_STATICALLY=true BUILD_TAGS=muslc make build
 RUN echo "Ensuring binary is statically linked ..."  \
     && file /src/app/build/kiichaind | grep -E "statically linked|static-pie linked"
 

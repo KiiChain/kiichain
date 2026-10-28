@@ -19,6 +19,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: ./.github/actions/private-go-modules
+        with:
+          token: ${{ secrets.KIICHAIN_PRIVATE_MODULES_TOKEN }}
+
       - uses: actions/setup-go@v5
         with:
           go-version: "1.24"

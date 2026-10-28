@@ -1,0 +1,24 @@
+name: Private Go modules
+description: >
+  Lets Go fetch private KiiChain forks
+
+inputs:
+  token:
+    description: Token with read access to the private KiiChain repositories
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Skip the public proxy for KiiChain modules
+      shell: bash
+      run: echo "GOPRIVATE=github.com/KiiChain/*" >> "$GITHUB_ENV"
+
+    - name: Authenticate git for KiiChain repositories
+      if: inputs.token != ''
+      shell: bash
+      env:
+        TOKEN: ${{ inputs.token }}
+      run: |
+        git config --global url."https://x-access-token:${TOKEN}@github.com/KiiChain/".insteadOf "https://github.com/KiiChain/"

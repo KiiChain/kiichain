@@ -3,6 +3,10 @@
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
 
+# Setup for private repositories if necessary
+GOPRIVATE := $(shell v="$$(go env GOPRIVATE)"; echo "$${v:+$$v,}github.com/KiiChain/*")
+export GOPRIVATE
+
 # don't override user values
 ifeq (,$(VERSION))
   VERSION := $(shell git describe --tags 2>/dev/null)
@@ -110,11 +114,13 @@ endif
 all: install lint run-tests test-e2e vulncheck
 
 BUILD_TARGETS := build install
+# Docker builds set GO_MOD_FLAG=-mod=vendor to build from modules vendored on the host
+GO_MOD_FLAG ?= -mod=readonly
 
 build: BUILD_ARGS=-o $(BUILDDIR)/
 
 $(BUILD_TARGETS): check_version go.sum $(BUILDDIR)/
-	go $@ -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
+	go $@ $(GO_MOD_FLAG) $(BUILD_FLAGS) $(BUILD_ARGS) ./...
 
 $(BUILDDIR)/:
 	mkdir -p $(BUILDDIR)/
@@ -193,6 +199,7 @@ endif
 build-static-linux-amd64: go.sum $(BUILDDIR)/
 	$(DOCKER) buildx create --name kiibuilder || true
 	$(DOCKER) buildx use kiibuilder
+	go mod vendor
 	$(DOCKER) buildx build \
 		--build-arg GO_VERSION=$(GO_VERSION) \
 		--build-arg GIT_VERSION=$(VERSION) \
@@ -201,7 +208,8 @@ build-static-linux-amd64: go.sum $(BUILDDIR)/
 		--platform linux/amd64 \
 		-t kiichaind-static-amd64 \
 		-f Dockerfile . \
-		--load
+		--load; \
+	status=$$?; rm -rf vendor; exit $$status
 	$(DOCKER) rm -f kiibinary || true
 	$(DOCKER) create -ti --name kiibinary kiichaind-static-amd64
 	$(DOCKER) cp kiibinary:/usr/local/bin/ $(BUILDDIR)/kiichaind-linux-amd64
@@ -310,8 +318,12 @@ test-unit-cover-html: test-unit-cover
 	@echo "--> Generating HTML coverage report"
 	@go tool cover -html=coverage.txt -o coverage.html
 
+# Modules are vendored on the host so the image build needs no access to private
+# KiiChain repos; vendor/ is removed afterwards so local go commands keep using the module cache
 docker-build-debug:
-	@docker build -t kiichain/kiichaind-e2e -f Dockerfile .
+	@go mod vendor
+	@docker build -t kiichain/kiichaind-e2e -f Dockerfile .; \
+	status=$$?; rm -rf vendor; exit $$status
 
 docker-build-hermes:
 	@cd tests/e2e/docker; docker build -t kiichain/hermes-e2e:1.0.0 -f hermes.Dockerfile .
