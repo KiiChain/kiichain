@@ -21,6 +21,10 @@ jobs:
           go-version: 1.24.x
       - uses: actions/checkout@v4
 
+      - uses: ./.github/actions/private-go-modules
+        with:
+          token: ${{ secrets.KIICHAIN_PRIVATE_MODULES_TOKEN }}
+
       - uses: technote-space/get-diff-action@v6.1.2
         id: git_diff
         with:
@@ -32,6 +36,7 @@ jobs:
             **/go.sum
             **/Makefile
             Makefile
+            .github/workflows/e2e.yaml
 
       - uses: actions/cache@v4.2.0
         with:
@@ -41,6 +46,13 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
           restore-keys: |
             ${{ runner.os }}-go-
+
+      - name: Free disk space
+        if: env.GIT_DIFF
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          df -h /
 
       - name: Build Docker and download packages in parallel
         if: env.GIT_DIFF

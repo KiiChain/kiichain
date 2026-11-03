@@ -80,6 +80,8 @@ import (
 	v7_4_0 "github.com/kiichain/kiichain/v7/app/upgrades/v7_4"
 	v7_4_2 "github.com/kiichain/kiichain/v7/app/upgrades/v7_4_2"
 	v8_0 "github.com/kiichain/kiichain/v7/app/upgrades/v8_0"
+	v8_0_1 "github.com/kiichain/kiichain/v7/app/upgrades/v8_0_1"
+	v8_0_2 "github.com/kiichain/kiichain/v7/app/upgrades/v8_0_2"
 	"github.com/kiichain/kiichain/v7/client/docs"
 )
 
@@ -93,6 +95,8 @@ var (
 		v7_4_0.Upgrade,
 		v7_4_2.Upgrade,
 		v8_0.Upgrade,
+		v8_0_1.Upgrade,
+		v8_0_2.Upgrade,
 	}
 )
 
@@ -185,7 +189,7 @@ func NewKiichainApp(
 		legacyAmino,
 		maccPerms,
 		moduleAccountAddresses,
-		app.BlockedModuleAccountAddrs(moduleAccountAddresses),
+		app.BlockedAccountAddrs(moduleAccountAddresses),
 		skipUpgradeHeights,
 		homePath,
 		logger,
@@ -463,10 +467,18 @@ func (app *KiichainApp) ModuleAccountAddrs() map[string]bool {
 	return modAccAddrs
 }
 
-// BlockedModuleAccountAddrs returns all the app's blocked module account
-// addresses.
-func (app *KiichainApp) BlockedModuleAccountAddrs(modAccAddrs map[string]bool) map[string]bool {
-	return modAccAddrs
+// BlockedAccountAddrs returns all the app's blocked module account
+// addresses plus the incident addresses, so they are rejected anywhere the
+// bank BlockedAddr set is checked (e.g. as a distribution withdraw address).
+func (app *KiichainApp) BlockedAccountAddrs(modAccAddrs map[string]bool) map[string]bool {
+	blockedAddrs := make(map[string]bool, len(modAccAddrs)+len(blockedaddrs.AttackerAddrs))
+	for addr, blocked := range modAccAddrs {
+		blockedAddrs[addr] = blocked
+	}
+	for addr := range blockedaddrs.AttackerAddrs {
+		blockedAddrs[addr] = true
+	}
+	return blockedAddrs
 }
 
 // LegacyAmino returns KiichainApp's amino codec.

@@ -15,6 +15,7 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 
 	kiichain "github.com/kiichain/kiichain/v7/app"
+	"github.com/kiichain/kiichain/v7/app/blockedaddrs"
 	kiihelpers "github.com/kiichain/kiichain/v7/app/helpers"
 )
 
@@ -26,7 +27,7 @@ func (ao EmptyAppOptions) Get(_ string) interface{} {
 	return nil
 }
 
-func TestKiichainApp_BlockedModuleAccountAddrs(t *testing.T) {
+func TestKiichainApp_BlockedAccountAddrs(t *testing.T) {
 	app := kiichain.NewKiichainApp(
 		log.NewNopLogger(),
 		db.NewMemDB(),
@@ -39,9 +40,13 @@ func TestKiichainApp_BlockedModuleAccountAddrs(t *testing.T) {
 	)
 
 	moduleAccountAddresses := app.ModuleAccountAddrs()
-	blockedAddrs := app.BlockedModuleAccountAddrs(moduleAccountAddresses)
+	blockedAddrs := app.BlockedAccountAddrs(moduleAccountAddresses)
 
 	require.Contains(t, blockedAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	for addr := range blockedaddrs.AttackerAddrs {
+		require.True(t, blockedAddrs[addr], addr)
+	}
+	require.Len(t, moduleAccountAddresses, len(blockedAddrs)-len(blockedaddrs.AttackerAddrs), "module account map must not be mutated")
 }
 
 func TestKiichainApp_Export(t *testing.T) {
