@@ -3,6 +3,10 @@
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 COMMIT := $(shell git log -1 --format='%H')
 
+# Setup for private repositories if necessary
+GOPRIVATE := $(shell v="$$(go env GOPRIVATE)"; echo "$${v:+$$v,}github.com/KiiChain/*")
+export GOPRIVATE
+
 # don't override user values
 ifeq (,$(VERSION))
   VERSION := $(shell git describe --tags 2>/dev/null)
@@ -193,6 +197,7 @@ endif
 build-static-linux-amd64: go.sum $(BUILDDIR)/
 	$(DOCKER) buildx create --name kiibuilder || true
 	$(DOCKER) buildx use kiibuilder
+	./contrib/scripts/go_modproxy.sh .modproxy
 	$(DOCKER) buildx build \
 		--build-arg GO_VERSION=$(GO_VERSION) \
 		--build-arg GIT_VERSION=$(VERSION) \
@@ -201,7 +206,8 @@ build-static-linux-amd64: go.sum $(BUILDDIR)/
 		--platform linux/amd64 \
 		-t kiichaind-static-amd64 \
 		-f Dockerfile . \
-		--load
+		--load; \
+	status=$$?; rm -rf .modproxy; exit $$status
 	$(DOCKER) rm -f kiibinary || true
 	$(DOCKER) create -ti --name kiibinary kiichaind-static-amd64
 	$(DOCKER) cp kiibinary:/usr/local/bin/ $(BUILDDIR)/kiichaind-linux-amd64
@@ -227,6 +233,37 @@ goreleaser-build-local:
 		--timeout 90m \
 		--verbose \
 		--clean
+
+GORELEASER_CROSS_VERSION ?= v1.24.4
+GO_TOOLCHAIN := $(shell sed -n 's/^toolchain //p' go.mod)
+
+# Builds the release binaries without publishing
+# By default skip building for Darwin
+SKIP_DARWIN ?= 1
+goreleaser-build-reproducible:
+	go mod download
+ifneq ($(GO_TOOLCHAIN),)
+	go mod download golang.org/toolchain@v0.0.1-$(GO_TOOLCHAIN).linux-amd64
+endif
+	docker run \
+		--rm \
+		--platform linux/amd64 \
+		-e CGO_ENABLED=1 \
+		-e GOPRIVATE="$(GOPRIVATE)" \
+		-e GOMODCACHE=/go/pkg/mod \
+		-e TM_VERSION=$(TM_VERSION) \
+		-e COSMWASM_VERSION=$(COSMWASM_VERSION) \
+		-e SKIP_DARWIN=$(SKIP_DARWIN) \
+		-v "$(CURDIR)":/go/src/kiichaind \
+		-v "$(GOMODCACHE)":/go/pkg/mod:ro \
+		-w /go/src/kiichaind \
+		ghcr.io/goreleaser/goreleaser-cross:$(GORELEASER_CROSS_VERSION) \
+		release \
+		--skip=publish \
+		--timeout 90m \
+		--clean \
+		$(GORELEASER_ARGS)
+	@cat dist/SHA256SUMS-*.txt
 
 # uses goreleaser to create static binaries for linux an darwin
 # requires access to GITHUB_TOKEN which has to be available in the CI environment
@@ -310,8 +347,12 @@ test-unit-cover-html: test-unit-cover
 	@echo "--> Generating HTML coverage report"
 	@go tool cover -html=coverage.txt -o coverage.html
 
+# The image build reads modules from a proxy built from the host module cache, so it
+# needs no access to private KiiChain repos
 docker-build-debug:
-	@docker build -t kiichain/kiichaind-e2e -f Dockerfile .
+	@./contrib/scripts/go_modproxy.sh .modproxy
+	@docker build -t kiichain/kiichaind-e2e -f Dockerfile .; \
+	status=$$?; rm -rf .modproxy; exit $$status
 
 docker-build-hermes:
 	@cd tests/e2e/docker; docker build -t kiichain/hermes-e2e:1.0.0 -f hermes.Dockerfile .
@@ -376,7 +417,8 @@ test-docker-push: test-docker
 	@docker push ${TEST_DOCKER_REPO}:latest
 
 .PHONY: all build-linux install format lint draw-deps clean build \
-	docker-build-debug docker-build-hermes docker-build-all
+	docker-build-debug docker-build-hermes docker-build-all \
+	goreleaser-build-reproducible
 
 
 ###############################################################################
