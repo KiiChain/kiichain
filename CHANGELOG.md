@@ -14,6 +14,10 @@
 - Free unused preinstalled toolchains on the E2E runner before the Docker builds so the job does not run out of disk
 - Raise the `make lint` golangci-lint timeout from 10m to 30m so it completes on smaller CI runners
 
+### Tests
+
+- Add an x/rewards E2E test that replaces a live release schedule with a new one through governance (mainnet rewards phase 1 → phase 2 amounts). It checks that the new schedule takes over with its released amount reset, releases exactly its total and then deactivates, and that the old schedule's unreleased remainder stays in the reward pool
+
 ### Docs
 
 - Add validator instructions for the v7.4.0 off-chain mainnet upgrade ([#382](https://github.com/KiiChain/kiichain/pull/382))
