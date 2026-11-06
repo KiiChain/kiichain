@@ -20,9 +20,8 @@ import (
 func (s *IntegrationTestSuite) testRewardUpdate() {
 	// Prep info
 	var (
-		valIdx = 0
-		c      = s.chainA
-		denom  = "akii"
+		c     = s.chainA
+		denom = "akii"
 	)
 	// Amount 1k kii
 	bigAkii, ok := math.NewIntFromString("1000000000000000000000")
@@ -55,7 +54,7 @@ func (s *IntegrationTestSuite) testRewardUpdate() {
 	initialRewards := initialRewardsA.Rewards.Add(initialRewardsB.Rewards...)
 
 	// 1. Fund pool via CLI
-	s.fundRewardPool(c, valIdx, amount, senderAddress.String())
+	s.fundRewardPool(c, amount, senderAddress.String())
 
 	// Check balance loss
 	balance, err := getSpecificBalance(chainEndpoint, senderAddress.String(), denom)
@@ -166,7 +165,10 @@ func queryRewardFrom(endpoint string, address string, valoperAddress string) (ty
 }
 
 // fundRewardPool adds funds to the rewards pool
-func (s *IntegrationTestSuite) fundRewardPool(c *chain, valIdx int, amount sdk.Coin, sender string) {
+// It sends the transaction through the first validator
+func (s *IntegrationTestSuite) fundRewardPool(c *chain, amount sdk.Coin, sender string) {
+	const valIdx = 0
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
@@ -237,15 +239,69 @@ func (s *IntegrationTestSuite) writeScheduleProposal(c *chain, amount sdk.Coin, 
 	s.Require().NoError(err)
 }
 
-// testRewardScheduleTransition simulates replacing a live release schedule with a new,
-// larger live schedule through governance (the mainnet phase 1 -> phase 2 transition).
-// Funding happens in two phases, mirroring mainnet:
+// testRewardScheduleReplaceLive covers the mainnet corner case where the next schedule is
+// proposed while the current one is still live: nothing waits for a previous schedule to
+// end. Schedule A (mainnet phase 1 amount) is started and, as soon as it is releasing,
+// replaced through governance by schedule B (proposal 17 amount, 767,993 KII).
+//
+// It checks that A was still live when B's proposal went in, that B takes over with its
+// released amount reset, releases exactly its total and deactivates, and that A's
+// unreleased remainder stays in the pool.
+func (s *IntegrationTestSuite) testRewardScheduleReplaceLive() {
+	var (
+		valIdx = 0
+		c      = s.chainA
+		denom  = akiiDenom
+	)
+	chainEndpoint := fmt.Sprintf("http://%s", s.valResources[c.id][0].GetHostPort("1317/tcp"))
+	senderAddress, err := c.validators[valIdx].keyInfo.GetAddress()
+	s.Require().NoError(err)
+
+	scheduleA := sdk.NewCoin(denom, mustNewIntFromString("327545000000000000000000")) // 327,545 KII (phase 1)
+	scheduleB := sdk.NewCoin(denom, mustNewIntFromString("767993000000000000000000")) // 767,993 KII (phase 2, proposal 17)
+
+	// 1. Fund both schedules up front so B can be proposed as soon as A is live
+	s.fundRewardPool(c, scheduleA.Add(scheduleB), senderAddress.String())
+
+	// 2. Start A; any schedule left by a previous test is replaced while live as well
+	s.passScheduleProposal(chainEndpoint, scheduleA, senderAddress.String(), time.Now().Add(5*time.Minute))
+	s.waitScheduleReleasing(chainEndpoint, scheduleA)
+
+	// 3. Snapshot while A is live. The pool is queried before the schedule, so A's released
+	// amount below is >= what it had released at the pool snapshot
+	poolPre := s.rewardPoolAmount(chainEndpoint)
+	liveA := s.requireScheduleLive(chainEndpoint, scheduleA)
+	s.T().Logf("schedule A live: released %s / %s, pool %s", liveA.ReleasedAmount, liveA.TotalAmount, poolPre)
+
+	// 4. Replace A with B while A is live
+	switchStart := time.Now()
+	endTimeB := switchStart.Add(60 * time.Second)
+	s.passScheduleProposal(chainEndpoint, scheduleB, senderAddress.String(), endTimeB)
+	s.requireScheduleTookOver(chainEndpoint, scheduleB, endTimeB, switchStart)
+
+	// 5. B releases exactly its total and deactivates
+	s.waitScheduleCompleted(chainEndpoint, scheduleB)
+
+	// 6. A's remainder stayed in the pool. With releasedA = what A paid out in total:
+	//   poolFinal = poolPre + releasedA(at pool snapshot) - releasedA - totalB
+	// A's leftover (totalA - releasedA) is positive iff
+	//   poolFinal > poolPre + releasedA(at pool snapshot) - totalA - totalB
+	// and releasedA(at pool snapshot) <= liveA.released, so this bound is sufficient
+	poolFinal := s.rewardPoolAmount(chainEndpoint)
+	bound := poolPre.Add(liveA.ReleasedAmount.Amount.ToLegacyDec()).
+		Sub(scheduleA.Amount.ToLegacyDec()).Sub(scheduleB.Amount.ToLegacyDec())
+	s.T().Logf("pool final %s, must be > %s and <= %s", poolFinal, bound, poolPre.Sub(scheduleB.Amount.ToLegacyDec()))
+	s.Require().True(poolFinal.GT(bound), "schedule A's unreleased remainder did not stay in the pool")
+	s.Require().True(poolFinal.LTE(poolPre.Sub(scheduleB.Amount.ToLegacyDec())), "pool paid out less than schedule B's total")
+}
+
+// testRewardScheduleTransition simulates the phase 1 -> phase 2 transition with funding in
+// two phases and exact pool accounting:
 //   - Fund x and set schedule A for exactly x
 //   - While A is still releasing, fund 2x and replace A with schedule B for 2x
 //
-// It checks that B takes over with its released amount reset, releases exactly 2x and
-// deactivates, and that A's unreleased remainder stays in the pool.
-// Durations are compressed to minutes; x is the mainnet phase 1 amount.
+// It checks that B takes over, releases exactly 2x and deactivates, and that the pool ends
+// with exactly A's unreleased remainder.
 func (s *IntegrationTestSuite) testRewardScheduleTransition() {
 	var (
 		valIdx = 0
@@ -260,69 +316,38 @@ func (s *IntegrationTestSuite) testRewardScheduleTransition() {
 	scheduleB := sdk.NewCoin(denom, scheduleA.Amount.MulRaw(2))                       // 2x = 655,090 KII (phase 2)
 
 	// 0. Wait for any schedule left by a previous test to finish, so the pool only
-	// changes through this test's funding and schedules
+	// changes through this test's funding and schedules (needed for exact accounting)
 	s.Require().Eventually(func() bool {
 		res, err := queryReleaseSchedule(chainEndpoint)
 		s.Require().NoError(err)
 		return !res.ReleaseSchedule.Active
 	}, 2*time.Minute, 2*time.Second, "previous release schedule never finished")
-	pool0 := s.rewardPoolAmount(chainEndpoint, denom)
+	pool0 := s.rewardPoolAmount(chainEndpoint)
 
 	// 1. Fund x and set schedule A for exactly x
-	s.fundRewardPool(c, valIdx, scheduleA, senderAddress.String())
-	s.Require().True(s.rewardPoolAmount(chainEndpoint, denom).Equal(pool0.Add(scheduleA.Amount.ToLegacyDec())),
+	s.fundRewardPool(c, scheduleA, senderAddress.String())
+	s.Require().True(s.rewardPoolAmount(chainEndpoint).Equal(pool0.Add(scheduleA.Amount.ToLegacyDec())),
 		"pool was not funded with schedule A's amount")
 
-	endTimeA := time.Now().Add(5 * time.Minute)
-	s.passScheduleProposal(chainEndpoint, scheduleA, senderAddress.String(), endTimeA)
-
-	var liveA rewardstypes.ReleaseSchedule
-	s.Require().Eventually(func() bool {
-		res, err := queryReleaseSchedule(chainEndpoint)
-		s.Require().NoError(err)
-		liveA = res.ReleaseSchedule
-		return liveA.Active && liveA.TotalAmount.Equal(scheduleA) && liveA.ReleasedAmount.Amount.IsPositive()
-	}, time.Minute, time.Second, "schedule A never started releasing")
+	s.passScheduleProposal(chainEndpoint, scheduleA, senderAddress.String(), time.Now().Add(5*time.Minute))
+	liveA := s.waitScheduleReleasing(chainEndpoint, scheduleA)
 	s.T().Logf("schedule A live: released %s / %s", liveA.ReleasedAmount, liveA.TotalAmount)
 
 	// 2. Fund 2x while A is live and replace A with schedule B for 2x
-	s.fundRewardPool(c, valIdx, scheduleB, senderAddress.String())
+	s.fundRewardPool(c, scheduleB, senderAddress.String())
 
 	switchStart := time.Now()
 	endTimeB := switchStart.Add(90 * time.Second)
 	s.passScheduleProposal(chainEndpoint, scheduleB, senderAddress.String(), endTimeB)
-
-	// ChangeSchedule stores B with a zero LastReleaseTime; BeginBlocker initializes it in a
-	// later block, so wait for that before checking B's state
-	var newB rewardstypes.ReleaseSchedule
-	s.Require().Eventually(func() bool {
-		res, err := queryReleaseSchedule(chainEndpoint)
-		s.Require().NoError(err)
-		newB = res.ReleaseSchedule
-		return newB.TotalAmount.Equal(scheduleB) && !newB.LastReleaseTime.IsZero()
-	}, 30*time.Second, time.Second, "schedule B was not set or never initialized")
-	s.Require().True(newB.Active)
-	s.Require().True(newB.EndTime.Sub(endTimeB).Abs() < time.Second, "end time not replaced: %s", newB.EndTime)
-	// Released amount was reset: B can only have released for the few blocks since it was set
-	s.Require().True(newB.ReleasedAmount.Amount.LT(scheduleB.Amount.QuoRaw(2)),
-		"released amount was not reset for schedule B: %s", newB.ReleasedAmount)
-	s.Require().True(newB.LastReleaseTime.After(switchStart),
-		"last release time %s predates the transition", newB.LastReleaseTime)
+	s.requireScheduleTookOver(chainEndpoint, scheduleB, endTimeB, switchStart)
 
 	// 3. Wait for B to release everything and deactivate
-	var finalB rewardstypes.ReleaseSchedule
-	s.Require().Eventually(func() bool {
-		res, err := queryReleaseSchedule(chainEndpoint)
-		s.Require().NoError(err)
-		finalB = res.ReleaseSchedule
-		return !finalB.Active
-	}, 3*time.Minute, 2*time.Second, "schedule B never completed")
-	s.Require().True(finalB.ReleasedAmount.Equal(scheduleB), "schedule B released %s, expected %s", finalB.ReleasedAmount, scheduleB)
+	s.waitScheduleCompleted(chainEndpoint, scheduleB)
 
 	// 4. Pool accounting, exact since nothing else touched the pool:
 	//   poolFinal = pool0 + x + 2x - releasedA - 2x  =>  releasedA = pool0 + x - poolFinal
 	// releasedA is what A actually paid out before B replaced it
-	poolFinal := s.rewardPoolAmount(chainEndpoint, denom)
+	poolFinal := s.rewardPoolAmount(chainEndpoint)
 	releasedA := pool0.Add(scheduleA.Amount.ToLegacyDec()).Sub(poolFinal)
 	leftoverA := scheduleA.Amount.ToLegacyDec().Sub(releasedA)
 	s.T().Logf("pool final %s: schedule A released %s before the switch, %s left in the pool", poolFinal, releasedA, leftoverA)
@@ -334,9 +359,63 @@ func (s *IntegrationTestSuite) testRewardScheduleTransition() {
 	s.Require().True(leftoverA.IsPositive(), "schedule A's unreleased remainder did not stay in the pool")
 }
 
-// rewardPoolAmount returns the reward pool balance of denom
-func (s *IntegrationTestSuite) rewardPoolAmount(endpoint, denom string) math.LegacyDec {
+// rewardPoolAmount returns the reward pool's akii balance
+func (s *IntegrationTestSuite) rewardPoolAmount(endpoint string) math.LegacyDec {
 	res, err := queryRewardPool(endpoint)
 	s.Require().NoError(err)
-	return res.RewardPool.CommunityPool.AmountOf(denom)
+	return res.RewardPool.CommunityPool.AmountOf(akiiDenom)
+}
+
+// waitScheduleReleasing waits until the schedule for total is active and has released something
+func (s *IntegrationTestSuite) waitScheduleReleasing(endpoint string, total sdk.Coin) rewardstypes.ReleaseSchedule {
+	var schedule rewardstypes.ReleaseSchedule
+	s.Require().Eventually(func() bool {
+		res, err := queryReleaseSchedule(endpoint)
+		s.Require().NoError(err)
+		schedule = res.ReleaseSchedule
+		return schedule.Active && schedule.TotalAmount.Equal(total) && schedule.ReleasedAmount.Amount.IsPositive()
+	}, time.Minute, time.Second, "schedule for %s never started releasing", total)
+	return schedule
+}
+
+// requireScheduleLive asserts the current schedule is the one for total and has not ended
+func (s *IntegrationTestSuite) requireScheduleLive(endpoint string, total sdk.Coin) rewardstypes.ReleaseSchedule {
+	res, err := queryReleaseSchedule(endpoint)
+	s.Require().NoError(err)
+	schedule := res.ReleaseSchedule
+	s.Require().True(schedule.Active && schedule.TotalAmount.Equal(total) && schedule.ReleasedAmount.Amount.LT(total.Amount),
+		"schedule for %s is not live: %v", total, schedule)
+	return schedule
+}
+
+// requireScheduleTookOver waits for the schedule for total to replace the previous one and
+// asserts it started fresh. ChangeSchedule stores it with a zero LastReleaseTime, which
+// BeginBlocker initializes in a later block, so this polls for that first
+func (s *IntegrationTestSuite) requireScheduleTookOver(endpoint string, total sdk.Coin, endTime, switchStart time.Time) {
+	var schedule rewardstypes.ReleaseSchedule
+	s.Require().Eventually(func() bool {
+		res, err := queryReleaseSchedule(endpoint)
+		s.Require().NoError(err)
+		schedule = res.ReleaseSchedule
+		return schedule.TotalAmount.Equal(total) && !schedule.LastReleaseTime.IsZero()
+	}, 30*time.Second, time.Second, "schedule for %s was not set or never initialized", total)
+	s.Require().True(schedule.Active)
+	s.Require().True(schedule.EndTime.Sub(endTime).Abs() < time.Second, "end time not replaced: %s", schedule.EndTime)
+	// Released amount was reset: it can only cover the few blocks since the schedule was set
+	s.Require().True(schedule.ReleasedAmount.Amount.LT(total.Amount.QuoRaw(2)),
+		"released amount was not reset: %s", schedule.ReleasedAmount)
+	s.Require().True(schedule.LastReleaseTime.After(switchStart),
+		"last release time %s predates the transition", schedule.LastReleaseTime)
+}
+
+// waitScheduleCompleted waits for the current schedule to deactivate and asserts it released exactly total
+func (s *IntegrationTestSuite) waitScheduleCompleted(endpoint string, total sdk.Coin) {
+	var schedule rewardstypes.ReleaseSchedule
+	s.Require().Eventually(func() bool {
+		res, err := queryReleaseSchedule(endpoint)
+		s.Require().NoError(err)
+		schedule = res.ReleaseSchedule
+		return !schedule.Active
+	}, 3*time.Minute, 2*time.Second, "schedule for %s never completed", total)
+	s.Require().True(schedule.ReleasedAmount.Equal(total), "schedule released %s, expected %s", schedule.ReleasedAmount, total)
 }

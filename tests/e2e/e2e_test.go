@@ -130,6 +130,7 @@ func (s *IntegrationTestSuite) TestRewards() {
 		s.T().Skip()
 	}
 	s.testRewardUpdate()
+	s.testRewardScheduleReplaceLive()
 	s.testRewardScheduleTransition()
 }
 
