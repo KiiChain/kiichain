@@ -16,7 +16,7 @@
 
 ### Tests
 
-- Add an x/rewards E2E test that replaces a live release schedule with a new one through governance (mainnet rewards phase 1 → phase 2 amounts). It checks that the new schedule takes over with its released amount reset, releases exactly its total and then deactivates, and that the old schedule's unreleased remainder stays in the reward pool
+- Add an x/rewards E2E test that replaces a live release schedule with a new one through governance, funded in two phases (x for the first schedule, then 2x for its replacement). It checks that the new schedule takes over with its released amount reset, releases exactly its total and then deactivates, and that the old schedule's unreleased remainder stays in the reward pool
 
 ### Docs
 
