@@ -21,7 +21,7 @@
 
 ### Changed
 
-- Send tokens slashed from validators, unbonding delegations, and redelegations to the community pool instead of burning them, so slashing no longer reduces total supply
+- Send tokens slashed from validators, unbonding delegations, and redelegations to the community pool instead of burning them, so slashing no longer reduces total supply. Each redirected slash emits a `slash_to_community_pool` event (`pool`, `amount`) in place of the bank `burn` event
 
 ### Docs
 

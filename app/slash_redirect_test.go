@@ -17,6 +17,7 @@ import (
 
 	kiichain "github.com/kiichain/kiichain/v7/app"
 	kiihelpers "github.com/kiichain/kiichain/v7/app/helpers"
+	"github.com/kiichain/kiichain/v7/app/keepers"
 )
 
 // slashBalances is the bond denom state that a slash moves between.
@@ -56,6 +57,34 @@ func requireSlashedToCommunityPool(t *testing.T, before, after slashBalances) ma
 	return slashed
 }
 
+// requireSlashEvents checks that the slash_to_community_pool events add up to
+// the slashed amount and returns the amount reported for each staking pool.
+func requireSlashEvents(t *testing.T, ctx sdk.Context, denom string, slashed math.Int) map[string]math.Int {
+	t.Helper()
+	byPool := map[string]math.Int{}
+	total := math.ZeroInt()
+	for _, event := range ctx.EventManager().Events() {
+		if event.Type != keepers.EventTypeSlashToCommunityPool {
+			continue
+		}
+		pool, ok := event.GetAttribute(keepers.AttributeKeyPool)
+		require.True(t, ok, "missing pool attribute")
+		require.Contains(t, []string{stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName}, pool.Value)
+		amountAttr, ok := event.GetAttribute(sdk.AttributeKeyAmount)
+		require.True(t, ok, "missing amount attribute")
+		coins, err := sdk.ParseCoinsNormalized(amountAttr.Value)
+		require.NoError(t, err)
+		amount := coins.AmountOf(denom)
+		if prev, found := byPool[pool.Value]; found {
+			amount = amount.Add(prev)
+		}
+		byPool[pool.Value] = amount
+		total = total.Add(coins.AmountOf(denom))
+	}
+	require.Equal(t, slashed, total, "slash events must report the slashed amount")
+	return byPool
+}
+
 func TestSlashBondedValidatorFundsCommunityPool(t *testing.T) {
 	app, ctx := kiihelpers.SetupWithContext(t)
 	denom, err := app.StakingKeeper.BondDenom(ctx)
@@ -69,6 +98,7 @@ func TestSlashBondedValidatorFundsCommunityPool(t *testing.T) {
 	require.NoError(t, err)
 	power := validator.GetConsensusPower(app.StakingKeeper.PowerReduction(ctx))
 
+	ctx = ctx.WithEventManager(sdk.NewEventManager())
 	before := getSlashBalances(t, app, ctx, denom)
 	burned, err := app.StakingKeeper.Slash(ctx, consAddr, ctx.BlockHeight(), power, math.LegacyNewDecWithPrec(1, 1))
 	require.NoError(t, err)
@@ -77,6 +107,8 @@ func TestSlashBondedValidatorFundsCommunityPool(t *testing.T) {
 	slashed := requireSlashedToCommunityPool(t, before, after)
 	require.Equal(t, burned, slashed)
 	require.Equal(t, before.bondedPool.Sub(burned), after.bondedPool)
+	events := requireSlashEvents(t, ctx, denom, slashed)
+	require.Equal(t, slashed, events[stakingtypes.BondedPoolName])
 }
 
 func TestSlashUnbondingDelegationFundsCommunityPool(t *testing.T) {
@@ -107,14 +139,18 @@ func TestSlashUnbondingDelegationFundsCommunityPool(t *testing.T) {
 	require.True(t, unbonded.IsPositive())
 	ctx = ctx.WithBlockHeight(infractionHeight + 1)
 
+	ctx = ctx.WithEventManager(sdk.NewEventManager())
 	before := getSlashBalances(t, app, ctx, denom)
 	_, err = app.StakingKeeper.Slash(ctx, consAddr, infractionHeight, power, math.LegacyNewDecWithPrec(1, 1))
 	require.NoError(t, err)
 	after := getSlashBalances(t, app, ctx, denom)
 
-	requireSlashedToCommunityPool(t, before, after)
+	slashed := requireSlashedToCommunityPool(t, before, after)
 	require.True(t, after.notBondedPool.LT(before.notBondedPool), "expected the unbonding delegation to be slashed")
 	require.True(t, after.bondedPool.LT(before.bondedPool), "expected the bonded validator to be slashed")
+	events := requireSlashEvents(t, ctx, denom, slashed)
+	require.Equal(t, before.bondedPool.Sub(after.bondedPool), events[stakingtypes.BondedPoolName])
+	require.Equal(t, before.notBondedPool.Sub(after.notBondedPool), events[stakingtypes.NotBondedPoolName])
 }
 
 func TestDowntimeSlashFundsCommunityPool(t *testing.T) {
@@ -144,6 +180,7 @@ func TestDowntimeSlashFundsCommunityPool(t *testing.T) {
 		require.NoError(t, app.SlashingKeeper.SetValidatorSigningInfo(ctx, consAddr, info))
 	}
 
+	ctx = ctx.WithEventManager(sdk.NewEventManager())
 	before := getSlashBalances(t, app, ctx, denom)
 	// Downtime only fires once the height is past StartHeight + SignedBlocksWindow;
 	// once the validator is jailed further calls are no-ops.
@@ -161,4 +198,6 @@ func TestDowntimeSlashFundsCommunityPool(t *testing.T) {
 	expected := math.LegacyNewDecFromInt(app.StakingKeeper.TokensFromConsensusPower(ctx, power)).Mul(params.SlashFractionDowntime).TruncateInt()
 	require.Equal(t, expected, slashed)
 	require.Equal(t, before.bondedPool.Sub(slashed), after.bondedPool)
+	events := requireSlashEvents(t, ctx, denom, slashed)
+	require.Equal(t, slashed, events[stakingtypes.BondedPoolName])
 }

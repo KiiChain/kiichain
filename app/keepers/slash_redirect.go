@@ -9,6 +9,16 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+const (
+	// EventTypeSlashToCommunityPool is emitted when tokens slashed from a
+	// staking pool are sent to the community pool instead of being burned.
+	EventTypeSlashToCommunityPool = "slash_to_community_pool"
+
+	// AttributeKeyPool is the staking pool module account the slashed tokens
+	// were taken from.
+	AttributeKeyPool = "pool"
+)
+
 // communityPoolFunder is the part of the distribution keeper used to move
 // slashed tokens into the community pool.
 type communityPoolFunder interface {
@@ -29,11 +39,24 @@ type slashRedirectBankKeeper struct {
 
 var _ stakingtypes.BankKeeper = (*slashRedirectBankKeeper)(nil)
 
-// BurnCoins sends coins burned from the staking pools to the community pool,
-// and burns coins from any other module account as usual.
+// BurnCoins sends coins burned from the staking pools to the community pool
+// and emits EventTypeSlashToCommunityPool, which stands in for the burn event
+// the bank keeper would have emitted. Coins burned from any other module
+// account are burned as usual.
 func (k *slashRedirectBankKeeper) BurnCoins(ctx context.Context, moduleName string, amt sdk.Coins) error {
 	if moduleName != stakingtypes.BondedPoolName && moduleName != stakingtypes.NotBondedPoolName {
 		return k.Keeper.BurnCoins(ctx, moduleName, amt)
 	}
-	return k.distrKeeper.FundCommunityPool(ctx, amt, authtypes.NewModuleAddress(moduleName))
+	if err := k.distrKeeper.FundCommunityPool(ctx, amt, authtypes.NewModuleAddress(moduleName)); err != nil {
+		return err
+	}
+
+	sdk.UnwrapSDKContext(ctx).EventManager().EmitEvent(
+		sdk.NewEvent(
+			EventTypeSlashToCommunityPool,
+			sdk.NewAttribute(AttributeKeyPool, moduleName),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amt.String()),
+		),
+	)
+	return nil
 }
