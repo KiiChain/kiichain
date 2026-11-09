@@ -6,6 +6,17 @@
 
 - Wire the Cosmos SDK `x/circuit` module (store, keeper, ante decorator, BaseApp circuit breaker) and add a `v8.0.0` upgrade that introduces the circuit store
 - Enforce tripped circuit message type URLs on EVM precompile calls (staking, distribution, gov, slashing, and ICS20 `MsgTransfer`) so those paths cannot bypass ante/BaseApp checks
+- Register the `v8.0.1` upgrade handler, which runs pending module migrations
+- Register the `v8.0.2` upgrade handler, which runs pending module migrations
+
+### CI
+
+- Free unused preinstalled toolchains on the E2E runner before the Docker builds so the job does not run out of disk
+- Raise the `make lint` golangci-lint timeout from 10m to 30m so it completes on smaller CI runners
+
+### Changed
+
+- Send tokens slashed from validators, unbonding delegations, and redelegations to the community pool instead of burning them, so slashing no longer reduces total supply. Each redirected slash emits a `slash_to_community_pool` event (`pool`, `amount`) in place of the bank `burn` event
 
 ### Docs
 
@@ -13,12 +24,18 @@
 
 ### Dependencies
 
+- Bump `github.com/cosmos/cosmos-sdk` from `v0.53.6` to `v0.53.8` (and CometBFT from `v0.38.21` to `v0.38.23`): distribution rewards withdrawn inside block hooks now fall back to the delegator or the community pool when the withdraw address is blocked, instead of failing the block
 - [EVM](https://github.com/KiiChain/evm) fork bump from `v0.6.1-fork.1` to [v0.6.2-fork.2](https://github.com/KiiChain/evm/releases/tag/v0.6.2-fork.2): August 2026 security backports (StateDB overflow/underflow guards, commit atomicity, `IsBaseAccountOrEmpty`, ERC20/IBC ack alignment)
 
 ### Added
 
 - Replace timed linear `ReleaseSchedule` emissions in `x/rewards` with continuous inflation-based utility rewards driven by bonded ratio: `inflation = clamp((1 - bonded/goal) × rate_change × bonded, min, max)`, amount = `inflation × supply_base / blocks_per_year`, capped at the rewards module account bank balance (a short balance pays only what is there; an empty balance skips the block). Adds staking `BondedRatio` dependency and gov params `goal_bonded`, `inflation_min`, `inflation_max`, `inflation_rate_change` (default `0.13`), `blocks_per_year` (default `15778800` for 2s blocks), and `supply_base` (default `0` disables emissions; notional emission scale, not chain total supply). Fund the module with a bank send to its account, then enable via gov `MsgUpdateParams`. Proto package is `kiichain.rewards.v1`; mainnet `v1beta1` types stay registered. The `v9.0.0` upgrade runs the consensus v1→v2 store migration
 - Emit `update_params` and `reward_distributed` events from x/rewards (`reward_distributed` includes `inflation_rate` and `bonded_ratio`)
+
+### Fixed
+
+- Add the incident addresses to the bank `BlockedAddr` set so they cannot be used as distribution withdraw addresses. A reward payout to an incident address inside a block hook (e.g. a slash unbonding a redelegation) failed `BeginBlocker` and halted the chain
+- Charge the SDK gas meter for the EVM execution performed by the CosmWasm `eth_call` query (`HandleEthCall`), including calls that revert or run out of gas, so contracts can no longer trigger unmetered EVM work
 
 ### Removed
 

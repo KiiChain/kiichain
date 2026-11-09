@@ -10,6 +10,7 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	kiichain "github.com/kiichain/kiichain/v7/app"
 	"github.com/kiichain/kiichain/v7/app/blockedaddrs"
@@ -29,7 +30,8 @@ func fundAnAttacker(t *testing.T, app *kiichain.KiichainApp, ctx sdk.Context) {
 	attacker := blockedaddrs.SortedAttackerAddresses()[0]
 	coins := sdk.NewCoins(sdk.NewCoin("akii", math.NewIntWithDecimal(1, 30)))
 	require.NoError(t, app.BankKeeper.MintCoins(ctx, tokenfactorytypes.ModuleName, coins))
-	require.NoError(t, app.BankKeeper.SendCoinsFromModuleToAccount(ctx, tokenfactorytypes.ModuleName, sdk.MustAccAddressFromBech32(attacker), coins))
+	// SendCoins, since attacker addresses are in the bank BlockedAddr set
+	require.NoError(t, app.BankKeeper.SendCoins(ctx, authtypes.NewModuleAddress(tokenfactorytypes.ModuleName), sdk.MustAccAddressFromBech32(attacker), coins))
 }
 
 // expectedPlan mirrors what app.PreBlocker constructs for the emergency

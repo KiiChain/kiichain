@@ -59,12 +59,14 @@ var payouts = []struct {
 }
 
 // fund mints coins via tokenfactory (the same source app/apptesting's
-// FundAcc helper uses) and sends them to addr.
+// FundAcc helper uses) and sends them to addr. It uses SendCoins because the
+// attacker addresses are in the bank BlockedAddr set, which
+// SendCoinsFromModuleToAccount rejects as recipients.
 func fund(t *testing.T, app *kiichain.KiichainApp, ctx sdk.Context, addr string, amount math.Int) {
 	t.Helper()
 	coins := sdk.NewCoins(sdk.NewCoin(denom, amount))
 	require.NoError(t, app.BankKeeper.MintCoins(ctx, tokenfactorytypes.ModuleName, coins))
-	require.NoError(t, app.BankKeeper.SendCoinsFromModuleToAccount(ctx, tokenfactorytypes.ModuleName, sdk.MustAccAddressFromBech32(addr), coins))
+	require.NoError(t, app.BankKeeper.SendCoins(ctx, authtypes.NewModuleAddress(tokenfactorytypes.ModuleName), sdk.MustAccAddressFromBech32(addr), coins))
 }
 
 // fundStaging mints coins via tokenfactory and sends them into the "evm"
