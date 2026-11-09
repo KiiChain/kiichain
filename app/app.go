@@ -82,7 +82,6 @@ import (
 	v8_0 "github.com/kiichain/kiichain/v7/app/upgrades/v8_0"
 	v8_0_1 "github.com/kiichain/kiichain/v7/app/upgrades/v8_0_1"
 	v8_0_2 "github.com/kiichain/kiichain/v7/app/upgrades/v8_0_2"
-	v9_0 "github.com/kiichain/kiichain/v7/app/upgrades/v9_0"
 	"github.com/kiichain/kiichain/v7/client/docs"
 	rewardstypes "github.com/kiichain/kiichain/v7/x/rewards/types"
 )
@@ -99,7 +98,6 @@ var (
 		v8_0.Upgrade,
 		v8_0_1.Upgrade,
 		v8_0_2.Upgrade,
-		v9_0.Upgrade,
 	}
 )
 
