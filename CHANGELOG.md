@@ -19,6 +19,10 @@
 - Add an x/rewards E2E test that replaces a live release schedule with a new one through governance, funded in two phases (x for the first schedule, then 2x for its replacement). It checks that the new schedule takes over with its released amount reset, releases exactly its total and then deactivates, and that the old schedule's unreleased remainder stays in the reward pool
 - Add an x/rewards E2E test for proposing the next release schedule while the current one is still live (mainnet phase 1 → proposal 17 amounts), with no wait for the previous schedule to end
 
+### Changed
+
+- Send tokens slashed from validators, unbonding delegations, and redelegations to the community pool instead of burning them, so slashing no longer reduces total supply. Each redirected slash emits a `slash_to_community_pool` event (`pool`, `amount`) in place of the bank `burn` event
+
 ### Docs
 
 - Add validator instructions for the v7.4.0 off-chain mainnet upgrade ([#382](https://github.com/KiiChain/kiichain/pull/382))
