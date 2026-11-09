@@ -133,6 +133,48 @@ func (suite *KeeperTestSuite) TestBeginBlocker() {
 	}
 }
 
+// TestBeginBlockerDenomChange flips token_denom between two blocks: TotalReleased
+// holds the old denom, so the next release must reset it instead of panicking
+// on a mismatched-denom Coin.Add.
+func (suite *KeeperTestSuite) TestBeginBlockerDenomChange() {
+	ctx := suite.Ctx
+	params := types.DefaultParams()
+	params.SupplyBase = math.NewInt(1_000_000_000_000) // 1e12
+	params.InflationMin = math.LegacyNewDecWithPrec(1, 2)
+	oldDenom := params.TokenDenom
+	const newDenom = "unewdenom"
+
+	// Block 1: release in the old denom
+	suite.Require().NoError(suite.App.RewardsKeeper.Params.Set(ctx, params))
+	suite.resetRewardsModuleBalance(ctx, oldDenom, math.NewInt(100000))
+	suite.Require().NoError(suite.App.RewardsKeeper.RewardPool.Set(ctx, types.RewardPool{}))
+	suite.Require().NoError(suite.App.RewardsKeeper.BeginBlocker(ctx))
+
+	pool, err := suite.App.RewardsKeeper.RewardPool.Get(ctx)
+	suite.Require().NoError(err)
+	suite.Require().Equal(oldDenom, pool.TotalReleased.Denom)
+	suite.Require().True(pool.TotalReleased.IsPositive())
+
+	// Governance switches the denom
+	params.TokenDenom = newDenom
+	suite.Require().NoError(suite.App.RewardsKeeper.Params.Set(ctx, params))
+	suite.resetRewardsModuleBalance(ctx, newDenom, math.NewInt(100000))
+
+	// Block 2: must not panic, and the counter restarts in the new denom
+	suite.Require().NotPanics(func() {
+		suite.Require().NoError(suite.App.RewardsKeeper.BeginBlocker(ctx))
+	})
+
+	bonded, err := suite.App.StakingKeeper.BondedRatio(ctx)
+	suite.Require().NoError(err)
+	expected, _ := types.CalculateReward(bonded, params)
+	expected.Amount = math.MinInt(expected.Amount, math.NewInt(100000))
+
+	pool, err = suite.App.RewardsKeeper.RewardPool.Get(ctx)
+	suite.Require().NoError(err)
+	suite.Require().True(pool.TotalReleased.Equal(expected), "got %s, want %s", pool.TotalReleased, expected)
+}
+
 func totalReleasedUnchanged(before, after sdk.Coin) bool {
 	beforeZero := before.IsNil() || before.IsZero()
 	afterZero := after.IsNil() || after.IsZero()

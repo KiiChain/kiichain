@@ -57,7 +57,9 @@ func (k *Keeper) BeginBlocker(ctx sdk.Context) error {
 	if err != nil {
 		return err
 	}
-	if rewardPool.TotalReleased.IsNil() || rewardPool.TotalReleased.IsZero() {
+	// Reset the counter when the denom changed (e.g. a governance token_denom
+	// update): sdk.Coin.Add panics on mismatched denoms and would halt the chain.
+	if rewardPool.TotalReleased.IsNil() || rewardPool.TotalReleased.Denom != amountToDistribute.Denom {
 		rewardPool.TotalReleased = amountToDistribute
 	} else {
 		rewardPool.TotalReleased = rewardPool.TotalReleased.Add(amountToDistribute)
@@ -80,10 +82,27 @@ func (k *Keeper) BeginBlocker(ctx sdk.Context) error {
 }
 
 // WriteRewardMetrics records the amount disbursed this block and the rewards
-// module account balance afterward. Conversion failures yield zero gauges.
-func (k Keeper) WriteRewardMetrics(_ sdk.Context, distributed, balance sdk.Coin) {
-	distFloat, _ := distributed.Amount.ToLegacyDec().Float64()
-	balanceFloat, _ := balance.Amount.ToLegacyDec().Float64()
+// module account balance afterward. Telemetry is skipped on conversion errors.
+func (k Keeper) WriteRewardMetrics(ctx sdk.Context, distributed, balance sdk.Coin) {
+	// Forgo telemetry on conversion errors
+	distFloat, err := distributed.Amount.ToLegacyDec().Float64()
+	if err != nil {
+		k.Logger(ctx).Error("failed to convert distributed amount to float64",
+			"error", err,
+			"distributed", distributed.String(),
+			"denom", distributed.Denom,
+		)
+		return
+	}
+	balanceFloat, err := balance.Amount.ToLegacyDec().Float64()
+	if err != nil {
+		k.Logger(ctx).Error("failed to convert module balance to float64",
+			"error", err,
+			"balance", balance.String(),
+			"denom", balance.Denom,
+		)
+		return
+	}
 
 	telemetry.ModuleSetGauge(
 		types.ModuleName,
