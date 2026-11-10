@@ -6,7 +6,7 @@ import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "amino/amino.proto";
 
-option go_package = "github.com/kiichain/kiichain/x/rewards/types";
+option go_package = "github.com/kiichain/kiichain/x/rewards/types/v1beta1";
 
 // ReleaseSchedule defines information related to reward distribution
 message ReleaseSchedule {

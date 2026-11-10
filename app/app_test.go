@@ -17,6 +17,7 @@ import (
 	kiichain "github.com/kiichain/kiichain/v7/app"
 	"github.com/kiichain/kiichain/v7/app/blockedaddrs"
 	kiihelpers "github.com/kiichain/kiichain/v7/app/helpers"
+	rewardstypes "github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
 type EmptyAppOptions struct{}
@@ -43,10 +44,13 @@ func TestKiichainApp_BlockedAccountAddrs(t *testing.T) {
 	blockedAddrs := app.BlockedAccountAddrs(moduleAccountAddresses)
 
 	require.Contains(t, blockedAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+	require.NotContains(t, blockedAddrs, authtypes.NewModuleAddress(rewardstypes.ModuleName).String())
 	for addr := range blockedaddrs.AttackerAddrs {
 		require.True(t, blockedAddrs[addr], addr)
 	}
-	require.Len(t, moduleAccountAddresses, len(blockedAddrs)-len(blockedaddrs.AttackerAddrs), "module account map must not be mutated")
+	// rewards is removed from the copy; the input map must not be mutated
+	require.Contains(t, moduleAccountAddresses, authtypes.NewModuleAddress(rewardstypes.ModuleName).String())
+	require.Len(t, moduleAccountAddresses, len(blockedAddrs)+1-len(blockedaddrs.AttackerAddrs), "module account map must not be mutated")
 }
 
 func TestKiichainApp_Export(t *testing.T) {

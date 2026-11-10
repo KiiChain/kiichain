@@ -2,173 +2,187 @@ package types_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/math"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
-// TestCalculateReward verifies the CalculateReward function across a comprehensive
-// set of scenarios: fully-exhausted schedules, linear proportional releases at
-// various elapsed fractions, partial prior releases, nanosecond-precision
-// sub-second durations (regression for issue #267), and the edge case where
-// EndTime equals LastReleaseTime, which must release the full remaining amount
-// immediately rather than returning an error.
-func TestCalculateReward(t *testing.T) {
-	now := time.Now()
-	denom := "akii"
+func TestCalculateInflation(t *testing.T) {
+	params := types.DefaultParams()
 
 	tests := []struct {
-		name          string
-		blockTime     time.Time
-		schedule      types.ReleaseSchedule
-		expectedCoin  sdk.Coin
-		expectedError bool
+		name        string
+		bondedRatio math.LegacyDec
+		want        math.LegacyDec
 	}{
 		{
-			name:      "nothing left to release",
-			blockTime: now.Add(time.Hour),
-			schedule: types.ReleaseSchedule{
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(1000)),
-				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour * 2),
-				Active:          true,
-			},
-			expectedCoin:  sdk.NewCoin(denom, math.ZeroInt()),
-			expectedError: false,
+			name:        "zero bonded ratio -> inflation min",
+			bondedRatio: math.LegacyZeroDec(),
+			want:        params.InflationMin,
 		},
 		{
-			name:      "linear release - halfway",
-			blockTime: now.Add(time.Hour),
-			schedule: types.ReleaseSchedule{
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
-				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour * 2),
-				Active:          true,
-			},
-			expectedCoin:  sdk.NewCoin(denom, math.NewInt(500)),
-			expectedError: false,
+			name:        "at goal bonded -> zero before clamp, returns min",
+			bondedRatio: params.GoalBonded,
+			want:        params.InflationMin,
 		},
 		{
-			name:      "linear release - one third",
-			blockTime: now.Add(20 * time.Minute),
-			schedule: types.ReleaseSchedule{
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(900)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
-				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour),
-				Active:          true,
-			},
-			expectedCoin:  sdk.NewCoin(denom, math.NewInt(300)),
-			expectedError: false,
+			name:        "above goal bonded -> negative raw, clamped to min",
+			bondedRatio: math.LegacyNewDecWithPrec(80, 2),
+			want:        params.InflationMin,
 		},
 		{
-			name:      "partial release with existing released amount",
-			blockTime: now.Add(30 * time.Minute),
-			schedule: types.ReleaseSchedule{
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(200)),
-				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour),
-				Active:          true,
-			},
-			expectedCoin:  sdk.NewCoin(denom, math.NewInt(400)), // (1000-200) * (30/60)
-			expectedError: false,
+			name:        "peak at goalBonded/2",
+			bondedRatio: params.GoalBonded.QuoInt64(2),
+			// peak = rateChange * goalBonded / 4 = 0.13 * 0.67 / 4
+			want: params.InflationRateChange.Mul(params.GoalBonded).QuoInt64(4),
 		},
 		{
-			name:      "normal case but with small fraction",
-			blockTime: now.Add(3 * time.Second),
-			schedule: types.ReleaseSchedule{
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(3000000000000000000)), // 3 kii
-				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(2000000000000000000)),
-				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour * 24 * 365), // one year
-				Active:          true,
-			},
-			// 1 kii / 10512000 (365*24*60*20) ≃ 1*10^11
-			expectedCoin:  sdk.NewCoin(denom, math.NewInt(95129375951)),
-			expectedError: false,
-		},
-		{
-			name:      "last release (past end time)",
-			blockTime: now.Add(time.Hour * 2),
-			schedule: types.ReleaseSchedule{
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(800)),
-				LastReleaseTime: now,
-				EndTime:         now.Add(time.Hour),
-				Active:          true,
-			},
-			expectedCoin:  sdk.NewCoin(denom, math.NewInt(200)), // Cap at remaining 200
-			expectedError: false,
-		},
-		{
-			name:      "end time equal to last release releases full remaining amount",
-			blockTime: now.Add(time.Hour * 2),
-			schedule: types.ReleaseSchedule{
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.NewInt(800)),
-				LastReleaseTime: now,
-				EndTime:         now,
-				Active:          true,
-			},
-			expectedCoin:  sdk.NewCoin(denom, math.NewInt(200)), // full remaining released
-			expectedError: false,
-		},
-		{
-			name:      "sub-second duration does not divide by zero",
-			blockTime: now.Add(250 * time.Millisecond),
-			schedule: types.ReleaseSchedule{
-				TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000)),
-				ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
-				LastReleaseTime: now,
-				EndTime:         now.Add(500 * time.Millisecond),
-				Active:          true,
-			},
-			expectedCoin:  sdk.NewCoin(denom, math.NewInt(500)), // 250ms / 500ms = 50%
-			expectedError: false,
+			name:        "mid curve below peak",
+			bondedRatio: math.LegacyNewDecWithPrec(20, 2),
+			want: math.LegacyOneDec().
+				Sub(math.LegacyNewDecWithPrec(20, 2).Quo(params.GoalBonded)).
+				Mul(params.InflationRateChange).
+				Mul(math.LegacyNewDecWithPrec(20, 2)),
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result, err := types.CalculateReward(tt.blockTime, tt.schedule)
-
-			if tt.expectedError {
-				require.Error(t, err)
-			} else {
-				require.NoError(t, err)
-				// Denom should never differ
-				require.Equal(t, tt.expectedCoin.Denom, result.Denom)
-				// Check diff within 1%
-				diff := tt.expectedCoin.Amount.Sub(result.Amount)
-				tolerance := tt.expectedCoin.Amount.Quo(math.NewInt(100))
-				require.True(t, diff.LTE(tolerance))
-			}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got := types.CalculateInflation(tc.bondedRatio, params)
+			require.True(t, tc.want.Equal(got), "want %s got %s", tc.want, got)
 		})
 	}
 }
 
-func TestCalculateRewardNoForcedMinimum(t *testing.T) {
-	now := time.Now()
-	denom := "akii"
+func TestCalculateInflationClampsToMax(t *testing.T) {
+	params := types.DefaultParams()
+	params.InflationMax = math.LegacyNewDecWithPrec(1, 2) // 0.01, below curve peak
 
-	schedule := types.ReleaseSchedule{
-		TotalAmount:     sdk.NewCoin(denom, math.NewInt(1000000)),
-		ReleasedAmount:  sdk.NewCoin(denom, math.ZeroInt()),
-		LastReleaseTime: now,
-		EndTime:         now.Add(time.Hour * 24 * 365 * 10),
-		Active:          true,
+	bonded := params.GoalBonded.QuoInt64(2)
+	got := types.CalculateInflation(bonded, params)
+	require.True(t, params.InflationMax.Equal(got))
+}
+
+// spreadsheetInflationCases are golden vectors from
+// "Inflation Calculation (2).xlsx" (goalBonded=0.67, inflationRateChange=0.13).
+// wantInflation is the KiiChain column; wantAnnual is TruncateInt(inflation * 1.8e9).
+var spreadsheetInflationCases = []struct {
+	bonded        string
+	wantInflation string
+	wantAnnual    int64
+}{
+	{"0", "0.000000000000000000", 0},
+	{"0.02", "0.002522388059701493", 4_540_298},
+	{"0.04", "0.004889552238805970", 8_801_194},
+	{"0.06", "0.007101492537313433", 12_782_686},
+	{"0.08", "0.009158208955223881", 16_484_776},
+	{"0.1", "0.011059701492537313", 19_907_462},
+	{"0.12", "0.012805970149253731", 23_050_746},
+	{"0.14", "0.014397014925373134", 25_914_626},
+	{"0.16", "0.015832835820895522", 28_499_104},
+	{"0.18", "0.017113432835820896", 30_804_179},
+	{"0.2", "0.018238805970149254", 32_829_850},
+	{"0.22", "0.019208955223880597", 34_576_119},
+	{"0.24", "0.020023880597014925", 36_042_985},
+	{"0.26", "0.020683582089552239", 37_230_447},
+	{"0.28", "0.021188059701492537", 38_138_507},
+	{"0.3", "0.021537313432835821", 38_767_164},
+	{"0.32", "0.021731343283582090", 39_116_417},
+	{"0.34", "0.021770149253731343", 39_186_268}, // spreadsheet peak
+	{"0.36", "0.021653731343283582", 38_976_716},
+	{"0.38", "0.021382089552238806", 38_487_761},
+	{"0.4", "0.020955223880597015", 37_719_402},
+	{"0.42", "0.020373134328358209", 36_671_641},
+	{"0.44", "0.019635820895522388", 35_344_477},
+	{"0.46", "0.018743283582089552", 33_737_910},
+	{"0.48", "0.017695522388059702", 31_851_940}, // LegacyDec rounding (sheet shows ...701)
+	{"0.5", "0.016492537313432836", 29_686_567},
+	{"0.52", "0.015134328358208955", 27_241_791},
+	{"0.54", "0.013620895522388060", 24_517_611},
+	{"0.56", "0.011952238805970149", 21_514_029},
+	{"0.58", "0.010128358208955224", 18_231_044},
+	{"0.6", "0.008149253731343284", 14_668_656},
+	{"0.62", "0.006014925373134328", 10_826_865},
+	{"0.64", "0.003725373134328358", 6_705_671},
+	{"0.66", "0.001280597014925373", 2_305_074},
+	{"0.68", "0.000000000000000000", 0}, // above goalBonded
+	{"0.8", "0.000000000000000000", 0},
+	{"1.0", "0.000000000000000000", 0},
+}
+
+func TestCalculateInflationSpreadsheet(t *testing.T) {
+	params := types.DefaultParams()
+	require.True(t, params.GoalBonded.Equal(math.LegacyMustNewDecFromStr("0.67")))
+
+	for _, tc := range spreadsheetInflationCases {
+		t.Run("bonded_"+tc.bonded, func(t *testing.T) {
+			got := types.CalculateInflation(math.LegacyMustNewDecFromStr(tc.bonded), params)
+			want := math.LegacyMustNewDecFromStr(tc.wantInflation)
+			require.True(t, want.Equal(got), "bonded=%s want %s got %s", tc.bonded, want, got)
+		})
 	}
+}
 
-	result, err := types.CalculateReward(now.Add(time.Second), schedule)
-	require.NoError(t, err)
-	require.True(t, result.Amount.IsZero(), "expected zero release, got %s", result.Amount)
+func TestCalculateRewardSpreadsheetAnnual(t *testing.T) {
+	// Spreadsheet "Total inflation (KiiChain)" column uses supply_base = 1.8e9.
+	// Annual provision = inflation * supply_base; per-block is annual / blocks_per_year.
+	params := types.DefaultParams()
+	params.SupplyBase = math.NewInt(1_800_000_000)
+
+	for _, tc := range spreadsheetInflationCases {
+		t.Run("bonded_"+tc.bonded, func(t *testing.T) {
+			bonded := math.LegacyMustNewDecFromStr(tc.bonded)
+			coin, inf := types.CalculateReward(bonded, params)
+
+			wantInf := math.LegacyMustNewDecFromStr(tc.wantInflation)
+			require.True(t, wantInf.Equal(inf), "inflation want %s got %s", wantInf, inf)
+
+			wantAnnual := math.NewInt(tc.wantAnnual)
+			gotAnnual := inf.MulInt(params.SupplyBase).TruncateInt()
+			require.True(t, wantAnnual.Equal(gotAnnual),
+				"annual want %d got %s", tc.wantAnnual, gotAnnual)
+
+			wantBlock := wantAnnual.Quo(math.NewIntFromUint64(params.BlocksPerYear))
+			require.True(t, wantBlock.Equal(coin.Amount),
+				"block want %s got %s", wantBlock, coin.Amount)
+			require.Equal(t, params.TokenDenom, coin.Denom)
+		})
+	}
+}
+
+func TestCalculateReward(t *testing.T) {
+	params := types.DefaultParams()
+	params.SupplyBase = math.NewInt(1_000_000_000_000) // 1e12
+
+	bonded := params.GoalBonded.QuoInt64(2) // peak
+	inflation := types.CalculateInflation(bonded, params)
+
+	t.Run("zero supply base", func(t *testing.T) {
+		p := params
+		p.SupplyBase = math.ZeroInt()
+		coin, inf := types.CalculateReward(bonded, p)
+		require.True(t, coin.IsZero())
+		require.True(t, inf.IsZero())
+	})
+
+	t.Run("zero blocks per year", func(t *testing.T) {
+		p := params
+		p.BlocksPerYear = 0
+		coin, inf := types.CalculateReward(bonded, p)
+		require.True(t, coin.IsZero())
+		require.True(t, inf.IsZero())
+	})
+
+	t.Run("per block is annual provision over blocks_per_year", func(t *testing.T) {
+		coin, inf := types.CalculateReward(bonded, params)
+		require.True(t, inflation.Equal(inf))
+
+		annual := inflation.MulInt(params.SupplyBase)
+		expected := annual.QuoInt(math.NewIntFromUint64(params.BlocksPerYear)).TruncateInt()
+		require.True(t, expected.Equal(coin.Amount), "want %s got %s", expected, coin.Amount)
+		require.Equal(t, params.TokenDenom, coin.Denom)
+	})
 }

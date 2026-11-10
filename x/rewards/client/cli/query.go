@@ -24,7 +24,6 @@ func GetQueryCmd() *cobra.Command {
 
 	cmd.AddCommand(
 		GetCmdQueryParams(),
-		GetCmdQueryReleaseSchedule(),
 		GetCmdQueryRewardPool(),
 	)
 
@@ -51,33 +50,6 @@ func GetCmdQueryParams() *cobra.Command {
 			}
 
 			return clientCtx.PrintProto(&res.Params)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-	return cmd
-}
-
-// GetCmdQueryReleaseSchedule implements the release-schedule query command.
-func GetCmdQueryReleaseSchedule() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "release-schedule",
-		Short: "Query the current rewards release schedule",
-		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-
-			res, err := queryClient.ReleaseSchedule(context.Background(), &types.QueryReleaseScheduleRequest{})
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
 		},
 	}
 

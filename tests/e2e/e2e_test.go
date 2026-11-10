@@ -130,8 +130,6 @@ func (s *IntegrationTestSuite) TestRewards() {
 		s.T().Skip()
 	}
 	s.testRewardUpdate()
-	s.testRewardScheduleReplaceLive()
-	s.testRewardScheduleTransition()
 }
 
 // TestTokenFactory runs the token factory tests. It is skipped if the variable is set

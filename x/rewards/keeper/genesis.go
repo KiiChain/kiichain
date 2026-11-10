@@ -15,17 +15,6 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 	if err := k.Params.Set(ctx, data.Params); err != nil {
 		panic(err)
 	}
-
-	if err := k.ReleaseSchedule.Set(ctx, data.ReleaseSchedule); err != nil {
-		panic(err)
-	}
-
-	// Consistency check: warn if the module bank balance cannot cover the
-	// CommunityPool accounting. This is only logged because module InitGenesis
-	// ordering may fund the module account after this runs.
-	if err := k.ValidateModuleAccounting(ctx); err != nil {
-		k.Logger(ctx).Error("rewards module accounting mismatch at genesis", "error", err)
-	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
@@ -40,10 +29,5 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		panic(err)
 	}
 
-	releaseSchedule, err := k.ReleaseSchedule.Get(ctx)
-	if err != nil {
-		panic(err)
-	}
-
-	return types.NewGenesisState(params, rewardPool, releaseSchedule)
+	return types.NewGenesisState(params, rewardPool)
 }

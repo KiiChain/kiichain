@@ -32,14 +32,11 @@ func (k Querier) RewardPool(ctx context.Context, _ *types.QueryRewardPoolRequest
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryRewardPoolResponse{RewardPool: pool}, nil
-}
 
-// ReleaseSchedule queries the schedule information
-func (k Querier) ReleaseSchedule(ctx context.Context, _ *types.QueryReleaseScheduleRequest) (*types.QueryReleaseScheduleResponse, error) {
-	schedule, err := k.Keeper.ReleaseSchedule.Get(ctx)
+	params, err := k.Keeper.Params.Get(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryReleaseScheduleResponse{ReleaseSchedule: schedule}, nil
+	balance := k.bankKeeper.GetBalance(ctx, k.ModuleAddress(), params.TokenDenom)
+	return &types.QueryRewardPoolResponse{RewardPool: pool, Balance: balance}, nil
 }

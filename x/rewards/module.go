@@ -1,9 +1,8 @@
 /*
 The rewards module allows distribution of rewards to validators
 
-- Extend reward time and reward amount
 - Change params
-- Add funds to pool
+- Release prefunded module-account balances
 */
 package rewards
 
@@ -29,7 +28,9 @@ import (
 
 	"github.com/kiichain/kiichain/v7/x/rewards/client/cli"
 	"github.com/kiichain/kiichain/v7/x/rewards/keeper"
+	v2 "github.com/kiichain/kiichain/v7/x/rewards/migrations/v2"
 	"github.com/kiichain/kiichain/v7/x/rewards/types"
+	v1beta1 "github.com/kiichain/kiichain/v7/x/rewards/types/v1beta1"
 )
 
 var (
@@ -40,7 +41,7 @@ var (
 )
 
 // ConsensusVersion defines the current x/rewards module consensus version.
-const ConsensusVersion = 1
+const ConsensusVersion = 2
 
 // ----------------------------------------------------------------------------
 // AppModuleBasic
@@ -60,11 +61,13 @@ func (AppModuleBasic) Name() string {
 
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	types.RegisterLegacyAminoCodec(cdc)
+	v1beta1.RegisterLegacyAminoCodec(cdc)
 }
 
 // RegisterInterfaces registers the module's interface types
 func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
 	types.RegisterInterfaces(reg)
+	v1beta1.RegisterInterfaces(reg)
 }
 
 // DefaultGenesis returns the x/rewards module's default genesis state.
@@ -88,7 +91,8 @@ func (AppModuleBasic) RegisterRESTRoutes(_ client.Context, _ *mux.Router) {
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)) //nolint:errcheck
+	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))     //nolint:errcheck
+	v1beta1.RegisterQueryHandlerClient(context.Background(), mux, v1beta1.NewQueryClient(clientCtx)) //nolint:errcheck
 }
 
 // GetTxCmd returns the x/rewards module's root tx command.
@@ -143,6 +147,15 @@ func (AppModule) QuerierRoute() string { return types.QuerierRoute }
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQuerier(am.keeper))
+	v1beta1.RegisterMsgServer(cfg.MsgServer(), keeper.NewLegacyMsgServer(am.keeper))
+	v1beta1.RegisterQueryServer(cfg.QueryServer(), keeper.NewLegacyQuerier(am.keeper))
+
+	// Consensus v1 -> v2: drop ReleaseSchedule state and backfill inflation params.
+	if err := cfg.RegisterMigration(types.ModuleName, 1, func(ctx sdk.Context) error {
+		return v2.MigrateStore(ctx, am.keeper)
+	}); err != nil {
+		panic(fmt.Errorf("failed to migrate x/%s to v2: %w", types.ModuleName, err))
+	}
 }
 
 // InitGenesis performs the x/rewards module's genesis initialization. It

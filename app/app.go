@@ -83,6 +83,7 @@ import (
 	v8_0_1 "github.com/kiichain/kiichain/v7/app/upgrades/v8_0_1"
 	v8_0_2 "github.com/kiichain/kiichain/v7/app/upgrades/v8_0_2"
 	"github.com/kiichain/kiichain/v7/client/docs"
+	rewardstypes "github.com/kiichain/kiichain/v7/x/rewards/types"
 )
 
 var (
@@ -470,11 +471,13 @@ func (app *KiichainApp) ModuleAccountAddrs() map[string]bool {
 // BlockedAccountAddrs returns all the app's blocked module account
 // addresses plus the incident addresses, so they are rejected anywhere the
 // bank BlockedAddr set is checked (e.g. as a distribution withdraw address).
+// The rewards module account is not blocked: it is funded by a bank send.
 func (app *KiichainApp) BlockedAccountAddrs(modAccAddrs map[string]bool) map[string]bool {
 	blockedAddrs := make(map[string]bool, len(modAccAddrs)+len(blockedaddrs.AttackerAddrs))
 	for addr, blocked := range modAccAddrs {
 		blockedAddrs[addr] = blocked
 	}
+	delete(blockedAddrs, authtypes.NewModuleAddress(rewardstypes.ModuleName).String())
 	for addr := range blockedaddrs.AttackerAddrs {
 		blockedAddrs[addr] = true
 	}
