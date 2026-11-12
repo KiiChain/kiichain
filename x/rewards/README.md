@@ -2,7 +2,7 @@
 
 The rewards module pays staking rewards from a prefunded pool. Each block it
 moves tokens from its module account into the `fee_collector`, and
-`x/distribution` then pays them out to validators and delegators in the same
+`x/distribution` then allocates them to validators and delegators in the same
 way as transaction fees.
 
 The per-block amount comes from an inflation curve driven by the bonded ratio,
@@ -22,7 +22,10 @@ Emissions are off by default (`supply_base = 0`). Governance turns them on.
    `supply_base` back to `0`
 
 The rewards BeginBlocker runs **before** `x/distribution`, so a block's release
-is paid out in that same block.
+is allocated in that same block. Allocation only accrues rewards in
+`x/distribution`; it does not change account balances. Validators and delegators
+receive the tokens when they withdraw their rewards (for example with
+`kiichaind tx distribution withdraw-rewards`).
 
 ### Module account
 
@@ -191,11 +194,18 @@ Emits `update_params`.
 ### Funding
 
 There is no fund message. Send tokens to the module account with a normal bank
-send:
+send, in the current `token_denom`:
 
 ```bash
-kiichaind tx bank send <from> kii1245yut9zht8q4hz39sd0lzqtzkuw5us5rermc4 1000000000000000000000akii
+# Read the current emission denom
+kiichaind q rewards params
+
+kiichaind tx bank send <from> kii1245yut9zht8q4hz39sd0lzqtzkuw5us5rermc4 <amount><token_denom>
 ```
+
+Only the module account balance in `token_denom` is released. Tokens sent in any
+other denom stay in the module account and are never emitted. If governance
+changes `token_denom`, balances in the old denom stop funding emissions.
 
 ## Enabling emissions
 
@@ -229,7 +239,13 @@ Proposal file (`proposal.json`):
 kiichaind tx gov submit-proposal proposal.json --from <key>
 ```
 
-To turn emissions off, submit the same proposal with `"supply_base": "0"`.
+`MsgUpdateParams` replaces **all** params. The values above are the defaults;
+before submitting, query the live params with `kiichaind q rewards params` and
+copy them into the proposal, changing only the fields you mean to change.
+Otherwise any param that differs from the example is overwritten.
+
+To turn emissions off, query the live params, copy them into the proposal
+unchanged, and set only `"supply_base": "0"`.
 
 ## Queries
 

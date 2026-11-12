@@ -21,6 +21,7 @@
 ### Docs
 
 - Add validator instructions for the v7.4.0 off-chain mainnet upgrade ([#382](https://github.com/KiiChain/kiichain/pull/382))
+- Rewrite the `x/rewards` README for inflation-based emissions: emission formula and curve shape, params and validation, begin-block steps, module account address, funding in `token_denom`, enable/disable governance proposals, queries, events, the legacy `v1beta1` API, and the v1 → v2 migration
 
 ### Dependencies
 
