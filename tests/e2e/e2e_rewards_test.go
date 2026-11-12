@@ -289,13 +289,13 @@ func queryRewardPoolAtHeight(endpoint string, height int64) (rewardstypes.QueryR
 
 // httpGetAtHeight queries the REST gateway against the state committed at height.
 func httpGetAtHeight(url string, height int64) ([]byte, error) {
-	req, err := http.NewRequest(http.MethodGet, url, nil) //nolint:noctx // only used during tests
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set(grpctypes.GRPCBlockHeightHeader, strconv.FormatInt(height, 10))
 
-	resp, err := http.DefaultClient.Do(req) //nolint:gosec // only used during tests
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
 	}
