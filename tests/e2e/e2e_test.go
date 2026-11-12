@@ -129,7 +129,7 @@ func (s *IntegrationTestSuite) TestRewards() {
 		s.T().Log("skipping rewards module e2e tests...")
 		s.T().Skip()
 	}
-	s.testRewardUpdate()
+	s.testRewards()
 }
 
 // TestTokenFactory runs the token factory tests. It is skipped if the variable is set
